@@ -1,8 +1,27 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pbma_portal/pages/dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await SharedPreferences.getInstance();
+    
+    await Firebase.initializeApp( 
+     options: FirebaseOptions( 
+    apiKey: "AIzaSyB69b7_fZsopCHnNV_eHCSPtTxIaE053kg",
+  authDomain: "pbmaportal.firebaseapp.com",
+  projectId: "pbmaportal",
+  storageBucket: "pbmaportal.appspot.com",
+  messagingSenderId: "833287553983",
+  appId: "1:833287553983:web:898be1851193cada0e570a"
+     )
+    );
+
+runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

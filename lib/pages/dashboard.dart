@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pbma_portal/pages/SignInScreen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -162,7 +163,10 @@ class _DashboardState extends State<Dashboard> {
                                     Icon(Icons.login_outlined,
                                         color: _textColor4),
                                     SizedBox(width: 5),
-                                    Text(
+                                    TextButton(onPressed: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => SignInScreen()));
+                                    }, 
+                                    child: Text(
                                       "Sign In",
                                       style: TextStyle(
                                         fontFamily: "SB",
@@ -170,6 +174,7 @@ class _DashboardState extends State<Dashboard> {
                                         color: _textColor4,
                                       ),
                                     ),
+                                    )
                                   ],
                                 ),
                               ),
