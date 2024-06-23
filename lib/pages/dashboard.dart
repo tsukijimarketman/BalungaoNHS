@@ -18,6 +18,18 @@ class _DashboardState extends State<Dashboard> {
   Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
   // Default text color
 
+  final sectionKey1 = new GlobalKey();
+  final sectionKey2 = new GlobalKey();
+  final sectionKey3 = new GlobalKey();
+
+  void scrollToSection(GlobalKey key) {
+    Scrollable.ensureVisible(
+      key.currentContext!,
+      duration: Duration(seconds: 1),
+      curve: Curves.easeInOut
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +39,7 @@ class _DashboardState extends State<Dashboard> {
             Stack(
               children: [
                 Container(
+                  key: sectionKey1,
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
@@ -46,6 +59,7 @@ class _DashboardState extends State<Dashboard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
+                      color: Colors.transparent,
                       padding: EdgeInsets.only(
                           left: 80, right: 80, top: 10, bottom: 5),
                       height: 80,
@@ -83,7 +97,9 @@ class _DashboardState extends State<Dashboard> {
                               });
                             },
                             child: GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                scrollToSection(sectionKey1);
+                              },
                               child: Text(
                                 "Dashboard",
                                 style: TextStyle(
@@ -107,7 +123,9 @@ class _DashboardState extends State<Dashboard> {
                               });
                             },
                             child: GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                scrollToSection(sectionKey2);
+                              },
                               child: Text(
                                 "About us",
                                 style: TextStyle(
@@ -131,7 +149,9 @@ class _DashboardState extends State<Dashboard> {
                               });
                             },
                             child: GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                scrollToSection(sectionKey3);
+                              },
                               child: Text(
                                 "Contact us",
                                 style: TextStyle(
@@ -275,23 +295,37 @@ class _DashboardState extends State<Dashboard> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              width: 25, 
+                              width: 25,
                               height: 25,
                               decoration: BoxDecoration(
-                                color:
-                                    Colors.white,
+                                color: Colors.white,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
                                 child: Icon(Icons.person,
-                                    size: 20,
-                                    color: Colors.black),
+                                    size: 20, color: Colors.black),
                               ),
                             ),
-                            SizedBox(width: 10,),
-                            Text("LIGAYA C. TACBI,", style: TextStyle(fontFamily: "B", fontSize: 14, color: Colors.white),),
-                            SizedBox(width: 10,), 
-                            Text("Ph.D (School Principal)", style: TextStyle(fontFamily: "M", fontSize: 14, color: Colors.white),)
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "LIGAYA C. TACBI,",
+                              style: TextStyle(
+                                  fontFamily: "B",
+                                  fontSize: 14,
+                                  color: Colors.white),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Ph.D (School Principal)",
+                              style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 14,
+                                  color: Colors.white),
+                            )
                           ],
                         ),
                       ],
@@ -301,11 +335,16 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
             Container(
+              key: sectionKey2,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              color: Colors.red,
+              color: Colors.white30,
+              child: Column(
+                children: [],
+              ),
             ),
             Container(
+              key: sectionKey3,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               color: Colors.yellow,
