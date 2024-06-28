@@ -1,8 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:pbma_portal/pages/enrollment_form.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Enrollment Form',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: Dashboard(),
+    );
+  }
+}
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -23,17 +40,18 @@ class _DashboardState extends State<Dashboard> {
       videoPlayerController: videoPlayerController,
       aspectRatio: 16 / 9,
       autoPlay: true,
-    looping: true,
-    autoInitialize: true,
-    showControls: false);
+      looping: true,
+      autoInitialize: true,
+      showControls: false,
+    );
   }
 
   @override
-void dispose() {
-  videoPlayerController.dispose();
-  chewieController!.dispose();
-  super.dispose();
-}
+  void dispose() {
+    videoPlayerController.dispose();
+    chewieController!.dispose();
+    super.dispose();
+  }
 
   Color _textColor1 = Colors.white;
   Color _textColor2 = Colors.white;
@@ -41,7 +59,6 @@ void dispose() {
   Color _textColor4 = Colors.white;
   Color _textColor5 = Colors.white;
   Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
-  // Default text color
 
   @override
   Widget build(BuildContext context) {
@@ -194,10 +211,7 @@ void dispose() {
                           ],
                         ),
                       ),
-                      // Divider(color: Color.fromARGB(83, 158, 158, 158),),
-                      SizedBox(
-                        height: 80,
-                      ),
+                      SizedBox(height: 80),
                       Container(
                         width: 800,
                         padding: EdgeInsets.symmetric(horizontal: 80),
@@ -207,13 +221,12 @@ void dispose() {
                             Text(
                               "Prime Brilliant\nMinds Academy",
                               style: TextStyle(
-                                  fontFamily: "B",
-                                  fontSize: 50,
-                                  color: Colors.white),
+                                fontFamily: "B",
+                                fontSize: 50,
+                                color: Colors.white,
+                              ),
                             ),
-                            SizedBox(
-                              height: 30,
-                            ),
+                            SizedBox(height: 30),
                             Text(
                               "This will be the introductory line of the prime brilliant minds academy whether they want to write the mission or vision or the encouragement sentence.",
                               textAlign: TextAlign.justify,
@@ -223,9 +236,7 @@ void dispose() {
                                 color: Colors.white,
                               ),
                             ),
-                            SizedBox(
-                              height: 30,
-                            ),
+                            SizedBox(height: 30),
                             MouseRegion(
                               onEnter: (_) {
                                 setState(() {
@@ -240,21 +251,30 @@ void dispose() {
                                 });
                               },
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => EnrollmentForm()),
+                                  );
+                                },
                                 child: Container(
                                   height: 50,
                                   width: 200,
                                   decoration: BoxDecoration(
-                                      color: _textColor5,
-                                      borderRadius: BorderRadius.circular(10)),
+                                    color: _textColor5,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                   child: Center(
-                                      child: Text(
-                                    "Enroll Now",
-                                    style: TextStyle(
+                                    child: Text(
+                                      "Enroll Now",
+                                      style: TextStyle(
                                         color: _textColor6,
                                         fontFamily: "B",
-                                        fontSize: 20),
-                                  )),
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -277,3 +297,4 @@ void dispose() {
     );
   }
 }
+
