@@ -2,6 +2,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pbma_portal/pages/SignInScreen.dart';
+import 'package:pbma_portal/pages/enrollment_form.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Enrollment Form',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: Dashboard(),
+    );
+  }
+}
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -17,7 +35,6 @@ class _DashboardState extends State<Dashboard> {
   Color _textColor4 = Colors.white;
   Color _textColor5 = Colors.white;
   Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
-  // Default text color
 
   final sectionKey1 = new GlobalKey();
   final sectionKey2 = new GlobalKey();
@@ -249,7 +266,12 @@ class _DashboardState extends State<Dashboard> {
                               });
                             },
                             child: GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => EnrollmentForm()));
+                              },
                               child: Container(
                                 height: 50,
                                 width: 200,
@@ -324,6 +346,7 @@ class _DashboardState extends State<Dashboard> {
                             SizedBox(
                               width: 10,
                             ),
+                            SizedBox(height: 30),
                             Text(
                               "Ph.D (School Principal)",
                               style: TextStyle(
@@ -360,3 +383,4 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
+
