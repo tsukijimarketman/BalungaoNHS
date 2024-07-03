@@ -168,13 +168,15 @@ class _SignInScreenState extends State<SignInScreen> {
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     )),
-              )
+              ),
             ],
           ),
         ),
       ),
     );
   }
+
+
 
   void _checkEmailandPasswords() {
     String email = _emailController.text.trim();
