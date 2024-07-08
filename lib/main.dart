@@ -12,12 +12,12 @@ Future<void> main() async {
     
     await Firebase.initializeApp( 
      options: FirebaseOptions( 
-    apiKey: "AIzaSyB69b7_fZsopCHnNV_eHCSPtTxIaE053kg",
-  authDomain: "pbmaportal.firebaseapp.com",
-  projectId: "pbmaportal",
-  storageBucket: "pbmaportal.appspot.com",
-  messagingSenderId: "833287553983",
-  appId: "1:833287553983:web:898be1851193cada0e570a"
+    apiKey: "AIzaSyB8AL691SI-FMTEpUXazYRUYrTp5CG2KdE",
+  authDomain: "pbmasportal.firebaseapp.com",
+  projectId: "pbmasportal",
+  storageBucket: "pbmasportal.appspot.com",
+  messagingSenderId: "501913407280",
+  appId: "1:501913407280:web:4d522e0a868fdac20b82f5"
      )
     );
 
