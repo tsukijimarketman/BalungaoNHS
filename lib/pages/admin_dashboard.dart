@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart'; // Import the iconsax package
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:pbma_portal/pages/dashboard.dart'; // Import the iconsax package
 
 class AdminDashboard extends StatefulWidget {
   @override
@@ -498,7 +499,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
               leading: Icon(Iconsax.logout),
               title: Text('Log out'),
               onTap: () {
-                // Handle your logout here
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Dashboard()),
+                );
               },
             ),
           ],
