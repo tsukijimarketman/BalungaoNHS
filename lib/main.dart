@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'PBMA Portal',
-      home: Dashboard(),
+      home: Dashboard(), //dashboard
     );
   }
 }

@@ -29,23 +29,21 @@ class JuniorHighSchool extends StatelessWidget {
               Flexible(
                 child: Container(
                   width: 500,
-                  child: Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "JHS Name (do not abbreviate)",
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: "JHS Name (do not abbreviate)",
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
                   ),
@@ -61,23 +59,21 @@ class JuniorHighSchool extends StatelessWidget {
               Flexible(
                 child: Container(
                   width: 500,
-                  child: Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "School Address",
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: "School Address",
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
                   ),

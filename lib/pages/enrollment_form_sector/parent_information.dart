@@ -24,31 +24,29 @@ class ParentInformation extends StatelessWidget {
               Flexible(
                 child: Container(
                   width: 300,
-                  child: Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "Father's Name",
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: "Father's Name",
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter father\'s name';
-                        }
-                        return null;
-                      },
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter father\'s name';
+                      }
+                      return null;
+                    },
                   ),
                 ),
               ),
@@ -63,31 +61,29 @@ class ParentInformation extends StatelessWidget {
               Flexible(
                 child: Container(
                   width: 300,
-                  child: Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "Mother's Name",
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: "Mother's Name",
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter mother\'s name';
-                        }
-                        return null;
-                      },
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter mother\'s name';
+                      }
+                      return null;
+                    },
                   ),
                 ),
               ),
@@ -101,23 +97,21 @@ class ParentInformation extends StatelessWidget {
               Flexible(
                 child: Container(
                   width: 300,
-                  child: Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "Guardian's Name",
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: "Guardian's Name",
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
                   ),
@@ -127,23 +121,21 @@ class ParentInformation extends StatelessWidget {
               Flexible(
                 child: Container(
                   width: 300,
-                  child: Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Relationship to Guardian',
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Relationship to Guardian',
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
                   ),
