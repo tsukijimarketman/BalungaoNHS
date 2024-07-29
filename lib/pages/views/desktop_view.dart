@@ -407,7 +407,7 @@ class _DesktopViewState extends State<DesktopView>
                       child: GestureDetector(
                         onTap: () {},
                         child: Text(
-                          "Contact us",
+                          "Contact uss",
                           style: TextStyle(
                             fontFamily: "SB",
                             fontSize: 14,
