@@ -6,14 +6,16 @@ import 'package:pbma_portal/pages/admin_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+class SignInMobile extends StatefulWidget {
+  final VoidCallback closeSignInCardCallback;
+
+  const SignInMobile({super.key, required this.closeSignInCardCallback});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  State<SignInMobile> createState() => _SignInMobileState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInMobileState extends State<SignInMobile> {
   bool _obscureText = true;
   bool _rememberMe = false;
   final TextEditingController _emailController = TextEditingController();
@@ -34,34 +36,36 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 700,
-        height: 500,
-        child: Card(
-          elevation: 20,
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10)
+      ),
+      child: Card(
+        elevation: 10,
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(400, 10, 0, 0),
+                child: IconButton(onPressed: widget.closeSignInCardCallback, 
+                icon: Icon(Icons.close_outlined)),
+              ),
               Container(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 50),
-                  child: Image.asset(
-                    'assets/PBMA.png',
-                    width: 130,
-                    height: 130,
-                  ),
+                alignment: Alignment.center,
+                child: Image.asset(
+                  'assets/PBMA.png',
+                  width: screenWidth / 2,
+                  height: screenHeight / 2.5,
                 ),
               ),
-              SizedBox(
-                height: 50,
-              ),
               Container(
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 40.0),
+                  padding: const EdgeInsets.only(left: 52.0),
                   child: Text(
                     'Welcome Back!',
                     style: TextStyle(
@@ -74,8 +78,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 height: 10,
               ),
               Container(
-                height: 50,
-                width: 600,
+                height: screenHeight / 14,
+                width: screenWidth / 1.44,
                 child: CupertinoTextField(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.0),
@@ -92,8 +96,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 height: 10,
               ),
               Container(
-                height: 50,
-                width: 600,
+                height: screenHeight / 14,
+                width: screenWidth / 1.44,
                 child: CupertinoTextField(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.0),
@@ -136,7 +140,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   Text('Remember Me'),
                   SizedBox(
-                    width: 350,
+                    width: 100,
                   ),
                   TextButton(onPressed: () {}, child: Text('Forgot Password?'))
                 ],
@@ -145,8 +149,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 height: 10,
               ),
               Container(
-                height: 40,
-                width: 600,
+                height: screenHeight / 16,
+                width: screenWidth / 1.44,
                 child: ElevatedButton(
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
@@ -169,6 +173,9 @@ class _SignInScreenState extends State<SignInScreen> {
                           color: Colors.white),
                     )),
               ),
+              SizedBox(
+                height: 30,
+              )
             ],
           ),
         ),
