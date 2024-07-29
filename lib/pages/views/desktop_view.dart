@@ -430,12 +430,7 @@ class _DesktopViewState extends State<DesktopView>
                             ),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignInDesktop(closeSignInCardCallback: () {  },)));
-                        },
+                        onPressed: toggleSignInCard,
                         child: Text(
                           "Sign In",
                           style: TextStyle(
@@ -480,6 +475,27 @@ class _DesktopViewState extends State<DesktopView>
               ),
             ),
           ),
+          if (_showSignInCard)
+            GestureDetector(
+              onTap: () { closeSignInCard(); },
+              child: Container(
+                color: Colors.black54,
+                child: Center(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: GestureDetector(
+                      onTap: (){},
+                      child: Container(
+                        padding: EdgeInsets.all(20),
+                        width: screenWidth / 1.9,
+                        height: screenHeight / 1.1,
+                        child: SignInDesktop(closeSignInCardCallback: closeSignInCard,),
+                      ),
+                    ),
+                  ),
+                ),
+                ),
+              ),
         ],
       ),
     );
