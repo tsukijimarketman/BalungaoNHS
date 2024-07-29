@@ -1,6 +1,8 @@
 import 'dart:math';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/pages/SignInScreen.dart';
+import 'package:pbma_portal/pages/SignIn_View/SignInDesktopView.dart';
 import 'package:pbma_portal/pages/enrollment_form.dart';
 
 class DesktopView extends StatefulWidget {
@@ -55,6 +57,28 @@ class _DesktopViewState extends State<DesktopView>
   final sectionKey1 = GlobalKey();
   final sectionKey2 = GlobalKey();
   final sectionKey3 = GlobalKey();
+
+  bool _showSignInCard = false;
+
+  void scrollToSection(GlobalKey key) {
+    Scrollable.ensureVisible(
+      key.currentContext!,
+      duration: Duration(seconds: 1),
+      curve: Curves.easeInOut
+    );
+  }
+
+   void toggleSignInCard() {
+    setState(() {
+      _showSignInCard = !_showSignInCard;
+    });
+  }
+
+  void closeSignInCard() {
+    setState(() {
+      _showSignInCard = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -410,7 +434,7 @@ class _DesktopViewState extends State<DesktopView>
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => SignInScreen()));
+                                  builder: (context) => SignInDesktop(closeSignInCardCallback: () {  },)));
                         },
                         child: Text(
                           "Sign In",
