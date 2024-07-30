@@ -313,27 +313,39 @@ class _MobileViewState extends State<MobileView> {
             ],
           ),
         ),
-        if (_showSignInCard)
-            GestureDetector(
-              onTap: () { closeSignInCard(); },
-              child: Container(
-                color: Colors.black54,
-                child: Center(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        AnimatedSwitcher(
+            duration: Duration(milliseconds: 550),
+            child: _showSignInCard
+                ? Positioned.fill(
                     child: GestureDetector(
-                      onTap: (){},
-                      child: Container(
-                        padding: EdgeInsets.all(20),
-                        width: screenWidth / 1,
-                        height: screenHeight / 1.1,
-                        child: SignInMobile(closeSignInCardCallback: closeSignInCard,),
+                      onTap: closeSignInCard, // Close SignInCard when background is tapped
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child: Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector( 
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: SignInMobile(
+                                  key: ValueKey('signInCard'),
+                                  closeSignInCardCallback: closeSignInCard,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-                ),
-              ),
+                  )
+                : SizedBox.shrink(),
+          ),
         ],
       ),
     );
