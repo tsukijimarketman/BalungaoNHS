@@ -49,8 +49,8 @@ class _SignInMobileState extends State<SignInMobile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(400, 10, 0, 0),
+              Container(
+                alignment: Alignment.topRight,
                 child: IconButton(onPressed: widget.closeSignInCardCallback, 
                 icon: Icon(Icons.close_outlined)),
               ),
@@ -126,7 +126,7 @@ class _SignInMobileState extends State<SignInMobile> {
               Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 50.0),
+                    padding: const EdgeInsets.only(left: 25.0),
                     child: Checkbox(
                       activeColor: Colors.blueAccent,
                       checkColor: Colors.white,

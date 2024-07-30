@@ -38,19 +38,22 @@ class _SignInDesktopState extends State<SignInDesktop> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10)
-      ),
-      child: Card(
-        elevation: 10,
+    return 
+      Center(
+        child:Container(
+          width: screenWidth / 2,
+          height: screenHeight / 1.2,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Column(
           children: [
-            Padding(
-                padding: EdgeInsets.fromLTRB(700, 10, 0, 0),
-                child: IconButton(onPressed: widget.closeSignInCardCallback, 
-                icon: Icon(Icons.close_outlined)),
-              ),
+            Container(
+              alignment: Alignment.topRight,
+              child: IconButton(onPressed: widget.closeSignInCardCallback, 
+              icon: Icon(Icons.close_outlined)),
+            ),
             Container(
               alignment: Alignment.topLeft,
               child: Padding(
@@ -126,26 +129,29 @@ class _SignInDesktopState extends State<SignInDesktop> {
                 ),
               ),
             ),
-            Row(
+             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 70.0),
-                  child: Checkbox(
-                    activeColor: Colors.blueAccent,
-                    checkColor: Colors.white,
-                    value: _rememberMe,
-                    onChanged: (value) {
-                      setState(() {
-                        _rememberMe = value ?? false;
-                      });
-                    },
-                  ),
+                SizedBox(width: screenWidth / 20,),
+                Checkbox(
+                  activeColor: Colors.blueAccent,
+                  checkColor: Colors.white,
+                  value: _rememberMe,
+                  onChanged: (value) {
+                    setState(() {
+                      _rememberMe = value ?? false;
+                    });
+                  },
                 ),
-                Text('Remember Me'),
+                Container(
+              width: screenWidth / 10,
+            child:
+            Text('Remember Me'),),
                 SizedBox(
-                  width: 350,
-                ),
-                TextButton(onPressed: () {}, child: Text('Forgot Password?'))
+                  width: screenWidth / 5.5,
+                ),Container(
+              width: screenWidth / 10,
+            child:
+                TextButton(onPressed: () {}, child: Text('Forgot Password?'))),
               ],
             ),
             SizedBox(
@@ -178,7 +184,7 @@ class _SignInDesktopState extends State<SignInDesktop> {
             ),
           ],
         ),
-      ),
+        ),
     );
   }
 
