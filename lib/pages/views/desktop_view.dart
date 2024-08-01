@@ -25,10 +25,16 @@ class _DesktopViewState extends State<DesktopView>
   late Animation<double> _buttonController;
   late Animation<double> _textOpacityAnimation;
   late Animation<double> _quoteController;
+  late AnimationController _section2TextController;
   Color _appBarColor = Colors.transparent;
 
   @override
   void initState() {
+    _section2TextController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+      reverseDuration: Duration(milliseconds: 375)
+    );
     _textController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 3000),
@@ -73,6 +79,9 @@ class _DesktopViewState extends State<DesktopView>
     Future.delayed(Duration(milliseconds: 4000), () {
       _textController2.forward();
     });
+    Future.delayed(Duration(milliseconds: 1000),(){
+      _section2TextController.forward();
+    });
   }
 
   void _scrollListener() {
@@ -92,10 +101,6 @@ class _DesktopViewState extends State<DesktopView>
   Color _textColor3 = Colors.white;
   Color _textColor5 = Colors.white;
   Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
-
-  final sectionKey1 = GlobalKey();
-  final sectionKey2 = GlobalKey();
-  final sectionKey3 = GlobalKey();
 
   bool _showSignInCard = false;
 
@@ -130,7 +135,6 @@ class _DesktopViewState extends State<DesktopView>
                 Stack(
                   children: [
                     Container(
-                      key: sectionKey1,
                       height: screenHeight,
                       width: screenWidth,
                       decoration: BoxDecoration(
@@ -150,10 +154,8 @@ class _DesktopViewState extends State<DesktopView>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color.fromARGB(
-                                87, 1, 93, 168), // Semi-transparent blue
-                            Color.fromARGB(
-                                255, 1, 93, 168), // Fully opaque blue
+                            Color.fromARGB(87, 1, 93, 168),
+                            Color.fromARGB(255, 1, 93, 168),
                           ],
                           stops: [0.5, 1.0],
                         ),
@@ -356,16 +358,33 @@ class _DesktopViewState extends State<DesktopView>
                   ],
                 ),
                 Container(
-                  key: sectionKey2,
+                  padding: EdgeInsets.symmetric(horizontal: 80),
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   color: Color.fromARGB(255, 1, 93, 168),
                   child: Column(
-                    children: [],
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                      ),
+                      TextReveal(
+                        textOpacityAnimation: _textOpacityAnimation,
+                        textRevealAnimation: _textRevealAnimation,
+                        maxHeight: 70,
+                        textController: _section2TextController,
+                        child: Text(
+                          "Why Prime Brilliant Minds Academy?",
+                          style: TextStyle(
+                              fontSize: screenWidth / 35,
+                              fontFamily: "B",
+                              color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Container(
-                  key: sectionKey3,
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   color: Color.fromARGB(255, 1, 93, 168),
