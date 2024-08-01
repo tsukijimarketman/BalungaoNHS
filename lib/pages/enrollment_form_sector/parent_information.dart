@@ -1,9 +1,42 @@
 import 'package:flutter/material.dart';
 
-class ParentInformation extends StatelessWidget {
+class ParentInformation extends StatefulWidget {
+  final Function(Map<String, dynamic>) onDataChanged;
   final double spacing;
 
-  ParentInformation({required this.spacing});
+  ParentInformation({required this.spacing, required this.onDataChanged});
+
+  @override
+  State<ParentInformation> createState() => _ParentInformationState();
+}
+
+class _ParentInformationState extends State<ParentInformation> {
+  final TextEditingController _fathersName = TextEditingController();
+  final TextEditingController _mothersName = TextEditingController();
+  final TextEditingController _guardianName = TextEditingController();
+  final TextEditingController _relationshipGuardian = TextEditingController();
+   
+  @override
+  void initState() {
+    super.initState();
+    _fathersName.addListener(_notifyParent);
+    _mothersName.addListener(_notifyParent);
+    _guardianName.addListener(_notifyParent);
+    _relationshipGuardian.addListener(_notifyParent);
+  }
+
+  void _notifyParent() {
+    widget.onDataChanged(getFormData());
+  }
+
+   Map<String, dynamic> getFormData() {
+    return {
+      'fathersName': _fathersName.text,
+      'mothersName': _mothersName.text,
+      'guardianName': _guardianName.text,
+      'relationshipGuardian': _relationshipGuardian.text,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +58,7 @@ class ParentInformation extends StatelessWidget {
                 child: Container(
                   width: 300,
                   child: TextFormField(
+                    controller: _fathersName,
                     decoration: InputDecoration(
                       labelText: "Father's Name",
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -62,6 +96,7 @@ class ParentInformation extends StatelessWidget {
                 child: Container(
                   width: 300,
                   child: TextFormField(
+                    controller: _mothersName,
                     decoration: InputDecoration(
                       labelText: "Mother's Name",
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -98,6 +133,7 @@ class ParentInformation extends StatelessWidget {
                 child: Container(
                   width: 300,
                   child: TextFormField(
+                    controller: _guardianName,
                     decoration: InputDecoration(
                       labelText: "Guardian's Name",
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -117,11 +153,12 @@ class ParentInformation extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: spacing),
+              SizedBox(width: widget.spacing),
               Flexible(
                 child: Container(
                   width: 300,
                   child: TextFormField(
+                    controller: _relationshipGuardian,
                     decoration: InputDecoration(
                       labelText: 'Relationship to Guardian',
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),

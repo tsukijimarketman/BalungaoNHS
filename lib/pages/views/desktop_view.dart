@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pbma_portal/TermsAndConditions/TAC_Web_View.dart';
 import 'package:pbma_portal/pages/SignIn_View/SignInDesktopView.dart';
 import 'package:pbma_portal/pages/enrollment_form.dart';
 import 'package:pbma_portal/widgets/text_reveal.dart';
@@ -98,10 +99,23 @@ class _DesktopViewState extends State<DesktopView>
   final sectionKey3 = GlobalKey();
 
   bool _showSignInCard = false;
+  bool _TAC = false;
 
   void scrollToSection(GlobalKey key) {
     Scrollable.ensureVisible(key.currentContext!,
         duration: Duration(seconds: 1), curve: Curves.easeInOut);
+  }
+
+  void toggleTAC() {
+    setState(() {
+      _TAC = !_TAC;
+    });
+  }
+
+  void closeTAC() {
+    setState(() {
+      _TAC = false;
+    });
   }
 
   void toggleSignInCard() {
@@ -255,13 +269,7 @@ class _DesktopViewState extends State<DesktopView>
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           10)))),
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    EnrollmentForm()));
-                                      },
+                                      onPressed: toggleTAC,
                                       child: Center(
                                           child: Text(
                                         "Get Started",
@@ -525,13 +533,7 @@ class _DesktopViewState extends State<DesktopView>
                                     ),
                                   ),
                                 ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              EnrollmentForm()));
-                                },
+                                onPressed: toggleTAC,
                                 child: Text(
                                   "Enroll Now",
                                   style: TextStyle(
@@ -549,31 +551,74 @@ class _DesktopViewState extends State<DesktopView>
               },
             ),
           ),
-          if (_showSignInCard)
-            GestureDetector(
-              onTap: () {
-                closeSignInCard();
-              },
-              child: Container(
-                color: Colors.black54,
-                child: Center(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 550),
+            child: _showSignInCard
+                ? Positioned.fill(
                     child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: EdgeInsets.all(20),
-                        width: screenWidth / 1.9,
-                        height: screenHeight / 1.1,
-                        child: SignInDesktop(
-                          closeSignInCardCallback: closeSignInCard,
-                        ),
+                      onTap: closeSignInCard,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: SignInDesktop(
+                                  key: ValueKey('signInCard'),
+                                  closeSignInCardCallback: closeSignInCard,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
+                  )
+                : SizedBox.shrink(),
+          ),
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 550),
+            child: _TAC
+                ? Positioned.fill(
+                    child: GestureDetector(
+                      onTap: closeTAC,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: TACWebView(
+                                  key: ValueKey('closeTAC'),
+                                  closeTAC: closeTAC,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ),
         ],
       ),
     );
