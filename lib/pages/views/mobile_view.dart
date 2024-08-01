@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:pbma_portal/TermsAndConditions/TAC_Mobile_View.dart';
 import 'package:pbma_portal/pages/SignIn_View/SignInMobileView.dart';
 import 'package:pbma_portal/pages/enrollment_form.dart';
 
@@ -21,10 +22,23 @@ class _MobileViewState extends State<MobileView> {
   final sectionKey3 = GlobalKey();
 
   bool _showSignInCard = false;
+  bool _TAC = false;
 
   void scrollToSection(GlobalKey key) {
     Scrollable.ensureVisible(key.currentContext!,
         duration: Duration(seconds: 1), curve: Curves.easeInOut);
+  }
+
+  void toggleTAC() {
+    setState(() {
+      _TAC = !_TAC;
+    });
+  }
+
+  void closeTAC() {
+    setState(() {
+      _TAC = false;
+    });
   }
 
   void toggleSignInCard() {
@@ -208,9 +222,7 @@ class _MobileViewState extends State<MobileView> {
                                 });
                               },
                               child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EnrollmentForm()));
-                                },
+                                onTap: toggleTAC,
                                 child: Container(
                                   height: 50,
                                   width: 200,
@@ -318,7 +330,7 @@ class _MobileViewState extends State<MobileView> {
             child: _showSignInCard
                 ? Positioned.fill(
                     child: GestureDetector(
-                      onTap: closeSignInCard, // Close SignInCard when background is tapped
+                      onTap: closeSignInCard,
                       child: Stack(
                         children: [
                           BackdropFilter(
@@ -336,6 +348,40 @@ class _MobileViewState extends State<MobileView> {
                                 child: SignInMobile(
                                   key: ValueKey('signInCard'),
                                   closeSignInCardCallback: closeSignInCard,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ),
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 550),
+            child: _TAC
+                ? Positioned.fill(
+                    child: GestureDetector(
+                      onTap: closeTAC,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: TacMobileView(
+                                  key: ValueKey('closeTAC'),
+                                  closeTAC: closeTAC,
                                 ),
                               ),
                             ),

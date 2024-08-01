@@ -1,7 +1,9 @@
 // ignore_for_file: sized_box_for_whitespace, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pbma_portal/Accounts/student_dashboard.dart';
 import 'package:pbma_portal/pages/admin_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -153,10 +155,10 @@ class _SignInMobileState extends State<SignInMobile> {
                 width: screenWidth / 1.44,
                 child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
+                      backgroundColor: WidgetStateProperty.all<Color>(
                           Colors.deepPurpleAccent),
-                      elevation: MaterialStateProperty.all<double>(5),
-                      shape: MaterialStateProperty.all<OutlinedBorder>(
+                      elevation: WidgetStateProperty.all<double>(5),
+                      shape: WidgetStateProperty.all<OutlinedBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -222,26 +224,54 @@ class _SignInMobileState extends State<SignInMobile> {
       );
 
       if (userCredential.user != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AdminDashboard()),
-        );
-        _saveRememberMe(true, email);
+        final QuerySnapshot userDocs = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email_Address', isEqualTo: email)
+        .get();
+
+        if (userDocs.docs.isNotEmpty) {
+          final accountType = (userDocs.docs.first.data()
+              as Map<String, dynamic>?)?['accountType'];
+              if (accountType == "admin") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AdminDashboard()),
+            );
+          } else if (accountType == "student") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => StudentDashboard()),
+            );
+        } else {
+          _showDialog('Login Failed', 'Account type is not recognized.');
+        }
       } else {
         _showDialog('User Not Found', 'User document not found.');
       }
-    } catch (error) {
-      String errorMessage = 'An error occurred. Please try again later.';
-      if (error is FirebaseAuthException) {
-        if (error.code == 'user-not-found') {
-          errorMessage = 'No user found with this email.';
-        } else if (error.code == 'wrong-password') {
-          errorMessage = 'Invalid password.';
-        }
-      }
-      _showDialog('Login Failed', errorMessage);
+
+      _saveRememberMe(true, email);
     }
+  } catch (error) {
+    String errorMessage = 'An error occurred. Please try again later.';
+    
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'user-not-found':
+          errorMessage = 'No user found with this email.';
+          break;
+        case 'wrong-password':
+          errorMessage = 'Invalid password.';
+          break;
+        default:
+          errorMessage = 'Authentication error: ${error.message}';
+      }
+    } else {
+      errorMessage = 'Unexpected error: ${error.toString()}';
+    }
+    
+    _showDialog('Login Failed', errorMessage);
   }
+}
 
   void _showDialog(String title, String message) {
     showCupertinoDialog(
@@ -275,7 +305,7 @@ class _SignInMobileState extends State<SignInMobile> {
       List<String>? rememberedEmails = prefs.getStringList('rememberedEmails');
       if (rememberedEmails != null && rememberedEmails.isNotEmpty) {
         _emailController.text =
-            rememberedEmails.last; // Set the first remembered email
+            rememberedEmails.last;
       }
     }
   }
@@ -288,11 +318,10 @@ class _SignInMobileState extends State<SignInMobile> {
           prefs.getStringList('rememberedEmails') ?? [];
       if (!rememberedEmails.contains(email)) {
         rememberedEmails
-            .add(email!); // Add the email to the list of remembered emails
+            .add(email!);
         prefs.setStringList('rememberedEmails', rememberedEmails);
       }
     } else {
-      // Handle the case when Remember Me is unchecked
       prefs.remove('rememberedEmails');
     }
     prefs.setBool('rememberMe', _rememberMe);

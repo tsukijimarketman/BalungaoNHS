@@ -1,6 +1,37 @@
 import 'package:flutter/material.dart';
 
-class JuniorHighSchool extends StatelessWidget {
+class JuniorHighSchool extends StatefulWidget {
+  final Function(Map<String, dynamic>) onDataChanged;
+
+  JuniorHighSchool({required this.onDataChanged});
+
+  @override
+  State<JuniorHighSchool> createState() => _JuniorHighSchoolState();
+}
+
+class _JuniorHighSchoolState extends State<JuniorHighSchool> {
+  final TextEditingController _juniorHS = TextEditingController();
+  final TextEditingController _schoolAdd = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _juniorHS.addListener(_notifyParent);
+    _schoolAdd.addListener(_notifyParent);
+  }
+
+   void _notifyParent() {
+    widget.onDataChanged(getFormData());
+  }
+
+   Map<String, dynamic> getFormData() {
+    return {
+      'juniorHS': _juniorHS.text,
+      'schoolAdd': _schoolAdd.text,
+    };
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -30,6 +61,7 @@ class JuniorHighSchool extends StatelessWidget {
                 child: Container(
                   width: 500,
                   child: TextFormField(
+                    controller: _juniorHS,
                     decoration: InputDecoration(
                       labelText: "JHS Name (do not abbreviate)",
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -60,6 +92,7 @@ class JuniorHighSchool extends StatelessWidget {
                 child: Container(
                   width: 500,
                   child: TextFormField(
+                    controller: _schoolAdd,
                     decoration: InputDecoration(
                       labelText: "School Address",
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),

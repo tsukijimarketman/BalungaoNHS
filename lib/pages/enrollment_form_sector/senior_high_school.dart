@@ -1,6 +1,38 @@
 import 'package:flutter/material.dart';
 
-class SeniorHighSchool extends StatelessWidget {
+class SeniorHighSchool extends StatefulWidget {
+  final Function(Map<String, dynamic>) onDataChanged;
+  final double spacing;
+
+  SeniorHighSchool({required this.spacing, required this.onDataChanged});
+
+  @override
+  State<SeniorHighSchool> createState() => _SeniorHighSchoolState();
+}
+
+class _SeniorHighSchoolState extends State<SeniorHighSchool> {
+  final TextEditingController _gradeLevel = TextEditingController();
+  String _selectedTrack = '';
+  String _selectedStrand = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _gradeLevel.addListener(_notifyParent);
+  }
+
+  void _notifyParent() {
+    widget.onDataChanged(getFormData());
+  }
+
+  Map<String, dynamic> getFormData() {
+    return {
+      'grade_level': _gradeLevel.text,
+      'seniorHigh_Track': _selectedTrack,
+      'seniorHigh_Strand': _selectedStrand,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -16,7 +48,7 @@ class SeniorHighSchool extends StatelessWidget {
               ),
               SizedBox(width: 10),
               Text(
-                'Track or Strand of your choice below',
+                'Grade Level, Track or Strand of your choice below',
                 style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
               ),
             ],
@@ -27,10 +59,11 @@ class SeniorHighSchool extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 500,
-                child: DropdownButtonFormField<String>(
+                width: 300,
+                child: TextFormField(
+                  controller: _gradeLevel,
                   decoration: InputDecoration(
-                    labelText: 'Program (Track or Strand)',
+                    labelText: 'Grade Level',
                     labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -45,26 +78,126 @@ class SeniorHighSchool extends StatelessWidget {
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
                     ),
                   ),
-                  items: [
-                    'Accountancy, Business, and Management (ABM)',
-                    'Science, Technology, Engineering and Mathematics (STEM)',
-                    'Humanities and Social Sciences (HUMSS)',
-                    'TVL Home Economics (HE)',
-                    'TVL Information and Communication Technology (ICT)',
-                    'TVL Industrial Arts (IA)'
-                  ].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (_) {},
+                ),
+              ),
+            ]
+          )
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Flexible(
+                child: Container(
+                  width: 500,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedTrack.isEmpty ? null : _selectedTrack,
+                    decoration: InputDecoration(
+                      labelText: 'Select a Track you choose',
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                    ),
+                    items: [
+                      'Academic Track',
+                      'Technical-Vocational-Livelihood (TVL)'
+                    ].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTrack = value ?? '';
+                        _selectedStrand = '';
+                        _notifyParent();
+                      });
+                    },
+                  ),
                 ),
               ),
             ],
           ),
         ),
+        SizedBox(width: widget.spacing),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Container(
+                        width: 500,
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedStrand.isEmpty ? null : _selectedStrand,
+                          decoration: InputDecoration(
+                            labelText: 'Select a Strand you choose',
+                            labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                              borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                              borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                              borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                            ),
+                          ),
+                          items: _getStrandItems(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedStrand = value ?? '';
+                        _notifyParent();
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
       ],
     );
+  }
+  
+  List<DropdownMenuItem<String>> _getStrandItems() {
+    if (_selectedTrack == 'Technical-Vocational-Livelihood (TVL)') {
+      return [
+        'Home Economics (HE)',
+        'Information and Communication Technology (ICT)',
+        'Industrial Arts (IA)'
+      ].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList();
+    } else if (_selectedTrack == 'Academic Track') {
+      return [
+        'Accountancy, Business, and Management (ABM)',
+        'Science, Technology, Engineering and Mathematics (STEM)',
+        'Humanities and Social Sciences (HUMSS)',
+      ].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList();
+    } else {
+      return [];
+    }
   }
 }

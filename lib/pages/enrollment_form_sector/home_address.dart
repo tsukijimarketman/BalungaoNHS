@@ -1,9 +1,51 @@
 import 'package:flutter/material.dart';
 
-class HomeAddress extends StatelessWidget {
-  final double spacing;
+class HomeAddress extends StatefulWidget {
 
-  HomeAddress({required this.spacing});
+  
+  final double spacing;
+  final Function(Map<String, dynamic>) onDataChanged;
+
+
+  HomeAddress({required this.spacing, required this.onDataChanged});
+
+  @override
+  State<HomeAddress> createState() => _HomeAddressState();
+}
+
+class _HomeAddressState extends State<HomeAddress> {
+  final TextEditingController _houseNumber = TextEditingController();
+  final TextEditingController _streetName = TextEditingController();
+  final TextEditingController _subdivisionBarangay = TextEditingController();
+  final TextEditingController _cityMunicipality = TextEditingController();
+  final TextEditingController _province = TextEditingController();
+  final TextEditingController _country = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _houseNumber.addListener(_notifyParent);
+    _streetName.addListener(_notifyParent);
+    _subdivisionBarangay.addListener(_notifyParent);
+    _cityMunicipality.addListener(_notifyParent);
+    _province.addListener(_notifyParent);
+    _country.addListener(_notifyParent);
+  }
+
+  void _notifyParent() {
+    widget.onDataChanged(getFormData());
+  }
+
+  Map<String, dynamic> getFormData() {
+    return {
+      'house_number': _houseNumber.text,
+      'street_name': _streetName.text,
+      'subdivision_barangay': _subdivisionBarangay.text,
+      'city_municipality': _cityMunicipality.text,
+      'province': _province.text,
+      'country': _country.text,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +66,7 @@ class HomeAddress extends StatelessWidget {
               Container(
                 width: 300,
                 child: TextFormField(
+                  controller: _houseNumber,
                   decoration: InputDecoration(
                     labelText: 'House / No',
                     labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -48,10 +91,11 @@ class HomeAddress extends StatelessWidget {
                   },
                 ),
               ),
-              SizedBox(width: spacing),
+              SizedBox(width: widget.spacing),
               Container(
                 width: 300,
                 child: TextFormField(
+                  controller: _streetName,
                   decoration: InputDecoration(
                     labelText: 'Street Name',
                     labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -76,10 +120,11 @@ class HomeAddress extends StatelessWidget {
                   },
                 ),
               ),
-              SizedBox(width: spacing),
+              SizedBox(width: widget.spacing),
               Container(
                 width: 300,
                 child: TextFormField(
+                  controller: _subdivisionBarangay,
                   decoration: InputDecoration(
                     labelText: 'Subdivision / Barangay',
                     labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -115,6 +160,7 @@ class HomeAddress extends StatelessWidget {
                 child: Container(
                   width: 300,
                   child: TextFormField(
+                    controller: _cityMunicipality,
                     decoration: InputDecoration(
                       labelText: 'City / Municipality',
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -140,11 +186,12 @@ class HomeAddress extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: spacing),
+              SizedBox(width: widget.spacing),
               Flexible(
                 child: Container(
                   width: 300,
                   child: TextFormField(
+                    controller: _province,
                     decoration: InputDecoration(
                       labelText: 'Province',
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -170,11 +217,12 @@ class HomeAddress extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: spacing),
+              SizedBox(width: widget.spacing),
               Flexible(
                 child: Container(
                   width: 300,
                   child: TextFormField(
+                    controller: _country,
                     decoration: InputDecoration(
                       labelText: 'Country',
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),

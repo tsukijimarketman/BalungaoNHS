@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:pbma_portal/pages/dashboard.dart'; // Import the iconsax package
+import 'package:pbma_portal/pages/dashboard.dart';
+import 'package:pbma_portal/student_utils/Student_Utils.dart';
 
 class AdminDashboard extends StatefulWidget {
   @override
@@ -19,8 +21,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 'Students':
         return _buildStudentsContent();
       case 'Strand Professor':
-        return _buildStrandInstructorContent(); // Update here to use the new widget
-      case 'Manage Newcomers':
+        return _buildStrandInstructorContent();
+      case 'Manage Newcomers':  
         return _buildNewcomersContent();
       default:
         return Center(child: Text('Body Content Here'));
@@ -56,141 +58,178 @@ class _AdminDashboardState extends State<AdminDashboard> {
               color: Colors.white,
               border: Border.all(color: Colors.blue, width: 2.0),
             ),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox(value: false, onChanged: (bool? value) {}),
-                        Expanded(child: Text('Student ID')),
-                        Expanded(child: Text('First Name')),
-                        Expanded(child: Text('Last Name')),
-                        Expanded(child: Text('Middle Name')),
-                        Expanded(child: Text('Track')),
-                        Expanded(child: Text('Strand')),
-                        Expanded(child: Text('Grade Level')),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      children: [
-                        Checkbox(value: false, onChanged: (bool? value) {}),
-                        Expanded(child: Text('PBMA-0001-2024')),
-                        Expanded(child: Text('Juan')),
-                        Expanded(child: Text('Delacruz')),
-                        Expanded(child: Text('Manaloto')),
-                        Expanded(child: Text('TVL')),
-                        Expanded(child: Text('ICT')),
-                        Expanded(child: Text('12')),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .where('enrollment_status', isEqualTo: 'approved')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No students.'));
+                }
+
+                final students = snapshot.data!.docs;
+
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox(value: false, onChanged: (bool? value) {}),
+                          Expanded(child: Text('Student ID')),
+                          Expanded(child: Text('First Name')),
+                          Expanded(child: Text('Last Name')),
+                          Expanded(child: Text('Middle Name')),
+                          Expanded(child: Text('Track')),
+                          Expanded(child: Text('Strand')),
+                          Expanded(child: Text('Grade Level')),
+                        ],
+                      ),
+                      Divider(),
+                      ...students.map((student) {
+                        final data = student.data() as Map<String, dynamic>;
+                        return Row(
+                          children: [
+                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            Expanded(child: Text(data['student_id'] ?? '')),
+                            Expanded(child: Text(data['first_name'] ?? '')),
+                            Expanded(child: Text(data['last_name'] ?? '')),
+                            Expanded(child: Text(data['middle_name'] ?? '')),
+                            Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                            Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                            Expanded(child: Text(data['grade_level'] ?? '')),
+                          ],
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildStudentsContent() {
-    return Container(
-      color: Colors.grey[300],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Students',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+  return Container(
+    color: Colors.grey[300],
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Students',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () {
-                    // Handle add student button press
-                  },
-                  icon: Icon(Iconsax.add_copy, size: 18, color: Colors.black),
-                  label: Text('Add Student', style: TextStyle(color: Colors.black)),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () {
+                 
+                },
+                icon: Icon(Iconsax.add_copy, size: 18, color: Colors.black),
+                label: Text('Add Student', style: TextStyle(color: Colors.black)),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: BorderSide(color: Colors.black),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                // SizedBox(width: 150.0), // Add spacing between button and search bar
-                Container(
-                  width: 300,
-                  child: Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search Student',
-                        prefixIcon: Icon(Iconsax.search_normal_1_copy),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
+              ),
+              Container(
+                width: 300,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search Student',
+                    prefixIcon: Icon(Iconsax.search_normal_1_copy),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.blue, width: 2.0),
+            ),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .where('enrollment_status', isEqualTo: 'approved')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No approved students.'));
+                }
+
+                final students = snapshot.data!.docs;
+
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox(value: false, onChanged: (bool? value) {}),
+                          Expanded(child: Text('Student ID')),
+                          Expanded(child: Text('First Name')),
+                          Expanded(child: Text('Last Name')),
+                          Expanded(child: Text('Middle Name')),
+                          Expanded(child: Text('Track')),
+                          Expanded(child: Text('Strand')),
+                          Expanded(child: Text('Grade Level')),
+                        ],
                       ),
-                    ),
+                      Divider(),
+                      ...students.map((student) {
+                        final data = student.data() as Map<String, dynamic>;
+                        return Row(
+                          children: [
+                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            Expanded(child: Text(data['student_id'] ?? '')),
+                            Expanded(child: Text(data['first_name'] ?? '')),
+                            Expanded(child: Text(data['last_name'] ?? '')),
+                            Expanded(child: Text(data['middle_name'] ?? '')),
+                            Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                            Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                            Expanded(child: Text(data['grade_level'] ?? '')),
+                          ],
+                        );
+                      }).toList(),
+                    ],
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.blue, width: 2.0),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox(value: false, onChanged: (bool? value) {}),
-                        Expanded(child: Text('Student ID')),
-                        Expanded(child: Text('First Name')),
-                        Expanded(child: Text('Last Name')),
-                        Expanded(child: Text('Middle Name')),
-                        Expanded(child: Text('Track')),
-                        Expanded(child: Text('Strand')),
-                        Expanded(child: Text('Grade Level')),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      children: [
-                        Checkbox(value: false, onChanged: (bool? value) {}),
-                        Expanded(child: Text('PBMA-0001-2024')),
-                        Expanded(child: Text('Juan')),
-                        Expanded(child: Text('Delacruz')),
-                        Expanded(child: Text('Manaloto')),
-                        Expanded(child: Text('TVL')),
-                        Expanded(child: Text('ICT')),
-                        Expanded(child: Text('12')),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildStrandInstructorContent() {
     return Container(
@@ -277,108 +316,127 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildNewcomersContent() {
-    return Container(
-      color: Colors.grey[300],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Manage Newcomers',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+Widget _buildNewcomersContent() {
+  return Container(
+    color: Colors.grey[300],
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Manage Newcomers',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 300,
-                  child: Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search Student',
-                        prefixIcon: Icon(Iconsax.search_normal_1_copy),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 300,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search Student',
+                    prefixIcon: Icon(Iconsax.search_normal_1_copy),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.blue, width: 2.0),
+            ),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .where('enrollment_status', isEqualTo: 'pending')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No pending students.'));
+                }
+
+                final students = snapshot.data!.docs;
+
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox(value: false, onChanged: (bool? value) {}),
+                          Expanded(child: Text('Student ID')),
+                          Expanded(child: Text('First Name')),
+                          Expanded(child: Text('Last Name')),
+                          Expanded(child: Text('Middle Name')),
+                          Expanded(child: Text('Track')),
+                          Expanded(child: Text('Strand')),
+                          Expanded(child: Text('Grade Level')),
+                          Expanded(child: Text('')),
+                        ],
+                      ),
+                      Divider(),
+                      ...students.map((student) {
+                        final data = student.data() as Map<String, dynamic>;
+                        return Row(
+                          children: [
+                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            Expanded(child: Text(data['student_id'] ?? '')),
+                            Expanded(child: Text(data['first_name'] ?? '')),
+                            Expanded(child: Text(data['last_name'] ?? '')),
+                            Expanded(child: Text(data['middle_name'] ?? '')),
+                            Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                            Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                            Expanded(child: Text(data['grade_level'] ?? '')),
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Iconsax.tick_circle_copy, color: Colors.green),
+                                    onPressed: () {
+                                      approveStudent(student.id);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Iconsax.close_circle_copy, color: Colors.red),
+                                    onPressed: () {
+                                     
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.blue, width: 2.0),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox(value: false, onChanged: (bool? value) {}),
-                        Expanded(child: Text('Student ID')),
-                        Expanded(child: Text('First Name')),
-                        Expanded(child: Text('Last Name')),
-                        Expanded(child: Text('Middle Name')),
-                        Expanded(child: Text('Track')),
-                        Expanded(child: Text('Strand')),
-                        Expanded(child: Text('Grade Level')),
-                        Expanded(child: Text('')),
-                      ],
-                    ),
-                    Divider(),
-                    Row(
-                      children: [
-                        Checkbox(value: false, onChanged: (bool? value) {}),
-                        Expanded(child: Text('PBMA-0001-2024')),
-                        Expanded(child: Text('Juan')),
-                        Expanded(child: Text('Delacruz')),
-                        Expanded(child: Text('Manaloto')),
-                        Expanded(child: Text('TVL')),
-                        Expanded(child: Text('ICT')),
-                        Expanded(child: Text('12')),
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                icon: Icon(Iconsax.tick_circle_copy, color: Colors.green),
-                                onPressed: () {
-                                  // Handle approve action
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(Iconsax.close_circle_copy, color: Colors.red),
-                                onPressed: () {
-                                  // Handle reject action
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -511,10 +569,4 @@ class _AdminDashboardState extends State<AdminDashboard> {
       body: _buildBodyContent(),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: AdminDashboard(),
-  ));
 }
