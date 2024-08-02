@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:pbma_portal/pages/Auth_View/Adding_InstructorAcc_Desktview.dart';
 import 'package:pbma_portal/pages/dashboard.dart';
+import 'package:pbma_portal/pages/student_details.dart';
 import 'package:pbma_portal/student_utils/Student_Utils.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -342,19 +343,30 @@ bool _isItemDisabled(String item) {
                         Divider(),
                         ...students.map((student) {
                           final data = student.data() as Map<String, dynamic>;
-                          return Row(
-                            children: [
-                              Checkbox(value: false, onChanged: (bool? value) {}),
-                              Expanded(child: Text(data['student_id'] ?? '')),
-                              Expanded(child: Text(data['first_name'] ?? '')),
-                              Expanded(child: Text(data['last_name'] ?? '')),
-                              Expanded(child: Text(data['middle_name'] ?? '')),
-                              Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
-                              Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
-                              Expanded(child: Text(data['grade_level'] ?? '')),
-                            ],
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudentDetails(studentData: data),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                Checkbox(value: false, onChanged: (bool? value) {}),
+                                Expanded(child: Text(data['student_id'] ?? '')),
+                                Expanded(child: Text(data['first_name'] ?? '')),
+                                Expanded(child: Text(data['last_name'] ?? '')),
+                                Expanded(child: Text(data['middle_name'] ?? '')),
+                                Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                                Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                                Expanded(child: Text(data['grade_level'] ?? '')),
+                              ],
+                            ),
                           );
                         }).toList(),
+
                       ],
                     ),
                   );
