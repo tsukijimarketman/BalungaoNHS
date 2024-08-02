@@ -115,8 +115,8 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                   onPressed: _submitForm,
                   child: Text('Submit'),
                   style: ButtonStyle(
-                    foregroundColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
-                      if (states.contains(WidgetState.pressed)) {
+                    foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.pressed)) {
                         return Colors.green;
                       }
                       return Colors.blue;

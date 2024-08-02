@@ -17,6 +17,9 @@ class DesktopView extends StatefulWidget {
 
 class _DesktopViewState extends State<DesktopView>
     with TickerProviderStateMixin {
+  late AnimationController imageController;
+  late Animation<double> imageReveal;
+  late Animation<double> imageOpacity;
   late ScrollController _scrollController;
   late AnimationController _textController;
   late AnimationController _textController2;
@@ -30,11 +33,20 @@ class _DesktopViewState extends State<DesktopView>
 
   @override
   void initState() {
+    imageController = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 1500),
+        reverseDuration: Duration(milliseconds: 500));
+    imageReveal = Tween<double>(begin: 0, end: 170).animate(CurvedAnimation(
+        parent: imageController,
+        curve: Interval(0.0, 0.5, curve: Curves.easeOut)));
+    imageOpacity = Tween<double>(begin: 0.0, end: 1).animate(CurvedAnimation(
+        parent: imageController,
+        curve: Interval(0.0, 0.5, curve: Curves.easeOut)));
     _section2TextController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1000),
-      reverseDuration: Duration(milliseconds: 375)
-    );
+        vsync: this,
+        duration: Duration(milliseconds: 1000),
+        reverseDuration: Duration(milliseconds: 375));
     _textController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 3000),
@@ -79,8 +91,11 @@ class _DesktopViewState extends State<DesktopView>
     Future.delayed(Duration(milliseconds: 4000), () {
       _textController2.forward();
     });
-    Future.delayed(Duration(milliseconds: 1000),(){
+    Future.delayed(Duration(milliseconds: 1000), () {
       _section2TextController.forward();
+    });
+    Future.delayed(Duration(milliseconds: 1000), () {
+      imageController.forward();
     });
   }
 
@@ -358,15 +373,14 @@ class _DesktopViewState extends State<DesktopView>
                   ],
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 80),
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
                   color: Color.fromARGB(255, 1, 93, 168),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: 50,
+                        height: 70,
                       ),
                       TextReveal(
                         textOpacityAnimation: _textOpacityAnimation,
@@ -381,13 +395,172 @@ class _DesktopViewState extends State<DesktopView>
                               color: Colors.white),
                         ),
                       ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "PBMA offers Senior High School program as well as different TESDA Courses and is now an accredited assesment center. A wide array of courses to choose from depending on your preferred skill and craft.",
+                        style: TextStyle(
+                            fontFamily: "R",
+                            fontSize: screenWidth / 70,
+                            color: Colors.white),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      AnimatedBuilder(
+                        animation: imageController,
+                        builder: (BuildContext context, Widget? child) {
+                          return FadeTransition(
+                          opacity: imageOpacity,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Stack(
+                                    children: [
+                                      Container(
+                                          height: screenWidth / 4,
+                                          width: screenWidth / 2.4,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(20)),
+                                              image: DecorationImage(
+                                                  image:
+                                                      AssetImage("assets/shs.jpg"),
+                                                  fit: BoxFit.cover))),
+                                      Container(
+                                          height: screenWidth / 4,
+                                          width: screenWidth / 2.4,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(20)),
+                                              color:
+                                                  Color.fromARGB(255, 255, 231, 11)
+                                                      .withOpacity(0.4))),
+                                      Positioned(
+                                        bottom: 65,
+                                        left: 20,
+                                        child: Container(
+                                          child: Text(
+                                            "Senior High School Program",
+                                            style: TextStyle(
+                                                fontSize: 30,
+                                                fontFamily: "BL",
+                                                color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 36,
+                                        left: 20,
+                                        child: Container(
+                                          child: Icon(
+                                            Icons.school,
+                                            color: Colors.black,
+                                            size: 30,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                          bottom: 40,
+                                          left: 60,
+                                          child: Text(
+                                            "PBMA offers various track and strands",
+                                            style: TextStyle(
+                                                fontFamily: "M", fontSize: 15),
+                                          )),
+                                      Positioned(
+                                        right: 20,
+                                        bottom: 20,
+                                        child: Container(
+                                          child: Text(
+                                            "See Program",
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontFamily: "B",
+                                                color: Colors.black),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Stack(
+                                    children: [
+                                      Container(
+                                          height: screenWidth / 4,
+                                          width: screenWidth / 2.4,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(20)),
+                                              image: DecorationImage(
+                                                  image: AssetImage(
+                                                      "assets/tesda.jpg"),
+                                                  fit: BoxFit.cover))),
+                                      Container(
+                                          height: screenWidth / 4,
+                                          width: screenWidth / 2.4,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(20)),
+                                              color:
+                                                  Color.fromARGB(255, 255, 231, 11)
+                                                      .withOpacity(0.4))),
+                                      Positioned(
+                                        bottom: 65,
+                                        left: 20,
+                                        child: Container(
+                                          child: Text(
+                                            "TESDA Program",
+                                            style: TextStyle(
+                                                fontSize: 30,
+                                                fontFamily: "BL",
+                                                color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 36,
+                                        left: 20,
+                                        child: Container(
+                                          child: Icon(
+                                            Icons.school,
+                                            color: Colors.black,
+                                            size: 30,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                          bottom: 40,
+                                          left: 60,
+                                          child: Text(
+                                            "PBMA offers different courses and NC's",
+                                            style: TextStyle(
+                                                fontFamily: "M", fontSize: 15),
+                                          )),
+                                      Positioned(
+                                        right: 20,
+                                        bottom: 20,
+                                        child: Container(
+                                          child: Text(
+                                            "See Program",
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontFamily: "B",
+                                                color: Colors.black),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ]),
+                          ),
+                        );
+                        },
+                      ),
                     ],
                   ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  color: Color.fromARGB(255, 1, 93, 168),
                 ),
               ],
             ),

@@ -138,10 +138,10 @@ class _TacMobileViewState extends State<TacMobileView> {
                   height: screenHeight / 20,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(
+                        backgroundColor: MaterialStateProperty.all<Color>(
                             Colors.deepPurpleAccent),
-                        elevation: WidgetStateProperty.all<double>(5),
-                        shape: WidgetStateProperty.all<OutlinedBorder>(
+                        elevation: MaterialStateProperty.all<double>(5),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
