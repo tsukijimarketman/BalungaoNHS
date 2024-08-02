@@ -1,4 +1,9 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/home_address.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/junior_high_school.dart';
@@ -14,6 +19,9 @@ class EnrollmentForm extends StatefulWidget {
 class _EnrollmentFormState extends State<EnrollmentForm> {
   // Define the _formKey
   final _formKey = GlobalKey<FormState>();
+  File? _imageFile; 
+  Uint8List? _webImageData;
+  String? _imageUrl;
 
   Map<String, dynamic> _studentData = {};
   Map<String, dynamic> _homeAddressData = {};
@@ -24,6 +32,24 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
   void _updateStudentData(Map<String, dynamic> data) {
     setState(() {
       _studentData = {..._studentData, ...data};
+    });
+  }
+  
+  void _updateImageFile(File? imageFile) {
+    setState(() {
+      _imageFile = imageFile;
+    });
+  }
+
+  void _updateWebImageData(Uint8List? webImageData) {
+    setState(() {
+      _webImageData = webImageData;
+    });
+  }
+
+  void _updateImageUrl(String? imageUrl) {
+    setState(() {
+      _imageUrl = imageUrl;
     });
   }
 
@@ -51,16 +77,39 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
     });
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      String? imageUrl;
+  
+      if (_imageFile != null || _webImageData != null) {
+        final storageRef = FirebaseStorage.instance.ref();
+        final imageRef = storageRef.child('student_pictures/${DateTime.now().toIso8601String()}.png');
+
+        try {
+          if (kIsWeb && _webImageData != null) {
+            await imageRef.putData(_webImageData!);
+          } else if (_imageFile != null) {
+            await imageRef.putFile(_imageFile!);
+          }
+
+          imageUrl = await imageRef.getDownloadURL();
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to Upload Image: $e')),
+          );
+        }
+      }
+
       final combinedData = {
-        ..._studentData, 
-        ..._homeAddressData, 
-        ..._juniorHSData, 
-        ..._parentInfoData, 
-        ..._seniorHSData, 
-        'enrollment_status': 'pending'
-        };
+        ..._studentData,
+        ..._homeAddressData,
+        ..._juniorHSData,
+        ..._parentInfoData,
+        ..._seniorHSData,
+        'enrollment_status': 'pending',
+        'image_url': imageUrl,
+      };
+
 
       FirebaseFirestore.instance.collection('users').add(combinedData).then((value) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -95,7 +144,11 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
           key: _formKey, // Use the _formKey here
           child: ListView(
             children: [
-              StudentInformation(spacing:spacing, onDataChanged: _updateStudentData,),
+              StudentInformation(spacing: spacing,
+                onDataChanged: _updateStudentData,
+                onImageFileChanged: _updateImageFile,
+                onWebImageDataChanged: _updateWebImageData,
+                onImageUrlChanged: _updateImageUrl,),
 
               SizedBox(height: 30),
               HomeAddress(spacing:spacing, onDataChanged: _updateStudentData,),
