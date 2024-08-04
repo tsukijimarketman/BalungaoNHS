@@ -32,6 +32,7 @@
     final TextEditingController _ageController = TextEditingController();
     final TextEditingController _birthdateController = TextEditingController();
     final TextEditingController _emailAddressController = TextEditingController();
+    final TextEditingController _contactNumberController = TextEditingController();
     String _gender = '';
     String _indigenousGroup = '';
     File? _imageFile;
@@ -109,6 +110,7 @@
       _ageController.addListener(_notifyParent);
       _birthdateController.addListener(_notifyParent);
       _emailAddressController.addListener(_notifyParent);
+      _contactNumberController.addListener(_notifyParent);
     }
 
     void _notifyParent() {
@@ -127,6 +129,7 @@
         'gender': _gender,
         'indigenous_group': _indigenousGroup,
         'email_Address': _emailAddressController.text,
+        'contact_number': _contactNumberController.text,
       };
     }
 
@@ -495,6 +498,37 @@
                 ),
               ],
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+                    width: 300,
+                    child: TextFormField(
+                      controller: _contactNumberController,
+                      decoration: InputDecoration(
+                        labelText: 'Contact Number',
+                        labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your Email Address';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
           ),
         ],
       );
