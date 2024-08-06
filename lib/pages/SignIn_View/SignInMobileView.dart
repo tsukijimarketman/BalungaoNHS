@@ -240,7 +240,7 @@ class _SignInMobileState extends State<SignInMobile> {
           } else if (accountType == "student") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => StudentDashboard()),
+              MaterialPageRoute(builder: (context) => StudentDashboard(firstName: '', middleName: '', lastName: '',)),
             );
         } else {
           _showDialog('Login Failed', 'Account type is not recognized.');

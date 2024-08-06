@@ -4,7 +4,8 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:pbma_portal/pages/SignIn_View/SignInDesktopView.dart';
+import 'package:pbma_portal/TermsAndConditions/TAC_Web_View.dart';
+import 'package:pbma_portal/pages/Auth_View/SignInDesktopView.dart';
 import 'package:pbma_portal/pages/enrollment_form.dart';
 import 'package:pbma_portal/widgets/text_reveal.dart';
 

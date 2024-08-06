@@ -2,8 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:pbma_portal/TermsAndConditions/TAC_Mobile_View.dart';
-import 'package:pbma_portal/pages/SignIn_View/SignInMobileView.dart';
-import 'package:pbma_portal/pages/enrollment_form.dart';
+import 'package:pbma_portal/pages/Auth_View/SignInMobileView.dart';
 
 class MobileView extends StatefulWidget {
   const MobileView({super.key});
