@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pbma_portal/TermsAndConditions/TAC_Web_View.dart';
 import 'package:pbma_portal/pages/Auth_View/SignInDesktopView.dart';
+import 'package:pbma_portal/pages/enrollment_form.dart';
+import 'package:pbma_portal/pages/models/infos.dart';
+import 'package:pbma_portal/widgets/info_card.dart';
+import 'package:pbma_portal/widgets/mission_vision.dart';
 import 'package:pbma_portal/widgets/text_reveal.dart';
 
 class DesktopView extends StatefulWidget {
@@ -17,18 +21,43 @@ class DesktopView extends StatefulWidget {
 
 class _DesktopViewState extends State<DesktopView>
     with TickerProviderStateMixin {
+  late AnimationController imageController;
+  late Animation<double> imageReveal;
+  late Animation<double> imageOpacity;
   late ScrollController _scrollController;
   late AnimationController _textController;
   late AnimationController _textController2;
   late Animation<double> _textRevealAnimation;
+  late Animation<double> _textRevealAnimation2;
   late Animation<double> _descriptionController;
   late Animation<double> _buttonController;
   late Animation<double> _textOpacityAnimation;
+  late Animation<double> _textOpacityAnimation2;
   late Animation<double> _quoteController;
+  late AnimationController _section2TextController;
+  late AnimationController coreValues;
   Color _appBarColor = Colors.transparent;
 
   @override
   void initState() {
+    coreValues = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 1000),
+        reverseDuration: Duration(milliseconds: 375));
+    imageController = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 1500),
+        reverseDuration: Duration(milliseconds: 500));
+    imageReveal = Tween<double>(begin: 0, end: 170).animate(CurvedAnimation(
+        parent: imageController,
+        curve: Interval(0.0, 0.5, curve: Curves.easeOut)));
+    imageOpacity = Tween<double>(begin: 0.0, end: 1).animate(CurvedAnimation(
+        parent: imageController,
+        curve: Interval(0.0, 0.5, curve: Curves.easeOut)));
+    _section2TextController = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 1000),
+        reverseDuration: Duration(milliseconds: 375));
     _textController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 3000),
@@ -44,6 +73,14 @@ class _DesktopViewState extends State<DesktopView>
             parent: _textController,
             curve: Interval(0.0, 0.3, curve: Curves.fastEaseInToSlowEaseOut)));
     _textOpacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+            parent: _textController,
+            curve: Interval(0.0, 0.3, curve: Curves.easeOut)));
+    _textRevealAnimation2 = Tween<double>(begin: 100, end: 0).animate(
+        CurvedAnimation(
+            parent: _textController,
+            curve: Interval(0.0, 0.3, curve: Curves.fastEaseInToSlowEaseOut)));
+    _textOpacityAnimation2 = Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(
             parent: _textController,
             curve: Interval(0.0, 0.3, curve: Curves.easeOut)));
@@ -73,12 +110,21 @@ class _DesktopViewState extends State<DesktopView>
     Future.delayed(Duration(milliseconds: 4000), () {
       _textController2.forward();
     });
+    Future.delayed(Duration(milliseconds: 1000), () {
+      _section2TextController.forward();
+    });
+    Future.delayed(Duration(milliseconds: 1000), () {
+      imageController.forward();
+    });
+    Future.delayed(Duration(milliseconds: 1000), () {
+      coreValues.forward();
+    });
   }
 
   void _scrollListener() {
     if (_scrollController.position.pixels > 0) {
       setState(() {
-        _appBarColor = Colors.teal;
+        _appBarColor = const Color.fromARGB(255, 26, 117, 192);
       });
     } else {
       setState(() {
@@ -93,28 +139,11 @@ class _DesktopViewState extends State<DesktopView>
   Color _textColor5 = Colors.white;
   Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
 
-  final sectionKey1 = GlobalKey();
-  final sectionKey2 = GlobalKey();
-  final sectionKey3 = GlobalKey();
-
   bool _showSignInCard = false;
-  bool _TAC = false;
 
   void scrollToSection(GlobalKey key) {
     Scrollable.ensureVisible(key.currentContext!,
         duration: Duration(seconds: 1), curve: Curves.easeInOut);
-  }
-
-  void toggleTAC() {
-    setState(() {
-      _TAC = !_TAC;
-    });
-  }
-
-  void closeTAC() {
-    setState(() {
-      _TAC = false;
-    });
   }
 
   void toggleSignInCard() {
@@ -143,7 +172,6 @@ class _DesktopViewState extends State<DesktopView>
                 Stack(
                   children: [
                     Container(
-                      key: sectionKey1,
                       height: screenHeight,
                       width: screenWidth,
                       decoration: BoxDecoration(
@@ -163,10 +191,8 @@ class _DesktopViewState extends State<DesktopView>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Color.fromARGB(
-                                87, 1, 93, 168), // Semi-transparent blue
-                            Color.fromARGB(
-                                255, 1, 93, 168), // Fully opaque blue
+                            Color.fromARGB(87, 1, 93, 168),
+                            Color.fromARGB(255, 1, 93, 168),
                           ],
                           stops: [0.5, 1.0],
                         ),
@@ -268,14 +294,21 @@ class _DesktopViewState extends State<DesktopView>
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           10)))),
-                                      onPressed: toggleTAC,
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EnrollmentForm()));
+                                      },
                                       child: Center(
                                           child: Text(
                                         "Get Started",
                                         style: TextStyle(
                                             color: _textColor6,
                                             fontFamily: "B",
-                                            fontSize: 20),
+                                            fontSize: 20,
+                                            ),
                                       )),
                                     ),
                                   ),
@@ -326,8 +359,9 @@ class _DesktopViewState extends State<DesktopView>
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
-                                          child: Icon(Icons.person,
-                                              size: 20, color: Colors.black),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(20),
+                                            child: Image.asset("assets/principal1.jpg", fit: BoxFit.fill,)),
                                         ),
                                       ),
                                       SizedBox(
@@ -363,19 +397,243 @@ class _DesktopViewState extends State<DesktopView>
                   ],
                 ),
                 Container(
-                  key: sectionKey2,
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  color: Color.fromARGB(255, 1, 93, 168),
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.fromARGB(255, 1, 93, 168),
+                      Colors.white
+                    ],
+                    stops: [0.1, 1],
+                  )),
                   child: Column(
-                    children: [],
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 70,
+                      ),
+                      TextReveal(
+                        textOpacityAnimation: _textOpacityAnimation,
+                        textRevealAnimation: _textRevealAnimation,
+                        maxHeight: 70,
+                        textController: _section2TextController,
+                        child: Text(
+                          "Why Prime Brilliant Minds Academy?",
+                          style: TextStyle(
+                              fontSize: screenWidth / 35,
+                              fontFamily: "B",
+                              color: Colors.white),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "PBMA offers Senior High School program as well as different TESDA Courses and is now an accredited assesment center. A wide array of courses to choose from depending on your preferred skill and craft.",
+                        style: TextStyle(
+                            fontFamily: "R",
+                            fontSize: screenWidth / 70,
+                            color: Colors.white),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      AnimatedBuilder(
+                        animation: imageController,
+                        builder: (BuildContext context, Widget? child) {
+                          return FadeTransition(
+                            opacity: imageOpacity,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Stack(
+                                      children: [
+                                        Container(
+                                            height: screenWidth / 4,
+                                            width: screenWidth / 2.4,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(20)),
+                                                image: DecorationImage(
+                                                    image: AssetImage(
+                                                        "assets/shs.jpg"),
+                                                    fit: BoxFit.cover))),
+                                        Container(
+                                            height: screenWidth / 4,
+                                            width: screenWidth / 2.4,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(20)),
+                                                color: Color.fromARGB(
+                                                        255, 255, 231, 11)
+                                                    .withOpacity(0.4))),
+                                        Positioned(
+                                          bottom: 65,
+                                          left: 20,
+                                          child: Container(
+                                            child: Text(
+                                              "Senior High School Program",
+                                              style: TextStyle(
+                                                  fontSize: 30,
+                                                  fontFamily: "BL",
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          bottom: 36,
+                                          left: 20,
+                                          child: Container(
+                                            child: Icon(
+                                              Icons.school,
+                                              color: Colors.black,
+                                              size: 30,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                            bottom: 40,
+                                            left: 60,
+                                            child: Text(
+                                              "PBMA offers various track and strands",
+                                              style: TextStyle(
+                                                  fontFamily: "M",
+                                                  fontSize: 15),
+                                            )),
+                                        Positioned(
+                                          right: 20,
+                                          bottom: 20,
+                                          child: Container(
+                                            child: Text(
+                                              "See Program",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontFamily: "B",
+                                                  color: Colors.black),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Stack(
+                                      children: [
+                                        Container(
+                                            height: screenWidth / 4,
+                                            width: screenWidth / 2.4,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(20)),
+                                                image: DecorationImage(
+                                                    image: AssetImage(
+                                                        "assets/tesda.jpg"),
+                                                    fit: BoxFit.cover))),
+                                        Container(
+                                            height: screenWidth / 4,
+                                            width: screenWidth / 2.4,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(20)),
+                                                color: Color.fromARGB(
+                                                        255, 255, 231, 11)
+                                                    .withOpacity(0.4))),
+                                        Positioned(
+                                          bottom: 65,
+                                          left: 20,
+                                          child: Container(
+                                            child: Text(
+                                              "TESDA Program",
+                                              style: TextStyle(
+                                                  fontSize: 30,
+                                                  fontFamily: "BL",
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          bottom: 36,
+                                          left: 20,
+                                          child: Container(
+                                            child: Icon(
+                                              Icons.school,
+                                              color: Colors.black,
+                                              size: 30,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                            bottom: 40,
+                                            left: 60,
+                                            child: Text(
+                                              "PBMA offers different courses and NC's",
+                                              style: TextStyle(
+                                                  fontFamily: "M",
+                                                  fontSize: 15),
+                                            )),
+                                        Positioned(
+                                          right: 20,
+                                          bottom: 20,
+                                          child: Container(
+                                            child: Text(
+                                              "See Program",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontFamily: "B",
+                                                  color: Colors.black),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ]),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(
+                        height: 70,
+                      ),
+                      Container(
+                        child: Column(
+                          children: [
+                            TextReveal(
+                              maxHeight: 60,
+                              textController: coreValues,
+                              textRevealAnimation: _textRevealAnimation2,
+                              textOpacityAnimation: _textOpacityAnimation2,
+                              child: Text(
+                                "Core Values",
+                                style: TextStyle(
+                                    fontSize: screenWidth / 35,
+                                    fontFamily: "B",
+                                    color: Colors.white),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            //THIS IS THE CORE VALUES
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: infos
+                                  .map<Widget>((info) => InfoCard(info: info))
+                                  .toList(),
+                            ),
+                            SizedBox(
+                              height: 50,
+                            ),
+                            //THIS IS THE MISION AND VISION
+                            MissionAndVision(),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Container(
-                  key: sectionKey3,
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  color: Color.fromARGB(255, 1, 93, 168),
                 ),
               ],
             ),
@@ -532,7 +790,13 @@ class _DesktopViewState extends State<DesktopView>
                                     ),
                                   ),
                                 ),
-                                onPressed: toggleTAC,
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              EnrollmentForm()));
+                                },
                                 child: Text(
                                   "Enroll Now",
                                   style: TextStyle(
@@ -550,74 +814,31 @@ class _DesktopViewState extends State<DesktopView>
               },
             ),
           ),
-          AnimatedSwitcher(
-            duration: Duration(milliseconds: 550),
-            child: _showSignInCard
-                ? Positioned.fill(
+          if (_showSignInCard)
+            GestureDetector(
+              onTap: () {
+                closeSignInCard();
+              },
+              child: Container(
+                color: Colors.black54,
+                child: Center(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                     child: GestureDetector(
-                      onTap: closeSignInCard,
-                      child: Stack(
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child:
-                                Container(color: Colors.black.withOpacity(0.5)),
-                          ),
-                          Center(
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 500),
-                                width: screenWidth / 1.2,
-                                height: screenHeight / 1.2,
-                                curve: Curves.easeInOut,
-                                child: SignInDesktop(
-                                  key: ValueKey('signInCard'),
-                                  closeSignInCardCallback: closeSignInCard,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.all(20),
+                        width: screenWidth / 1.9,
+                        height: screenHeight / 1.1,
+                        child: SignInDesktop(
+                          closeSignInCardCallback: closeSignInCard,
+                        ),
                       ),
                     ),
-                  )
-                : SizedBox.shrink(),
-          ),
-          AnimatedSwitcher(
-            duration: Duration(milliseconds: 550),
-            child: _TAC
-                ? Positioned.fill(
-                    child: GestureDetector(
-                      onTap: closeTAC,
-                      child: Stack(
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child:
-                                Container(color: Colors.black.withOpacity(0.5)),
-                          ),
-                          Center(
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 500),
-                                width: screenWidth / 1.2,
-                                height: screenHeight / 1.2,
-                                curve: Curves.easeInOut,
-                                child: TACWebView(
-                                  key: ValueKey('closeTAC'),
-                                  closeTAC: closeTAC,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-          ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
