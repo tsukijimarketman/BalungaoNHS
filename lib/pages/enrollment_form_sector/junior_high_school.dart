@@ -10,6 +10,10 @@ class JuniorHighSchool extends StatefulWidget {
 }
 
 class _JuniorHighSchoolState extends State<JuniorHighSchool> {
+  final FocusNode _juniorHSFocusNode = FocusNode();
+  final FocusNode _schoolAddFocusNode = FocusNode();
+
+
   final TextEditingController _juniorHS = TextEditingController();
   final TextEditingController _schoolAdd = TextEditingController();
 
@@ -18,7 +22,24 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
     super.initState();
     _juniorHS.addListener(_notifyParent);
     _schoolAdd.addListener(_notifyParent);
+
+    _juniorHSFocusNode.addListener(_onFocusChange);
+    _schoolAddFocusNode.addListener(_onFocusChange);
+    
   }
+   @override
+      void dispose() {
+        _juniorHS.dispose();
+        _juniorHSFocusNode.dispose();
+        _schoolAdd.dispose();
+        _schoolAddFocusNode.dispose();
+
+        super.dispose();
+    }
+
+    void _onFocusChange() {
+    setState(() {});
+    }
 
    void _notifyParent() {
     widget.onDataChanged(getFormData());
@@ -62,9 +83,25 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
                   width: 500,
                   child: TextFormField(
                     controller: _juniorHS,
+                    focusNode: _juniorHSFocusNode,
                     decoration: InputDecoration(
-                      labelText: "JHS Name (do not abbreviate)",
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'JHS Name (do not abbreviate)',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_juniorHSFocusNode.hasFocus || _juniorHS.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -78,6 +115,9 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                 ),
               ),
@@ -93,9 +133,25 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
                   width: 500,
                   child: TextFormField(
                     controller: _schoolAdd,
+                    focusNode: _schoolAddFocusNode,
                     decoration: InputDecoration(
-                      labelText: "School Address",
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'School Address',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_schoolAddFocusNode.hasFocus || _schoolAdd.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -109,6 +165,9 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                 ),
               ),

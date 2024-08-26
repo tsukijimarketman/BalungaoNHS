@@ -11,6 +11,11 @@ class ParentInformation extends StatefulWidget {
 }
 
 class _ParentInformationState extends State<ParentInformation> {
+  final FocusNode fathersNameFocusNode = FocusNode();
+  final FocusNode mothersNameFocusNode = FocusNode();
+  final FocusNode guardianNameFocusNode = FocusNode();
+  final FocusNode guardianFocusNode = FocusNode();
+
   final TextEditingController _fathersName = TextEditingController();
   final TextEditingController _mothersName = TextEditingController();
   final TextEditingController _guardianName = TextEditingController();
@@ -23,7 +28,29 @@ class _ParentInformationState extends State<ParentInformation> {
     _mothersName.addListener(_notifyParent);
     _guardianName.addListener(_notifyParent);
     _relationshipGuardian.addListener(_notifyParent);
+
+    fathersNameFocusNode.addListener(_onFocusChange);
+    mothersNameFocusNode.addListener(_onFocusChange);
+    guardianNameFocusNode.addListener(_onFocusChange);
+    guardianFocusNode.addListener(_onFocusChange);
   }
+
+  @override
+      void dispose() {
+        _fathersName.dispose();
+        fathersNameFocusNode.dispose();
+        _mothersName.dispose();
+        mothersNameFocusNode.dispose();
+        _guardianName.dispose();
+        guardianNameFocusNode.dispose();
+        _relationshipGuardian.dispose();
+        guardianFocusNode.dispose();
+        super.dispose();
+    }
+
+    void _onFocusChange() {
+    setState(() {});
+    }
 
   void _notifyParent() {
     widget.onDataChanged(getFormData());
@@ -59,9 +86,25 @@ class _ParentInformationState extends State<ParentInformation> {
                   width: 300,
                   child: TextFormField(
                     controller: _fathersName,
+                    focusNode: fathersNameFocusNode,
                     decoration: InputDecoration(
-                      labelText: "Father's Name",
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: "Father's Name",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (fathersNameFocusNode.hasFocus || _fathersName.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -81,6 +124,9 @@ class _ParentInformationState extends State<ParentInformation> {
                       }
                       return null;
                     },
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                 ),
               ),
@@ -97,9 +143,25 @@ class _ParentInformationState extends State<ParentInformation> {
                   width: 300,
                   child: TextFormField(
                     controller: _mothersName,
+                    focusNode: mothersNameFocusNode,
                     decoration: InputDecoration(
-                      labelText: "Mother's Name",
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: "Mother's Name",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (mothersNameFocusNode.hasFocus || _mothersName.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -119,6 +181,9 @@ class _ParentInformationState extends State<ParentInformation> {
                       }
                       return null;
                     },
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                 ),
               ),
@@ -134,9 +199,25 @@ class _ParentInformationState extends State<ParentInformation> {
                   width: 300,
                   child: TextFormField(
                     controller: _guardianName,
+                    focusNode: guardianNameFocusNode,
                     decoration: InputDecoration(
-                      labelText: "Guardian's Name",
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: "Guardian's Name",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (guardianNameFocusNode.hasFocus || _guardianName.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -150,6 +231,9 @@ class _ParentInformationState extends State<ParentInformation> {
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                 ),
               ),
@@ -159,9 +243,25 @@ class _ParentInformationState extends State<ParentInformation> {
                   width: 300,
                   child: TextFormField(
                     controller: _relationshipGuardian,
+                    focusNode: guardianFocusNode,
                     decoration: InputDecoration(
-                      labelText: 'Relationship to Guardian',
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'Relationship to Guardian',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (guardianFocusNode.hasFocus || _relationshipGuardian.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -175,6 +275,9 @@ class _ParentInformationState extends State<ParentInformation> {
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                 ),
               ),

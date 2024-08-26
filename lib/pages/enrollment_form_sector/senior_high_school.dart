@@ -11,6 +11,8 @@ class SeniorHighSchool extends StatefulWidget {
 }
 
 class _SeniorHighSchoolState extends State<SeniorHighSchool> {
+  final FocusNode _gradeLevelFocusNode = FocusNode();
+
   final TextEditingController _gradeLevel = TextEditingController();
   String _selectedTrack = '';
   String _selectedStrand = '';
@@ -19,7 +21,19 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> {
   void initState() {
     super.initState();
     _gradeLevel.addListener(_notifyParent);
+
+    _gradeLevelFocusNode.addListener(_onFocusChange);
   }
+  void _onFocusChange() {
+    setState(() {});
+    }
+    
+  @override
+      void dispose() {
+        _gradeLevel.dispose();
+        _gradeLevelFocusNode.dispose();
+        super.dispose();
+    }
 
   void _notifyParent() {
     widget.onDataChanged(getFormData());
@@ -62,9 +76,25 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> {
                 width: 300,
                 child: TextFormField(
                   controller: _gradeLevel,
-                  decoration: InputDecoration(
-                    labelText: 'Grade Level',
-                    labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                  focusNode: _gradeLevelFocusNode,
+                    decoration: InputDecoration(
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'Grade Level',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_gradeLevelFocusNode.hasFocus || _gradeLevel.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -78,6 +108,9 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> {
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
                     ),
                   ),
+                  onChanged: (text) {
+                      setState(() {});
+                    },
                 ),
               ),
             ]

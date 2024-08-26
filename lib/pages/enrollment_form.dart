@@ -134,9 +134,10 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
     double spacing = 50.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Go Back to Dashboard'),
-      ),
+      // appBar: AppBar(
+      //   // title: Text('Go Back to Dashboard'),
+      //   automaticallyImplyLeading: false,
+      // ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         

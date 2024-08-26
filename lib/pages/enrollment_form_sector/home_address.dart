@@ -14,6 +14,13 @@ class HomeAddress extends StatefulWidget {
 }
 
 class _HomeAddressState extends State<HomeAddress> {
+  final FocusNode _houseNumberFocusNode = FocusNode();
+  final FocusNode _streetNameFocusNode = FocusNode();
+  final FocusNode _subdivisionFocusNode = FocusNode();
+  final FocusNode _cityFocusNode = FocusNode();
+  final FocusNode _provinceFocusNode = FocusNode();
+  final FocusNode _countryFocusNode = FocusNode();
+
   final TextEditingController _houseNumber = TextEditingController();
   final TextEditingController _streetName = TextEditingController();
   final TextEditingController _subdivisionBarangay = TextEditingController();
@@ -30,7 +37,35 @@ class _HomeAddressState extends State<HomeAddress> {
     _cityMunicipality.addListener(_notifyParent);
     _province.addListener(_notifyParent);
     _country.addListener(_notifyParent);
+
+    _houseNumberFocusNode.addListener(_onFocusChange);
+    _streetNameFocusNode.addListener(_onFocusChange);
+    _subdivisionFocusNode.addListener(_onFocusChange);
+    _cityFocusNode.addListener(_onFocusChange);
+    _provinceFocusNode.addListener(_onFocusChange);
+    _provinceFocusNode.addListener(_onFocusChange);
   }
+
+  @override
+      void dispose() {
+        _houseNumber.dispose();
+        _houseNumberFocusNode.dispose();
+        _streetName.dispose();
+        _streetNameFocusNode.dispose();
+        _subdivisionBarangay.dispose();
+        _subdivisionFocusNode.dispose();
+        _cityMunicipality.dispose();
+        _cityFocusNode.dispose();
+        _province.dispose();
+        _provinceFocusNode.dispose();
+        _country.dispose();
+        _countryFocusNode.dispose();
+        super.dispose();
+    }
+
+    void _onFocusChange() {
+    setState(() {});
+    }
 
   void _notifyParent() {
     widget.onDataChanged(getFormData());
@@ -67,9 +102,25 @@ class _HomeAddressState extends State<HomeAddress> {
                 width: 300,
                 child: TextFormField(
                   controller: _houseNumber,
-                  decoration: InputDecoration(
-                    labelText: 'House / No',
-                    labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                  focusNode: _houseNumberFocusNode,
+                    decoration: InputDecoration(
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'House / No',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_houseNumberFocusNode.hasFocus || _houseNumber.text.isNotEmpty)
+                          TextSpan(
+                            text: '(optional)',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 101, 100, 100),                            ),
+                            ),
+                        ],
+                      ),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -83,12 +134,9 @@ class _HomeAddressState extends State<HomeAddress> {
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your address';
-                    }
-                    return null;
-                  },
+                  onChanged: (text) {
+                      setState(() {});
+                    },
                 ),
               ),
               SizedBox(width: widget.spacing),
@@ -96,9 +144,25 @@ class _HomeAddressState extends State<HomeAddress> {
                 width: 300,
                 child: TextFormField(
                   controller: _streetName,
-                  decoration: InputDecoration(
-                    labelText: 'Street Name',
-                    labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                  focusNode: _streetNameFocusNode,
+                    decoration: InputDecoration(
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'Street Name',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_streetNameFocusNode.hasFocus || _streetName.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -118,6 +182,9 @@ class _HomeAddressState extends State<HomeAddress> {
                     }
                     return null;
                   },
+                  onChanged: (text) {
+                      setState(() {});
+                    },
                 ),
               ),
               SizedBox(width: widget.spacing),
@@ -125,9 +192,25 @@ class _HomeAddressState extends State<HomeAddress> {
                 width: 300,
                 child: TextFormField(
                   controller: _subdivisionBarangay,
-                  decoration: InputDecoration(
-                    labelText: 'Subdivision / Barangay',
-                    labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                  focusNode: _subdivisionFocusNode,
+                    decoration: InputDecoration(
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'Subdivision / Barangay',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_subdivisionFocusNode.hasFocus || _subdivisionBarangay.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -147,6 +230,9 @@ class _HomeAddressState extends State<HomeAddress> {
                     }
                     return null;
                   },
+                  onChanged: (text) {
+                      setState(() {});
+                    },
                 ),
               ),
             ],
@@ -161,9 +247,25 @@ class _HomeAddressState extends State<HomeAddress> {
                   width: 300,
                   child: TextFormField(
                     controller: _cityMunicipality,
+                    focusNode: _cityFocusNode,
                     decoration: InputDecoration(
-                      labelText: 'City / Municipality',
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'City / Municipality',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_cityFocusNode.hasFocus || _cityMunicipality.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -183,6 +285,9 @@ class _HomeAddressState extends State<HomeAddress> {
                       }
                       return null;
                     },
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                 ),
               ),
@@ -192,9 +297,26 @@ class _HomeAddressState extends State<HomeAddress> {
                   width: 300,
                   child: TextFormField(
                     controller: _province,
+                    focusNode: _provinceFocusNode,
                     decoration: InputDecoration(
-                      labelText: 'Province',
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'Province',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_provinceFocusNode.hasFocus || _province.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
+
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -214,6 +336,9 @@ class _HomeAddressState extends State<HomeAddress> {
                       }
                       return null;
                     },
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                 ),
               ),
@@ -223,9 +348,25 @@ class _HomeAddressState extends State<HomeAddress> {
                   width: 300,
                   child: TextFormField(
                     controller: _country,
+                    focusNode: _countryFocusNode,
                     decoration: InputDecoration(
-                      labelText: 'Country',
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'Country',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_countryFocusNode.hasFocus || _country.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -244,6 +385,9 @@ class _HomeAddressState extends State<HomeAddress> {
                         return 'Please enter your country';
                       }
                       return null;
+                    },
+                    onChanged: (text) {
+                      setState(() {});
                     },
                   ),
                 ),
