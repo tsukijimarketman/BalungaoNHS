@@ -19,27 +19,6 @@ Future<String> generateStudentID() async {
   return '${currentYear}-PBMA-${nextNumber.toString().padLeft(4, '0')}';
 }
 
-Future<void> createFirebaseUser(String email) async {
-  final password = 'ilovePBMA_123'; // Default Password ng Student
-
-  if (email.isEmpty) {
-    print('Error: The provided email is empty.');
-    return;
-  }
-
-  try {
-    final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    print('User created with ID: ${userCredential.user!.uid}');
-
-
-  } catch (e) {
-    print('Failed to create user: $e');
-  }
-}
-
 Future<void> approveStudent(String studentDocId) async {
   final studentDoc = await FirebaseFirestore.instance.collection('users').doc(studentDocId).get();
   final studentData = studentDoc.data() as Map<String, dynamic>;
@@ -52,16 +31,25 @@ Future<void> approveStudent(String studentDocId) async {
 
   final studentId = await generateStudentID();
 
-  await createFirebaseUser(email);
+  try {
+    final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: 'ilovePBMA_123', // Default Password for Student
+    );
 
-  await FirebaseFirestore.instance.collection('users').doc(studentDocId).update({
-    'student_id': studentId,
-    'enrollment_status': 'approved',
-    'accountType': 'student',
-  }).then((_) {
-    print('Student approved and updated successfully.');
-  }).catchError((error) {
-    print('Failed to update student: $error');
-  });
+    final uid = userCredential.user!.uid;
+    print('User created with ID: $uid');
+
+    await FirebaseFirestore.instance.collection('users').doc(studentDocId).update({
+      'student_id': studentId,
+      'enrollment_status': 'approved',
+      'accountType': 'student',
+      'uid': uid,
+      'passwordChanged': false,
+    });
+
+    print('Student approved and Firebase Auth user created successfully.');
+  } catch (e) {
+    print('Failed to create user or update document: $e');
+  }
 }
-

@@ -111,17 +111,19 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
       };
 
 
-      FirebaseFirestore.instance.collection('users').add(combinedData).then((value) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Data Saved Successfully')),
-        );
-      }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to Save Data: $error')),
-        );
-      });
-    }
+      FirebaseFirestore.instance.collection('users').add(combinedData).then((docRef) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Data Saved Successfully')),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to Save Data: $error')),
+      );
+    });
   }
+}
+
+
 
 
   @override

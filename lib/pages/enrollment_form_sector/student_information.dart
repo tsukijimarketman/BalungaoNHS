@@ -45,13 +45,10 @@
     final TextEditingController _ageController = TextEditingController();
     final TextEditingController _birthdateController = TextEditingController();
     final TextEditingController _emailAddressController = TextEditingController();
-<<<<<<< HEAD
     final TextEditingController _indigenousController = TextEditingController();
     final TextEditingController _genderController = TextEditingController();
-
-=======
     final TextEditingController _contactNumberController = TextEditingController();
->>>>>>> 53939116252c565d5ae261c121187eb81110a416
+    
     String _gender = '';
     String _indigenousGroup = '';
     File? _imageFile;
@@ -191,44 +188,6 @@
     }
   }
 
-<<<<<<< HEAD
-=======
-
-    @override
-    void initState() {
-      super.initState();
-      _lrnController.addListener(_notifyParent);
-      _lastNameController.addListener(_notifyParent);
-      _firstNameController.addListener(_notifyParent);
-      _middleNameController.addListener(_notifyParent);
-      _extensionNameController.addListener(_notifyParent);
-      _ageController.addListener(_notifyParent);
-      _birthdateController.addListener(_notifyParent);
-      _emailAddressController.addListener(_notifyParent);
-      _contactNumberController.addListener(_notifyParent);
-    }
-
-    void _notifyParent() {
-      widget.onDataChanged(getFormData());
-    }
-
-    Map<String, dynamic> getFormData() {
-      return {
-        'lrn': _lrnController.text,
-        'last_name': _lastNameController.text,
-        'first_name': _firstNameController.text,
-        'middle_name': _middleNameController.text,
-        'extension_name': _extensionNameController.text,
-        'age': _ageController.text,
-        'birthdate': _birthdateController.text,
-        'gender': _gender,
-        'indigenous_group': _indigenousGroup,
-        'email_Address': _emailAddressController.text,
-        'contact_number': _contactNumberController.text,
-      };
-    }
-
->>>>>>> 53939116252c565d5ae261c121187eb81110a416
     @override
     Widget build(BuildContext context) {
       return Column(

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pbma_portal/Accounts/student_dashboard.dart';
+import 'package:pbma_portal/pages/Auth_View/ForceChangePassMobileView.dart';
 import 'package:pbma_portal/pages/Auth_View/Forgot_Pass_Mobileview.dart';
 import 'package:pbma_portal/pages/admin_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +27,7 @@ class _SignInMobileState extends State<SignInMobile> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _showForgotPass = false;
+  bool _showChangePassword = false;
 
   void toggleForgotPass() {
     setState(() {
@@ -63,6 +65,11 @@ class _SignInMobileState extends State<SignInMobile> {
                   ? ForgotPassMobileview(
                       key: ValueKey('forgotPassView'),
                       closeforgotpassCallback: toggleForgotPass,
+                    )
+                    : _showChangePassword
+                  ? ChangePasswordMobile(
+                      key: ValueKey('changePasswordScreen'),
+                      email: _emailController.text.trim(),
                     )
                   : Container(
                       key: ValueKey('signInView'),
@@ -292,6 +299,8 @@ Future<void> _signInWithStudentId(String studentId, String password) async {
           final userData = userDocs.docs.first.data() as Map<String, dynamic>?;
         final accountType = (userDocs.docs.first.data()
             as Map<String, dynamic>?)?['accountType'];
+        final passwordChanged = userData?['passwordChanged'] ?? false;
+
         if (accountType == "admin") {
           Navigator.push(
             context,
@@ -306,20 +315,26 @@ Future<void> _signInWithStudentId(String studentId, String password) async {
             ),
           );
         } else if (accountType == "student") {
-          final firstName = userData?['first_name'] ?? 'First';
-          final middleName = userData?['middle_name'] ?? 'Middle';
-          final lastName = userData?['last_name'] ?? 'Last';
-          
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => StudentDashboard(
-                firstName: firstName,
-                middleName: middleName,
-                lastName: lastName,
-              ),
-            ),
-          );
+          if (!passwordChanged) {
+              setState(() {
+                _showChangePassword = true;
+              });
+            } else {
+              final firstName = userData?['first_name'] ?? 'First';
+              final middleName = userData?['middle_name'] ?? 'Middle';
+              final lastName = userData?['last_name'] ?? 'Last';
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StudentDashboard(
+                    firstName: firstName,
+                    middleName: middleName,
+                    lastName: lastName,
+                  ),
+                ),
+              );
+            }
         } else {
           _showDialog('Login Failed', 'Account type is not recognized.');
         }
