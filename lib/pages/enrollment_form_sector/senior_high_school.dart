@@ -10,7 +10,7 @@ class SeniorHighSchool extends StatefulWidget {
   State<SeniorHighSchool> createState() => _SeniorHighSchoolState();
 }
 
-class _SeniorHighSchoolState extends State<SeniorHighSchool> {
+class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepAliveClientMixin {
   final FocusNode _gradeLevelFocusNode = FocusNode();
 
   final TextEditingController _gradeLevel = TextEditingController();
@@ -35,6 +35,9 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> {
         super.dispose();
     }
 
+  @override
+  bool get wantKeepAlive => true;
+
   void _notifyParent() {
     widget.onDataChanged(getFormData());
   }
@@ -46,6 +49,7 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> {
       'seniorHigh_Strand': _selectedStrand,
     };
   }
+  
 
   @override
   Widget build(BuildContext context) {

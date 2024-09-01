@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 class StudentDetails extends StatefulWidget {
   final Map<String, dynamic> studentData;
@@ -74,40 +75,45 @@ class _StudentDetailsState extends State<StudentDetails> {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70.0), 
         child: AppBar(
-          backgroundColor: Colors.white,
-          title: Text('Student Details'),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-              child: Icon(Icons.person),
+          automaticallyImplyLeading: false, // Remove the back button
+          backgroundColor: Colors.white, // Set the background color to match the image
+          title: Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0, right: 30),
+            child: Row(
+              children: [
+                Spacer(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      size: 30,
+                      Iconsax.profile_circle_copy,
+                    ),
+                    SizedBox(width: 15), // Add spacing between the icon and the text
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('$_accountType',
+                          style: TextStyle(
+                            color: Colors.black, // Black color for the text
+                            fontSize: 16, // Smaller font size for the label
+                            fontWeight: FontWeight.bold, // Bold text
+                          ),
+                        ),
+                        Text(
+                          _email,
+                          style: TextStyle(
+                            color: Colors.black, // Black color for the text
+                            fontSize: 14, // Smaller font size for the email
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
-            SizedBox(width: 16),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('$_accountType',
-                                style: TextStyle(
-                                  color: Colors.black, // Black color for the text
-                                  fontSize: 16, // Smaller font size for the label
-                                  fontWeight: FontWeight.bold, // Bold text
-                                ),
-                              ),
-                      Text(
-                                _email,
-                                style: TextStyle(
-                                  color: Colors.black, // Black color for the text
-                                  fontSize: 14, // Smaller font size for the email
-                                ),
-                              ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
       body: Padding(

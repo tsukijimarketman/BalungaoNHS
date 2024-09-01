@@ -13,7 +13,7 @@ class HomeAddress extends StatefulWidget {
   State<HomeAddress> createState() => _HomeAddressState();
 }
 
-class _HomeAddressState extends State<HomeAddress> {
+class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientMixin {
   final FocusNode _houseNumberFocusNode = FocusNode();
   final FocusNode _streetNameFocusNode = FocusNode();
   final FocusNode _subdivisionFocusNode = FocusNode();
@@ -62,6 +62,9 @@ class _HomeAddressState extends State<HomeAddress> {
         _countryFocusNode.dispose();
         super.dispose();
     }
+
+    @override
+    bool get wantKeepAlive => true;
 
     void _onFocusChange() {
     setState(() {});

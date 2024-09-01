@@ -10,7 +10,7 @@ class ParentInformation extends StatefulWidget {
   State<ParentInformation> createState() => _ParentInformationState();
 }
 
-class _ParentInformationState extends State<ParentInformation> {
+class _ParentInformationState extends State<ParentInformation> with AutomaticKeepAliveClientMixin{
   final FocusNode fathersNameFocusNode = FocusNode();
   final FocusNode mothersNameFocusNode = FocusNode();
   final FocusNode guardianNameFocusNode = FocusNode();
@@ -47,6 +47,9 @@ class _ParentInformationState extends State<ParentInformation> {
         guardianFocusNode.dispose();
         super.dispose();
     }
+
+    @override
+    bool get wantKeepAlive => true;
 
     void _onFocusChange() {
     setState(() {});
@@ -231,6 +234,12 @@ class _ParentInformationState extends State<ParentInformation> {
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter guardian name';
+                      }
+                      return null;
+                    },
                     onChanged: (text) {
                       setState(() {});
                     },
@@ -275,6 +284,12 @@ class _ParentInformationState extends State<ParentInformation> {
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter relationship to guardian';
+                      }
+                      return null;
+                    },
                     onChanged: (text) {
                       setState(() {});
                     },

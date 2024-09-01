@@ -9,10 +9,9 @@ class JuniorHighSchool extends StatefulWidget {
   State<JuniorHighSchool> createState() => _JuniorHighSchoolState();
 }
 
-class _JuniorHighSchoolState extends State<JuniorHighSchool> {
+class _JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepAliveClientMixin {
   final FocusNode _juniorHSFocusNode = FocusNode();
   final FocusNode _schoolAddFocusNode = FocusNode();
-
 
   final TextEditingController _juniorHS = TextEditingController();
   final TextEditingController _schoolAdd = TextEditingController();
@@ -25,36 +24,40 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
 
     _juniorHSFocusNode.addListener(_onFocusChange);
     _schoolAddFocusNode.addListener(_onFocusChange);
-    
   }
-   @override
-      void dispose() {
-        _juniorHS.dispose();
-        _juniorHSFocusNode.dispose();
-        _schoolAdd.dispose();
-        _schoolAddFocusNode.dispose();
 
-        super.dispose();
-    }
+  @override
+  void dispose() {
+    _juniorHS.dispose();
+    _juniorHSFocusNode.dispose();
+    _schoolAdd.dispose();
+    _schoolAddFocusNode.dispose();
 
-    void _onFocusChange() {
+    super.dispose();
+  }
+
+  void _onFocusChange() {
     setState(() {});
-    }
+  }
 
-   void _notifyParent() {
+  void _notifyParent() {
     widget.onDataChanged(getFormData());
   }
 
-   Map<String, dynamic> getFormData() {
+  Map<String, dynamic> getFormData() {
     return {
       'juniorHS': _juniorHS.text,
       'schoolAdd': _schoolAdd.text,
     };
   }
 
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Ensure AutomaticKeepAliveClientMixin works
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -86,22 +89,24 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
                     focusNode: _juniorHSFocusNode,
                     decoration: InputDecoration(
                       labelText: null,
-                      label: RichText(text: TextSpan(
-                        text: 'JHS Name (do not abbreviate)',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 101, 100, 100),
-                          fontSize: 16,
+                      label: RichText(
+                        text: TextSpan(
+                          text: 'JHS Name (do not abbreviate)',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 101, 100, 100),
+                            fontSize: 16,
+                          ),
+                          children: [
+                            if (_juniorHSFocusNode.hasFocus || _juniorHS.text.isNotEmpty)
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                          ],
                         ),
-                        children: [
-                          if (_juniorHSFocusNode.hasFocus || _juniorHS.text.isNotEmpty)
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red,                             ),
-                            ),
-                        ],
                       ),
-                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -115,6 +120,12 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter JHS name';
+                      }
+                      return null;
+                    },
                     onChanged: (text) {
                       setState(() {});
                     },
@@ -136,22 +147,24 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
                     focusNode: _schoolAddFocusNode,
                     decoration: InputDecoration(
                       labelText: null,
-                      label: RichText(text: TextSpan(
-                        text: 'School Address',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 101, 100, 100),
-                          fontSize: 16,
+                      label: RichText(
+                        text: TextSpan(
+                          text: 'School Address',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 101, 100, 100),
+                            fontSize: 16,
+                          ),
+                          children: [
+                            if (_schoolAddFocusNode.hasFocus || _schoolAdd.text.isNotEmpty)
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                          ],
                         ),
-                        children: [
-                          if (_schoolAddFocusNode.hasFocus || _schoolAdd.text.isNotEmpty)
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red,                             ),
-                            ),
-                        ],
                       ),
-                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -165,6 +178,12 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> {
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter school address';
+                      }
+                      return null;
+                    },
                     onChanged: (text) {
                       setState(() {});
                     },

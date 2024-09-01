@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pbma_portal/pages/dashboard.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/home_address.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/junior_high_school.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/parent_information.dart';
@@ -17,9 +18,19 @@ class EnrollmentForm extends StatefulWidget {
 }
 
 class _EnrollmentFormState extends State<EnrollmentForm> {
+  Color _appBarColor = Colors.transparent;
+
+  Color _textColor1 = Color.fromARGB(255, 1, 93, 168);
+  Color _textColor2 = Color.fromARGB(255, 1, 93, 168);
+  Color _textColor3 = Color.fromARGB(255, 1, 93, 168);
+  Color _textColor5 = Color.fromARGB(255, 1, 93, 168);
+  Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
+
+  bool _showSignInCard = false;
+
   // Define the _formKey
   final _formKey = GlobalKey<FormState>();
-  File? _imageFile; 
+  File? _imageFile;
   Uint8List? _webImageData;
   String? _imageUrl;
 
@@ -34,7 +45,13 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
       _studentData = {..._studentData, ...data};
     });
   }
-  
+
+  void toggleSignInCard() {
+    setState(() {
+      _showSignInCard = !_showSignInCard;
+    });
+  }
+
   void _updateImageFile(File? imageFile) {
     setState(() {
       _imageFile = imageFile;
@@ -80,10 +97,11 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       String? imageUrl;
-  
+
       if (_imageFile != null || _webImageData != null) {
         final storageRef = FirebaseStorage.instance.ref();
-        final imageRef = storageRef.child('student_pictures/${DateTime.now().toIso8601String()}.png');
+        final imageRef =
+            storageRef.child('student_pictures/${DateTime.now().toIso8601String()}.png');
 
         try {
           if (kIsWeb && _webImageData != null) {
@@ -110,7 +128,6 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
         'image_url': imageUrl,
       };
 
-
       FirebaseFirestore.instance.collection('users').add(combinedData).then((value) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Data Saved Successfully')),
@@ -123,65 +140,222 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
     }
   }
 
-
   @override
-  Widget build(BuildContext context) {
-    // Get the screen size
-    final Size screenSize = MediaQuery.of(context).size;
+Widget build(BuildContext context) {
+  final Size screenSize = MediaQuery.of(context).size;
+  double screenWidth = screenSize.width;
 
-    // Calculate responsive widths
-    double formFieldWidth = screenSize.width > 600 ? 300 : screenSize.width * 0.9;
-    double spacing = 50.0;
+  double formFieldWidth = screenSize.width > 600 ? 300 : screenSize.width * 0.9;
+  double spacing = 50.0;
 
-    return Scaffold(
-      // appBar: AppBar(
-      //   // title: Text('Go Back to Dashboard'),
-      //   automaticallyImplyLeading: false,
-      // ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        
-        child: Form(
-          key: _formKey, // Use the _formKey here
-          child: ListView(
-            children: [
-              StudentInformation(spacing: spacing,
-                onDataChanged: _updateStudentData,
-                onImageFileChanged: _updateImageFile,
-                onWebImageDataChanged: _updateWebImageData,
-                onImageUrlChanged: _updateImageUrl,),
-
-              SizedBox(height: 30),
-              HomeAddress(spacing:spacing, onDataChanged: _updateStudentData,),
-
-              SizedBox(height: 30),
-              ParentInformation(spacing:spacing, onDataChanged: _updateStudentData,),
-
-              SizedBox(height: 30),
-              JuniorHighSchool(onDataChanged: _updateStudentData,),
-
-              SizedBox(height: 30),
-              SeniorHighSchool(spacing:spacing, onDataChanged: _updateStudentData,),
-
-              SizedBox(height: 30),
-              Center(
-              child: TextButton(
-                  onPressed: _submitForm,
-                  child: Text('Submit'),
+  return Scaffold(
+    appBar: AppBar(
+      toolbarHeight: screenWidth / 16,
+      elevation: 8,
+      backgroundColor: _appBarColor,
+      title: Container(
+        child: Row(
+          children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {},
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: Image.asset(
+                      "assets/pbma.jpg",
+                      height: screenWidth / 20,
+                      width: screenWidth / 20,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Text(
+                  "PBMA",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontFamily: "B",
+                    fontSize: screenWidth / 50,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+              Spacer(),
+              MouseRegion(
+                onEnter: (_) {
+                  setState(() {
+                    _textColor1 = Colors.black;
+                  });
+                },
+                onExit: (_) {
+                  setState(() {
+                    _textColor1 = Color.fromARGB(255, 1, 93, 168);
+                  });
+                },
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Dashboard()),
+                    );
+                  },
+                  child: Text(
+                    "Dashboard",
+                    style: TextStyle(
+                      fontFamily: "SB",
+                      fontSize: 14,
+                      color: _textColor1, // Dynamic color
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 25),
+              MouseRegion(
+                onEnter: (_) {
+                  setState(() {
+                    _textColor2 = Colors.black;
+                  });
+                },
+                onExit: (_) {
+                  setState(() {
+                    _textColor2 = Color.fromARGB(255, 1, 93, 168);;
+                  });
+                },
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Text(
+                    "About us",
+                    style: TextStyle(
+                      fontFamily: "SB",
+                      fontSize: 14,
+                      color: _textColor2, // Dynamic color
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 25),
+              MouseRegion(
+                onEnter: (_) {
+                  setState(() {
+                    _textColor3 = Colors.black;
+                  });
+                },
+                onExit: (_) {
+                  setState(() {
+                    _textColor3 = Color.fromARGB(255, 1, 93, 168);
+                  });
+                },
+                child: GestureDetector(
+                  onTap: () {},
+                  child: Text(
+                    "Contact us",
+                    style: TextStyle(
+                      fontFamily: "SB",
+                      fontSize: 14,
+                      color: _textColor3, // Dynamic color
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 25),
+              SizedBox(
+                width: screenWidth / 12,
+                height: screenWidth / 35,
+                child: TextButton(
                   style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                      if (states.contains(MaterialState.pressed)) {
-                        return Colors.green;
-                      }
-                      return Colors.blue;
-                    }),
+                    backgroundColor: MaterialStateProperty.all(Colors.yellow),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  onPressed: toggleSignInCard,
+                  child: Text(
+                    "Sign In",
+                    style: TextStyle(
+                      fontFamily: "B",
+                      fontSize: 14,
+                      color: Color.fromARGB(255, 1, 93, 168),
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
+        automaticallyImplyLeading: false,
       ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              StudentInformation(
+                spacing: spacing,
+                onDataChanged: _updateStudentData,
+                onImageFileChanged: _updateImageFile,
+                onWebImageDataChanged: _updateWebImageData,
+                onImageUrlChanged: _updateImageUrl,
+              ),
+              SizedBox(height: 30),
+              HomeAddress(
+                spacing: spacing,
+                onDataChanged: _updateStudentData,
+              ),
+              SizedBox(height: 30),
+              ParentInformation(
+                spacing: spacing,
+                onDataChanged: _updateStudentData,
+              ),
+              SizedBox(height: 30),
+              JuniorHighSchool(
+                onDataChanged: _updateStudentData,
+              ),
+              SizedBox(height: 30),
+              SeniorHighSchool(
+                spacing: spacing,
+                onDataChanged: _updateStudentData,
+              ),
+              SizedBox(height: 30),
+              Center(
+                child: SizedBox(
+                  width: screenWidth / 8,
+                  height: screenWidth / 35,
+                  child: TextButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 1, 93, 168)),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    onPressed:_submitForm,
+                    child: Text(
+                      "Submit",
+                      style: TextStyle(
+                        fontFamily: "B",
+                        fontSize: 14,
+                        color: Colors.yellow,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              
+              // ElevatedButton(
+              //   onPressed: _submitForm,
+              //   child: Text('Submit'),
+              // ),
+            ],
+          ),
+          
+        ),
+      ),
+      
     );
   }
 }

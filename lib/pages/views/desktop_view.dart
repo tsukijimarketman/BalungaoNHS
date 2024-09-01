@@ -648,6 +648,7 @@ class _DesktopViewState extends State<DesktopView>
                 return FadeTransition(
                     opacity: _textOpacityAnimation,
                     child: AppBar(
+                      automaticallyImplyLeading: false,
                       toolbarHeight: screenWidth / 16,
                       elevation: 8,
                       backgroundColor: _appBarColor,

@@ -1,136 +1,138 @@
-  import 'dart:io';
-  import 'dart:html' as html;
-  import 'dart:typed_data';
-  import 'package:flutter/foundation.dart';
-  import 'package:flutter/material.dart';
-  import 'package:iconsax_flutter/iconsax_flutter.dart';
-  import 'package:image_picker/image_picker.dart';
-  import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'dart:html' as html;
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
-  class StudentInformation extends StatefulWidget {
-    final double spacing;
-    final Function(Map<String, dynamic>) onDataChanged;
-    final Function(File?) onImageFileChanged;
-    final Function(Uint8List?) onWebImageDataChanged;
-    final Function(String?) onImageUrlChanged;
+class StudentInformation extends StatefulWidget {
+  final double spacing;
+  final Function(Map<String, dynamic>) onDataChanged;
+  final Function(File?) onImageFileChanged;
+  final Function(Uint8List?) onWebImageDataChanged;
+  final Function(String?) onImageUrlChanged;
 
-    StudentInformation({required this.spacing,
+  StudentInformation({
+    required this.spacing,
     required this.onDataChanged,
     required this.onImageFileChanged,
     required this.onWebImageDataChanged,
-    required this.onImageUrlChanged,});
+    required this.onImageUrlChanged,
+  });
 
-    @override
-    State<StudentInformation> createState() => _StudentInformationState();
+  @override
+  State<StudentInformation> createState() => _StudentInformationState();
+}
+
+class _StudentInformationState extends State<StudentInformation>
+    with AutomaticKeepAliveClientMixin {
+  final FocusNode _lrnFocusNode = FocusNode();
+  final FocusNode _lastNameFocusNode = FocusNode();
+  final FocusNode _firstNameFocusNode = FocusNode();
+  final FocusNode _ageFocusNode = FocusNode();
+  final FocusNode _genderFocusNode = FocusNode();
+  final FocusNode _birthdateFocusNode = FocusNode();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _indigenousFocusNode = FocusNode();
+
+  final FocusNode _middleNameFocusNode = FocusNode();
+  final FocusNode _extensionNameFocusNode = FocusNode();
+
+  final TextEditingController _lrnController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _middleNameController = TextEditingController();
+  final TextEditingController _extensionNameController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _birthdateController = TextEditingController();
+  final TextEditingController _emailAddressController = TextEditingController();
+  final TextEditingController _indigenousController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
+
+  String _gender = '';
+  String _indigenousGroup = '';
+  File? _imageFile;
+  Uint8List? _webImageData;
+  String? _imageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _lrnController.addListener(_notifyParent);
+    _lastNameController.addListener(_notifyParent);
+    _firstNameController.addListener(_notifyParent);
+    _middleNameController.addListener(_notifyParent);
+    _extensionNameController.addListener(_notifyParent);
+    _ageController.addListener(_notifyParent);
+    _birthdateController.addListener(_notifyParent);
+    _emailAddressController.addListener(_notifyParent);
+    _indigenousController.addListener(_notifyParent);
+    _genderController.addListener(_notifyParent);
+
+    _lrnFocusNode.addListener(_onFocusChange);
+    _lastNameFocusNode.addListener(_onFocusChange);
+    _firstNameFocusNode.addListener(_onFocusChange);
+    _middleNameFocusNode.addListener(_onFocusChange);
+    _extensionNameFocusNode.addListener(_onFocusChange);
+    _ageFocusNode.addListener(_onFocusChange);
+    _birthdateFocusNode.addListener(_onFocusChange);
+    _emailFocusNode.addListener(_onFocusChange);
+    _indigenousFocusNode.addListener(_onFocusChange);
+    _genderController.addListener(_notifyParent);
   }
 
-  class _StudentInformationState extends State<StudentInformation> {
-    final FocusNode _lrnFocusNode = FocusNode();
-    final FocusNode _lastNameFocusNode = FocusNode();
-    final FocusNode _firstNameFocusNode = FocusNode();
-    final FocusNode _ageFocusNode = FocusNode();
-    final FocusNode _genderFocusNode = FocusNode();
-    final FocusNode _birthdateFocusNode = FocusNode();
-    final FocusNode _emailFocusNode = FocusNode();
-    final FocusNode _indigenousFocusNode = FocusNode();
+  @override
+  void dispose() {
+    _lrnController.dispose();
+    _lrnFocusNode.dispose();
+    _lastNameFocusNode.dispose();
+    _lastNameController.dispose();
+    _firstNameFocusNode.dispose();
+    _firstNameController.dispose();
+    _middleNameFocusNode.dispose();
+    _middleNameController.dispose();
+    _extensionNameFocusNode.dispose();
+    _extensionNameController.dispose();
+    _ageFocusNode.dispose();
+    _ageController.dispose();
+    _birthdateFocusNode.dispose();
+    _birthdateController.dispose();
+    _emailFocusNode.dispose();
+    _emailAddressController.dispose();
+    _indigenousFocusNode.dispose();
+    _indigenousController.dispose();
+    _genderFocusNode.dispose();
+    _genderController.dispose();
+    super.dispose();
+  }
 
-    final FocusNode _middleNameFocusNode = FocusNode();
-    final FocusNode _extensionNameFocusNode = FocusNode();
+  @override
+  bool get wantKeepAlive => true;
 
-    final TextEditingController _lrnController = TextEditingController();
-    final TextEditingController _lastNameController = TextEditingController();
-    final TextEditingController _firstNameController = TextEditingController();
-    final TextEditingController _middleNameController = TextEditingController();
-    final TextEditingController _extensionNameController = TextEditingController();
-    final TextEditingController _ageController = TextEditingController();
-    final TextEditingController _birthdateController = TextEditingController();
-    final TextEditingController _emailAddressController = TextEditingController();
-<<<<<<< HEAD
-    final TextEditingController _indigenousController = TextEditingController();
-    final TextEditingController _genderController = TextEditingController();
-
-=======
-    final TextEditingController _contactNumberController = TextEditingController();
->>>>>>> 53939116252c565d5ae261c121187eb81110a416
-    String _gender = '';
-    String _indigenousGroup = '';
-    File? _imageFile;
-    Uint8List? _webImageData;
-    String? _imageUrl;
-
-    @override
-    void initState() {
-      super.initState();
-      _lrnController.addListener(_notifyParent);
-      _lastNameController.addListener(_notifyParent);
-      _firstNameController.addListener(_notifyParent);
-      _middleNameController.addListener(_notifyParent);
-      _extensionNameController.addListener(_notifyParent);
-      _ageController.addListener(_notifyParent);
-      _birthdateController.addListener(_notifyParent);
-      _emailAddressController.addListener(_notifyParent);
-      _indigenousController.addListener(_notifyParent);
-      _genderController.addListener(_notifyParent);
-
-      _lrnFocusNode.addListener(_onFocusChange);
-      _lastNameFocusNode.addListener(_onFocusChange);
-      _firstNameFocusNode.addListener(_onFocusChange);
-      _middleNameFocusNode.addListener(_onFocusChange);
-      _extensionNameFocusNode.addListener(_onFocusChange);
-      _ageFocusNode.addListener(_onFocusChange);
-      _birthdateFocusNode.addListener(_onFocusChange);
-      _emailFocusNode.addListener(_onFocusChange);
-      _indigenousFocusNode.addListener(_onFocusChange);
-      _genderController.addListener(_notifyParent);
-    }
-
-     @override
-      void dispose() {
-        _lrnController.dispose();
-        _lrnFocusNode.dispose();
-        _lastNameFocusNode.dispose();
-        _lastNameController.dispose();
-        _firstNameFocusNode.dispose();
-        _firstNameController.dispose();
-        _middleNameFocusNode.dispose();
-        _middleNameController.dispose();
-        _extensionNameFocusNode.dispose();
-        _extensionNameController.dispose();
-        _ageFocusNode.dispose();
-        _ageController.dispose();
-        _birthdateFocusNode.dispose();
-        _birthdateController.dispose();
-        _emailFocusNode.dispose();
-        _emailAddressController.dispose();
-        _indigenousFocusNode.dispose();
-        _indigenousController.dispose();
-        _genderFocusNode.dispose();
-        _genderController.dispose();
-        super.dispose();
-    }
-
-    void _onFocusChange() {
+  void _onFocusChange() {
     setState(() {});
-    }
+  }
 
-    void _notifyParent() {
-      widget.onDataChanged(getFormData());
-    }
+  void _notifyParent() {
+    widget.onDataChanged(getFormData());
+  }
 
-    Map<String, dynamic> getFormData() {
-      return {
-        'lrn': _lrnController.text,
-        'last_name': _lastNameController.text,
-        'first_name': _firstNameController.text,
-        'middle_name': _middleNameController.text,
-        'extension_name': _extensionNameController.text,
-        'age': _ageController.text,
-        'birthdate': _birthdateController.text,
-        'gender': _gender,
-        'indigenous_group': _indigenousGroup,
-        'email_Address': _emailAddressController.text,
-      };
-    }
+  Map<String, dynamic> getFormData() {
+    return {
+      'lrn': _lrnController.text,
+      'last_name': _lastNameController.text,
+      'first_name': _firstNameController.text,
+      'middle_name': _middleNameController.text,
+      'extension_name': _extensionNameController.text,
+      'age': _ageController.text,
+      'birthdate': _birthdateController.text,
+      'gender': _gender,
+      'indigenous_group': _indigenousGroup,
+      'email_Address': _emailAddressController.text,
+    };
+  }
 
     Future<void> _pickImage() async {
     if (kIsWeb) {
@@ -191,44 +193,6 @@
     }
   }
 
-<<<<<<< HEAD
-=======
-
-    @override
-    void initState() {
-      super.initState();
-      _lrnController.addListener(_notifyParent);
-      _lastNameController.addListener(_notifyParent);
-      _firstNameController.addListener(_notifyParent);
-      _middleNameController.addListener(_notifyParent);
-      _extensionNameController.addListener(_notifyParent);
-      _ageController.addListener(_notifyParent);
-      _birthdateController.addListener(_notifyParent);
-      _emailAddressController.addListener(_notifyParent);
-      _contactNumberController.addListener(_notifyParent);
-    }
-
-    void _notifyParent() {
-      widget.onDataChanged(getFormData());
-    }
-
-    Map<String, dynamic> getFormData() {
-      return {
-        'lrn': _lrnController.text,
-        'last_name': _lastNameController.text,
-        'first_name': _firstNameController.text,
-        'middle_name': _middleNameController.text,
-        'extension_name': _extensionNameController.text,
-        'age': _ageController.text,
-        'birthdate': _birthdateController.text,
-        'gender': _gender,
-        'indigenous_group': _indigenousGroup,
-        'email_Address': _emailAddressController.text,
-        'contact_number': _contactNumberController.text,
-      };
-    }
-
->>>>>>> 53939116252c565d5ae261c121187eb81110a416
     @override
     Widget build(BuildContext context) {
       return Column(
@@ -784,37 +748,6 @@
                 ),
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-                    width: 300,
-                    child: TextFormField(
-                      controller: _contactNumberController,
-                      decoration: InputDecoration(
-                        labelText: 'Contact Number',
-                        labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your Email Address';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
           ),
         ],
       );
