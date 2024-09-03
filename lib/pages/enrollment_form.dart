@@ -23,8 +23,6 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
   Color _textColor1 = Color.fromARGB(255, 1, 93, 168);
   Color _textColor2 = Color.fromARGB(255, 1, 93, 168);
   Color _textColor3 = Color.fromARGB(255, 1, 93, 168);
-  Color _textColor5 = Color.fromARGB(255, 1, 93, 168);
-  Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
 
   bool _showSignInCard = false;
 
@@ -148,7 +146,7 @@ Widget build(BuildContext context) {
   final Size screenSize = MediaQuery.of(context).size;
   double screenWidth = screenSize.width;
 
-  double formFieldWidth = screenSize.width > 600 ? 300 : screenSize.width * 0.9;
+  // double formFieldWidth = screenSize.width > 600 ? 300 : screenSize.width * 0.9;
   double spacing = 50.0;
 
   return Scaffold(

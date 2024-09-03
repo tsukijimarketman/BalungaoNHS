@@ -18,9 +18,34 @@ class _AdminDashboardState extends State<AdminDashboard> {
   String _selectedDrawerItem = 'Dashboard';
   String _email = '';
   String _accountType = '';
+  int _gradeLevelIconState = 0;
+  int _transfereeIconState = 0;
+  int _trackIconState = 0;
+  bool _isStrandDropdownVisible = false;
+  final List<String> _strands = ['STEM', 'HUMSS', 'ABM', 'ICT', 'HE', 'IA'];
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  void _toggleGradeLevelIcon() {
+    setState(() {
+      _gradeLevelIconState = (_gradeLevelIconState + 1) % 3; // Cycles through 0, 1, 2
+    });
+  }
+
+  void _toggleTransfereeIcon() {
+    setState(() {
+      _transfereeIconState = (_transfereeIconState + 1) % 3; // Cycles through 0, 1, 2
+    });
+  }
+
+  void _toggleTrackIcon() {
+    setState(() {
+      _trackIconState = (_trackIconState + 1) % 3; // Cycles through 0, 1, 2
+    });
+  }
+
+  
 
   @override
   void initState() {
@@ -194,17 +219,91 @@ bool _isItemDisabled(String item) {
                   child: Column(
                     children: [
                       Row(
-                        children: [
-                          Checkbox(value: false, onChanged: (bool? value) {}),
-                          Expanded(child: Text('Student ID')),
-                          Expanded(child: Text('First Name')),
-                          Expanded(child: Text('Last Name')),
-                          Expanded(child: Text('Middle Name')),
-                          Expanded(child: Text('Track')),
-                          Expanded(child: Text('Strand')),
-                          Expanded(child: Text('Grade Level')),
-                        ],
+                      children: [
+                        Checkbox(value: false, onChanged: (bool? value) {}),
+                        Expanded(child: Text('Student ID')),
+                        Expanded(child: Text('First Name')),
+                        Expanded(child: Text('Last Name')),
+                        Expanded(child: Text('Middle Name')),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text('Track'),
+                              GestureDetector(
+                                onTap: _toggleTrackIcon, // Handles the tap to change icons
+                                child: Row(
+                                  children: [
+                                    if (_trackIconState == 0 || _trackIconState == 1) // Show up arrow for state 0 and 1
+                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                    if (_trackIconState == 0 || _trackIconState == 2) // Show down arrow for state 0 and 2
+                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                        child: Row(
+                          children: [
+                            Text('Strand'),
+                            PopupMenuButton<String>(
+                              icon: Icon(Icons.arrow_drop_down), // The down arrow icon
+                              onSelected: (String value) {
+                                // You can handle the selected strand here, if needed.
+                                print('Selected Strand: $value');
+                              },
+                              itemBuilder: (BuildContext context) {
+                                return _strands.map((String strand) {
+                                  return PopupMenuItem<String>(
+                                    value: strand,
+                                    child: Text(strand),
+                                  );
+                                }).toList();
+                              },
+                            ),
+                          ],
+                        ),
                       ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text('Grade Level'),
+                              GestureDetector(
+                                onTap: _toggleGradeLevelIcon, // Handles the tap to change icons
+                                child: Row(
+                                  children: [
+                                    if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1) // Show up arrow for state 0 and 1
+                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                    if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2) // Show down arrow for state 0 and 2
+                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text('Transferee'),
+                              GestureDetector(
+                                onTap: _toggleTransfereeIcon, // Handles the tap to change icons
+                                child: Row(
+                                  children: [
+                                    if (_transfereeIconState == 0 || _transfereeIconState == 1) // Show up arrow for state 0 and 1
+                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                    if (_transfereeIconState == 0 || _transfereeIconState == 2) // Show down arrow for state 0 and 2
+                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
                       Divider(),
                       ...students.map((student) {
                         final data = student.data() as Map<String, dynamic>;
@@ -217,6 +316,7 @@ bool _isItemDisabled(String item) {
                             Expanded(child: Text(data['middle_name'] ?? '')),
                             Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
                             Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                            Expanded(child: Text(data['grade_level'] ?? '')),
                             Expanded(child: Text(data['grade_level'] ?? '')),
                           ],
                         );
@@ -326,20 +426,93 @@ bool _isItemDisabled(String item) {
                 }).toList();
 
                   return SingleChildScrollView(
-                    child: Column(
+                  child: Column(
+                    children: [
+                      Row(
                       children: [
-                        Row(
+                        Checkbox(value: false, onChanged: (bool? value) {}),
+                        Expanded(child: Text('Student ID')),
+                        Expanded(child: Text('First Name')),
+                        Expanded(child: Text('Last Name')),
+                        Expanded(child: Text('Middle Name')),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text('Track'),
+                              GestureDetector(
+                                onTap: _toggleTrackIcon, // Handles the tap to change icons
+                                child: Row(
+                                  children: [
+                                    if (_trackIconState == 0 || _trackIconState == 1) // Show up arrow for state 0 and 1
+                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                    if (_trackIconState == 0 || _trackIconState == 2) // Show down arrow for state 0 and 2
+                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                        child: Row(
                           children: [
-                            Checkbox(value: false, onChanged: (bool? value) {}),
-                            Expanded(child: Text('Student ID')),
-                            Expanded(child: Text('First Name')),
-                            Expanded(child: Text('Last Name')),
-                            Expanded(child: Text('Middle Name')),
-                            Expanded(child: Text('Track')),
-                            Expanded(child: Text('Strand')),
-                            Expanded(child: Text('Grade Level')),
+                            Text('Strand'),
+                            PopupMenuButton<String>(
+                              icon: Icon(Icons.arrow_drop_down), // The down arrow icon
+                              onSelected: (String value) {
+                                // You can handle the selected strand here, if needed.
+                                print('Selected Strand: $value');
+                              },
+                              itemBuilder: (BuildContext context) {
+                                return _strands.map((String strand) {
+                                  return PopupMenuItem<String>(
+                                    value: strand,
+                                    child: Text(strand),
+                                  );
+                                }).toList();
+                              },
+                            ),
                           ],
                         ),
+                      ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text('Grade Level'),
+                              GestureDetector(
+                                onTap: _toggleGradeLevelIcon, // Handles the tap to change icons
+                                child: Row(
+                                  children: [
+                                    if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1) // Show up arrow for state 0 and 1
+                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                    if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2) // Show down arrow for state 0 and 2
+                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text('Transferee'),
+                              GestureDetector(
+                                onTap: _toggleTransfereeIcon, // Handles the tap to change icons
+                                child: Row(
+                                  children: [
+                                    if (_transfereeIconState == 0 || _transfereeIconState == 1) // Show up arrow for state 0 and 1
+                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                    if (_transfereeIconState == 0 || _transfereeIconState == 2) // Show down arrow for state 0 and 2
+                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                         Divider(),
                         ...students.map((student) {
                           final data = student.data() as Map<String, dynamic>;
@@ -361,6 +534,7 @@ bool _isItemDisabled(String item) {
                                 Expanded(child: Text(data['middle_name'] ?? '')),
                                 Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
                                 Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                                Expanded(child: Text(data['grade_level'] ?? '')),
                                 Expanded(child: Text(data['grade_level'] ?? '')),
                               ],
                             ),

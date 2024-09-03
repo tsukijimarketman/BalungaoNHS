@@ -112,78 +112,7 @@ class _StudentInformationState extends State<StudentInformation>
   bool get wantKeepAlive => true;
 
   void _onFocusChange() {
-    final TextEditingController _lrnController = TextEditingController();
-    final TextEditingController _lastNameController = TextEditingController();
-    final TextEditingController _firstNameController = TextEditingController();
-    final TextEditingController _middleNameController = TextEditingController();
-    final TextEditingController _extensionNameController = TextEditingController();
-    final TextEditingController _ageController = TextEditingController();
-    final TextEditingController _birthdateController = TextEditingController();
-    final TextEditingController _emailAddressController = TextEditingController();
-    final TextEditingController _indigenousController = TextEditingController();
-    final TextEditingController _genderController = TextEditingController();
-    final TextEditingController _contactNumberController = TextEditingController();
-    
-    String _gender = '';
-    String _indigenousGroup = '';
-    File? _imageFile;
-    Uint8List? _webImageData;
-    String? _imageUrl;
-
-    // @override
-    // void initState() {
-    //   super.initState();
-    //   _lrnController.addListener(_notifyParent);
-    //   _lastNameController.addListener(_notifyParent);
-    //   _firstNameController.addListener(_notifyParent);
-    //   _middleNameController.addListener(_notifyParent);
-    //   _extensionNameController.addListener(_notifyParent);
-    //   _ageController.addListener(_notifyParent);
-    //   _birthdateController.addListener(_notifyParent);
-    //   _emailAddressController.addListener(_notifyParent);
-    //   _indigenousController.addListener(_notifyParent);
-    //   _genderController.addListener(_notifyParent);
-
-    //   _lrnFocusNode.addListener(_onFocusChange);
-    //   _lastNameFocusNode.addListener(_onFocusChange);
-    //   _firstNameFocusNode.addListener(_onFocusChange);
-    //   _middleNameFocusNode.addListener(_onFocusChange);
-    //   _extensionNameFocusNode.addListener(_onFocusChange);
-    //   _ageFocusNode.addListener(_onFocusChange);
-    //   _birthdateFocusNode.addListener(_onFocusChange);
-    //   _emailFocusNode.addListener(_onFocusChange);
-    //   _indigenousFocusNode.addListener(_onFocusChange);
-    //   _genderController.addListener(_notifyParent);
-    // }
-
-    //  @override
-    //   void dispose() {
-    //     _lrnController.dispose();
-    //     _lrnFocusNode.dispose();
-    //     _lastNameFocusNode.dispose();
-    //     _lastNameController.dispose();
-    //     _firstNameFocusNode.dispose();
-    //     _firstNameController.dispose();
-    //     _middleNameFocusNode.dispose();
-    //     _middleNameController.dispose();
-    //     _extensionNameFocusNode.dispose();
-    //     _extensionNameController.dispose();
-    //     _ageFocusNode.dispose();
-    //     _ageController.dispose();
-    //     _birthdateFocusNode.dispose();
-    //     _birthdateController.dispose();
-    //     _emailFocusNode.dispose();
-    //     _emailAddressController.dispose();
-    //     _indigenousFocusNode.dispose();
-    //     _indigenousController.dispose();
-    //     _genderFocusNode.dispose();
-    //     _genderController.dispose();
-    //     super.dispose();
-    // }
-  
-    void _onFocusChange() {
     setState(() {});
-    }
   }
 
   void _notifyParent() {
