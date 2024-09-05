@@ -16,6 +16,7 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
   final TextEditingController _gradeLevel = TextEditingController();
   String _selectedTrack = '';
   String _selectedStrand = '';
+  String _selectedtransferee = '';
 
   @override
   void initState() {
@@ -47,6 +48,7 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
       'grade_level': _gradeLevel.text,
       'seniorHigh_Track': _selectedTrack,
       'seniorHigh_Strand': _selectedStrand,
+      'transferee': _selectedtransferee,
     };
   }
   
@@ -115,6 +117,46 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
                   onChanged: (text) {
                       setState(() {});
                     },
+                ),
+              ),
+              SizedBox(width: widget.spacing),
+              Flexible(
+                child: Container(
+                  width: 300,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedtransferee.isEmpty ? null : _selectedtransferee,
+                    decoration: InputDecoration(
+                      labelText: 'Are you a transferee?',
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                    ),
+                    items: [
+                      'yes',
+                      'no'
+                    ].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedtransferee = value!;
+                        _notifyParent();
+                      });
+                    },
+                  ),
                 ),
               ),
             ]

@@ -36,6 +36,7 @@ class _StudentInformationState extends State<StudentInformation>
   final FocusNode _birthdateFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _indigenousFocusNode = FocusNode();
+  final FocusNode _phoneNumberFocusNode = FocusNode();
 
   final FocusNode _middleNameFocusNode = FocusNode();
   final FocusNode _extensionNameFocusNode = FocusNode();
@@ -50,6 +51,7 @@ class _StudentInformationState extends State<StudentInformation>
   final TextEditingController _emailAddressController = TextEditingController();
   final TextEditingController _indigenousController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   String _gender = '';
   String _indigenousGroup = '';
@@ -70,6 +72,7 @@ class _StudentInformationState extends State<StudentInformation>
     _emailAddressController.addListener(_notifyParent);
     _indigenousController.addListener(_notifyParent);
     _genderController.addListener(_notifyParent);
+    _phoneNumberController.addListener(_notifyParent);
 
     _lrnFocusNode.addListener(_onFocusChange);
     _lastNameFocusNode.addListener(_onFocusChange);
@@ -81,6 +84,7 @@ class _StudentInformationState extends State<StudentInformation>
     _emailFocusNode.addListener(_onFocusChange);
     _indigenousFocusNode.addListener(_onFocusChange);
     _genderController.addListener(_onFocusChange);
+    _phoneNumberFocusNode.addListener(_onFocusChange);
   }
 
   @override
@@ -105,6 +109,8 @@ class _StudentInformationState extends State<StudentInformation>
     _indigenousController.dispose();
     _genderFocusNode.dispose();
     _genderController.dispose();
+    _phoneNumberController.dispose();
+    _phoneNumberFocusNode.dispose();
     super.dispose();
   }
 
@@ -132,6 +138,7 @@ class _StudentInformationState extends State<StudentInformation>
       'gender': _gender,
       'indigenous_group': _indigenousGroup,
       'email_Address': _emailAddressController.text,
+      'phone_number': _phoneNumberController.text,
     };
   }
 
@@ -750,7 +757,62 @@ class _StudentInformationState extends State<StudentInformation>
               ],
             ),
           ),
+           Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 300,
+                  child: TextFormField(
+                    controller: _phoneNumberController,
+                    focusNode: _phoneNumberFocusNode,
+                    decoration: InputDecoration(
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'Phone Number',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (_phoneNumberFocusNode.hasFocus || _phoneNumberController.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your phone number';
+                      }
+                      return null;
+                    },
+                    onChanged: (text) {
+                      setState(() {});
+                    },
+                  ),
+                ),
+                SizedBox(width: widget.spacing),
         ],
+            )
+           )
+        ]
       );
     }
   }
