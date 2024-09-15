@@ -3,9 +3,11 @@ import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:intl/intl.dart';
 
 class StudentInformation extends StatefulWidget {
   final double spacing;
@@ -264,6 +266,8 @@ class _StudentInformationState extends State<StudentInformation>
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ),
                 SizedBox(width: widget.spacing),
@@ -349,6 +353,7 @@ class _StudentInformationState extends State<StudentInformation>
                   child: TextFormField(
                     controller: _lastNameController,
                     focusNode: _lastNameFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -390,17 +395,31 @@ class _StudentInformationState extends State<StudentInformation>
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
                 SizedBox(width: widget.spacing),
                 Container(
-                  width: 300,
-                  child: TextFormField(
-                    controller: _firstNameController,
-                    focusNode: _firstNameFocusNode,
-                    decoration: InputDecoration(
-                      labelText: null,
-                      label: RichText(text: TextSpan(
+                width: 300,
+                child: TextFormField(
+                  controller: _firstNameController,
+                  focusNode: _firstNameFocusNode,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    labelText: null,
+                    label: RichText(
+                      text: TextSpan(
                         text: 'First Name',
                         style: TextStyle(
                           color: Color.fromARGB(255, 101, 100, 100),
@@ -408,45 +427,61 @@ class _StudentInformationState extends State<StudentInformation>
                         ),
                         children: [
                           if (_firstNameFocusNode.hasFocus || _firstNameController.text.isNotEmpty)
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red, // Red color for the asterisk
-                            ),
+                            TextSpan(
+                              text: '*',
+                              style: TextStyle(
+                                color: Colors.red, // Red color for the asterisk
+                              ),
                             ),
                         ],
                       ),
                     ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                      ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null;
-                    },
-                    onChanged: (text) {
-                      setState(() {});
-                    },
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                    ),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your first name';
+                    }
+                    return null;
+                  },
+                  onChanged: (text) {
+                    setState(() {});
+                  },
+                  keyboardType: TextInputType.text,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // Allow letters and spaces
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                  ],
                 ),
+              ),
+
                 SizedBox(width: widget.spacing),
                 Container(
                   width: 300,
                   child: TextFormField(
                     controller: _middleNameController,
                     focusNode: _middleNameFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -482,6 +517,19 @@ class _StudentInformationState extends State<StudentInformation>
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
               ],
@@ -496,6 +544,7 @@ class _StudentInformationState extends State<StudentInformation>
                   child: TextFormField(
                     controller: _extensionNameController,
                     focusNode: _extensionNameFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -579,6 +628,8 @@ class _StudentInformationState extends State<StudentInformation>
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ),
                 SizedBox(width: widget.spacing),
@@ -629,23 +680,25 @@ class _StudentInformationState extends State<StudentInformation>
                     controller: _birthdateController,
                     focusNode: _birthdateFocusNode,
                     decoration: InputDecoration(
-                      labelText: null,
-                      label: RichText(text: TextSpan(
-                        text: 'Birthdate',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 101, 100, 100),
-                          fontSize: 16,
+                      hintText: 'MM/DD/YYYY', // Hint text
+                      label: RichText(
+                        text: TextSpan(
+                          text: 'Birthdate',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 101, 100, 100),
+                            fontSize: 16,
+                          ),
+                          children: [
+                            if (_birthdateFocusNode.hasFocus || _birthdateController.text.isNotEmpty)
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(
+                                  color: Colors.red, // Red color for the asterisk
+                                ),
+                              ),
+                          ],
                         ),
-                        children: [
-                          if (_birthdateFocusNode.hasFocus || _birthdateController.text.isNotEmpty)
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red,                             ),
-                            ),
-                        ],
                       ),
-                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -658,6 +711,23 @@ class _StudentInformationState extends State<StudentInformation>
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
+                      suffixIcon: IconButton(
+                        icon: Icon(Iconsax.calendar_1_copy),
+                        onPressed: () async {
+                          // Trigger the date picker when the calendar icon is pressed
+                          DateTime? selectedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                          );
+
+                          if (selectedDate != null) {
+                            String formattedDate = DateFormat('MM/dd/yyyy').format(selectedDate);
+                            _birthdateController.text = formattedDate; // Set the selected date in the text field
+                          }
+                        },
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -665,11 +735,25 @@ class _StudentInformationState extends State<StudentInformation>
                       }
                       return null;
                     },
-                    onChanged: (text) {
-                      setState(() {});
+                    readOnly: true, // Makes the TextFormField non-editable
+                    onTap: () async {
+                      // Optionally trigger the date picker on tap as well
+                      FocusScope.of(context).requestFocus(FocusNode()); // Prevents keyboard from showing up
+                      DateTime? selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                      );
+
+                      if (selectedDate != null) {
+                        String formattedDate = DateFormat('MM/dd/yyyy').format(selectedDate);
+                        _birthdateController.text = formattedDate; // Set the selected date in the text field
+                      }
                     },
                   ),
                 ),
+
                 SizedBox(width: widget.spacing),
                 Container(
                   width: 300,
@@ -767,6 +851,7 @@ class _StudentInformationState extends State<StudentInformation>
                     controller: _phoneNumberController,
                     focusNode: _phoneNumberFocusNode,
                     decoration: InputDecoration(
+                      hintText: '09********',
                       labelText: null,
                       label: RichText(text: TextSpan(
                         text: 'Phone Number',
@@ -806,6 +891,8 @@ class _StudentInformationState extends State<StudentInformation>
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ),
                 SizedBox(width: widget.spacing),

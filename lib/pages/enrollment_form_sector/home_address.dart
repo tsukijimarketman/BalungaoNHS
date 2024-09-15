@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class HomeAddress extends StatefulWidget {
 
@@ -106,6 +107,7 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                 child: TextFormField(
                   controller: _houseNumber,
                   focusNode: _houseNumberFocusNode,
+                  textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -140,6 +142,18 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                   onChanged: (text) {
                       setState(() {});
                     },
+                    inputFormatters: [
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText, selection: newValue.selection);
+                    }),
+                  ],
                 ),
               ),
               SizedBox(width: widget.spacing),
@@ -148,6 +162,7 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                 child: TextFormField(
                   controller: _streetName,
                   focusNode: _streetNameFocusNode,
+                  textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -188,6 +203,18 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                   onChanged: (text) {
                       setState(() {});
                     },
+                    inputFormatters: [
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText, selection: newValue.selection);
+                    }),
+                  ],
                 ),
               ),
               SizedBox(width: widget.spacing),
@@ -196,6 +223,7 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                 child: TextFormField(
                   controller: _subdivisionBarangay,
                   focusNode: _subdivisionFocusNode,
+                  textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -209,7 +237,8 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                           TextSpan(
                             text: '*',
                             style: TextStyle(
-                              color: Colors.red,                             ),
+                              color: Colors.red,                             
+                              ),
                             ),
                         ],
                       ),
@@ -236,6 +265,18 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                   onChanged: (text) {
                       setState(() {});
                     },
+                    inputFormatters: [
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText, selection: newValue.selection);
+                    }),
+                  ],
                 ),
               ),
             ],
@@ -251,6 +292,7 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                   child: TextFormField(
                     controller: _cityMunicipality,
                     focusNode: _cityFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -264,7 +306,8 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                           TextSpan(
                             text: '*',
                             style: TextStyle(
-                              color: Colors.red,                             ),
+                              color: Colors.red,                             
+                              ),
                             ),
                         ],
                       ),
@@ -291,6 +334,19 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
               ),
@@ -301,6 +357,7 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                   child: TextFormField(
                     controller: _province,
                     focusNode: _provinceFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -342,6 +399,19 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
               ),
@@ -352,6 +422,7 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                   child: TextFormField(
                     controller: _country,
                     focusNode: _countryFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -392,6 +463,19 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
               ),

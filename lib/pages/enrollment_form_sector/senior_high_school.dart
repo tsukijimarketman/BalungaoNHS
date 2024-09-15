@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SeniorHighSchool extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
@@ -114,9 +115,17 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
                     ),
                   ),
+                  validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your grade level';
+                      }
+                      return null;
+                    },
                   onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
               ),
               SizedBox(width: widget.spacing),
