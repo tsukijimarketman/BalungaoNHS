@@ -1,8 +1,13 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:pbma_portal/SubjectsAndGrade/AddingSubjects.dart';
+import 'package:pbma_portal/SubjectsAndGrade/AssignInstructor.dart';
+import 'package:pbma_portal/SubjectsAndGrade/SubjectsandGrade.dart';
 import 'package:pbma_portal/pages/Auth_View/Adding_InstructorAcc_Desktview.dart';
 import 'package:pbma_portal/pages/dashboard.dart';
 import 'package:pbma_portal/pages/student_details.dart';
@@ -23,9 +28,40 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int _transfereeIconState = 0;
   int _trackIconState = 0;
   String _selectedStrand = 'ALL';
+  bool _showAddSubjects = false;
+  bool _showAddInstructor = false;
+   String? _selectedSemester;
+  final List<String> _semesterOptions = ['1st_Semester', '2nd_Semester'];
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> _assignedInstructors = [];
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  void toggleAddInstructor() {
+    setState(() {
+      _showAddInstructor = !_showAddInstructor;
+    });
+  }
+
+  void closeAddInstructor() {
+    setState(() {
+      _showAddInstructor = false;
+    });
+  }
+
+  void toggleAddSubjects() {
+    setState(() {
+      _showAddSubjects = !_showAddSubjects;
+    });
+  }
+
+  void closeAddSubjects() {
+    setState(() {
+      _showAddSubjects = false;
+    });
+  }
 
   void _toggleGradeLevelIcon() {
     setState(() {
@@ -57,10 +93,57 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _transfereeIconState, _selectedStrand);
   }
 
+  Stream<QuerySnapshot> _getSubjectsStream() {
+  if (_selectedSemester == null) {
+    return Stream.empty(); // Handle case when no semester is selected
+  }
+
+  return FirebaseFirestore.instance
+      .collection('subjects')
+      .doc(_selectedSemester) // Use the selected semester
+      .collection('subject_list')
+      .snapshots();
+}
+
+ Stream<QuerySnapshot<Map<String, dynamic>>> _getFilteredInstructorStudents() async* {
+  final userDoc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
+
+  final userData = userDoc.data()!;
+  final userGradeLevel = userData['gradeLevel'];
+  final userStrand = userData['strand'];
+  final userTrack = userData['track'];
+
+  Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('users')
+      .where('grade_level', isEqualTo: userGradeLevel)
+      .where('seniorHigh_Strand', isEqualTo: userStrand)
+      .where('seniorHigh_Track', isEqualTo: userTrack)
+      .where('enrollment_status', isEqualTo: 'approved')
+      .where('accountType', isEqualTo: 'student');
+
+  if (_trackIconState != 0) {
+    query = query.where('seniorHigh_Track', isEqualTo: _trackIconState);
+  }
+
+  if (_gradeLevelIconState != 0) {
+    query = query.where('grade_level', isEqualTo: _gradeLevelIconState);
+  }
+
+  if (_selectedStrand != 'ALL') {
+    query = query.where('seniorHigh_Strand', isEqualTo: _selectedStrand);
+  }
+
+  yield* query.snapshots();
+}
+
   @override
   void initState() {
     super.initState();
+    _selectedSemester = _semesterOptions.first; // Default to '1st_Semester'
     _fetchUserData();
+   _fetchAssignedInstructors();
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.toLowerCase();
@@ -72,6 +155,38 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<QuerySnapshot> _fetchSubjectsData() async {
+    return FirebaseFirestore.instance.collection('subjects').get();
+  }
+
+  Future<void> _fetchAssignedInstructors() async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('users')
+          .where('accountType', isEqualTo: 'instructor')
+          .where('assignedSubject', isNotEqualTo: null) // Fetch instructors with assigned subjects
+          
+          .get();
+
+      List<Map<String, dynamic>> instructors = [];
+      for (var doc in querySnapshot.docs) {
+        instructors.add({
+          'name': '${doc['first_name']} ${doc['last_name']}',
+          'assignedSubject': doc['assignedSubject'],
+          'gradeLevel': doc['gradeLevel'],
+          'strand':doc['strand'],
+          'track':doc['track']
+        });
+      }
+
+      setState(() {
+        _assignedInstructors = instructors;
+      });
+    } catch (e) {
+      print('Error fetching instructors: $e');
+    }
   }
 
   // pag retrieve ng nag login na account admin, instructor
@@ -164,6 +279,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return _buildStrandInstructorContent();
       case 'Manage Newcomers':
         return _buildNewcomersContent();
+      case 'Subjects and Instructor':
+        return _buildSubjectsandInstructorContent();
       default:
         return Center(child: Text('Body Content Here'));
     }
@@ -216,9 +333,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No students.'));
                   }
 
                   final students = snapshot.data!.docs;
@@ -438,11 +552,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No approved students.'));
-                  }
 
-                  final students = snapshot.data!.docs.where((student) {
+                    final students = snapshot.data!.docs.where((student) {
                     final data = student.data() as Map<String, dynamic>;
                     final query = _searchQuery.toLowerCase();
 
@@ -684,16 +795,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 color: Colors.white,
                 border: Border.all(color: Colors.blue, width: 2.0),
               ),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _getFilteredStudents(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No approved students.'));
-                  }
-
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: _getFilteredInstructorStudents(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+              
                   final students = snapshot.data!.docs.where((student) {
                     final data = student.data() as Map<String, dynamic>;
                     final query = _searchQuery.toLowerCase();
@@ -808,35 +916,40 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           ],
                         ),
                         Divider(),
-                        ...students.map((student) {
-                          final data = student.data() as Map<String, dynamic>;
-                          return Row(
+                      ...students.map((student) {
+                        final data = student.data();
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SubjectsandGrade(
+                                          studentData: data,
+                                        )));
+                          },
+                          child: Row(
                             children: [
-                              Checkbox(
-                                  value: false, onChanged: (bool? value) {}),
+                              Checkbox(value: false, onChanged: (bool? value) {}),
                               Expanded(child: Text(data['student_id'] ?? '')),
-                              Expanded(
-                                  child: Text(
-                                      '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}')),
-                              Expanded(
-                                  child: Text(data['seniorHigh_Track'] ?? '')),
-                              Expanded(
-                                  child: Text(data['seniorHigh_Strand'] ?? '')),
+                              Expanded(child: Text('${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}')),
+                              Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                              Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
                               Expanded(child: Text(data['grade_level'] ?? '')),
                             ],
-                          );
-                        }).toList(),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildNewcomersContent() {
     return Container(
@@ -1061,6 +1174,268 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  Widget _buildSubjectsandInstructorContent() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    return Stack(
+      children:[ Container(
+          color: Colors.grey[300],
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Subjects and Instructor',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    alignment: Alignment.topLeft,
+                    width: 150,
+                    height: 40,
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                          elevation: WidgetStatePropertyAll(10),
+                          backgroundColor: WidgetStatePropertyAll(Colors.blue),
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)))),
+                      onPressed: toggleAddSubjects,
+                      child: Text(
+                        'Add Subjects',
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 550.0),
+                    child: Container(
+                      alignment: Alignment.topLeft,
+                      width: 180,
+                      height: 40,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            elevation: WidgetStatePropertyAll(10),
+                            backgroundColor: WidgetStatePropertyAll(Colors.blue),
+                            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)))),
+                        onPressed: toggleAddInstructor,
+                        child: Text(
+                          'Assign Instructor',
+                          style: TextStyle(fontSize: 14, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Row(
+              children: [
+               Expanded(
+  child: Container(
+    height: 500,
+    child: Card(
+      elevation: 10,
+      margin: EdgeInsets.all(10),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // DropdownButton on top inside the card
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: DropdownButton<String>(
+                value: _selectedSemester,
+                hint: Text('Select Semester'),
+                items: _semesterOptions.map((String semester) {
+                  return DropdownMenuItem<String>(
+                    value: semester,
+                    child: Text(semester),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedSemester = newValue;
+                  });
+                },
+              ),
+            ),
+            
+            // StreamBuilder for data below the dropdown inside the card
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _getSubjectsStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(child: Text('No Data Found'));
+                  }
+
+                  final subjects = snapshot.data!.docs;
+
+                  return ListView.builder(
+                    itemCount: subjects.length,
+                    itemBuilder: (context, index) {
+                      final data = subjects[index].data() as Map<String, dynamic>;
+                      
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Grade Level: ${data['grade_level'] ?? 'N/A'}'),
+                          Text('Semester: ${data['semester'] ?? 'N/A'}'),
+                          Text('Track: ${data['track'] ?? 'N/A'}'),
+                          Text('Strand: ${data['strand'] ?? 'N/A'}'),
+                          Text('Subjects'),
+                          Text('${data['subject_1'] ?? 'N/A'}'),
+                          Text('${data['subject_2'] ?? 'N/A'}'),
+                          Text('${data['subject_3'] ?? 'N/A'}'),
+                          Text('${data['subject_4'] ?? 'N/A'}'),
+                          Text('${data['subject_5'] ?? 'N/A'}'),
+                          Text('${data['subject_6'] ?? 'N/A'}'),
+                          Text('${data['subject_7'] ?? 'N/A'}'),
+                          Text('${data['subject_8'] ?? 'N/A'}'),
+                          Text('${data['subject_9'] ?? 'N/A'}'),
+                          Text('${data['subject_10'] ?? 'N/A'}'),
+                          SizedBox(height: 10),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+),
+                SizedBox(width: 16),
+                Expanded(
+        child: Container(
+          height: 500,
+          child: Card(
+            elevation: 10,
+            margin: EdgeInsets.all(10),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _assignedInstructors.length,
+                      itemBuilder: (context, index) {
+                        final instructor = _assignedInstructors[index];
+                        return ListTile(
+                          title: Text(instructor['name']),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Assigned Grade Level: ${instructor['gradeLevel']}'),
+                              Text('Assigned Track: ${instructor['track']}'),
+                              Text('Assigned Strand: ${instructor['strand']}'),
+                              Text('Assigned Subject: ${instructor['assignedSubject']}'),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+              ],
+            ), 
+          ])
+          ),
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 550),
+            child: _showAddSubjects
+                ? Positioned.fill(
+                    child: GestureDetector(
+                      onTap: closeAddSubjects,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: AddSubjects(
+                                  key: ValueKey('closeAddSubjects'),
+                                  closeAddSubjects: closeAddSubjects,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ),
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 550),
+            child: _showAddInstructor
+                ? Positioned.fill(
+                    child: GestureDetector(
+                      onTap: closeAddInstructor,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: AssignInstructor(
+                                  key: ValueKey('closeAddInstructor'),
+                                  closeAddInstructor: closeAddInstructor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ),
+      ]
+    );        
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1140,12 +1515,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ],
               ),
             ),
-            _buildDrawerItem('Dashboard', Iconsax.dash_dash, 'Dashboard'),
+             _buildDrawerItem('Dashboard', Iconsax.dash_dash, 'Dashboard'),
             _buildDrawerItem('Students', Iconsax.user, 'Students'),
             _buildDrawerItem(
                 'Strand Professor', Iconsax.teacher, 'Strand Professor'),
             _buildDrawerItem(
                 'Manage Newcomers', Iconsax.task, 'Manage Newcomers'),
+            _buildDrawerItem('Subjects and Instructor', Iconsax.activity,
+                'Subjects and Instructor'),
             ListTile(
               leading: Icon(Iconsax.logout),
               title: Text('Log out'),
