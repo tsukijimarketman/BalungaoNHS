@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pbma_portal/pages/Auth_View/SignInDesktopView.dart';
 import 'package:pbma_portal/pages/dashboard.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/home_address.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/junior_high_school.dart';
@@ -47,6 +49,12 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
   void toggleSignInCard() {
     setState(() {
       _showSignInCard = !_showSignInCard;
+    });
+  }
+
+  void closeSignInCard() {
+    setState(() {
+      _showSignInCard = false;
     });
   }
 
@@ -145,6 +153,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
 Widget build(BuildContext context) {
   final Size screenSize = MediaQuery.of(context).size;
   double screenWidth = screenSize.width;
+  double screenHeight = screenSize.height;
 
   // double formFieldWidth = screenSize.width > 600 ? 300 : screenSize.width * 0.9;
   double spacing = 50.0;
@@ -288,74 +297,112 @@ Widget build(BuildContext context) {
         ),
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              StudentInformation(
-                spacing: spacing,
-                onDataChanged: _updateStudentData,
-                onImageFileChanged: _updateImageFile,
-                onWebImageDataChanged: _updateWebImageData,
-                onImageUrlChanged: _updateImageUrl,
-              ),
-              SizedBox(height: 30),
-              HomeAddress(
-                spacing: spacing,
-                onDataChanged: _updateStudentData,
-              ),
-              SizedBox(height: 30),
-              ParentInformation(
-                spacing: spacing,
-                onDataChanged: _updateStudentData,
-              ),
-              SizedBox(height: 30),
-              JuniorHighSchool(
-                onDataChanged: _updateStudentData,
-              ),
-              SizedBox(height: 30),
-              SeniorHighSchool(
-                spacing: spacing,
-                onDataChanged: _updateStudentData,
-              ),
-              SizedBox(height: 30),
-              Center(
-                child: SizedBox(
-                  width: screenWidth / 8,
-                  height: screenWidth / 35,
-                  child: TextButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 1, 93, 168)),
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+      body: Stack(
+        children: [ Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                StudentInformation(
+                  spacing: spacing,
+                  onDataChanged: _updateStudentData,
+                  onImageFileChanged: _updateImageFile,
+                  onWebImageDataChanged: _updateWebImageData,
+                  onImageUrlChanged: _updateImageUrl,
+                ),
+                SizedBox(height: 30),
+                HomeAddress(
+                  spacing: spacing,
+                  onDataChanged: _updateStudentData,
+                ),
+                SizedBox(height: 30),
+                ParentInformation(
+                  spacing: spacing,
+                  onDataChanged: _updateStudentData,
+                ),
+                SizedBox(height: 30),
+                JuniorHighSchool(
+                  onDataChanged: _updateStudentData,
+                ),
+                SizedBox(height: 30),
+                SeniorHighSchool(
+                  spacing: spacing,
+                  onDataChanged: _updateStudentData,
+                ),
+                SizedBox(height: 30),
+                Center(
+                  child: SizedBox(
+                    width: screenWidth / 8,
+                    height: screenWidth / 35,
+                    child: TextButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 1, 93, 168)),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                    ),
-                    onPressed:_submitForm,
-                    child: Text(
-                      "Submit",
-                      style: TextStyle(
-                        fontFamily: "B",
-                        fontSize: 14,
-                        color: Colors.yellow,
+                      onPressed:_submitForm,
+                      child: Text(
+                        "Submit",
+                        style: TextStyle(
+                          fontFamily: "B",
+                          fontSize: 14,
+                          color: Colors.yellow,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              
-              // ElevatedButton(
-              //   onPressed: _submitForm,
-              //   child: Text('Submit'),
-              // ),
-            ],
+                
+                // ElevatedButton(
+                //   onPressed: _submitForm,
+                //   child: Text('Submit'),
+                // ),
+              ],
+            ),
+            
           ),
-          
         ),
+        AnimatedSwitcher(
+            duration: Duration(milliseconds: 550),
+            child: _showSignInCard
+                ? Positioned.fill(
+                    child: GestureDetector(
+                      onTap: closeSignInCard,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: SignInDesktop(
+                                  key: ValueKey('signInCard'),
+                                  closeSignInCardCallback: closeSignInCard,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ),
+        ]
       ),
+      
       
     );
   }

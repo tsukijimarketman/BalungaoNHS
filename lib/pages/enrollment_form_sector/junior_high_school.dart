@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class JuniorHighSchool extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
@@ -87,6 +88,7 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepA
                   child: TextFormField(
                     controller: _juniorHS,
                     focusNode: _juniorHSFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(
@@ -99,9 +101,9 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepA
                           children: [
                             if (_juniorHSFocusNode.hasFocus || _juniorHS.text.isNotEmpty)
                               TextSpan(
-                                text: '*',
+                                text: '(optional)',
                                 style: TextStyle(
-                                  color: Colors.red,
+                                  color: Color.fromARGB(255, 101, 100, 100),
                                 ),
                               ),
                           ],
@@ -120,15 +122,27 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepA
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter JHS name';
-                      }
-                      return null;
-                    },
+                    // validator: (value) {
+                    //   if (value == null || value.isEmpty) {
+                    //     return 'Please enter JHS name';
+                    //   }
+                    //   return null;
+                    // },
                     onChanged: (text) {
                       setState(() {});
                     },
+                    inputFormatters: [
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText, selection: newValue.selection);
+                    }),
+                  ],
                   ),
                 ),
               ),
@@ -145,6 +159,7 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepA
                   child: TextFormField(
                     controller: _schoolAdd,
                     focusNode: _schoolAddFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(
@@ -157,9 +172,9 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepA
                           children: [
                             if (_schoolAddFocusNode.hasFocus || _schoolAdd.text.isNotEmpty)
                               TextSpan(
-                                text: '*',
+                                text: '(optional)',
                                 style: TextStyle(
-                                  color: Colors.red,
+                                  color: Color.fromARGB(255, 101, 100, 100),
                                 ),
                               ),
                           ],
@@ -178,15 +193,27 @@ class _JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepA
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter school address';
-                      }
-                      return null;
-                    },
+                    // validator: (value) {
+                    //   if (value == null || value.isEmpty) {
+                    //     return 'Please enter school address';
+                    //   }
+                    //   return null;
+                    // },
                     onChanged: (text) {
                       setState(() {});
                     },
+                    inputFormatters: [
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText, selection: newValue.selection);
+                    }),
+                  ],
                   ),
                 ),
               ),

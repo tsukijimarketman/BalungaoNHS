@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ParentInformation extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
@@ -90,6 +91,7 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
                   child: TextFormField(
                     controller: _fathersName,
                     focusNode: fathersNameFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -130,6 +132,19 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
               ),
@@ -147,6 +162,7 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
                   child: TextFormField(
                     controller: _mothersName,
                     focusNode: mothersNameFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -187,6 +203,19 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
               ),
@@ -203,6 +232,7 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
                   child: TextFormField(
                     controller: _guardianName,
                     focusNode: guardianNameFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -243,6 +273,19 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
               ),
@@ -253,6 +296,7 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
                   child: TextFormField(
                     controller: _relationshipGuardian,
                     focusNode: guardianFocusNode,
+                    textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       labelText: null,
                       label: RichText(text: TextSpan(
@@ -293,6 +337,19 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
                     onChanged: (text) {
                       setState(() {});
                     },
+                    keyboardType: TextInputType.text,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-z\s]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      // Capitalize the first letter of every word after a space
+                      String newText = newValue.text.split(' ').map((word) {
+                        if (word.isNotEmpty) {
+                          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                        }
+                        return ''; // Handle empty words
+                      }).join(' '); // Join back the words with spaces
+                      return newValue.copyWith(text: newText);
+                    }),
+                    ],
                   ),
                 ),
               ),
