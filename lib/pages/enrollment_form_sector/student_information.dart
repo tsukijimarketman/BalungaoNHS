@@ -853,22 +853,24 @@ class _StudentInformationState extends State<StudentInformation>
                     decoration: InputDecoration(
                       hintText: '09********',
                       labelText: null,
-                      label: RichText(text: TextSpan(
-                        text: 'Phone Number',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 101, 100, 100),
-                          fontSize: 16,
+                      label: RichText(
+                        text: TextSpan(
+                          text: 'Phone Number',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 101, 100, 100),
+                            fontSize: 16,
+                          ),
+                          children: [
+                            if (_phoneNumberFocusNode.hasFocus || _phoneNumberController.text.isNotEmpty)
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                          ],
                         ),
-                        children: [
-                          if (_phoneNumberFocusNode.hasFocus || _phoneNumberController.text.isNotEmpty)
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red,                             ),
-                            ),
-                        ],
                       ),
-                    ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 2.0),
@@ -886,19 +888,24 @@ class _StudentInformationState extends State<StudentInformation>
                       if (value == null || value.isEmpty) {
                         return 'Please enter your phone number';
                       }
+                      // Ensure the number starts with '09' and has exactly 11 digits
+                      if (!RegExp(r'^(09\d{9})$').hasMatch(value)) {
+                        return 'Enter a valid phone number starting with 09 (e.g., 09xxxxxxxxx)';
+                      }
                       return null;
                     },
                     onChanged: (text) {
                       setState(() {});
                     },
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, 
+                    LengthLimitingTextInputFormatter(11), ],
                   ),
                 ),
                 SizedBox(width: widget.spacing),
-        ],
-            )
-           )
+              ],
+            ),
+          ),
         ]
       );
     }
