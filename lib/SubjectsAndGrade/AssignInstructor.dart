@@ -293,9 +293,9 @@ class _AssignInstructorState extends State<AssignInstructor> {
                         height: 40,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          elevation: WidgetStatePropertyAll(10),
-                          backgroundColor: WidgetStatePropertyAll(Colors.red),
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
+                          elevation: MaterialStatePropertyAll(10),
+                          backgroundColor: MaterialStatePropertyAll(Colors.red),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
                         ),
                         onPressed: (){
                          widget.closeAddInstructor();          
@@ -307,9 +307,9 @@ class _AssignInstructorState extends State<AssignInstructor> {
                         height: 40,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          elevation: WidgetStatePropertyAll(10),
-                          backgroundColor: WidgetStatePropertyAll(Colors.blue),
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
+                          elevation: MaterialStatePropertyAll(10),
+                          backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
                         ),
                         onPressed: _saveInstructorData,
                       child: Text('Save', style: TextStyle(fontSize: 20, color: Colors.white),)),

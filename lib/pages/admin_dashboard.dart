@@ -1199,9 +1199,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     height: 40,
                     child: ElevatedButton(
                       style: ButtonStyle(
-                          elevation: WidgetStatePropertyAll(10),
-                          backgroundColor: WidgetStatePropertyAll(Colors.blue),
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          elevation: MaterialStatePropertyAll(10),
+                          backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)))),
                       onPressed: toggleAddSubjects,
                       child: Text(
@@ -1218,9 +1218,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       height: 40,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                            elevation: WidgetStatePropertyAll(10),
-                            backgroundColor: WidgetStatePropertyAll(Colors.blue),
-                            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                            elevation: MaterialStatePropertyAll(10),
+                            backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)))),
                         onPressed: toggleAddInstructor,
                         child: Text(

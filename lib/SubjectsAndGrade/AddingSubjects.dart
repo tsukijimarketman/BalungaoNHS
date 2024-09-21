@@ -325,9 +325,9 @@ Future<void> saveToFirestore() async {
                         height: 40,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          elevation: WidgetStatePropertyAll(10),
-                          backgroundColor: WidgetStatePropertyAll(Colors.red),
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
+                          elevation: MaterialStatePropertyAll(10),
+                          backgroundColor: MaterialStatePropertyAll(Colors.red),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
                         ),
                         onPressed: (){
                          widget.closeAddSubjects();           
@@ -339,9 +339,9 @@ Future<void> saveToFirestore() async {
                         height: 40,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          elevation: WidgetStatePropertyAll(10),
-                          backgroundColor: WidgetStatePropertyAll(Colors.blue),
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
+                          elevation: MaterialStatePropertyAll(10),
+                          backgroundColor: MaterialStatePropertyAll(Colors.blue),
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
                         ),
                         onPressed: (){
                         saveToFirestore();
