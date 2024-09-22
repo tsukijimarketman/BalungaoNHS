@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pbma_portal/pages/dashboard.dart';
+import 'package:pbma_portal/widgets/scroll_offset.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -19,6 +21,9 @@ Future<void> main() async {
   appId: "1:501913407280:web:4d522e0a868fdac20b82f5"
      )
     );
+    FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+  };
 
 runApp(const MyApp());
 }
@@ -31,7 +36,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'PBMA Portal',
-      home: Dashboard(), //dashboard
+      home: BlocProvider(
+        create: (_)=> DisplayOffset(ScrollOffset(scrollOffsetValue: 0)),
+        child: const Dashboard()), //dashboard
     );
   }
 }
