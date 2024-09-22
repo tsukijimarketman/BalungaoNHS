@@ -281,46 +281,178 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return _buildNewcomersContent();
       case 'Subjects and Instructor':
         return _buildSubjectsandInstructorContent();
+      case 'Dropped Student' :
+        return _buildDropStudent();
       default:
         return Center(child: Text('Body Content Here'));
     }
   }
 
   Widget _buildDashboardContent() {
-    return Container(
-      color: Colors.grey[300],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Dashboard',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+  return Container(
+    color: Colors.grey[300],
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Dashboard',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => AddInstructorDialog(),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // "Students List" Text
+              Text(
+                'Students List',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(width: 50),
+
+              // Enrolled Students Card using StreamBuilder to fetch the count dynamically
+              StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: _getFilteredInstructorStudents(), // Replace with your Firestore stream
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Container(
+                      width: 120,
+                      height: 60,
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Center(child: CircularProgressIndicator()), // Loader while waiting
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    // If there are no enrolled students, display "0"
+                    return Container(
+                      width: 120,
+                      height: 60,
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 24.0,
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  '0', // Display 0 if no data
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Flexible(
+                                child: Text(
+                                  'ENROLLED',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.0,
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                              Flexible(
+                                child: Text(
+                                  'STUDENTS',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.0,
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  int enrolledStudentsCount = snapshot.data!.docs.length;
+
+                  return Container(
+                    width: 120, // Set fixed width
+                    height: 60, // Set fixed height
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Align the content horizontally
+                      children: [
+                        Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 24.0, // Adjust icon size to fit
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                '$enrolledStudentsCount', // Display the actual count
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                'ENROLLED',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.0, // Smaller text to fit within the box
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                'STUDENTS',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.0, // Smaller text to fit
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   );
                 },
-                child: Text(
-                  'Add Instructor Account',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                )),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Students List',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(
+        ),
+
+        Expanded(
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 16.0),
               padding: EdgeInsets.all(8.0),
@@ -342,7 +474,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       children: [
                         Row(
                           children: [
-                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            // Checkbox(value: false, onChanged: (bool? value) {}),
                             Expanded(child: Text('Student ID')),
                             Expanded(child: Text('First Name')),
                             Expanded(child: Text('Last Name')),
@@ -462,8 +594,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           final data = student.data() as Map<String, dynamic>;
                           return Row(
                             children: [
-                              Checkbox(
-                                  value: false, onChanged: (bool? value) {}),
+                              // Checkbox(
+                              //     value: false, onChanged: (bool? value) {}),
                               Expanded(child: Text(data['student_id'] ?? '')),
                               Expanded(child: Text(data['first_name'] ?? '')),
                               Expanded(child: Text(data['last_name'] ?? '')),
@@ -488,6 +620,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
     );
   }
+
 
   Widget _buildStudentsContent() {
     return Container(
@@ -1436,6 +1569,229 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );        
   }
 
+  Widget _buildDropStudent() {
+    return Container(
+      color: Colors.grey[300],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Dropped Students',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 300,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search Student',
+                      prefixIcon: Icon(Iconsax.search_normal_1_copy),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.blue, width: 2.0),
+              ),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _getNewcomersStudents(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(child: Text('No pending students.'));
+                  }
+
+                  final students = snapshot.data!.docs.where((student) {
+                    final data = student.data() as Map<String, dynamic>;
+                    final query = _searchQuery.toLowerCase();
+
+                    final studentId = data['student_id']?.toLowerCase() ?? '';
+                    final firstName = data['first_name']?.toLowerCase() ?? '';
+                    final lastName = data['last_name']?.toLowerCase() ?? '';
+                    final middleName = data['middle_name']?.toLowerCase() ?? '';
+                    final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
+                    final strand =
+                        data['seniorHigh_Strand']?.toLowerCase() ?? '';
+                    final gradeLevel = data['grade_level']?.toLowerCase() ?? '';
+
+                    final fullName = '$firstName $middleName $lastName';
+
+                    return studentId.contains(query) ||
+                        fullName.contains(query) ||
+                        track.contains(query) ||
+                        strand.contains(query) ||
+                        gradeLevel.contains(query);
+                  }).toList();
+
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            Expanded(child: Text('Student ID')),
+                            Expanded(child: Text('First Name')),
+                            Expanded(child: Text('Last Name')),
+                            Expanded(child: Text('Middle Name')),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap:
+                                        _toggleTrackIcon, // Handles the tap to change icons
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState ==
+                                                1) // Show up arrow for state 0 and 1
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState ==
+                                                2) // Show down arrow for state 0 and 2
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons
+                                        .arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand =
+                                            value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Grade Level'),
+                                  GestureDetector(
+                                    onTap:
+                                        _toggleGradeLevelIcon, // Handles the tap to change icons
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState ==
+                                                1) // Show up arrow for state 0 and 1
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState ==
+                                                2) // Show down arrow for state 0 and 2
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Divider(),
+                        ...students.map((student) {
+                          final data = student.data() as Map<String, dynamic>;
+                          return Row(
+                            children: [
+                              Checkbox(
+                                  value: false, onChanged: (bool? value) {}),
+                              Expanded(child: Text(data['student_id'] ?? '')),
+                              Expanded(child: Text(data['first_name'] ?? '')),
+                              Expanded(child: Text(data['last_name'] ?? '')),
+                              Expanded(child: Text(data['middle_name'] ?? '')),
+                              Expanded(
+                                  child: Text(data['seniorHigh_Track'] ?? '')),
+                              Expanded(
+                                  child: Text(data['seniorHigh_Strand'] ?? '')),
+                              Expanded(child: Text(data['grade_level'] ?? '')),
+                              Expanded(
+                                child: Row( 
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Iconsax.tick_circle_copy,
+                                          color: Colors.green),
+                                      onPressed: () {
+                                        approveStudent(student.id);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Iconsax.close_circle_copy,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        deleteStudent(student.id);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1523,6 +1879,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'Manage Newcomers', Iconsax.task, 'Manage Newcomers'),
             _buildDrawerItem('Subjects and Instructor', Iconsax.activity,
                 'Subjects and Instructor'),
+            _buildDrawerItem(
+                'Dropped Students', Iconsax.dropbox_copy, 'Dropped Students'),
             ListTile(
               leading: Icon(Iconsax.logout),
               title: Text('Log out'),
