@@ -1,36 +1,23 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pbma_portal/pages/models/infos.dart';
 
 class InfoCard extends StatefulWidget {
   final Info info;
-  const InfoCard({super.key, required this.info});
+  final double scrollOffset;
+  const InfoCard({super.key, required this.info, required this.scrollOffset});
 
   @override
   State<InfoCard> createState() => _InfoCardState();
 }
 
 class _InfoCardState extends State<InfoCard> {
-  bool isAnimate = false;
-  @override
-  void initState() {
-    Future.delayed(Duration(milliseconds: 3000), () {
-      setState(() {
-        isAnimate = true;
-      });
-    });
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    
     String firstLetter = widget.info.title.substring(0, 1);
     String remainingText = widget.info.title.substring(1);
 
     return AnimatedCrossFade(
-      crossFadeState:
-          isAnimate ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+      crossFadeState: widget.scrollOffset >= 1530 ? CrossFadeState.showSecond : CrossFadeState.showFirst,
       duration: Duration(milliseconds: 575),
       reverseDuration: Duration(milliseconds: 375),
       alignment: Alignment.center,

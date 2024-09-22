@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pbma_portal/pages/models/infos.dart';
 import 'package:pbma_portal/widgets/footer.dart';
@@ -32,9 +33,16 @@ class _SecondSectionState extends State<SecondSection>
   late Animation<double> _descAnimation;
   late Animation<double> _descOpacityAnimation;
   late AnimationController _desc;
+  late Animation<double> _seeProgramAnimation;
+  late Animation<double> _seeProgramOpacityAnimation;
+  late AnimationController _seeProgram;
+  late Animation<double> _coreValuesAnimation;
+  late Animation<double> _coreValuesOpacityAnimation;
+  late AnimationController _coreValues;
+  late Animation<double> _AppearAnimation;
+  late Animation<double> _AppearOpacityAnimation;
+  late AnimationController _Appear;
   late Animation<double> _WHYOpacityAnimation;
-  late AnimationController _section2TextController;
-  late AnimationController coreValues;
 
   @override
   void initState() {
@@ -86,10 +94,44 @@ class _SecondSectionState extends State<SecondSection>
     _descOpacityAnimation = Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(
             parent: _desc, curve: Interval(0.0, 0.3, curve: Curves.easeOut)));
-    coreValues = AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 1000),
-        reverseDuration: Duration(milliseconds: 375));
+    _seeProgram = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 5000),
+      reverseDuration: Duration(milliseconds: 1000),
+    );
+    _seeProgramAnimation = Tween<double>(begin: 100, end: 0).animate(
+        CurvedAnimation(
+            parent: _seeProgram,
+            curve: Interval(0.0, 0.7, curve: Curves.fastEaseInToSlowEaseOut)));
+    _seeProgramOpacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+            parent: _seeProgram,
+            curve: Interval(0.0, 0.3, curve: Curves.easeOut)));
+    _coreValues = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000),
+      reverseDuration: Duration(milliseconds: 1000),
+    );
+    _coreValuesAnimation = Tween<double>(begin: 100, end: 0).animate(
+        CurvedAnimation(
+            parent: _coreValues,
+            curve: Interval(0.0, 0.3, curve: Curves.fastEaseInToSlowEaseOut)));
+    _coreValuesOpacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+            parent: _coreValues,
+            curve: Interval(0.0, 0.3, curve: Curves.easeOut)));
+    _Appear = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000),
+      reverseDuration: Duration(milliseconds: 1000),
+    );
+    _AppearAnimation = Tween<double>(begin: 100, end: 0).animate(
+        CurvedAnimation(
+            parent: _Appear,
+            curve: Interval(0.0, 0.3, curve: Curves.fastEaseInToSlowEaseOut)));
+    _AppearOpacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+            parent: _Appear, curve: Interval(0.0, 0.3, curve: Curves.easeOut)));
     imageController = AnimationController(
         vsync: this,
         duration: Duration(milliseconds: 1500),
@@ -100,14 +142,7 @@ class _SecondSectionState extends State<SecondSection>
     imageOpacity = Tween<double>(begin: 0.0, end: 1).animate(CurvedAnimation(
         parent: imageController,
         curve: Interval(0.0, 0.5, curve: Curves.easeOut)));
-    _section2TextController = AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 1000),
-        reverseDuration: Duration(milliseconds: 375));
     super.initState();
-    Future.delayed(Duration(milliseconds: 1000), () {
-      coreValues.forward();
-    });
   }
 
   @override
@@ -117,8 +152,8 @@ class _SecondSectionState extends State<SecondSection>
     imageController.dispose();
     _Header.dispose();
     _desc.dispose();
-    _section2TextController.dispose();
-    coreValues.dispose();
+    _coreValues.dispose();
+    _seeProgram.dispose();
     super.dispose();
   }
 
@@ -145,7 +180,7 @@ class _SecondSectionState extends State<SecondSection>
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: BlocBuilder<DisplayOffset, ScrollOffset>(
               buildWhen: (previous, current) {
-                print('refreshed in ${current.scrollOffsetValue}');
+                // print('refreshed in ${current.scrollOffsetValue}');
                 if ((current.scrollOffsetValue >= 800 ||
                         current.scrollOffsetValue < 900) ||
                     _WHY.isAnimating) {
@@ -156,17 +191,15 @@ class _SecondSectionState extends State<SecondSection>
               },
               builder: (context, state) {
                 if (state.scrollOffsetValue >= 800) {
-                  print("forward");
                   _WHY.forward();
                 } else {
-                  print("reverse");
                   _WHY.reverse();
                 }
                 return TextReveal(
                   textOpacityAnimation: _WHYOpacityAnimation,
                   textRevealAnimation: _WHYAnimation,
                   maxHeight: 70,
-                  textController: _section2TextController,
+                  textController: _WHY,
                   child: Text(
                     "Why Prime Brilliant Minds Academy?",
                     style: TextStyle(
@@ -185,7 +218,6 @@ class _SecondSectionState extends State<SecondSection>
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: BlocBuilder<DisplayOffset, ScrollOffset>(
               buildWhen: (previous, current) {
-                print('refreshed in ${current.scrollOffsetValue}');
                 if ((current.scrollOffsetValue >= 900 ||
                         current.scrollOffsetValue < 1000) ||
                     _PBMAoffers.isAnimating) {
@@ -196,17 +228,15 @@ class _SecondSectionState extends State<SecondSection>
               },
               builder: (context, state) {
                 if (state.scrollOffsetValue >= 900) {
-                  print("forward");
                   _PBMAoffers.forward();
                 } else {
-                  print("reverse");
                   _PBMAoffers.reverse();
                 }
                 return TextReveal(
                   textOpacityAnimation: _PBMAoffersOpacityAnimation,
                   textRevealAnimation: _PBMAoffersAnimation,
                   maxHeight: 70,
-                  textController: _section2TextController,
+                  textController: _PBMAoffers,
                   child: Text(
                     "PBMA offers Senior High School program as well as different TESDA Courses and is now an accredited assesment center. A wide array of courses to choose from depending on your preferred skill and craft.",
                     style: TextStyle(
@@ -225,7 +255,6 @@ class _SecondSectionState extends State<SecondSection>
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: BlocBuilder<DisplayOffset, ScrollOffset>(
                 buildWhen: (previous, current) {
-              print('refreshed in ${current.scrollOffsetValue}');
               if ((current.scrollOffsetValue >= 1000 ||
                       current.scrollOffsetValue < 2000) ||
                   imageController.isAnimating) {
@@ -235,10 +264,8 @@ class _SecondSectionState extends State<SecondSection>
               }
             }, builder: (context, state) {
               if (state.scrollOffsetValue >= 1000) {
-                print("forward");
                 imageController.forward();
               } else {
-                print("reverse");
                 imageController.reverse();
               }
               return AnimatedBuilder(
@@ -277,8 +304,6 @@ class _SecondSectionState extends State<SecondSection>
                                     child: BlocBuilder<DisplayOffset,
                                             ScrollOffset>(
                                         buildWhen: (previous, current) {
-                                      print(
-                                          'refreshed in ${current.scrollOffsetValue}');
                                       if ((current.scrollOffsetValue >= 1160 ||
                                               current.scrollOffsetValue <
                                                   2000) ||
@@ -289,15 +314,13 @@ class _SecondSectionState extends State<SecondSection>
                                       }
                                     }, builder: (context, state) {
                                       if (state.scrollOffsetValue >= 1160) {
-                                        print("forward header1");
                                         _Header.forward();
                                       } else {
-                                        print("reverse header1");
                                         _Header.reverse();
                                       }
                                       return TextReveal(
                                         maxHeight: 60,
-                                        textController: coreValues,
+                                        textController: _Header,
                                         textRevealAnimation: _HeaderAnimation,
                                         textOpacityAnimation:
                                             _HeaderOpacityAnimation,
@@ -329,8 +352,6 @@ class _SecondSectionState extends State<SecondSection>
                                     child: BlocBuilder<DisplayOffset,
                                             ScrollOffset>(
                                         buildWhen: (previous, current) {
-                                      print(
-                                          'refreshed in ${current.scrollOffsetValue}');
                                       if ((current.scrollOffsetValue >= 1210 ||
                                               current.scrollOffsetValue <
                                                   2000) ||
@@ -341,15 +362,13 @@ class _SecondSectionState extends State<SecondSection>
                                       }
                                     }, builder: (context, state) {
                                       if (state.scrollOffsetValue >= 1210) {
-                                        print("forward header1");
                                         _desc.forward();
                                       } else {
-                                        print("reverse header1");
                                         _desc.reverse();
                                       }
                                       return TextReveal(
                                         maxHeight: 60,
-                                        textController: coreValues,
+                                        textController: _desc,
                                         textRevealAnimation: _descAnimation,
                                         textOpacityAnimation:
                                             _descOpacityAnimation,
@@ -367,30 +386,27 @@ class _SecondSectionState extends State<SecondSection>
                                     child: BlocBuilder<DisplayOffset,
                                             ScrollOffset>(
                                         buildWhen: (previous, current) {
-                                      print(
-                                          'refreshed in ${current.scrollOffsetValue}');
                                       if ((current.scrollOffsetValue >= 1210 ||
                                               current.scrollOffsetValue <
                                                   2000) ||
-                                          _desc.isAnimating) {
+                                          _seeProgram.isAnimating) {
                                         return true;
                                       } else {
                                         return false;
                                       }
                                     }, builder: (context, state) {
                                       if (state.scrollOffsetValue >= 1210) {
-                                        print("forward header1");
-                                        _desc.forward();
+                                        _seeProgram.forward();
                                       } else {
-                                        print("reverse header1");
-                                        _desc.reverse();
+                                        _seeProgram.reverse();
                                       }
                                       return TextReveal(
                                         maxHeight: 60,
-                                        textController: coreValues,
-                                        textRevealAnimation: _descAnimation,
+                                        textController: _seeProgram,
+                                        textRevealAnimation:
+                                            _seeProgramAnimation,
                                         textOpacityAnimation:
-                                            _descOpacityAnimation,
+                                            _seeProgramOpacityAnimation,
                                         child: Text(
                                           "See Program",
                                           style: TextStyle(
@@ -431,8 +447,6 @@ class _SecondSectionState extends State<SecondSection>
                                       child: BlocBuilder<DisplayOffset,
                                               ScrollOffset>(
                                           buildWhen: (previous, current) {
-                                        print(
-                                            'refreshed in ${current.scrollOffsetValue}');
                                         if ((current.scrollOffsetValue >=
                                                     1160 ||
                                                 current.scrollOffsetValue <
@@ -444,15 +458,13 @@ class _SecondSectionState extends State<SecondSection>
                                         }
                                       }, builder: (context, state) {
                                         if (state.scrollOffsetValue >= 1160) {
-                                          print("forward header1");
                                           _Header.forward();
                                         } else {
-                                          print("reverse header1");
                                           _Header.reverse();
                                         }
                                         return TextReveal(
                                           maxHeight: 60,
-                                          textController: coreValues,
+                                          textController: _Header,
                                           textRevealAnimation: _HeaderAnimation,
                                           textOpacityAnimation:
                                               _HeaderOpacityAnimation,
@@ -480,22 +492,75 @@ class _SecondSectionState extends State<SecondSection>
                                 Positioned(
                                     bottom: 40,
                                     left: 60,
-                                    child: Text(
-                                      "PBMA offers different courses and NC's",
-                                      style: TextStyle(
-                                          fontFamily: "M", fontSize: 15),
-                                    )),
+                                    child: BlocBuilder<DisplayOffset,
+                                            ScrollOffset>(
+                                        buildWhen: (previous, current) {
+                                      print(
+                                          'refreshed in ${current.scrollOffsetValue}');
+                                      if ((current.scrollOffsetValue >= 1210 ||
+                                          current.scrollOffsetValue < 2000)) {
+                                        return true;
+                                      } else {
+                                        return false;
+                                      }
+                                    }, builder: (context, state) {
+                                      if (state.scrollOffsetValue >= 1210) {
+                                        print("forward");
+                                        _desc.forward();
+                                      } else {
+                                        print("reverse");
+                                        _desc.reverse();
+                                      }
+                                      return TextReveal(
+                                        textOpacityAnimation:
+                                            _descOpacityAnimation,
+                                        textRevealAnimation: _descAnimation,
+                                        maxHeight: 70,
+                                        textController: _desc,
+                                        child: Text(
+                                          "PBMA offers different courses and NC's",
+                                          style: TextStyle(
+                                              fontFamily: "M", fontSize: 15),
+                                        ),
+                                      );
+                                    })),
                                 Positioned(
                                   right: 20,
                                   bottom: 20,
                                   child: Container(
-                                    child: Text(
-                                      "See Program",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontFamily: "B",
-                                          color: Colors.black),
-                                    ).moveUpOnHover,
+                                    child: BlocBuilder<DisplayOffset,
+                                            ScrollOffset>(
+                                        buildWhen: (previous, current) {
+                                      if ((current.scrollOffsetValue >= 1210 ||
+                                              current.scrollOffsetValue <
+                                                  2000) ||
+                                          _seeProgram.isAnimating) {
+                                        return true;
+                                      } else {
+                                        return false;
+                                      }
+                                    }, builder: (context, state) {
+                                      if (state.scrollOffsetValue >= 1210) {
+                                        _seeProgram.forward();
+                                      } else {
+                                        _seeProgram.reverse();
+                                      }
+                                      return TextReveal(
+                                        maxHeight: 60,
+                                        textController: _seeProgram,
+                                        textRevealAnimation:
+                                            _seeProgramAnimation,
+                                        textOpacityAnimation:
+                                            _seeProgramOpacityAnimation,
+                                        child: Text(
+                                          "See Program",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontFamily: "B",
+                                              color: Colors.black),
+                                        ).moveUpOnHover,
+                                      );
+                                    }),
                                   ),
                                 )
                               ],
@@ -508,37 +573,68 @@ class _SecondSectionState extends State<SecondSection>
             }),
           ),
           SizedBox(
-            height: 70,
+            height: 40,
           ),
           Container(
             child: Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
-                  child: TextReveal(
-                    maxHeight: 60,
-                    textController: coreValues,
-                    textRevealAnimation: _WHYAnimation,
-                    textOpacityAnimation: _WHYOpacityAnimation,
-                    child: Text(
-                      "Core Values",
-                      style: TextStyle(
-                          fontSize: screenWidth / 35,
-                          fontFamily: "B",
-                          color: Colors.white),
-                    ),
-                  ),
-                ),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
+                    child: BlocBuilder<DisplayOffset, ScrollOffset>(
+                        buildWhen: (previous, current) {
+                      print('refreshed in ${current.scrollOffsetValue}');
+                      if ((current.scrollOffsetValue >= 1360 ||
+                              current.scrollOffsetValue < 2000) ||
+                          _coreValues.isAnimating) {
+                        return true;
+                      } else {
+                        return false;
+                      }
+                    }, builder: (context, state) {
+                      if (state.scrollOffsetValue >= 1360) {
+                        _coreValues.forward();
+                      } else {
+                        _coreValues.reverse();
+                      }
+                      return TextReveal(
+                        textOpacityAnimation: _coreValuesOpacityAnimation,
+                        textRevealAnimation: _coreValuesAnimation,
+                        maxHeight: 70,
+                        textController: _coreValues,
+                        child: Text(
+                          "Core Values",
+                          style: TextStyle(
+                              fontSize: screenWidth / 35,
+                              fontFamily: "B",
+                              color: Colors.white),
+                        ),
+                      );
+                    })),
                 SizedBox(
                   height: 20,
                 ),
                 //THIS IS THE CORE VALUES
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: infos
-                      .map<Widget>((info) => InfoCard(info: info))
-                      .toList(),
+                BlocBuilder<DisplayOffset, ScrollOffset>(
+                  buildWhen: (previous, current) {
+                    if ((current.scrollOffsetValue >= 1530 ||
+                        current.scrollOffsetValue < 2500)) {
+                      return true;
+                    } else {
+                      return false;
+                    }
+                  },
+                  builder: (context, state) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: infos
+                          .map<Widget>((info) => InfoCard(
+                              info: info,
+                              scrollOffset: state.scrollOffsetValue.toDouble()))
+                          .toList(),
+                    );
+                  },
                 ),
+
                 SizedBox(
                   height: 50,
                 ),
