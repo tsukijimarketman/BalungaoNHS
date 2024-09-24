@@ -39,6 +39,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  Map<String, String> strandMapping = {
+    'STEM': 'Science, Technology, Engineering and Mathematics (STEM)',
+    'HUMSS': 'Humanities and Social Sciences (HUMSS)',
+    'ABM': 'Accountancy, Business, and Management (ABM)',
+    'ICT': 'Information and Communication Technology (ICT)',
+    'HE': 'Home Economics (HE)', 
+    'IA': 'Industrial Arts (IA)',
+  
+};
+
   void toggleAddInstructor() {
     setState(() {
       _showAddInstructor = !_showAddInstructor;
@@ -87,6 +97,61 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return getFilteredStudents(_trackIconState, _gradeLevelIconState,
         _transfereeIconState, _selectedStrand);
   }
+
+  Stream<QuerySnapshot> _getEnrolledStudentsCount() {
+  Query query = FirebaseFirestore.instance
+      .collection('users')
+      .where('enrollment_status', isEqualTo: 'approved'); // Always filter by 'approved'
+
+  // Map icon states to Firestore values
+  String? trackValue;
+  if (_trackIconState == 1) {
+    trackValue = 'Academic Track'; // Replace with actual Firestore value
+  } else if (_trackIconState == 2) {
+    trackValue = 'Technical-Vocational-Livelihood (TVL)'; // Replace with actual Firestore value
+  }
+  if (trackValue != null) {
+    query = query.where('seniorHigh_Track', isEqualTo: trackValue);
+  }
+
+  // Map grade level states
+  String? gradeLevelValue;
+  if (_gradeLevelIconState == 1) {
+    gradeLevelValue = '11'; // Replace with actual Firestore value
+  } else if (_gradeLevelIconState == 2) {
+    gradeLevelValue = '12'; // Replace with actual Firestore value
+  }
+  if (gradeLevelValue != null) {
+    query = query.where('grade_level', isEqualTo: gradeLevelValue);
+  }
+
+  // Map transferee states
+  String? transfereeValue;
+  if (_transfereeIconState == 1) {
+    transfereeValue = 'yes'; // Replace with actual Firestore value
+  } else if (_transfereeIconState == 2) {
+    transfereeValue = 'no'; // Replace with actual Firestore value
+  }
+  if (transfereeValue != null) {
+    query = query.where('transferee', isEqualTo: transfereeValue);
+  }
+
+  // Add strand filter only if it's not 'ALL'
+  if (_selectedStrand != 'ALL') {
+    String? strandValue = strandMapping[_selectedStrand];
+     print("Selected Strand: $_selectedStrand"); // Check the selected strand
+  print("Mapped Strand Value: $strandValue"); // Check the mapped value
+
+  if (strandValue != null) {
+      print("Applying strand filter: $strandValue");
+    query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
+  }
+}
+ 
+
+
+  return query.snapshots();
+}
 
   Stream<QuerySnapshot> _getNewcomersStudents() {
     return getNewcomersStudents(_trackIconState, _gradeLevelIconState,
@@ -314,8 +379,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
               SizedBox(width: 50),
 
               // Enrolled Students Card using StreamBuilder to fetch the count dynamically
-              StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: _getFilteredInstructorStudents(), // Replace with your Firestore stream
+              StreamBuilder<QuerySnapshot>(
+                stream: _getEnrolledStudentsCount(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Container(
@@ -330,7 +395,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     );
                   }
 
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (!snapshot.hasData) {
                     // If there are no enrolled students, display "0"
                     return Container(
                       width: 120,
@@ -461,7 +526,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 border: Border.all(color: Colors.blue, width: 2.0),
               ),
               child: StreamBuilder<QuerySnapshot>(
-                stream: _getFilteredStudents(),
+                stream: _getEnrolledStudentsCount(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -1133,9 +1198,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No pending students.'));
                   }
 
                   final students = snapshot.data!.docs.where((student) {
