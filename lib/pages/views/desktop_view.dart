@@ -2,7 +2,7 @@ import 'dart:js_interop';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pbma_portal/pages/views/first_section.dart';
+import 'package:pbma_portal/pages/views/sections/first_section.dart';
 import 'package:pbma_portal/pages/views/sections/second_section.dart';
 import 'package:pbma_portal/widgets/hover_extensions.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,6 +38,7 @@ class _DesktopViewState extends State<DesktopView>
   late AnimationController _section2TextController;
   late AnimationController coreValues;
   Color _appBarColor = Colors.transparent;
+  //tsukijimarketman/PBMA_Portal
 
   @override
   void initState() {

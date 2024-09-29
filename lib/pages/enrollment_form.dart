@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pbma_portal/launcher.dart';
 import 'package:pbma_portal/pages/Auth_View/SignInDesktopView.dart';
 import 'package:pbma_portal/pages/dashboard.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/home_address.dart';
@@ -207,7 +208,7 @@ Widget build(BuildContext context) {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Dashboard()),
+                      MaterialPageRoute(builder: (context) => Launcher()),
                     );
                   },
                   child: Text(

@@ -180,7 +180,7 @@ class _SecondSectionState extends State<SecondSection>
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: BlocBuilder<DisplayOffset, ScrollOffset>(
               buildWhen: (previous, current) {
-                // print('refreshed in ${current.scrollOffsetValue}');
+                //print('The height is around $screenHeight');
                 if ((current.scrollOffsetValue >= 800 ||
                         current.scrollOffsetValue < 900) ||
                     _WHY.isAnimating) {
@@ -190,7 +190,7 @@ class _SecondSectionState extends State<SecondSection>
                 }
               },
               builder: (context, state) {
-                if (state.scrollOffsetValue >= 800) {
+                if (state.scrollOffsetValue >= (800)) {
                   _WHY.forward();
                 } else {
                   _WHY.reverse();
