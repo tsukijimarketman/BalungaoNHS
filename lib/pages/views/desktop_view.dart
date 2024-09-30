@@ -339,69 +339,77 @@ class _DesktopViewState extends State<DesktopView>
           AnimatedSwitcher(
             duration: Duration(milliseconds: 550),
             child: _showSignInCard
-                ? Positioned.fill(
-                    child: GestureDetector(
-                      onTap: closeSignInCard,
-                      child: Stack(
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child:
-                                Container(color: Colors.black.withOpacity(0.5)),
-                          ),
-                          Center(
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 500),
-                                width: screenWidth / 1.2,
-                                height: screenHeight / 1.2,
-                                curve: Curves.easeInOut,
-                                child: SignInDesktop(
-                                  key: ValueKey('signInCard'),
-                                  closeSignInCardCallback: closeSignInCard,
+                ? Stack(
+                  children: [
+                     Positioned.fill(
+                      child: GestureDetector(
+                        onTap: closeSignInCard,
+                        child: Stack(
+                          children: [
+                            BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                              child:
+                                  Container(color: Colors.black.withOpacity(0.5)),
+                            ),
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 500),
+                                  width: screenWidth / 1.2,
+                                  height: screenHeight / 1.2,
+                                  curve: Curves.easeInOut,
+                                  child: SignInDesktop(
+                                    key: ValueKey('signInCard'),
+                                    closeSignInCardCallback: closeSignInCard,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  )
+                  ]
+                )
                 : SizedBox.shrink(),
           ),
           AnimatedSwitcher(
             duration: Duration(milliseconds: 550),
             child: _TAC
-                ? Positioned.fill(
-                    child: GestureDetector(
-                      onTap: closeTAC,
-                      child: Stack(
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child:
-                                Container(color: Colors.black.withOpacity(0.5)),
-                          ),
-                          Center(
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 500),
-                                width: screenWidth / 1.2,
-                                height: screenHeight / 1.2,
-                                curve: Curves.easeInOut,
-                                child: TACWebView(
-                                  key: ValueKey('closeTAC'),
-                                  closeTAC: closeTAC,
+                ? Stack(
+                  children:[ 
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: closeTAC,
+                        child: Stack(
+                          children: [
+                            BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                              child:
+                                  Container(color: Colors.black.withOpacity(0.5)),
+                            ),
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 500),
+                                  width: screenWidth / 1.2,
+                                  height: screenHeight / 1.2,
+                                  curve: Curves.easeInOut,
+                                  child: TACWebView(
+                                    key: ValueKey('closeTAC'),
+                                    closeTAC: closeTAC,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  )
+                  ]
+                )
                 : SizedBox.shrink(),
           ),
         ],

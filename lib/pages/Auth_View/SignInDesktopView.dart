@@ -35,6 +35,7 @@ class _SignInDesktopState extends State<SignInDesktop> {
     setState(() {
       _showForgotPass = !_showForgotPass;
     });
+      print("Toggle TAC card: $_showForgotPass");
   }
 
   void closeForgotPass() {
