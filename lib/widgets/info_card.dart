@@ -41,8 +41,8 @@ class _InfoCardState extends State<InfoCard> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                height: 50,
-                width: 50,
+                height: MediaQuery.of(context).size.width/28,
+                width: MediaQuery.of(context).size.width/28,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100),
                   color: Colors.yellow,
@@ -50,10 +50,11 @@ class _InfoCardState extends State<InfoCard> {
                 child: Icon(
                   widget.info.iconData,
                   color: Colors.black,
+                  size: MediaQuery.of(context).size.width/50,
                 ),
               ),
               SizedBox(
-                height: 15,
+                height: MediaQuery.of(context).size.width/150,
               ),
               // Use RichText to color the first letter differently
               RichText(
@@ -63,7 +64,7 @@ class _InfoCardState extends State<InfoCard> {
                       text: firstLetter,
                       style: TextStyle(
                         fontFamily: "SB",
-                        fontSize: 17,
+                        fontSize: MediaQuery.of(context).size.width/85,
                         color: Colors.yellow,
                       ),
                     ),
@@ -71,7 +72,7 @@ class _InfoCardState extends State<InfoCard> {
                       text: remainingText,
                       style: TextStyle(
                         fontFamily: "SB",
-                        fontSize: 17,
+                        fontSize: MediaQuery.of(context).size.width/85,
                         color: Colors.white,
                       ),
                     ),
@@ -79,12 +80,12 @@ class _InfoCardState extends State<InfoCard> {
                 ),
               ),
               SizedBox(
-                height: 15,
+                height: MediaQuery.of(context).size.width/100,
               ),
               Text(
                 widget.info.description,
                 style: TextStyle(
-                    fontFamily: "M", fontSize: 14, color: Colors.white60),
+                    fontFamily: "M", fontSize: MediaQuery.of(context).size.width/95, color: Colors.white60),
               ),
             ],
           ),

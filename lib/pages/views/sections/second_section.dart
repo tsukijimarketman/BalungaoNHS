@@ -281,172 +281,34 @@ class _SecondSectionState extends State<SecondSection>
                             Stack(
                               children: [
                                 Container(
-                                    height: screenWidth / 4,
-                                    width: screenWidth / 2.4,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(20)),
-                                        image: DecorationImage(
-                                            image: AssetImage("assets/shs.jpg"),
-                                            fit: BoxFit.cover))),
-                                Container(
-                                    height: screenWidth / 4,
-                                    width: screenWidth / 2.4,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(20)),
-                                        color: Color.fromARGB(255, 255, 231, 11)
-                                            .withOpacity(0.4))),
-                                Positioned(
-                                  bottom: 65,
-                                  left: 20,
-                                  child: Container(
-                                    child: BlocBuilder<DisplayOffset,
-                                            ScrollOffset>(
-                                        buildWhen: (previous, current) {
-                                      if ((current.scrollOffsetValue >= 1160 ||
-                                              current.scrollOffsetValue <
-                                                  2000) ||
-                                          _Header.isAnimating) {
-                                        return true;
-                                      } else {
-                                        return false;
-                                      }
-                                    }, builder: (context, state) {
-                                      if (state.scrollOffsetValue >= 1160) {
-                                        _Header.forward();
-                                      } else {
-                                        _Header.reverse();
-                                      }
-                                      return TextReveal(
-                                        maxHeight: 60,
-                                        textController: _Header,
-                                        textRevealAnimation: _HeaderAnimation,
-                                        textOpacityAnimation:
-                                            _HeaderOpacityAnimation,
-                                        child: Text(
-                                          "Senior High School Program",
-                                          style: TextStyle(
-                                              fontSize: 30,
-                                              fontFamily: "BL",
-                                              color: Colors.white),
-                                        ),
-                                      );
-                                    }),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 36,
-                                  left: 20,
-                                  child: Container(
-                                    child: Icon(
-                                      Icons.school,
-                                      color: Colors.black,
-                                      size: 30,
+                                  height: screenWidth / 4,
+                                  width: screenWidth / 2.4,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                    image: DecorationImage(
+                                      image: AssetImage("assets/shs.jpg"),
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
+                                Container(
+                                  height: screenWidth / 4,
+                                  width: screenWidth / 2.4,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                    color: Color.fromARGB(255, 255, 231, 11)
+                                        .withOpacity(0.4),
+                                  ),
+                                ),
                                 Positioned(
-                                    bottom: 40,
-                                    left: 60,
-                                    child: BlocBuilder<DisplayOffset,
-                                            ScrollOffset>(
-                                        buildWhen: (previous, current) {
-                                      if ((current.scrollOffsetValue >= 1210 ||
-                                              current.scrollOffsetValue <
-                                                  2000) ||
-                                          _desc.isAnimating) {
-                                        return true;
-                                      } else {
-                                        return false;
-                                      }
-                                    }, builder: (context, state) {
-                                      if (state.scrollOffsetValue >= 1210) {
-                                        _desc.forward();
-                                      } else {
-                                        _desc.reverse();
-                                      }
-                                      return TextReveal(
-                                        maxHeight: 60,
-                                        textController: _desc,
-                                        textRevealAnimation: _descAnimation,
-                                        textOpacityAnimation:
-                                            _descOpacityAnimation,
-                                        child: Text(
-                                          "PBMA offers various track and strands",
-                                          style: TextStyle(
-                                              fontFamily: "M", fontSize: 15),
-                                        ),
-                                      );
-                                    })),
-                                Positioned(
-                                  right: 20,
-                                  bottom: 20,
+                                  bottom: screenWidth * 0.065,
+                                  left: screenWidth * 0.02,
                                   child: Container(
                                     child: BlocBuilder<DisplayOffset,
-                                            ScrollOffset>(
-                                        buildWhen: (previous, current) {
-                                      if ((current.scrollOffsetValue >= 1210 ||
-                                              current.scrollOffsetValue <
-                                                  2000) ||
-                                          _seeProgram.isAnimating) {
-                                        return true;
-                                      } else {
-                                        return false;
-                                      }
-                                    }, builder: (context, state) {
-                                      if (state.scrollOffsetValue >= 1210) {
-                                        _seeProgram.forward();
-                                      } else {
-                                        _seeProgram.reverse();
-                                      }
-                                      return TextReveal(
-                                        maxHeight: 60,
-                                        textController: _seeProgram,
-                                        textRevealAnimation:
-                                            _seeProgramAnimation,
-                                        textOpacityAnimation:
-                                            _seeProgramOpacityAnimation,
-                                        child: Text(
-                                          "See Program",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontFamily: "B",
-                                              color: Colors.black),
-                                        ).moveUpOnHover,
-                                      );
-                                    }),
-                                  ),
-                                )
-                              ],
-                            ).showCursorOnHover,
-                            Stack(
-                              children: [
-                                Container(
-                                    height: screenWidth / 4,
-                                    width: screenWidth / 2.4,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(20)),
-                                        image: DecorationImage(
-                                            image:
-                                                AssetImage("assets/tesda.jpg"),
-                                            fit: BoxFit.cover))),
-                                Container(
-                                    height: screenWidth / 4,
-                                    width: screenWidth / 2.4,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(20)),
-                                        color: Color.fromARGB(255, 255, 231, 11)
-                                            .withOpacity(0.4))),
-                                Positioned(
-                                    bottom: 65,
-                                    left: 20,
-                                    child: Container(
-                                      child: BlocBuilder<DisplayOffset,
-                                              ScrollOffset>(
-                                          buildWhen: (previous, current) {
+                                        ScrollOffset>(
+                                      buildWhen: (previous, current) {
                                         if ((current.scrollOffsetValue >=
                                                     1160 ||
                                                 current.scrollOffsetValue <
@@ -456,14 +318,172 @@ class _SecondSectionState extends State<SecondSection>
                                         } else {
                                           return false;
                                         }
-                                      }, builder: (context, state) {
+                                      },
+                                      builder: (context, state) {
                                         if (state.scrollOffsetValue >= 1160) {
                                           _Header.forward();
                                         } else {
                                           _Header.reverse();
                                         }
                                         return TextReveal(
-                                          maxHeight: 60,
+                                          maxHeight: screenWidth * 0.06,
+                                          textController: _Header,
+                                          textRevealAnimation: _HeaderAnimation,
+                                          textOpacityAnimation:
+                                              _HeaderOpacityAnimation,
+                                          child: Text(
+                                            "Senior High School Program",
+                                            style: TextStyle(
+                                              fontSize: screenWidth / 45,
+                                              fontFamily: "BL",
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: screenWidth * 0.036,
+                                  left: screenWidth * 0.02,
+                                  child: Container(
+                                    child: Icon(
+                                      Icons.school,
+                                      color: Colors.black,
+                                      size: screenWidth / 45,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: screenWidth * 0.04,
+                                  left: screenWidth * 0.06,
+                                  child:
+                                      BlocBuilder<DisplayOffset, ScrollOffset>(
+                                    buildWhen: (previous, current) {
+                                      if ((current.scrollOffsetValue >= 1210 ||
+                                              current.scrollOffsetValue <
+                                                  2000) ||
+                                          _desc.isAnimating) {
+                                        return true;
+                                      } else {
+                                        return false;
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      if (state.scrollOffsetValue >= 1210) {
+                                        _desc.forward();
+                                      } else {
+                                        _desc.reverse();
+                                      }
+                                      return TextReveal(
+                                        maxHeight: screenWidth * 0.06,
+                                        textController: _desc,
+                                        textRevealAnimation: _descAnimation,
+                                        textOpacityAnimation:
+                                            _descOpacityAnimation,
+                                        child: Text(
+                                          "PBMA offers various track and strands",
+                                          style: TextStyle(
+                                            fontFamily: "M",
+                                            fontSize: screenWidth / 85,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Positioned(
+                                  right: screenWidth * 0.02,
+                                  bottom: screenWidth * 0.02,
+                                  child:
+                                      BlocBuilder<DisplayOffset, ScrollOffset>(
+                                    buildWhen: (previous, current) {
+                                      if ((current.scrollOffsetValue >= 1210 ||
+                                              current.scrollOffsetValue <
+                                                  2000) ||
+                                          _seeProgram.isAnimating) {
+                                        return true;
+                                      } else {
+                                        return false;
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      if (state.scrollOffsetValue >= 1210) {
+                                        _seeProgram.forward();
+                                      } else {
+                                        _seeProgram.reverse();
+                                      }
+                                      return TextReveal(
+                                        maxHeight: screenWidth * 0.06,
+                                        textController: _seeProgram,
+                                        textRevealAnimation:
+                                            _seeProgramAnimation,
+                                        textOpacityAnimation:
+                                            _seeProgramOpacityAnimation,
+                                        child: Text(
+                                          "See Program",
+                                          style: TextStyle(
+                                            fontSize: screenWidth / 75,
+                                            fontFamily: "B",
+                                            color: Colors.black,
+                                          ),
+                                        ).moveUpOnHover,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ).showCursorOnHover,
+                            Stack(
+                              children: [
+                                Container(
+                                  height: screenWidth / 4,
+                                  width: screenWidth / 2.4,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                    image: DecorationImage(
+                                      image: AssetImage("assets/tesda.jpg"),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: screenWidth / 4,
+                                  width: screenWidth / 2.4,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                    color: Color.fromARGB(255, 255, 231, 11)
+                                        .withOpacity(0.4),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: screenWidth * 0.065,
+                                  left: screenWidth * 0.02,
+                                  child: Container(
+                                    child: BlocBuilder<DisplayOffset,
+                                        ScrollOffset>(
+                                      buildWhen: (previous, current) {
+                                        if ((current.scrollOffsetValue >=
+                                                    1160 ||
+                                                current.scrollOffsetValue <
+                                                    2000) ||
+                                            _Header.isAnimating) {
+                                          return true;
+                                        } else {
+                                          return false;
+                                        }
+                                      },
+                                      builder: (context, state) {
+                                        if (state.scrollOffsetValue >= 1160) {
+                                          _Header.forward();
+                                        } else {
+                                          _Header.reverse();
+                                        }
+                                        return TextReveal(
+                                          maxHeight: screenWidth * 0.06,
                                           textController: _Header,
                                           textRevealAnimation: _HeaderAnimation,
                                           textOpacityAnimation:
@@ -471,30 +491,33 @@ class _SecondSectionState extends State<SecondSection>
                                           child: Text(
                                             "TESDA Program",
                                             style: TextStyle(
-                                                fontSize: 30,
-                                                fontFamily: "BL",
-                                                color: Colors.white),
+                                              fontSize: screenWidth / 45,
+                                              fontFamily: "BL",
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         );
-                                      }),
-                                    )),
-                                Positioned(
-                                  bottom: 36,
-                                  left: 20,
-                                  child: Container(
-                                    child: Icon(
-                                      Icons.school,
-                                      color: Colors.black,
-                                      size: 30,
+                                      },
                                     ),
                                   ),
                                 ),
                                 Positioned(
-                                    bottom: 40,
-                                    left: 60,
-                                    child: BlocBuilder<DisplayOffset,
-                                            ScrollOffset>(
-                                        buildWhen: (previous, current) {
+                                  bottom: screenWidth * 0.036,
+                                  left: screenWidth * 0.02,
+                                  child: Container(
+                                    child: Icon(
+                                      Icons.school,
+                                      color: Colors.black,
+                                      size: screenWidth / 45,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: screenWidth * 0.04,
+                                  left: screenWidth * 0.06,
+                                  child:
+                                      BlocBuilder<DisplayOffset, ScrollOffset>(
+                                    buildWhen: (previous, current) {
                                       print(
                                           'refreshed in ${current.scrollOffsetValue}');
                                       if ((current.scrollOffsetValue >= 1210 ||
@@ -503,7 +526,8 @@ class _SecondSectionState extends State<SecondSection>
                                       } else {
                                         return false;
                                       }
-                                    }, builder: (context, state) {
+                                    },
+                                    builder: (context, state) {
                                       if (state.scrollOffsetValue >= 1210) {
                                         print("forward");
                                         _desc.forward();
@@ -515,54 +539,62 @@ class _SecondSectionState extends State<SecondSection>
                                         textOpacityAnimation:
                                             _descOpacityAnimation,
                                         textRevealAnimation: _descAnimation,
-                                        maxHeight: 70,
+                                        maxHeight: screenWidth * 0.07,
                                         textController: _desc,
                                         child: Text(
                                           "PBMA offers different courses and NC's",
                                           style: TextStyle(
-                                              fontFamily: "M", fontSize: 15),
+                                            fontFamily: "M",
+                                            fontSize: screenWidth / 85,
+                                          ),
                                         ),
                                       );
-                                    })),
+                                    },
+                                  ),
+                                ),
                                 Positioned(
-                                  right: 20,
-                                  bottom: 20,
+                                  right: screenWidth * 0.02,
+                                  bottom: screenWidth * 0.02,
                                   child: Container(
                                     child: BlocBuilder<DisplayOffset,
-                                            ScrollOffset>(
-                                        buildWhen: (previous, current) {
-                                      if ((current.scrollOffsetValue >= 1210 ||
-                                              current.scrollOffsetValue <
-                                                  2000) ||
-                                          _seeProgram.isAnimating) {
-                                        return true;
-                                      } else {
-                                        return false;
-                                      }
-                                    }, builder: (context, state) {
-                                      if (state.scrollOffsetValue >= 1210) {
-                                        _seeProgram.forward();
-                                      } else {
-                                        _seeProgram.reverse();
-                                      }
-                                      return TextReveal(
-                                        maxHeight: 60,
-                                        textController: _seeProgram,
-                                        textRevealAnimation:
-                                            _seeProgramAnimation,
-                                        textOpacityAnimation:
-                                            _seeProgramOpacityAnimation,
-                                        child: Text(
-                                          "See Program",
-                                          style: TextStyle(
-                                              fontSize: 18,
+                                        ScrollOffset>(
+                                      buildWhen: (previous, current) {
+                                        if ((current.scrollOffsetValue >=
+                                                    1210 ||
+                                                current.scrollOffsetValue <
+                                                    2000) ||
+                                            _seeProgram.isAnimating) {
+                                          return true;
+                                        } else {
+                                          return false;
+                                        }
+                                      },
+                                      builder: (context, state) {
+                                        if (state.scrollOffsetValue >= 1210) {
+                                          _seeProgram.forward();
+                                        } else {
+                                          _seeProgram.reverse();
+                                        }
+                                        return TextReveal(
+                                          maxHeight: screenWidth * 0.06,
+                                          textController: _seeProgram,
+                                          textRevealAnimation:
+                                              _seeProgramAnimation,
+                                          textOpacityAnimation:
+                                              _seeProgramOpacityAnimation,
+                                          child: Text(
+                                            "See Program",
+                                            style: TextStyle(
+                                              fontSize: screenWidth / 75,
                                               fontFamily: "B",
-                                              color: Colors.black),
-                                        ).moveUpOnHover,
-                                      );
-                                    }),
+                                              color: Colors.black,
+                                            ),
+                                          ).moveUpOnHover,
+                                        );
+                                      },
+                                    ),
                                   ),
-                                )
+                                ),
                               ],
                             ).showCursorOnHover,
                           ]),
