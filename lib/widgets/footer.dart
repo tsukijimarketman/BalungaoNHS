@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pbma_portal/widgets/contact_us.dart';
+import 'package:pbma_portal/widgets/ribbon.dart';
 
 class Footer extends StatefulWidget {
   const Footer({super.key});
@@ -12,10 +14,12 @@ class _FooterState extends State<Footer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 230,
       width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-          color: Color.fromARGB(132, 1, 93, 168),
+          child: Column(
+            children: [
+              Ribbon(),
+              ContactUs()
+            ],
           ),
     );
   }
