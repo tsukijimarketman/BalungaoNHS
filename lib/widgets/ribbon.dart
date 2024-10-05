@@ -19,7 +19,7 @@ class _RibbonState extends State<Ribbon> {
       color: Color.fromARGB(255, 0, 30, 54),
       padding: EdgeInsets.symmetric(horizontal: 80, vertical: 40),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             width: 800,
