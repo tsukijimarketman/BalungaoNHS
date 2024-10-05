@@ -283,7 +283,7 @@ class _MobileViewState extends State<MobileView> {
                               ),
                               SizedBox(width: 10),
                               Text(
-                                "LIGAYA C. TACBI,",
+                                "URBANO R. DELOS ANGELES IV,",
                                 style: TextStyle(
                                     fontFamily: "B",
                                     fontSize: (screenWidth / 85) + 2,

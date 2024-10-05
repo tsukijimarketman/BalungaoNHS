@@ -297,7 +297,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                     child: Column(
                                       children: [
                                         Text(
-                                          "Ligaya C. Tacbi",
+                                          "Urbano R. Delos Angeles IV,",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -333,7 +333,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                           ),
                                         ),
                                         Text(
-                                          "Assistant School Principal",
+                                          "School Administrator",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
