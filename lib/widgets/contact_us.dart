@@ -99,7 +99,7 @@ class _ContactUsState extends State<ContactUs> {
                                 shape: BoxShape.circle,
                               ),
                               child: Image.asset(
-                                "assets/pbma.png",
+                                "assets/PBMA.png",
                                 height: 50,
                                 width: 50,
                                 fit: BoxFit.cover,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pbma_portal/launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher_web/url_launcher_web.dart'; 
 import 'dart:async';  // Required for runZonedGuarded
 
 Future<void> main() async {
