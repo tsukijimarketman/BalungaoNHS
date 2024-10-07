@@ -8,6 +8,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:pbma_portal/SubjectsAndGrade/AddingSubjects.dart';
 import 'package:pbma_portal/SubjectsAndGrade/AssignInstructor.dart';
 import 'package:pbma_portal/SubjectsAndGrade/SubjectsandGrade.dart';
+import 'package:pbma_portal/launcher.dart';
 import 'package:pbma_portal/pages/Auth_View/Adding_InstructorAcc_Desktview.dart';
 import 'package:pbma_portal/pages/dashboard.dart';
 import 'package:pbma_portal/pages/student_details.dart';
@@ -1965,7 +1966,7 @@ bool get _isAnyStudentSelected {
               onTap: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => Dashboard()),
+                  MaterialPageRoute(builder: (context) => Launcher()),
                 );
               },
             ),
