@@ -21,6 +21,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  Map<String, bool> _selectedStudents = {};
   String _selectedDrawerItem = 'Dashboard';
   String _email = '';
   String _accountType = '';
@@ -48,6 +49,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'IA': 'Industrial Arts (IA)',
   
 };
+bool get _isAnyStudentSelected {
+    return _selectedStudents.values.any((isSelected) => isSelected);
+  }
 
   void toggleAddInstructor() {
     setState(() {
@@ -700,24 +704,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
+          // Row with Drop button (on the left) and Search Student (fixed on the right)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Iconsax.add_copy, size: 18, color: Colors.black),
-                  label: Text('Add Student',
-                      style: TextStyle(color: Colors.black)),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                
+                if (_isAnyStudentSelected)
+                  OutlinedButton(
+                    onPressed: () {
+                      
+                    },
+                    child: Text('Move to Drop List', style: TextStyle(color: Colors.black)),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.black),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ),
+                // Add Spacer or Expanded to ensure Search stays on the right
+                Spacer(),
+                // Search Student field stays on the right
                 Container(
                   width: 300,
                   child: TextField(
@@ -780,7 +789,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       children: [
                         Row(
                           children: [
-                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            SizedBox(width: 32), // Same width as a checkbox to preserve alignment
                             Expanded(child: Text('Student ID')),
                             Expanded(child: Text('First Name')),
                             Expanded(child: Text('Last Name')),
@@ -898,6 +907,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         Divider(),
                         ...students.map((student) {
                           final data = student.data() as Map<String, dynamic>;
+                          String studentId = data['student_id'] ?? '';
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -911,7 +921,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             child: Row(
                               children: [
                                 Checkbox(
-                                    value: false, onChanged: (bool? value) {}),
+                                  value: _selectedStudents[studentId] ?? false,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      _selectedStudents[studentId] = value!;
+                                    });
+                                  },
+                                ),
                                 Expanded(child: Text(data['student_id'] ?? '')),
                                 Expanded(child: Text(data['first_name'] ?? '')),
                                 Expanded(child: Text(data['last_name'] ?? '')),
