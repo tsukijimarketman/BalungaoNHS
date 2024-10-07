@@ -46,6 +46,10 @@ dependencies:
   firebase_storage: ^12.1.2
   responsive_builder: ^0.7.1
   flutter_bloc: ^8.1.6
+  url_launcher: ^6.3.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  flutter_map_cancellable_tile_provider: ^3.0.2
   
   
 dev_dependencies:
