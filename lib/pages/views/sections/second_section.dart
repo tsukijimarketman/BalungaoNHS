@@ -287,7 +287,7 @@ class _SecondSectionState extends State<SecondSection>
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20)),
                                     image: DecorationImage(
-                                      image: AssetImage("assets/shs.jpg"),
+                                      image: AssetImage("assets/primeshs.jpg"),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -444,7 +444,7 @@ class _SecondSectionState extends State<SecondSection>
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20)),
                                     image: DecorationImage(
-                                      image: AssetImage("assets/tesda.jpg"),
+                                      image: AssetImage("assets/primetesda.jpg"),
                                       fit: BoxFit.cover,
                                     ),
                                   ),

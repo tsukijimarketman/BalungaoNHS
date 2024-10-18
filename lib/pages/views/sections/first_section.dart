@@ -89,7 +89,7 @@ class _FirstSectionState extends State<FirstSection>
           width: screenWidth,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/campus.jpg"),
+              image: AssetImage("assets/primecampus.jpg"),
               fit: BoxFit.cover,
             ),
           ),
@@ -261,7 +261,7 @@ class _FirstSectionState extends State<FirstSection>
                               child: ClipRRect(
                                   borderRadius: BorderRadius.circular(20),
                                   child: Image.asset(
-                                    "assets/principal1.jpg",
+                                    "assets/principal.jpg",
                                     fit: BoxFit.fill,
                                   )),
                             ),

@@ -67,10 +67,11 @@ bool get _isAnyStudentSelected {
   }
 
   void toggleAddSubjects() {
-    setState(() {
-      _showAddSubjects = !_showAddSubjects;
-    });
-  }
+  setState(() {
+    _showAddSubjects = !_showAddSubjects;
+  });
+}
+
 
   void closeAddSubjects() {
     setState(() {
@@ -1511,138 +1512,138 @@ bool get _isAnyStudentSelected {
         ),
       ),
       AnimatedSwitcher(
-  duration: Duration(milliseconds: 550),
-  child: _showAddSubjects
-      ? Positioned.fill(
-          child: GestureDetector(
-            onTap: closeAddSubjects,
-            child: Stack(
-              children: [
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(color: Colors.black.withOpacity(0.5)),
-                ),
-                Center(
+          duration: Duration(milliseconds: 550),
+          child: _showAddSubjects
+              ? Positioned.fill(
                   child: GestureDetector(
-                    onTap: () {},
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 500),
-                      width: screenWidth / 2,
-                      height: screenHeight / 1.4,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      padding: EdgeInsets.all(20),
-                      child: SingleChildScrollView( // Add scroll functionality
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Back button
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: TextButton(
-                                onPressed: closeAddSubjects,
-                                style: TextButton.styleFrom(
-                                  side: BorderSide(color: Colors.red),
-                                ),
-                                child: Text('Back', style: TextStyle(color: Colors.red)),
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            // Form title
-                            Text(
-                              'Add New Subject',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 16),
-                            // Subject Name
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: 'Subject Name',
-                                border: OutlineInputBorder(),
-                                hintText: 'Enter subject name',
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            // Subject Code
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: 'Subject Code',
-                                border: OutlineInputBorder(),
-                                hintText: 'Enter subject code',
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            // Instructor
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: 'Instructor',
-                                border: OutlineInputBorder(),
-                                hintText: 'Enter instructor name',
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            // Category Dropdown
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: 'Category',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: ['--', 'Category 1', 'Category 2']
-                                  .map((category) => DropdownMenuItem<String>(
-                                        value: category,
-                                        child: Text(category),
-                                      ))
-                                  .toList(),
-                              onChanged: (val) {},
-                            ),
-                            SizedBox(height: 16),
-                            // Semester Dropdown
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: 'Semester',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: ['--', 'Grade 11 - 1st Semester', 'Grade 11 - 2nd Semester',
-                              'Grade 12 - 1st Semester', 'Grade 12 - 2nd Semester']
-                                  .map((semester) => DropdownMenuItem<String>(
-                                        value: semester,
-                                        child: Text(semester),
-                                      ))
-                                  .toList(),
-                              onChanged: (val) {},
-                            ),
-                            SizedBox(height: 24),
-                            // Save Changes button
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Save functionality
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                ),
-                                child: Text('Save Changes'),
-                              ),
-                            ),
-                          ],
+                    onTap: closeAddSubjects,
+                    child: Stack(
+                      children: [
+                        BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(color: Colors.black.withOpacity(0.5)),
                         ),
-                      ),
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 500),
+                              width: screenWidth / 2,
+                              height: screenHeight / 1.4,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              padding: EdgeInsets.all(20),
+                              child: SingleChildScrollView( // Add scroll functionality
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Back button
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: TextButton(
+                                        onPressed: closeAddSubjects,
+                                        style: TextButton.styleFrom(
+                                          side: BorderSide(color: Colors.red),
+                                        ),
+                                        child: Text('Back', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    // Form title
+                                    Text(
+                                      'Add New Subject',
+                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Subject Name
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Subject Name',
+                                        border: OutlineInputBorder(),
+                                        hintText: 'Enter subject name',
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Subject Code
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Subject Code',
+                                        border: OutlineInputBorder(),
+                                        hintText: 'Enter subject code',
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Instructor
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Instructor',
+                                        border: OutlineInputBorder(),
+                                        hintText: 'Enter instructor name',
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Category Dropdown
+                                    DropdownButtonFormField<String>(
+                                      decoration: InputDecoration(
+                                        labelText: 'Category',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      items: ['--', 'Category 1', 'Category 2']
+                                          .map((category) => DropdownMenuItem<String>(
+                                                value: category,
+                                                child: Text(category),
+                                              ))
+                                          .toList(),
+                                      onChanged: (val) {},
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Semester Dropdown
+                                    DropdownButtonFormField<String>(
+                                      decoration: InputDecoration(
+                                        labelText: 'Semester',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      items: ['--', 'Grade 11 - 1st Semester', 'Grade 11 - 2nd Semester',
+                                      'Grade 12 - 1st Semester', 'Grade 12 - 2nd Semester']
+                                          .map((semester) => DropdownMenuItem<String>(
+                                                value: semester,
+                                                child: Text(semester),
+                                              ))
+                                          .toList(),
+                                      onChanged: (val) {},
+                                    ),
+                                    SizedBox(height: 24),
+                                    // Save Changes button
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          // Save functionality
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                        ),
+                                        child: Text('Save Changes'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        )
-      : SizedBox.shrink(),
-),
+                )
+              : SizedBox.shrink(),
+        ),
 
-    ],
-  );
+            ],
+          );
 }
 
 

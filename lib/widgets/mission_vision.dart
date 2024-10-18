@@ -186,7 +186,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                                           const BoxDecoration(
                                                         image: DecorationImage(
                                                           image: AssetImage(
-                                                            "assets/principal1.jpg",
+                                                            "assets/principal.jpg",
                                                           ),
                                                           fit: BoxFit.cover,
                                                         ),
@@ -232,7 +232,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                                           const BoxDecoration(
                                                         image: DecorationImage(
                                                           image: AssetImage(
-                                                            "assets/principal2.jpg",
+                                                            "assets/schooladmin.jpg",
                                                           ),
                                                           fit: BoxFit.cover,
                                                         ),
@@ -324,7 +324,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                     child: Column(
                                       children: [
                                         Text(
-                                          "Urbano R. Delos Angeles IV",
+                                          "Vannity Kaye S. Tan",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
