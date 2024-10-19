@@ -297,6 +297,12 @@ Future<void> _signInWithStudentId(String studentId, String password) async {
 
       if (userDocs.docs.isNotEmpty) {
           final userData = userDocs.docs.first.data() as Map<String, dynamic>?;
+
+       if (userData?['Status'] == 'inactive') {
+          _showDialog('Account Disabled', 'Your account has been disabled. Please contact support.');
+          return;
+        }
+
         final accountType = (userDocs.docs.first.data()
             as Map<String, dynamic>?)?['accountType'];
         final passwordChanged = userData?['passwordChanged'] ?? false;

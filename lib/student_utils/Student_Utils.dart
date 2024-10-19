@@ -45,6 +45,7 @@ Future<void> approveStudent(String studentDocId) async {
       'enrollment_status': 'approved',
       'accountType': 'student',
       'uid': uid,
+      'Status': 'active',
       'passwordChanged': false,
     });
 
