@@ -7,6 +7,7 @@ import 'package:pbma_portal/Accounts/student_dashboard.dart';
 import 'package:pbma_portal/pages/Auth_View/ForceChangePassMobileView.dart';
 import 'package:pbma_portal/pages/Auth_View/Forgot_Pass_Mobileview.dart';
 import 'package:pbma_portal/pages/admin_dashboard.dart';
+import 'package:pbma_portal/student_utils/student_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -320,18 +321,14 @@ Future<void> _signInWithStudentId(String studentId, String password) async {
                 _showChangePassword = true;
               });
             } else {
-              final firstName = userData?['first_name'] ?? 'First';
-              final middleName = userData?['middle_name'] ?? 'Middle';
-              final lastName = userData?['last_name'] ?? 'Last';
+              // final firstName = userData?['first_name'] ?? 'First';
+              // final middleName = userData?['middle_name'] ?? 'Middle';
+              // final lastName = userData?['last_name'] ?? 'Last';
 
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StudentDashboard(
-                    firstName: firstName,
-                    middleName: middleName,
-                    lastName: lastName,
-                  ),
+                  builder: (context) => StudentUI()
                 ),
               );
             }

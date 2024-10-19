@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/pages/views/mobile_view.dart';
+import 'package:pbma_portal/pages/views/sections/mobile/mobile_view.dart';
 
 class ForgotPassMobileview extends StatefulWidget {
   final VoidCallback closeforgotpassCallback;

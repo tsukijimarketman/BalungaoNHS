@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pbma_portal/pages/models/infos.dart';
-import 'package:pbma_portal/widgets/footer.dart';
+import 'package:pbma_portal/pages/views/sections/desktop/footer.dart';
 import 'package:pbma_portal/widgets/hover_extensions.dart';
 import 'package:pbma_portal/widgets/info_card.dart';
-import 'package:pbma_portal/widgets/mission_vision.dart';
+import 'package:pbma_portal/pages/views/sections/desktop/mission_vision.dart';
 import 'package:pbma_portal/widgets/scroll_offset.dart';
 import 'package:pbma_portal/widgets/text_reveal.dart';
 
