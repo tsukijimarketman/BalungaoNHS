@@ -8,6 +8,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:pbma_portal/SubjectsAndGrade/AddingSubjects.dart';
 import 'package:pbma_portal/SubjectsAndGrade/AssignInstructor.dart';
 import 'package:pbma_portal/SubjectsAndGrade/SubjectsandGrade.dart';
+import 'package:pbma_portal/launcher.dart';
 import 'package:pbma_portal/pages/Auth_View/Adding_InstructorAcc_Desktview.dart';
 import 'package:pbma_portal/pages/dashboard.dart';
 import 'package:pbma_portal/pages/student_details.dart';
@@ -21,6 +22,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  Map<String, bool> _selectedStudents = {};
   String _selectedDrawerItem = 'Dashboard';
   String _email = '';
   String _accountType = '';
@@ -48,6 +50,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'IA': 'Industrial Arts (IA)',
   
 };
+bool get _isAnyStudentSelected {
+    return _selectedStudents.values.any((isSelected) => isSelected);
+  }
 
   void toggleAddInstructor() {
     setState(() {
@@ -62,10 +67,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   void toggleAddSubjects() {
-    setState(() {
-      _showAddSubjects = !_showAddSubjects;
-    });
-  }
+  setState(() {
+    _showAddSubjects = !_showAddSubjects;
+  });
+}
+
 
   void closeAddSubjects() {
     setState(() {
@@ -271,7 +277,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             _accountType = (data['accountType'] as String).toUpperCase();
             _email = data['email_Address'];
             _selectedDrawerItem =
-                _accountType == 'INSTRUCTOR' ? 'Strand Professor' : 'Dashboard';
+                _accountType == 'INSTRUCTOR' ? 'Strand Instructor' : 'Dashboard';
           });
         } else {
           print('No document found for UID: $uid');
@@ -293,7 +299,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   // pag disabled ng menus
   bool _isItemDisabled(String item) {
     if (_accountType == 'ADMIN') {
-      return item == 'Strand Professor';
+      return item == 'Strand Instructor';
     } else if (_accountType == 'INSTRUCTOR') {
       return item != 'Strand Professor';
     }
@@ -340,7 +346,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return _buildDashboardContent();
       case 'Students':
         return _buildStudentsContent();
-      case 'Strand Professor':
+      case 'Strand Instructor':
         return _buildStrandInstructorContent();
       case 'Manage Newcomers':
         return _buildNewcomersContent();
@@ -700,24 +706,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
+          // Row with Drop button (on the left) and Search Student (fixed on the right)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Iconsax.add_copy, size: 18, color: Colors.black),
-                  label: Text('Add Student',
-                      style: TextStyle(color: Colors.black)),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                
+                if (_isAnyStudentSelected)
+                  OutlinedButton(
+                    onPressed: () {
+                      
+                    },
+                    child: Text('Move to Drop List', style: TextStyle(color: Colors.black)),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.black),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                ),
+                // Add Spacer or Expanded to ensure Search stays on the right
+                Spacer(),
+                // Search Student field stays on the right
                 Container(
                   width: 300,
                   child: TextField(
@@ -780,7 +791,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       children: [
                         Row(
                           children: [
-                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            SizedBox(width: 32), // Same width as a checkbox to preserve alignment
                             Expanded(child: Text('Student ID')),
                             Expanded(child: Text('First Name')),
                             Expanded(child: Text('Last Name')),
@@ -898,6 +909,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         Divider(),
                         ...students.map((student) {
                           final data = student.data() as Map<String, dynamic>;
+                          String studentId = data['student_id'] ?? '';
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -911,7 +923,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             child: Row(
                               children: [
                                 Checkbox(
-                                    value: false, onChanged: (bool? value) {}),
+                                  value: _selectedStudents[studentId] ?? false,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      _selectedStudents[studentId] = value!;
+                                    });
+                                  },
+                                ),
                                 Expanded(child: Text(data['student_id'] ?? '')),
                                 Expanded(child: Text(data['first_name'] ?? '')),
                                 Expanded(child: Text(data['last_name'] ?? '')),
@@ -1370,266 +1388,264 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildSubjectsandInstructorContent() {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    return Stack(
-      children:[ Container(
-          color: Colors.grey[300],
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  double screenWidth = MediaQuery.of(context).size.width;
+  double screenHeight = MediaQuery.of(context).size.height;
+
+  return Stack(
+    children: [
+      Container(
+        color: Colors.grey[300],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'Subjects and Instructor',
+                'Manage Subjects',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    alignment: Alignment.topLeft,
-                    width: 150,
-                    height: 40,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          elevation: MaterialStatePropertyAll(10),
-                          backgroundColor: MaterialStatePropertyAll(Colors.blue),
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)))),
-                      onPressed: toggleAddSubjects,
-                      child: Text(
-                        'Add Subjects',
-                        style: TextStyle(fontSize: 14, color: Colors.white),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.blue),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 550.0),
-                    child: Container(
-                      alignment: Alignment.topLeft,
-                      width: 180,
-                      height: 40,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                            elevation: MaterialStatePropertyAll(10),
-                            backgroundColor: MaterialStatePropertyAll(Colors.blue),
-                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)))),
-                        onPressed: toggleAddInstructor,
-                        child: Text(
-                          'Assign Instructor',
-                          style: TextStyle(fontSize: 14, color: Colors.white),
+                  onPressed: toggleAddSubjects,
+                  child: Text(
+                    'Add New Subject',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Card(
+                margin: EdgeInsets.all(16),
+                elevation: 10,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Subjects List',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Row(
-              children: [
-               Expanded(
-  child: Container(
-    height: 500,
-    child: Card(
-      elevation: 10,
-      margin: EdgeInsets.all(10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // DropdownButton on top inside the card
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: DropdownButton<String>(
-                value: _selectedSemester,
-                hint: Text('Select Semester'),
-                items: _semesterOptions.map((String semester) {
-                  return DropdownMenuItem<String>(
-                    value: semester,
-                    child: Text(semester),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedSemester = newValue;
-                  });
-                },
-              ),
-            ),
-            
-            // StreamBuilder for data below the dropdown inside the card
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _getSubjectsStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
-
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No Data Found'));
-                  }
-
-                  final subjects = snapshot.data!.docs;
-
-                  return ListView.builder(
-                    itemCount: subjects.length,
-                    itemBuilder: (context, index) {
-                      final data = subjects[index].data() as Map<String, dynamic>;
-                      
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      SizedBox(height: 16),
+                      Table(
+                        border: TableBorder.all(color: Colors.grey),
+                        columnWidths: const <int, TableColumnWidth>{
+                          0: FixedColumnWidth(40.0),
+                          1: FlexColumnWidth(),
+                          2: FlexColumnWidth(),
+                          3: FlexColumnWidth(),
+                          4: FlexColumnWidth(),
+                          5: FlexColumnWidth(),
+                          6: FixedColumnWidth(100.0),
+                        },
                         children: [
-                          Text('Grade Level: ${data['grade_level'] ?? 'N/A'}'),
-                          Text('Semester: ${data['semester'] ?? 'N/A'}'),
-                          Text('Track: ${data['track'] ?? 'N/A'}'),
-                          Text('Strand: ${data['strand'] ?? 'N/A'}'),
-                          Text('Subjects'),
-                          Text('${data['subject_1'] ?? 'N/A'}'),
-                          Text('${data['subject_2'] ?? 'N/A'}'),
-                          Text('${data['subject_3'] ?? 'N/A'}'),
-                          Text('${data['subject_4'] ?? 'N/A'}'),
-                          Text('${data['subject_5'] ?? 'N/A'}'),
-                          Text('${data['subject_6'] ?? 'N/A'}'),
-                          Text('${data['subject_7'] ?? 'N/A'}'),
-                          Text('${data['subject_8'] ?? 'N/A'}'),
-                          Text('${data['subject_9'] ?? 'N/A'}'),
-                          Text('${data['subject_10'] ?? 'N/A'}'),
-                          SizedBox(height: 10),
+                          TableRow(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                            ),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Subject Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Code', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Category', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Semester', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Instructor', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
                         ],
-                      );
-                    },
-                  );
-                },
+                      ),
+                      SizedBox(height: 16),
+                      Center(
+                        child: Text(
+                          'No Subject Added',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
         ),
       ),
-    ),
-  ),
-),
-                SizedBox(width: 16),
-                Expanded(
-        child: Container(
-          height: 500,
-          child: Card(
-            elevation: 10,
-            margin: EdgeInsets.all(10),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _assignedInstructors.length,
-                      itemBuilder: (context, index) {
-                        final instructor = _assignedInstructors[index];
-                        return ListTile(
-                          title: Text(instructor['name']),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Assigned Grade Level: ${instructor['gradeLevel']}'),
-                              Text('Assigned Track: ${instructor['track']}'),
-                              Text('Assigned Strand: ${instructor['strand']}'),
-                              Text('Assigned Subject: ${instructor['assignedSubject']}'),
-                            ],
+      AnimatedSwitcher(
+          duration: Duration(milliseconds: 550),
+          child: _showAddSubjects
+              ? Positioned.fill(
+                  child: GestureDetector(
+                    onTap: closeAddSubjects,
+                    child: Stack(
+                      children: [
+                        BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(color: Colors.black.withOpacity(0.5)),
+                        ),
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 500),
+                              width: screenWidth / 2,
+                              height: screenHeight / 1.4,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              padding: EdgeInsets.all(20),
+                              child: SingleChildScrollView( // Add scroll functionality
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Back button
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: TextButton(
+                                        onPressed: closeAddSubjects,
+                                        style: TextButton.styleFrom(
+                                          side: BorderSide(color: Colors.red),
+                                        ),
+                                        child: Text('Back', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    // Form title
+                                    Text(
+                                      'Add New Subject',
+                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Subject Name
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Subject Name',
+                                        border: OutlineInputBorder(),
+                                        hintText: 'Enter subject name',
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Subject Code
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Subject Code',
+                                        border: OutlineInputBorder(),
+                                        hintText: 'Enter subject code',
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Instructor
+                                    TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Instructor',
+                                        border: OutlineInputBorder(),
+                                        hintText: 'Enter instructor name',
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Category Dropdown
+                                    DropdownButtonFormField<String>(
+                                      decoration: InputDecoration(
+                                        labelText: 'Category',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      items: ['--', 'Category 1', 'Category 2']
+                                          .map((category) => DropdownMenuItem<String>(
+                                                value: category,
+                                                child: Text(category),
+                                              ))
+                                          .toList(),
+                                      onChanged: (val) {},
+                                    ),
+                                    SizedBox(height: 16),
+                                    // Semester Dropdown
+                                    DropdownButtonFormField<String>(
+                                      decoration: InputDecoration(
+                                        labelText: 'Semester',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      items: ['--', 'Grade 11 - 1st Semester', 'Grade 11 - 2nd Semester',
+                                      'Grade 12 - 1st Semester', 'Grade 12 - 2nd Semester']
+                                          .map((semester) => DropdownMenuItem<String>(
+                                                value: semester,
+                                                child: Text(semester),
+                                              ))
+                                          .toList(),
+                                      onChanged: (val) {},
+                                    ),
+                                    SizedBox(height: 24),
+                                    // Save Changes button
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          // Save functionality
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                        ),
+                                        child: Text('Save Changes'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
+                )
+              : SizedBox.shrink(),
         ),
-      ),
-              ],
-            ), 
-          ])
-          ),
-          AnimatedSwitcher(
-            duration: Duration(milliseconds: 550),
-            child: _showAddSubjects
-                ? Positioned.fill(
-                    child: GestureDetector(
-                      onTap: closeAddSubjects,
-                      child: Stack(
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child:
-                                Container(color: Colors.black.withOpacity(0.5)),
-                          ),
-                          Center(
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 500),
-                                width: screenWidth / 1.2,
-                                height: screenHeight / 1.2,
-                                curve: Curves.easeInOut,
-                                child: AddSubjects(
-                                  key: ValueKey('closeAddSubjects'),
-                                  closeAddSubjects: closeAddSubjects,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-          ),
-          AnimatedSwitcher(
-            duration: Duration(milliseconds: 550),
-            child: _showAddInstructor
-                ? Positioned.fill(
-                    child: GestureDetector(
-                      onTap: closeAddInstructor,
-                      child: Stack(
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child:
-                                Container(color: Colors.black.withOpacity(0.5)),
-                          ),
-                          Center(
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 500),
-                                width: screenWidth / 1.2,
-                                height: screenHeight / 1.2,
-                                curve: Curves.easeInOut,
-                                child: AssignInstructor(
-                                  key: ValueKey('closeAddInstructor'),
-                                  closeAddInstructor: closeAddInstructor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-          ),
-      ]
-    );        
-  }
+
+            ],
+          );
+}
+
 
   Widget _buildDropStudent() {
     return Container(
@@ -1936,7 +1952,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
              _buildDrawerItem('Dashboard', Iconsax.dash_dash, 'Dashboard'),
             _buildDrawerItem('Students', Iconsax.user, 'Students'),
             _buildDrawerItem(
-                'Strand Professor', Iconsax.teacher, 'Strand Professor'),
+                'Strand Instructor', Iconsax.teacher, 'Strand Instructor'),
             _buildDrawerItem(
                 'Manage Newcomers', Iconsax.task, 'Manage Newcomers'),
             _buildDrawerItem('Subjects and Instructor', Iconsax.activity,
@@ -1944,15 +1960,65 @@ class _AdminDashboardState extends State<AdminDashboard> {
             _buildDrawerItem(
                 'Dropped Students', Iconsax.dropbox_copy, 'Dropped Students'),
             ListTile(
-              leading: Icon(Iconsax.logout),
-              title: Text('Log out'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Dashboard()),
-                );
-              },
-            ),
+            leading: Icon(Iconsax.logout),
+            title: Text('Log out'),
+            onTap: () {
+              // Show confirmation dialog before logging out
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    ),
+                    title: Text('Logout Confirmation'),
+                    content: Text('Are you sure you want to do logout?'),
+                    actions: <Widget>[
+                      // Confirm button
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                          // Navigate to the Launcher (or perform actual logout)
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => Launcher()),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.blue, // Blue background
+                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        child: Text(
+                          'Confirm',
+                          style: TextStyle(color: Colors.white), // White text
+                        ),
+                      ),
+                      // Cancel button
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        style: TextButton.styleFrom(
+                          side: BorderSide(color: Colors.blue), // Blue border
+                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.blue), // Blue text
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
           ],
         ),
       ),

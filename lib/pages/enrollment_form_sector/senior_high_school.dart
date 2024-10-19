@@ -104,15 +104,15 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
                     ),
                   ),
                   validator: (value) {
@@ -139,15 +139,15 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
                       ),
                     ),
                     items: [
@@ -185,15 +185,15 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
                       ),
                     ),
                     items: [
@@ -233,15 +233,15 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
                             labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                              borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                              borderSide: BorderSide(color: Colors.blue, width: 1.0),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                              borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                              borderSide: BorderSide(color: Colors.blue, width: 1.0),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                              borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                              borderSide: BorderSide(color: Colors.blue, width: 1.0),
                             ),
                           ),
                           items: _getStrandItems(),
