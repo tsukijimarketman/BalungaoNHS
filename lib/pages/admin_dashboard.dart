@@ -32,15 +32,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int _transfereeIconState = 0;
   int _trackIconState = 0;
   String _selectedStrand = 'ALL';
+  
+  String? selectedSubjectId;
+  String? selectedInstructorId;
+  String? selectedSectionId;
+
   bool _showAddSubjects = false;
   bool _showEditSubjects = false;
   bool _showAddInstructors = false;
   bool _showEditInstructors = false;
   bool _showAddSections = false;
   bool _showEditSections = false;
-  String? selectedSubjectId;
-  String? selectedInstructorId;
-  String? selectedSectionId;
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -417,7 +419,6 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
   }
 }
 
-
   void _showStatusChangeDialog(BuildContext context, String instructorId, String newStatus) {
   showCupertinoDialog(
     context: context,
@@ -608,7 +609,6 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
       ),
     );
   }
-
   //BuildManageSections
 
 
@@ -725,7 +725,7 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
       case 'Students':
         return _buildStudentsContent();
       case 'Strand Instructor':
-        return _buildStrandInstructorContent();
+        return _buildStrandInstructoraContent();
       case 'Manage Newcomers':
         return _buildNewcomersContent();
       case 'Manage Subjects':
@@ -741,6 +741,47 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
     }
   }
 
+  //method para sa Adviser and Not Adviser
+  Widget _buildStrandInstructoraContent() {
+  return FutureBuilder<QuerySnapshot>(
+    future: FirebaseFirestore.instance
+        .collection('users')
+        .where('accountType', isEqualTo: 'instructor')
+        .get(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      if (snapshot.hasError) {
+        return Center(child: Text('Error: ${snapshot.error}'));
+      }
+
+      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        return Center(child: Text('No instructors found.'));
+      }
+
+      // Assuming you have a method to get the currently signed-in instructor's UID
+      String currentInstructorUid = FirebaseAuth.instance.currentUser!.uid;
+
+      // Get the document for the currently signed-in instructor
+      DocumentSnapshot currentInstructorDoc = snapshot.data!.docs.firstWhere(
+        (doc) => doc.id == currentInstructorUid,
+        orElse: () => throw Exception('Instructor not found'),
+      );
+
+      final adviserStatus = currentInstructorDoc.get('adviser'); // Get adviser status
+
+      // Navigate to the corresponding drawer based on adviser status
+      if (adviserStatus == 'yes') {
+        return _buildInstructorWithAdviserDrawer(currentInstructorDoc);
+      } else {
+        return _buildInstructorWithoutAdviserDrawer(currentInstructorDoc);
+      }
+    },
+  );
+}
+  
   Widget _buildDashboardContent() {
     return Container(
       color: Colors.grey[300],
@@ -1345,7 +1386,7 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
     );
   }
 
-  Widget _buildStrandInstructorContent() {
+  Widget _buildInstructorWithAdviserDrawer(DocumentSnapshot doc) {
     return Container(
       color: Colors.grey[300],
       child: Column(
@@ -1544,6 +1585,210 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                     child: Text(data['grade_level'] ?? '')),
                               ],
                             ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget for instructors without adviser status
+  Widget _buildInstructorWithoutAdviserDrawer(DocumentSnapshot doc) {
+    return Container(
+      color: Colors.grey[300],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Strand Instructor',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Students List',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  width: 300,
+                  child: Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search Student',
+                        prefixIcon: Icon(Iconsax.search_normal_1_copy),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.blue, width: 2.0),
+              ),
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: _getFilteredInstructorStudents(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  final students = snapshot.data!.docs.where((student) {
+                    final data = student.data() as Map<String, dynamic>;
+                    final query = _searchQuery.toLowerCase();
+
+                    final studentId = data['student_id']?.toLowerCase() ?? '';
+                    final firstName = data['first_name']?.toLowerCase() ?? '';
+                    final lastName = data['last_name']?.toLowerCase() ?? '';
+                    final middleName = data['middle_name']?.toLowerCase() ?? '';
+                    final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
+                    final strand =
+                        data['seniorHigh_Strand']?.toLowerCase() ?? '';
+
+                    final fullName = '$firstName $middleName $lastName';
+
+                    return studentId.contains(query) ||
+                        fullName.contains(query) ||
+                        track.contains(query) ||
+                        strand.contains(query);
+                  }).toList();
+
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            Expanded(child: Text('Student ID')),
+                            Expanded(child: Text('Name')),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap:
+                                        _toggleTrackIcon, // Handles the tap to change icons
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState ==
+                                                1) // Show up arrow for state 0 and 1
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState ==
+                                                2) // Show down arrow for state 0 and 2
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Grade Level'),
+                                  GestureDetector(
+                                    onTap:
+                                        _toggleGradeLevelIcon, // Handles the tap to change icons
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState ==
+                                                1) // Show up arrow for state 0 and 1
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState ==
+                                                2) // Show down arrow for state 0 and 2
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(child: Text('Average')),
+                          ],
+                        ),
+                        Divider(),
+                        ...students.map((student) {
+                          final data = student.data();
+                          return Row(
+                            children: [
+                              Checkbox(
+                                  value: false, onChanged: (bool? value) {}),
+                              Expanded(child: Text(data['student_id'] ?? '')),
+                              Expanded(
+                                  child: Text(
+                                      '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}')),
+                              Expanded(
+                                  child:
+                                      Text(data['seniorHigh_Track'] ?? '')),
+                              Expanded(
+                                  child:
+                                      Text(data['seniorHigh_Strand'] ?? '')),
+                              Expanded(
+                                  child: Text(data['grade_level'] ?? '')),
+                            ],
                           );
                         }).toList(),
                       ],
@@ -2167,7 +2412,9 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                     3: FlexColumnWidth(),
                                     4: FlexColumnWidth(),
                                     5: FlexColumnWidth(),
-                                    6: FixedColumnWidth(100.0),
+                                    6: FlexColumnWidth(),
+                                    7: FlexColumnWidth(),
+                                    8: FixedColumnWidth(100.0),
                                   },
                                   children: [
                                     TableRow(
@@ -2207,6 +2454,18 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
+                                          child: Text('Adviser',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text('Handled Section',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
                                           child: Text('Actions',
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold)),
@@ -2241,6 +2500,14 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(users[i]['subject_Code']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(users[i]['adviser']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(users[i]['handled_section'] ?? 'N/A'),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
