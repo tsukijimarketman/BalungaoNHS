@@ -161,6 +161,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Stream<QuerySnapshot> _getFilteredStudents() {
     Query query = FirebaseFirestore.instance
         .collection('users')
+        .where('accountType', isEqualTo: 'student')
         .where('Status', isEqualTo: 'active'); // Filter for active students
 
     if (_trackIconState == 1) {

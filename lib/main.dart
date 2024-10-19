@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pbma_portal/launcher.dart';
+import 'package:pbma_portal/student_utils/student_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher_web/url_launcher_web.dart'; 
 import 'dart:async';  // Required for runZonedGuarded
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'PBMA Portal',
-      home: const Launcher(),  // Assuming Launcher is the landing page
+      home:  Launcher(),  //Launcher
     );
   }
 }

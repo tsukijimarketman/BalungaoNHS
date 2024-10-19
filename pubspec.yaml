@@ -50,6 +50,7 @@ dependencies:
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
   flutter_map_cancellable_tile_provider: ^3.0.2
+  sidebarx: ^0.17.1
   
   
 dev_dependencies:

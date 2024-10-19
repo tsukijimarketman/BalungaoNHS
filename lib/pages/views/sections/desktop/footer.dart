@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/widgets/contact_us.dart';
-import 'package:pbma_portal/widgets/ribbon.dart';
+import 'package:pbma_portal/pages/views/sections/desktop/contact_us.dart';
+import 'package:pbma_portal/pages/views/sections/desktop/ribbon.dart';
 
 class Footer extends StatefulWidget {
   const Footer({super.key});

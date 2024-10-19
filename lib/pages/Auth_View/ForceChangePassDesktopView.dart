@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pbma_portal/Accounts/student_dashboard.dart';
+import 'package:pbma_portal/student_utils/student_ui.dart';
 
 class ChangePasswordDesktop extends StatefulWidget {
   final String email;
@@ -93,14 +94,10 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
               'Error', 'Failed to update document: ${error.toString()}');
         });
 
-        Navigator.push(
+        Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => StudentDashboard(
-            firstName: firstName,
-            middleName: middleName,
-            lastName: lastName,
-          ),
+          builder: (context) => StudentUI(),
         ),
       );
     }
