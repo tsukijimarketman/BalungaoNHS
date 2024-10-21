@@ -12,6 +12,16 @@ class _StudentUIState extends State<StudentUI> {
   final _controller = SidebarXController(selectedIndex: 0, extended: true);
   final _key = GlobalKey<ScaffoldState>();
 
+  // Declare the selectedSemester variable
+  String selectedSemester = 'SELECT SEMESTER';
+
+  // Store grade inputs in a Map
+  final Map<String, TextEditingController> gradeControllers = {
+    'subject1': TextEditingController(),
+    'subject2': TextEditingController(),
+    'subject3': TextEditingController(),
+  };
+
   @override
   Widget build(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
@@ -41,7 +51,17 @@ class _StudentUIState extends State<StudentUI> {
           if (!isSmallScreen) ExampleSidebarX(controller: _controller),
           Expanded(
             child: Center(
-              child: _ScreensExample(controller: _controller),
+              // Pass selectedSemester and onSemesterChanged to _ScreensExample
+              child: _ScreensExample(
+                controller: _controller,
+                selectedSemester: selectedSemester,
+                onSemesterChanged: (newValue) {
+                  setState(() {
+                    selectedSemester = newValue;
+                  });
+                },
+                gradeControllers: gradeControllers, // Pass the grade controllers
+              ),
             ),
           ),
         ],
@@ -160,27 +180,21 @@ class ExampleSidebarX extends StatelessWidget {
       ),
     );
   }
-
-  void _showDisabledAlert(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Item disabled for selecting',
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.blue,
-      ),
-    );
-  }
 }
 
 class _ScreensExample extends StatelessWidget {
   const _ScreensExample({
     Key? key,
     required this.controller,
+    required this.selectedSemester,
+    required this.onSemesterChanged,
+    required this.gradeControllers,
   }) : super(key: key);
 
   final SidebarXController controller;
+  final String selectedSemester;
+  final ValueChanged<String> onSemesterChanged;
+  final Map<String, TextEditingController> gradeControllers;
 
   @override
   Widget build(BuildContext context) {
@@ -201,11 +215,183 @@ class _ScreensExample extends StatelessWidget {
             );
           case 1:
             return Container(
-              color: Color.fromARGB(255, 1, 93, 168),
-              child: Center(
-                child: Text("View Grades"),
-              ),
-            );
+            padding: EdgeInsets.all(16.0),
+            color: Color.fromARGB(255, 1, 93, 168),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, 
+              children: [
+                Text(
+                  'REPORT CARD',
+                  style: TextStyle(
+                    color: Colors.white, 
+                    fontSize: 24, 
+                    fontWeight: FontWeight.bold, 
+                  ),
+                ),
+                SizedBox(height: 20), 
+
+                
+                Container(
+                  width: 200, 
+                  height: 30,
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white, 
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: DropdownButton<String>(
+                    value: selectedSemester,
+                    items: ['SELECT SEMESTER', 'First Semester', 'Second Semester']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      onSemesterChanged(newValue!);
+                    },
+                    underline: SizedBox(),
+                    isExpanded: true,
+                    dropdownColor: Colors.white,
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(
+                  color: Colors.white, 
+                  child: Table(
+                    border: TableBorder.all(color: Colors.black), 
+                    columnWidths: {
+                      0: FlexColumnWidth(2),
+                      1: FlexColumnWidth(4), // Adjust for balanced column width
+                      2: FlexColumnWidth(2),
+                    },
+                    children: [
+                      TableRow(children: [
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Course Code', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Subject', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Grade', style: TextStyle(color: Colors.black)),
+                        ),
+                      ]),
+                      // First subject row
+                      TableRow(children: [
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('COURSE001', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Subject 1', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(
+                            gradeControllers['subject1']?.text ?? 'N/A',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ]),
+                      // Second subject row
+                      TableRow(children: [
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('COURSE002', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Subject 2', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(
+                            gradeControllers['subject2']?.text ?? 'N/A',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ]),
+                      // Third subject row
+                      TableRow(children: [
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('COURSE003', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Subject 3', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(
+                            gradeControllers['subject3']?.text ?? 'N/A',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                  children: [
+                    Row(
+                      children: [
+                        ElevatedButton(
+                        onPressed: () {
+                          // Handle finalizing grades (e.g., validation)
+                          print('Grades finalized:');
+                          gradeControllers.forEach((key, controller) {
+                            print('$key: ${controller.text}');
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Color.fromARGB(255, 1, 93, 168), 
+                          backgroundColor: Colors.white, 
+                          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          minimumSize: Size(80, 20),
+                        ),
+                        child: Text('Finalize', style: TextStyle(fontSize: 10),),
+                      ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Note: You can only finalize this \nwhen the subject is completed.',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+
+                    // Print Result button aligned to the right
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle print result functionality here
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black, 
+                        backgroundColor: Colors.yellow, 
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12), 
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5), 
+                          ),
+                      ),
+                      child: Text('Print Result'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
           case 2:
             return Container(
               color: Color.fromARGB(255, 1, 93, 168),
@@ -222,58 +408,9 @@ class _ScreensExample extends StatelessWidget {
             );
           case 4:
             return Container(
-              width: screenWidth,
-              height: screenHeight,
               color: Color.fromARGB(255, 1, 93, 168),
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: screenWidth/9,
-                          width: screenWidth/9,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  image: AssetImage("assets/avatar.png"),
-                                  fit: BoxFit.cover)),
-                        ),
-                        SizedBox(
-                          width: screenWidth/40,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Gerick M. Velasquez",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: screenWidth/60,
-                                  fontFamily: "B"),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              width: screenWidth/10,
-                              height: screenWidth/35,
-                              decoration: BoxDecoration(
-                                color: Colors.yellow,
-                                borderRadius: BorderRadius.circular(10)
-                              ),
-                              child: Center(
-                                child: Text("Edit Profile", style: TextStyle(fontFamily: "B", fontSize: screenWidth/100),),
-                              ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              child: Center(
+                child: Text("Settings"),
               ),
             );
           default:
@@ -285,29 +422,28 @@ class _ScreensExample extends StatelessWidget {
       },
     );
   }
-}
 
-String _getTitleByIndex(int index) {
-  switch (index) {
-    case 0:
-      return 'Home';
-    case 1:
-      return 'View Grades';
-    case 2:
-      return 'Check Enrollment';
-    case 3:
-      return 'Change Password';
-    case 4:
-      return 'Settings';
-    default:
-      return 'Not found page';
+  String _getTitleByIndex(int index) {
+    switch (index) {
+      case 0:
+        return 'Home';
+      case 1:
+        return 'View Grades';
+      case 2:
+        return 'Check Enrollment';
+      case 3:
+        return 'Change Password';
+      case 4:
+        return 'Settings';
+      default:
+        return 'Not found page';
+    }
   }
 }
 
-const primaryColor = Color(0xFF685BFF);
-const canvasColor = Color(0xFF2E2E48);
-const scaffoldBackgroundColor = Color(0xFF464667);
-const accentCanvasColor = Color(0xFF3E3E61);
-const white = Colors.white;
-final actionColor = const Color(0xFF5F5FA7).withOpacity(0.6);
-final divider = Divider(color: white.withOpacity(0.3), height: 1);
+// Your colors here, replace with actual color values if needed
+const canvasColor = Color(0xFF1D3557);
+const scaffoldBackgroundColor = Color(0xFF457B9D);
+const accentCanvasColor = Color(0xFFA8DADC);
+const actionColor = Color(0xFFF4A261);
+const divider = Divider(color: Colors.white54, thickness: 1);

@@ -2831,6 +2831,9 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                 ],
                               ),
                             ),
+                            Expanded(child: Text('Date')),
+                            Expanded(child: Text('')),
+                            
                           ],
                         ),
                         Divider(),
@@ -2849,13 +2852,51 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                               Expanded(
                                   child: Text(data['seniorHigh_Strand'] ?? '')),
                               Expanded(child: Text(data['grade_level'] ?? '')),
+                              Expanded(child: Text('Date')),
                               Expanded(
-                                  child: IconButton(
-                                icon: Icon(Icons.arrow_right_alt_outlined), 
-                                onPressed: () {
-                                  showConfirmationDropDialog(context, data['student_id']);
-                                },
-                              )),
+                                child: TextButton(
+                                  onPressed: () {
+                                    showConfirmationDropDialog(context, data['student_id']);
+                                  },
+                                  style: ButtonStyle(
+                                    // Remove any elevation and shadows
+                                    elevation: MaterialStateProperty.all(0),
+                                    shadowColor: MaterialStateProperty.all(Colors.transparent),
+                                    // Ensure no overlay color on hover
+                                    overlayColor: MaterialStateProperty.all(Colors.transparent), 
+                                    backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                                    shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20), // Maintain rounded corners
+                                      ),
+                                    ),
+                                    foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                                      (Set<MaterialState> states) {
+                                        if (states.contains(MaterialState.hovered)) {
+                                          return Colors.green; // Change text color to black on hover
+                                        }
+                                        return Colors.red; // Default text color
+                                      },
+                                    ),
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Reactivate',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                          SizedBox(width: 4),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
                             ],
                           );
                         }).toList(),
