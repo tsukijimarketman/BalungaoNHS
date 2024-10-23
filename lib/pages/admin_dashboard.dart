@@ -736,6 +736,8 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
         return _buildManageSections();
       case 'Dropped Student':
         return _buildDropStudent();
+      case 'Report Analytics':
+        return _buildAnalytics();
       default:
         return Center(child: Text('Body Content Here'));
     }
@@ -3179,6 +3181,18 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
     );
   }
 
+  Widget _buildAnalytics() {
+  return Container(
+    color: Colors.grey[300],
+    alignment: Alignment.center,
+    child: Text(
+      'Report Analytics',
+      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    ),
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3266,6 +3280,7 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
             _buildDrawerItem('Manage Instructors', Iconsax.user, 'Manage Instructors'),
             _buildDrawerItem('Manage Sections', Iconsax.user, 'Manage Sections'),
             _buildDrawerItem('Dropped Student', Iconsax.dropbox_copy, 'Dropped Student'),
+            _buildDrawerItem('Report Analytics', Iconsax.data_copy, 'Report Analytics'),
             ListTile(
               leading: Icon(Iconsax.logout),
               title: Text('Log out'),

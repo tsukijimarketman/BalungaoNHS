@@ -226,24 +226,24 @@ class _StudentInformationState extends State<StudentInformation>
                     focusNode: _lrnFocusNode,
                     decoration: InputDecoration(
                       labelText: null,
-                      label: RichText(text: TextSpan(
-                        text: 'Learner Reference Number',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 101, 100, 100),
-                          fontSize: 16,
+                      label: RichText(
+                        text: TextSpan(
+                          text: 'Learner Reference Number',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 101, 100, 100),
+                            fontSize: 16,
+                          ),
+                          children: [
+                            if (_lrnFocusNode.hasFocus || _lrnController.text.isNotEmpty)
+                              TextSpan(
+                                text: '*',
+                                style: TextStyle(
+                                  color: Colors.red, // Red color for the asterisk
+                                ),
+                              ),
+                          ],
                         ),
-                        children: [
-                          if (_lrnFocusNode.hasFocus || _lrnController.text.isNotEmpty)
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red, // Red color for the asterisk
-                            ),
-                            ),
-                        ],
                       ),
-                    ),
-                      
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 1.0),
@@ -260,6 +260,8 @@ class _StudentInformationState extends State<StudentInformation>
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your LRN';
+                      } else if (value.length != 12) {
+                        return 'LRN must be exactly 12 digits';
                       }
                       return null;
                     },
@@ -267,9 +269,13 @@ class _StudentInformationState extends State<StudentInformation>
                       setState(() {});
                     },
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly, // Only digits
+                      LengthLimitingTextInputFormatter(12),   // Limit to 12 digits
+                    ],
                   ),
                 ),
+
                 SizedBox(width: widget.spacing),
                 GestureDetector(
                   onTap: _pickImage,
