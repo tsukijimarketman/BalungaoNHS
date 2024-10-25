@@ -21,21 +21,53 @@ class _AddingSectionsState extends State<AddingSections> {
   final TextEditingController _sectionAdviser = TextEditingController();
   final TextEditingController _sectionCapacity = TextEditingController();
   String? _selectedSemester = '--' ;
+  String? _selectedAdviser;
 
   final CollectionReference subjectsCollection =
       FirebaseFirestore.instance.collection('sections');
+  final CollectionReference usersCollection =
+      FirebaseFirestore.instance.collection('users');
+
+  List<Map<String, String>> _instructors = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchInstructors();
+  }
+
+  Future<void> _fetchInstructors() async {
+    try {
+      final QuerySnapshot snapshot = await usersCollection
+          .where('accountType', isEqualTo: 'instructor')
+          .get();
+
+      setState(() {
+        _instructors = snapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return {
+            'id': doc.id,
+            'name': '${data['first_name']} ${data['last_name']}', // Combine first and last name
+          };
+        }).toList();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching instructors: $e')),
+      );
+    }
+  }
 
   @override
   void dispose() {
     _sectionName.dispose();
-    _sectionAdviser.dispose();
     _sectionCapacity.dispose();
     super.dispose();
   }
 
   Future<void> _saveSubject() async {
     // Basic validation before saving
-    if (_sectionName.text.isEmpty || _sectionAdviser.text.isEmpty || _selectedSemester == '--') {
+    if (_sectionName.text.isEmpty || _selectedAdviser == null || _selectedSemester == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
@@ -46,7 +78,7 @@ class _AddingSectionsState extends State<AddingSections> {
       // Create a document in Firestore
       await subjectsCollection.add({
         'section_name': _sectionName.text,
-        'section_adviser': _sectionAdviser.text,
+        'section_adviser': _selectedAdviser,
         'semester': _selectedSemester,
         'section_capacity': _sectionCapacity.text,
         'created_at': Timestamp.now(),
@@ -61,10 +93,10 @@ class _AddingSectionsState extends State<AddingSections> {
 
       // Clear the form after saving
       _sectionName.clear();
-      _sectionAdviser.clear();
       _sectionCapacity.clear();
       setState(() {
         _selectedSemester = '--';
+        _selectedAdviser = null;
       });
 
     } catch (e) {
@@ -125,14 +157,25 @@ class _AddingSectionsState extends State<AddingSections> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      // Subject Code
-                      TextFormField(
-                        controller: _sectionAdviser,
+                      // Section Adviser Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedAdviser,
                         decoration: InputDecoration(
                           labelText: 'Section Adviser',
                           border: OutlineInputBorder(),
-                          hintText: 'Enter section adviser',
                         ),
+                        items: _instructors
+                            .map((instructor) => DropdownMenuItem<String>(
+                                  value: instructor['name'],
+                                  child: Text(instructor['name'] ?? ''),
+                                ))
+                            .toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedAdviser = val;
+                          });
+                        },
+                        hint: Text('Select an adviser'),
                       ),
                       SizedBox(height: 16),
                       // Semester Dropdown

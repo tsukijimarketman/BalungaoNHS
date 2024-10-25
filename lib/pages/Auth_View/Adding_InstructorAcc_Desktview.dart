@@ -37,7 +37,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
   Future<void> _fetchSections() async {
     try {
       final snapshot = await FirebaseFirestore.instance.collection('sections').get();
-      final sections = snapshot.docs.map((doc) => doc['section_name'] as String).toList(); // Assuming each section document has a 'section_name' field
+      final sections = snapshot.docs.map((doc) => doc['section_name'] as String).toList(); // Assuming each section document has a 'name' field
       setState(() {
         _sections = sections; // Update sections list
       });
@@ -68,12 +68,12 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
 
       String handledSectionValue;
 
-      // Set handled section based on adviser status
-      if (_adviserStatus == 'yes') {
-        handledSectionValue = _selectedSection ?? 'N/A'; // Use selected section or 'N/A' if none selected
-      } else {
-        handledSectionValue = 'N/A'; // Default to 'N/A' if adviser status is 'no'
-      }
+    // Set handled section based on adviser status
+    if (_adviserStatus == 'yes') {
+      handledSectionValue = _selectedSection ?? 'N/A'; // Use selected section or 'N/A' if none selected
+    } else {
+      handledSectionValue = 'N/A'; // Default to 'N/A' if adviser status is 'no'
+    }
 
       try {
         UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -159,14 +159,12 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
               DropdownButtonFormField<String>(
                 value: _selectedSection,
                 decoration: InputDecoration(labelText: 'Select Section'),
-                items: _sections.isNotEmpty
-                    ? _sections.map((section) {
-                        return DropdownMenuItem(
-                          value: section,
-                          child: Text(section),
-                        );
-                      }).toList()
-                    : [DropdownMenuItem(value: null, child: Text('No sections available'))],
+                items: _sections.map((section) {
+                  return DropdownMenuItem(
+                    value: section,
+                    child: Text(section),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedSection = value; // Update selected section

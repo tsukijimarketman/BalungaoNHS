@@ -29,6 +29,8 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
   final TextEditingController _sectionAdviser = TextEditingController();
   final TextEditingController _sectionCapacity = TextEditingController();
   String? _selectedSemester = '--' ;
+  String? _selectedAdviser;
+  List<DropdownMenuItem<String>> advisersDropdownItems = [];
 
 
   final CollectionReference sectionsCollection =
@@ -38,6 +40,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
   void initState() {
     super.initState();
     _fetchSectionData();
+    _fetchAdvisers(); // Fetch advisers when form loads
   }
 
   // Fetch subject details from Firestore using the subjectId
@@ -48,16 +51,35 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
       Map<String, dynamic>? data = sectionDoc.data() as Map<String, dynamic>?;
       setState(() {
         _sectionName.text = data?['section_name'] ?? '';
-        _sectionAdviser.text = data?['section_adviser'] ?? '';
+        _selectedAdviser = data?['section_adviser'] ?? '';
         _selectedSemester = data?['semester'] ?? '--';
         _sectionCapacity.text = data?['section_capacity'] ?? '';
       });
     }
   }
 
+  Future<void> _fetchAdvisers() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('accountType', isEqualTo: 'instructor')
+        .get();
+
+    setState(() {
+      advisersDropdownItems = querySnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        String adviserName = '${data['first_name']} ${data['last_name']}';
+        return DropdownMenuItem<String>(
+          value: adviserName,
+          child: Text(adviserName),
+        );
+      }).toList();
+    });
+  }
+
+
   // Update the subject in Firestore
   Future<void> _updateSection() async {
-    if (_sectionName.text.isEmpty || _sectionAdviser.text.isEmpty || _selectedSemester == '--' || _sectionCapacity.text.isEmpty) {
+    if (_sectionName.text.isEmpty || _selectedAdviser == null || _selectedSemester == '--' || _sectionCapacity.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
@@ -67,7 +89,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     try {
       await sectionsCollection.doc(widget.sectionId).update({
         'section_name': _sectionName.text,
-        'section_adviser': _sectionAdviser.text,
+        'section_adviser': _selectedAdviser,
         'semester': _selectedSemester,
         'section_capacity': _sectionCapacity.text,
         'updated_at': Timestamp.now(),
@@ -86,10 +108,9 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     }
   }
 
-  @override
+ @override
   void dispose() {
     _sectionName.dispose();
-    _sectionAdviser.dispose();
     _sectionCapacity.dispose();
     super.dispose();
   }
@@ -146,13 +167,18 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                       ),
                       SizedBox(height: 16),
                       // Subject Code
-                      TextFormField(
-                        controller: _sectionAdviser,
+                      DropdownButtonFormField<String>(
+                        value: _selectedAdviser,
                         decoration: InputDecoration(
                           labelText: 'Section Adviser',
                           border: OutlineInputBorder(),
-                          hintText: 'Enter section adviser',
                         ),
+                        items: advisersDropdownItems,
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedAdviser = val;
+                          });
+                        },
                       ),
                       SizedBox(height: 16),
                       // Semester Dropdown

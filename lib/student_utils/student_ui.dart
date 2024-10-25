@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
 
@@ -70,7 +72,7 @@ class _StudentUIState extends State<StudentUI> {
   }
 }
 
-class ExampleSidebarX extends StatelessWidget {
+class ExampleSidebarX extends StatefulWidget {
   const ExampleSidebarX({
     Key? key,
     required SidebarXController controller,
@@ -80,11 +82,57 @@ class ExampleSidebarX extends StatelessWidget {
   final SidebarXController _controller;
 
   @override
+  State<ExampleSidebarX> createState() => _ExampleSidebarXState();
+}
+
+class _ExampleSidebarXState extends State<ExampleSidebarX> {
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStudentData();
+  }
+
+  String? _studentId;
+  String? _imageUrl; // Variable to store the student's image URL
+
+  Future<void> _loadStudentData() async {
+    User? user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
+
+    if (user != null) {
+      try {
+        // Query the 'users' collection where the 'uid' field matches the current user's UID
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        if (userSnapshot.docs.isNotEmpty) {
+          // Assuming only one document will be returned, get the first document
+          DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+          setState(() {
+            _studentId = userDoc['student_id'];
+          _imageUrl = userDoc['image_url']; 
+          });
+        } else {
+          print('No matching student document found.');
+        }
+      } catch (e) {
+        print('Failed to load student data: $e');
+      }
+    } else {
+      print('User is not logged in.');
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       color: Color.fromARGB(255, 1, 93, 168),
       child: SidebarX(
-        controller: _controller,
+        controller: widget._controller,
         theme: SidebarXTheme(
           margin: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -141,11 +189,16 @@ class ExampleSidebarX extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Image.asset('assets/avatar.png'),
+                  child: CircleAvatar(
+                    radius: 100,
+                    backgroundImage: _imageUrl != null
+                        ? NetworkImage(_imageUrl!) // Use _imageUrl directly as a String
+                        : NetworkImage('https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png'),
+                  ),
                 ),
-                if (extended)
+
                   Text(
-                    "2024-PBMA-0011",
+                    _studentId ?? "No ID", // Display student ID if available
                     style: TextStyle(color: Colors.white),
                   ),
                 SizedBox(
@@ -182,7 +235,7 @@ class ExampleSidebarX extends StatelessWidget {
   }
 }
 
-class _ScreensExample extends StatelessWidget {
+class _ScreensExample extends StatefulWidget {
   const _ScreensExample({
     Key? key,
     required this.controller,
@@ -197,15 +250,186 @@ class _ScreensExample extends StatelessWidget {
   final Map<String, TextEditingController> gradeControllers;
 
   @override
+  State<_ScreensExample> createState() => _ScreensExampleState();
+}
+
+class _ScreensExampleState extends State<_ScreensExample> {
+  
+  List<String> _sections = [];
+  List<Map<String, dynamic>> _subjects = []; // To store the fetched subjects
+
+
+  String? _studentId;
+  String? _fullName;
+  String? _strand;
+  String? _track;
+  String? _gradeLevel;
+  String? _semester;
+  String? _selectedSection;
+
+   @override
+  void initState() {
+    super.initState();
+    _fetchSections();
+    _loadStudentData();
+  }
+
+  Future<void> _fetchSections() async {
+    final snapshot = await FirebaseFirestore.instance.collection('sections').get();
+    setState(() {
+      _sections = snapshot.docs.map((doc) => doc['section_name'] as String).toList(); // Adjust the field name as necessary
+    });
+  }
+ 
+  Future<void> _loadStudentData() async {
+    User? user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
+
+    if (user != null) {
+      try {
+        // Query the 'users' collection where the 'uid' field matches the current user's UID
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        if (userSnapshot.docs.isNotEmpty) {
+          // Assuming only one document will be returned, get the first document
+          DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+          setState(() {
+            _studentId = userDoc['student_id'];
+            _fullName = '${userDoc['first_name']} ${userDoc['middle_name'] ?? ''} ${userDoc['last_name']} ${userDoc['extension_name'] ?? ''}'.trim();
+            _strand = userDoc['seniorHigh_Strand'];
+            _track = userDoc['seniorHigh_Track'];
+            _gradeLevel = userDoc['grade_level'];
+            _semester = userDoc['semester'];
+          });
+        } else {
+          print('No matching student document found.');
+        }
+      } catch (e) {
+        print('Failed to load student data: $e');
+      }
+    } else {
+      print('User is not logged in.');
+    }
+  }
+
+  Future<void> _saveSection() async {
+  if (_selectedSection != null && _selectedSection!.isNotEmpty) {
+    try {
+      // Get the currently logged-in user
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Query Firestore for the document where 'uid' matches the logged-in user's UID
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        // Check if any documents were returned
+        if (userSnapshot.docs.isNotEmpty) {
+          // Assuming 'uid' is unique, take the first document
+          DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+          // Update the 'section' field in the user's document
+          await FirebaseFirestore.instance.collection('users').doc(userDoc.id).update({
+            'section': _selectedSection,
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Section saved successfully!')),
+          );
+        } else {
+          print('No document found for the current user.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User document not found.')),
+          );
+        }
+      } else {
+        print('No user is logged in.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No user is logged in. Please log in to save the section.')),
+        );
+      }
+    } catch (e) {
+      print('Error saving section: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving section: $e')),
+      );
+    }
+  } else {
+    // Show an error message if no section is selected
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please select a section before saving.')),
+    );
+  }
+}
+
+Future<void> _loadSubjects() async {
+  if (_selectedSection != null) {
+    try {
+      // Fetch the selected section's document
+      QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+          .collection('sections')
+          .where('section_name', isEqualTo: _selectedSection)
+          .get();
+
+      if (sectionSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
+        String sectionSemester = sectionDoc['semester']; // Assuming 'semester' field exists in 'sections'
+
+        // Query subjects that have the same semester as the selected section
+        QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
+            .collection('subjects')
+            .where('semester', isEqualTo: sectionSemester)
+            .get();
+
+        setState(() {
+          // Store the fetched subjects
+          _subjects = subjectSnapshot.docs
+              .map((doc) => {
+                    'subject_code': doc['subject_code'], // Adjust field names if necessary
+                    'subject_name': doc['subject_name'],
+                    'category': doc['category'], // Assuming 'grade' field exists
+                  })
+              .toList();
+        });
+
+        // Show a success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Subjects loaded successfully!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No matching section found.')),
+        );
+      }
+    } catch (e) {
+      print('Error loading subjects: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading subjects: $e')),
+      );
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please select a section before loading subjects.')),
+    );
+  }
+}
+
+
+  @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final theme = Theme.of(context);
     return AnimatedBuilder(
-      animation: controller,
+      animation: widget.controller,
       builder: (context, child) {
-        final pageTitle = _getTitleByIndex(controller.selectedIndex);
-        switch (controller.selectedIndex) {
+        final pageTitle = _getTitleByIndex(widget.controller.selectedIndex);
+        switch (widget.controller.selectedIndex) {
           case 0:
             return Container(
               color: Color.fromARGB(255, 1, 93, 168),
@@ -240,7 +464,7 @@ class _ScreensExample extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: DropdownButton<String>(
-                    value: selectedSemester,
+                    value: widget.selectedSemester,
                     items: ['SELECT SEMESTER', 'First Semester', 'Second Semester']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
@@ -249,7 +473,7 @@ class _ScreensExample extends StatelessWidget {
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
-                      onSemesterChanged(newValue!);
+                      widget.onSemesterChanged(newValue!);
                     },
                     underline: SizedBox(),
                     isExpanded: true,
@@ -295,7 +519,7 @@ class _ScreensExample extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.all(12.0),
                           child: Text(
-                            gradeControllers['subject1']?.text ?? 'N/A',
+                            widget.gradeControllers['subject1']?.text ?? 'N/A',
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -313,7 +537,7 @@ class _ScreensExample extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.all(12.0),
                           child: Text(
-                            gradeControllers['subject2']?.text ?? 'N/A',
+                            widget.gradeControllers['subject2']?.text ?? 'N/A',
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -331,7 +555,7 @@ class _ScreensExample extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.all(12.0),
                           child: Text(
-                            gradeControllers['subject3']?.text ?? 'N/A',
+                            widget.gradeControllers['subject3']?.text ?? 'N/A',
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -349,7 +573,7 @@ class _ScreensExample extends StatelessWidget {
                         onPressed: () {
                           // Handle finalizing grades (e.g., validation)
                           print('Grades finalized:');
-                          gradeControllers.forEach((key, controller) {
+                          widget.gradeControllers.forEach((key, controller) {
                             print('$key: ${controller.text}');
                           });
                         },
@@ -394,11 +618,93 @@ class _ScreensExample extends StatelessWidget {
           );
           case 2:
             return Container(
-              color: Color.fromARGB(255, 1, 93, 168),
-              child: Center(
-                child: Text("Check Enrollment"),
+        color: Color.fromARGB(255, 1, 93, 168),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Student Data", style: TextStyle(color: Colors.white, fontSize: 24)),
+              SizedBox(height: 20),
+              Text('Student ID no: ${_studentId ?? ''}', style: TextStyle(color: Colors.white,)),
+              Text('Student Full Name: ${_fullName ?? ''}', style: TextStyle(color: Colors.white,)),
+              Text('Strand: ${_strand ?? ''}', style: TextStyle(color: Colors.white,)),
+              Text('Track: ${_track ?? ''}', style: TextStyle(color: Colors.white,)),
+              Text('Grade Level: ${_gradeLevel ?? ''}', style: TextStyle(color: Colors.white,)),
+              Text('Semester: ${_semester ?? ''}', style: TextStyle(color: Colors.white,)),
+              Text("Subjects", style: TextStyle(color: Colors.white, fontSize: 24)),
+          
+              DropdownButton<String>(
+                value: _selectedSection,
+                hint: Text('Select a section', style: TextStyle(color: Colors.white)),
+                items: _sections.map((String section) {
+                  return DropdownMenuItem<String>(
+                    value: section,
+                    child: Text(section, style: TextStyle(color: Colors.black)), // Section name
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedSection = newValue; // Update selected section
+                  });
+                },
               ),
-            );
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _saveSection, // Call the save function
+                child: Text('Save Section'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(onPressed: _loadSubjects, 
+              child: Text('Load Subjects')
+              ),
+              _subjects.isNotEmpty
+              ? Table(
+                  border: TableBorder.all(color: Colors.black),
+                  columnWidths: {
+                    0: FlexColumnWidth(2),
+                    1: FlexColumnWidth(4), // Adjust for balanced column width
+                    2: FlexColumnWidth(2),
+                  },
+                  children: [
+                    TableRow(children: [
+                      Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Text('Course Code', style: TextStyle(color: Colors.black)),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Text('Subject', style: TextStyle(color: Colors.black)),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Text('Grade', style: TextStyle(color: Colors.black)),
+                      ),
+                    ]),
+                    // Dynamically create rows based on the fetched subjects
+                    ..._subjects.map((subject) {
+                      return TableRow(children: [
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(subject['subject_code'], style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(subject['subject_name'], style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(subject['category'] ?? 'N/A', style: TextStyle(color: Colors.black)),
+                        ),
+                      ]);
+                    }).toList(),
+                  ],
+                )
+              : Text('No subjects available', style: TextStyle(color: Colors.white)),
+        ],
+      ),
+    ),
+  );
           case 3:
             return Container(
               color: Color.fromARGB(255, 1, 93, 168),
