@@ -955,167 +955,143 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
             ),
           ),
           Expanded(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.blue, width: 2.0),
-              ),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _getEnrolledStudentsCount(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
+  child: Container(
+    margin: EdgeInsets.symmetric(horizontal: 16.0),
+    padding: EdgeInsets.all(8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: Colors.blue, width: 2.0),
+    ),
+    child: StreamBuilder<QuerySnapshot>(
+      stream: _getEnrolledStudentsCount(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-                  final students = snapshot.data!.docs;
+        final students = snapshot.data!.docs;
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Row(
+        return Column(
+          children: [
+            // Fixed header row
+            Row(
+              children: [
+                Expanded(child: Text('Student ID')),
+                Expanded(child: Text('First Name')),
+                Expanded(child: Text('Last Name')),
+                Expanded(child: Text('Middle Name')),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Track'),
+                      GestureDetector(
+                        onTap: _toggleTrackIcon,
+                        child: Row(
                           children: [
-                            // Checkbox(value: false, onChanged: (bool? value) {}),
-                            Expanded(child: Text('Student ID')),
-                            Expanded(child: Text('First Name')),
-                            Expanded(child: Text('Last Name')),
-                            Expanded(child: Text('Middle Name')),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Track'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleTrackIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_trackIconState == 0 ||
-                                            _trackIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_trackIconState == 0 ||
-                                            _trackIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Strand'),
-                                  PopupMenuButton<String>(
-                                    icon: Icon(Icons.arrow_drop_down),
-                                    onSelected: (String value) {
-                                      setState(() {
-                                        _selectedStrand = value;
-                                      });
-                                    },
-                                    itemBuilder: (BuildContext context) {
-                                      return [
-                                        'ALL',
-                                        'STEM',
-                                        'HUMSS',
-                                        'ABM',
-                                        'ICT',
-                                        'HE',
-                                        'IA'
-                                      ].map((String strand) {
-                                        return PopupMenuItem<String>(
-                                          value: strand,
-                                          child: Text(strand),
-                                        );
-                                      }).toList();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Grade Level'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleGradeLevelIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_gradeLevelIconState == 0 ||
-                                            _gradeLevelIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_gradeLevelIconState == 0 ||
-                                            _gradeLevelIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Transferee'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleTransfereeIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_transfereeIconState == 0 ||
-                                            _transfereeIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_transfereeIconState == 0 ||
-                                            _transfereeIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            if (_trackIconState == 0 || _trackIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_trackIconState == 0 || _trackIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
                           ],
                         ),
-                        Divider(),
-                        ...students.map((student) {
-                          final data = student.data() as Map<String, dynamic>;
-                          return Row(
-                            children: [
-                              // Checkbox(
-                              //     value: false, onChanged: (bool? value) {}),
-                              Expanded(child: Text(data['student_id'] ?? '')),
-                              Expanded(child: Text(data['first_name'] ?? '')),
-                              Expanded(child: Text(data['last_name'] ?? '')),
-                              Expanded(child: Text(data['middle_name'] ?? '')),
-                              Expanded(
-                                  child: Text(data['seniorHigh_Track'] ?? '')),
-                              Expanded(
-                                  child: Text(data['seniorHigh_Strand'] ?? '')),
-                              Expanded(child: Text(data['grade_level'] ?? '')),
-                              Expanded(child: Text(data['transferee'] ?? '')),
-                            ],
-                          );
-                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Strand'),
+                      PopupMenuButton<String>(
+                        icon: Icon(Icons.arrow_drop_down),
+                        onSelected: (String value) {
+                          setState(() {
+                            _selectedStrand = value;
+                          });
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return [
+                            'ALL', 'STEM', 'HUMSS', 'ABM', 'ICT', 'HE', 'IA'
+                          ].map((String strand) {
+                            return PopupMenuItem<String>(
+                              value: strand,
+                              child: Text(strand),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Grade Level'),
+                      GestureDetector(
+                        onTap: _toggleGradeLevelIcon,
+                        child: Row(
+                          children: [
+                            if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Transferee'),
+                      GestureDetector(
+                        onTap: _toggleTransfereeIcon,
+                        child: Row(
+                          children: [
+                            if (_transfereeIconState == 0 || _transfereeIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_transfereeIconState == 0 || _transfereeIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Divider(),
+            
+            // Scrollable rows for student data
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: students.map((student) {
+                    final data = student.data() as Map<String, dynamic>;
+                    return Row(
+                      children: [
+                        Expanded(child: Text(data['student_id'] ?? '')),
+                        Expanded(child: Text(data['first_name'] ?? '')),
+                        Expanded(child: Text(data['last_name'] ?? '')),
+                        Expanded(child: Text(data['middle_name'] ?? '')),
+                        Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                        Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                        Expanded(child: Text(data['grade_level'] ?? '')),
+                        Expanded(child: Text(data['transferee'] ?? '')),
                       ],
-                    ),
-                  );
-                },
+                    );
+                  }).toList(),
+                ),
               ),
             ),
-          ),
+          ],
+        );
+      },
+    ),
+  ),
+),
+
         ],
       ),
     );
@@ -1176,213 +1152,184 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
             ),
           ),
           Expanded(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.blue, width: 2.0),
-              ),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _getFilteredStudents(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
+  child: Container(
+    margin: EdgeInsets.symmetric(horizontal: 16.0),
+    padding: EdgeInsets.all(8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: Colors.blue, width: 2.0),
+    ),
+    child: StreamBuilder<QuerySnapshot>(
+      stream: _getFilteredStudents(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-                  final students = snapshot.data!.docs.where((student) {
-                    final data = student.data() as Map<String, dynamic>;
-                    final query = _searchQuery.toLowerCase();
+        final students = snapshot.data!.docs.where((student) {
+          final data = student.data() as Map<String, dynamic>;
+          final query = _searchQuery.toLowerCase();
 
-                    final studentId = data['student_id']?.toLowerCase() ?? '';
-                    final firstName = data['first_name']?.toLowerCase() ?? '';
-                    final lastName = data['last_name']?.toLowerCase() ?? '';
-                    final middleName = data['middle_name']?.toLowerCase() ?? '';
-                    final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
-                    final strand =
-                        data['seniorHigh_Strand']?.toLowerCase() ?? '';
-                    final gradeLevel = data['grade_level']?.toLowerCase() ?? '';
-                    final Transferee = data['transferee']?.toLowerCase() ?? '';
+          final studentId = data['student_id']?.toLowerCase() ?? '';
+          final firstName = data['first_name']?.toLowerCase() ?? '';
+          final lastName = data['last_name']?.toLowerCase() ?? '';
+          final middleName = data['middle_name']?.toLowerCase() ?? '';
+          final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
+          final strand = data['seniorHigh_Strand']?.toLowerCase() ?? '';
+          final gradeLevel = data['grade_level']?.toLowerCase() ?? '';
+          final transferee = data['transferee']?.toLowerCase() ?? '';
 
-                    final fullName = '$firstName $middleName $lastName';
+          final fullName = '$firstName $middleName $lastName';
 
-                    return studentId.contains(query) ||
-                        fullName.contains(query) ||
-                        track.contains(query) ||
-                        strand.contains(query) ||
-                        gradeLevel.contains(query) ||
-                        Transferee.contains(query);
-                  }).toList();
+          return studentId.contains(query) ||
+              fullName.contains(query) ||
+              track.contains(query) ||
+              strand.contains(query) ||
+              gradeLevel.contains(query) ||
+              transferee.contains(query);
+        }).toList();
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Row(
+        return Column(
+          children: [
+            // Fixed header row
+            Row(
+              children: [
+                SizedBox(width: 32),
+                Expanded(child: Text('Student ID')),
+                Expanded(child: Text('First Name')),
+                Expanded(child: Text('Last Name')),
+                Expanded(child: Text('Middle Name')),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Track'),
+                      GestureDetector(
+                        onTap: _toggleTrackIcon,
+                        child: Row(
                           children: [
-                            SizedBox(
-                                width:
-                                    32), // Same width as a checkbox to preserve alignment
-                            Expanded(child: Text('Student ID')),
-                            Expanded(child: Text('First Name')),
-                            Expanded(child: Text('Last Name')),
-                            Expanded(child: Text('Middle Name')),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Track'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleTrackIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_trackIconState == 0 ||
-                                            _trackIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_trackIconState == 0 ||
-                                            _trackIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Strand'),
-                                  PopupMenuButton<String>(
-                                    icon: Icon(Icons.arrow_drop_down),
-                                    onSelected: (String value) {
-                                      setState(() {
-                                        _selectedStrand = value;
-                                      });
-                                    },
-                                    itemBuilder: (BuildContext context) {
-                                      return [
-                                        'ALL',
-                                        'STEM',
-                                        'HUMSS',
-                                        'ABM',
-                                        'ICT',
-                                        'HE',
-                                        'IA'
-                                      ].map((String strand) {
-                                        return PopupMenuItem<String>(
-                                          value: strand,
-                                          child: Text(strand),
-                                        );
-                                      }).toList();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Grade Level'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleGradeLevelIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_gradeLevelIconState == 0 ||
-                                            _gradeLevelIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_gradeLevelIconState == 0 ||
-                                            _gradeLevelIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Transferee'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleTransfereeIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_transfereeIconState == 0 ||
-                                            _transfereeIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_transfereeIconState == 0 ||
-                                            _transfereeIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            if (_trackIconState == 0 || _trackIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_trackIconState == 0 || _trackIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
                           ],
                         ),
-                        Divider(),
-                        ...students.map((student) {
-                          final data = student.data() as Map<String, dynamic>;
-                          String studentId = data['student_id'] ?? '';
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      StudentDetails(studentData: data),
-                                ),
-                              );
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Strand'),
+                      PopupMenuButton<String>(
+                        icon: Icon(Icons.arrow_drop_down),
+                        onSelected: (String value) {
+                          setState(() {
+                            _selectedStrand = value;
+                          });
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return [
+                            'ALL', 'STEM', 'HUMSS', 'ABM', 'ICT', 'HE', 'IA'
+                          ].map((String strand) {
+                            return PopupMenuItem<String>(
+                              value: strand,
+                              child: Text(strand),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Grade Level'),
+                      GestureDetector(
+                        onTap: _toggleGradeLevelIcon,
+                        child: Row(
+                          children: [
+                            if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Transferee'),
+                      GestureDetector(
+                        onTap: _toggleTransfereeIcon,
+                        child: Row(
+                          children: [
+                            if (_transfereeIconState == 0 || _transfereeIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_transfereeIconState == 0 || _transfereeIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Divider(),
+
+            // Scrollable rows for student data
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: students.map((student) {
+                    final data = student.data() as Map<String, dynamic>;
+                    String studentId = data['student_id'] ?? '';
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => StudentDetails(studentData: data),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            value: _selectedStudents[studentId] ?? false,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _selectedStudents[studentId] = value!;
+                              });
                             },
-                            child: Row(
-                              children: [
-                                Checkbox(
-                                  value: _selectedStudents[studentId] ?? false,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      _selectedStudents[studentId] = value!;
-                                    });
-                                  },
-                                ),
-                                Expanded(child: Text(data['student_id'] ?? '')),
-                                Expanded(child: Text(data['first_name'] ?? '')),
-                                Expanded(child: Text(data['last_name'] ?? '')),
-                                Expanded(
-                                    child: Text(data['middle_name'] ?? '')),
-                                Expanded(
-                                    child:
-                                        Text(data['seniorHigh_Track'] ?? '')),
-                                Expanded(
-                                    child:
-                                        Text(data['seniorHigh_Strand'] ?? '')),
-                                Expanded(
-                                    child: Text(data['grade_level'] ?? '')),
-                                Expanded(child: Text(data['transferee'] ?? '')),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ],
-                    ),
-                  );
-                },
+                          ),
+                          Expanded(child: Text(data['student_id'] ?? '')),
+                          Expanded(child: Text(data['first_name'] ?? '')),
+                          Expanded(child: Text(data['last_name'] ?? '')),
+                          Expanded(child: Text(data['middle_name'] ?? '')),
+                          Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                          Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                          Expanded(child: Text(data['grade_level'] ?? '')),
+                          Expanded(child: Text(data['transferee'] ?? '')),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
-          ),
+          ],
+        );
+      },
+    ),
+  ),
+),
+
         ],
       ),
     );
@@ -1842,182 +1789,161 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
             ),
           ),
           Expanded(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.blue, width: 2.0),
-              ),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _getNewcomersStudents(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
+  child: Container(
+    margin: EdgeInsets.symmetric(horizontal: 16.0),
+    padding: EdgeInsets.all(8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: Colors.blue, width: 2.0),
+    ),
+    child: StreamBuilder<QuerySnapshot>(
+      stream: _getNewcomersStudents(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-                  final students = snapshot.data!.docs.where((student) {
-                    final data = student.data() as Map<String, dynamic>;
-                    final query = _searchQuery.toLowerCase();
+        final students = snapshot.data!.docs.where((student) {
+          final data = student.data() as Map<String, dynamic>;
+          final query = _searchQuery.toLowerCase();
 
-                    final studentId = data['student_id']?.toLowerCase() ?? '';
-                    final firstName = data['first_name']?.toLowerCase() ?? '';
-                    final lastName = data['last_name']?.toLowerCase() ?? '';
-                    final middleName = data['middle_name']?.toLowerCase() ?? '';
-                    final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
-                    final strand =
-                        data['seniorHigh_Strand']?.toLowerCase() ?? '';
-                    final gradeLevel = data['grade_level']?.toLowerCase() ?? '';
+          final studentId = data['student_id']?.toLowerCase() ?? '';
+          final firstName = data['first_name']?.toLowerCase() ?? '';
+          final lastName = data['last_name']?.toLowerCase() ?? '';
+          final middleName = data['middle_name']?.toLowerCase() ?? '';
+          final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
+          final strand = data['seniorHigh_Strand']?.toLowerCase() ?? '';
+          final gradeLevel = data['grade_level']?.toLowerCase() ?? '';
 
-                    final fullName = '$firstName $middleName $lastName';
+          final fullName = '$firstName $middleName $lastName';
 
-                    return studentId.contains(query) ||
-                        fullName.contains(query) ||
-                        track.contains(query) ||
-                        strand.contains(query) ||
-                        gradeLevel.contains(query);
-                  }).toList();
+          return studentId.contains(query) ||
+              fullName.contains(query) ||
+              track.contains(query) ||
+              strand.contains(query) ||
+              gradeLevel.contains(query);
+        }).toList();
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Row(
+        return Column(
+          children: [
+            // Fixed header row
+            Row(
+              children: [
+                Expanded(child: Text('First Name')),
+                Expanded(child: Text('Last Name')),
+                Expanded(child: Text('Middle Name')),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Track'),
+                      GestureDetector(
+                        onTap: _toggleTrackIcon,
+                        child: Row(
                           children: [
-                            Checkbox(value: false, onChanged: (bool? value) {}),
-                            Expanded(child: Text('Student ID')),
-                            Expanded(child: Text('First Name')),
-                            Expanded(child: Text('Last Name')),
-                            Expanded(child: Text('Middle Name')),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Track'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleTrackIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_trackIconState == 0 ||
-                                            _trackIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_trackIconState == 0 ||
-                                            _trackIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Strand'),
-                                  PopupMenuButton<String>(
-                                    icon: Icon(Icons.arrow_drop_down),
-                                    onSelected: (String value) {
-                                      setState(() {
-                                        _selectedStrand = value;
-                                      });
-                                    },
-                                    itemBuilder: (BuildContext context) {
-                                      return [
-                                        'ALL',
-                                        'STEM',
-                                        'HUMSS',
-                                        'ABM',
-                                        'ICT',
-                                        'HE',
-                                        'IA'
-                                      ].map((String strand) {
-                                        return PopupMenuItem<String>(
-                                          value: strand,
-                                          child: Text(strand),
-                                        );
-                                      }).toList();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Grade Level'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleGradeLevelIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_gradeLevelIconState == 0 ||
-                                            _gradeLevelIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_gradeLevelIconState == 0 ||
-                                            _gradeLevelIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            if (_trackIconState == 0 || _trackIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_trackIconState == 0 || _trackIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
                           ],
                         ),
-                        Divider(),
-                        ...students.map((student) {
-                          final data = student.data() as Map<String, dynamic>;
-                          return Row(
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Strand'),
+                      PopupMenuButton<String>(
+                        icon: Icon(Icons.arrow_drop_down),
+                        onSelected: (String value) {
+                          setState(() {
+                            _selectedStrand = value;
+                          });
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return [
+                            'ALL', 'STEM', 'HUMSS', 'ABM', 'ICT', 'HE', 'IA'
+                          ].map((String strand) {
+                            return PopupMenuItem<String>(
+                              value: strand,
+                              child: Text(strand),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Grade Level'),
+                      GestureDetector(
+                        onTap: _toggleGradeLevelIcon,
+                        child: Row(
+                          children: [
+                            if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(child: Text('')),
+              ],
+            ),
+            Divider(),
+
+            // Scrollable rows for student data
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: students.map((student) {
+                    final data = student.data() as Map<String, dynamic>;
+                    return Row(
+                      children: [
+                        Expanded(child: Text(data['first_name'] ?? '')),
+                        Expanded(child: Text(data['last_name'] ?? '')),
+                        Expanded(child: Text(data['middle_name'] ?? '')),
+                        Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                        Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                        Expanded(child: Text(data['grade_level'] ?? '')),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Checkbox(
-                                  value: false, onChanged: (bool? value) {}),
-                              Expanded(child: Text(data['student_id'] ?? '')),
-                              Expanded(child: Text(data['first_name'] ?? '')),
-                              Expanded(child: Text(data['last_name'] ?? '')),
-                              Expanded(child: Text(data['middle_name'] ?? '')),
-                              Expanded(
-                                  child: Text(data['seniorHigh_Track'] ?? '')),
-                              Expanded(
-                                  child: Text(data['seniorHigh_Strand'] ?? '')),
-                              Expanded(child: Text(data['grade_level'] ?? '')),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(Iconsax.tick_circle_copy,
-                                          color: Colors.green),
-                                      onPressed: () {
-                                        approveStudent(student.id);
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Iconsax.close_circle_copy,
-                                          color: Colors.red),
-                                      onPressed: () {
-                                        deleteNewComersStudent(student.id);
-                                      },
-                                    ),
-                                  ],
-                                ),
+                              IconButton(
+                                icon: Icon(Iconsax.tick_circle_copy, color: Colors.green),
+                                onPressed: () {
+                                  approveStudent(student.id);
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Iconsax.close_circle_copy, color: Colors.red),
+                                onPressed: () {
+                                  deleteNewComersStudent(student.id);
+                                },
                               ),
                             ],
-                          );
-                        }).toList(),
+                          ),
+                        ),
                       ],
-                    ),
-                  );
-                },
+                    );
+                  }).toList(),
+                ),
               ),
             ),
-          ),
+          ],
+        );
+      },
+    ),
+  ),
+),
+
         ],
       ),
     );
@@ -2063,174 +1989,183 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                 ),
               ),
               Expanded(
-                child: Card(
-                  margin: EdgeInsets.all(16),
-                  elevation: 10,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Subjects List',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        SizedBox(height: 16),
-                        Expanded(
-                          child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('subjects')
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-
-                              if (!snapshot.hasData ||
-                                  snapshot.data!.docs.isEmpty) {
-                                return Center(
-                                  child: Text(
-                                    'No Subject Added',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              final subjects = snapshot.data!.docs;
-
-                              return Table(
-                                border: TableBorder.all(color: Colors.grey),
-                                columnWidths: const <int, TableColumnWidth>{
-                                  0: FixedColumnWidth(40.0),
-                                  1: FlexColumnWidth(),
-                                  2: FlexColumnWidth(),
-                                  3: FlexColumnWidth(),
-                                  4: FlexColumnWidth(),
-                                  5: FlexColumnWidth(),
-                                  6: FixedColumnWidth(100.0),
-                                },
-                                children: [
-                                  TableRow(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                    ),
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('#',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Subject Name',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Code',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Category',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Semester',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Actions',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
-                                  ),
-                                  // Generate rows dynamically from Firestore
-                                  for (var i = 0; i < subjects.length; i++)
-                                    TableRow(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text((i + 1).toString()),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child:
-                                              Text(subjects[i]['subject_name']),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child:
-                                              Text(subjects[i]['subject_code']),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(subjects[i]['category']),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(subjects[i]['semester']),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Row(
-                                            children: [
-                                              IconButton(
-                                                icon: Icon(Icons.edit,
-                                                    color: Colors.blue),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    selectedSubjectId = subjects[
-                                                            i]
-                                                        .id; // Store the selected subject's ID
-                                                    _showEditSubjects =
-                                                        true; // Show the EditSubjectsForm
-                                                  });
-                                                },
-                                              ),
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.delete_forever,
-                                                  color: Colors.red,
-                                                ),
-                                                onPressed: () {
-                                                _showDeleteSubjectConfirmation(context, subjects[i].id);
-
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+  child: Card(
+    margin: EdgeInsets.all(16),
+    elevation: 10,
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Subjects List',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 16),
+          
+          // Fixed header row
+          Table(
+            border: TableBorder.all(color: Colors.grey),
+            columnWidths: const <int, TableColumnWidth>{
+              0: FixedColumnWidth(40.0),
+              1: FlexColumnWidth(),
+              2: FlexColumnWidth(),
+              3: FlexColumnWidth(),
+              4: FlexColumnWidth(),
+              5: FlexColumnWidth(),
+              6: FlexColumnWidth(),
+              7: FixedColumnWidth(100.0),
+            },
+            children: [
+              TableRow(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
                 ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('#',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Course',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Subject Name',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Code',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Category',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Semester',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Actions',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
+            ],
+          ),
+
+          // Scrollable data rows
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('subjects').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No Subject Added',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  );
+                }
+
+                final subjects = snapshot.data!.docs;
+
+                return SingleChildScrollView(
+                  child: Table(
+                    border: TableBorder.all(color: Colors.grey),
+                    columnWidths: const <int, TableColumnWidth>{
+                      0: FixedColumnWidth(40.0),
+                      1: FlexColumnWidth(),
+                      2: FlexColumnWidth(),
+                      3: FlexColumnWidth(),
+                      4: FlexColumnWidth(),
+                      5: FlexColumnWidth(),
+                      6: FlexColumnWidth(),
+                      7: FixedColumnWidth(100.0),
+                    },
+                    children: [
+                      for (var i = 0; i < subjects.length; i++)
+                        TableRow(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text((i + 1).toString()),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(subjects[i]['strandcourse']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(subjects[i]['subject_name']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(subjects[i]['subject_code']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(subjects[i]['category']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(subjects[i]['semester']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () {
+                                      setState(() {
+                                        selectedSubjectId = subjects[i].id;
+                                        _showEditSubjects = true;
+                                      });
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete_forever, color: Colors.red),
+                                    onPressed: () {
+                                      _showDeleteSubjectConfirmation(context, subjects[i].id);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
+
             ],
           ),
         ),
@@ -2357,211 +2292,204 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                 ),
               ),
               Expanded(
-                child: Card(
-                  margin: EdgeInsets.all(16),
-                  elevation: 10,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Instructor List',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        SizedBox(height: 16),
-                        Expanded(
-                          child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('users')
-                                .where('accountType', isEqualTo: 'instructor')
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
+  child: Card(
+    margin: EdgeInsets.all(16),
+    elevation: 10,
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Instructor List',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 16),
 
-                              if (!snapshot.hasData ||
-                                  snapshot.data!.docs.isEmpty) {
-                                return Center(
-                                  child: Text(
-                                    'No Instructor Added',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.grey,
+          // Fixed header row
+          Table(
+            border: TableBorder.all(color: Colors.grey),
+            columnWidths: const <int, TableColumnWidth>{
+              0: FixedColumnWidth(40.0),
+              1: FlexColumnWidth(),
+              2: FlexColumnWidth(),
+              3: FlexColumnWidth(),
+              4: FlexColumnWidth(),
+              5: FlexColumnWidth(),
+              6: FlexColumnWidth(),
+              7: FixedColumnWidth(100.0),
+            },
+            children: [
+              TableRow(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Instructor Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Email Address', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Subjects', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Subject Code', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Adviser', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Handled Section', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Scrollable data rows
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .where('accountType', isEqualTo: 'instructor')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No Instructor Added',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  );
+                }
+
+                final users = snapshot.data!.docs;
+
+                return SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Table(
+                    border: TableBorder.all(color: Colors.grey),
+                    columnWidths: const <int, TableColumnWidth>{
+                      0: FixedColumnWidth(40.0),
+                      1: FlexColumnWidth(),
+                      2: FlexColumnWidth(),
+                      3: FlexColumnWidth(),
+                      4: FlexColumnWidth(),
+                      5: FlexColumnWidth(),
+                      6: FlexColumnWidth(),
+                      7: FixedColumnWidth(100.0),
+                    },
+                    children: [
+                      for (var i = 0; i < users.length; i++)
+                        TableRow(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text((i + 1).toString()),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                '${users[i]['first_name']} '
+                                '${users[i]['middle_name']?.isNotEmpty == true ? users[i]['middle_name'] + ' ' : ''}'
+                                '${users[i]['last_name']}',
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(users[i]['email_Address']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(users[i]['subject_Name']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(users[i]['subject_Code']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(users[i]['adviser']),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(users[i]['handled_section'] ?? 'N/A'),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () {
+                                      setState(() {
+                                        selectedInstructorId = users[i].id;
+                                        toggleEditInstructors();
+                                      });
+                                    },
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: DropdownButton<String>(
+                                      value: users[i]['Status'], // Assuming 'status' holds 'active' or 'inactive'
+                                      icon: Icon(Icons.more_vert), // Dropdown icon
+                                      items: <String>['active', 'inactive'].map((String status) {
+                                        return DropdownMenuItem<String>(
+                                          value: status,
+                                          child: Text(status),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newStatus) {
+                                        if (newStatus != null && newStatus != users[i]['Status']) {
+                                          _showStatusChangeDialog(context, users[i].id, newStatus); // Call the dialog method
+                                        }
+                                      },
                                     ),
                                   ),
-                                );
-                              }
-
-                              final users = snapshot.data!.docs;
-
-                              return SingleChildScrollView(
-                                physics: BouncingScrollPhysics(),
-                                child: Table(
-                                  border: TableBorder.all(color: Colors.grey),
-                                  columnWidths: const <int, TableColumnWidth>{
-                                    0: FixedColumnWidth(40.0),
-                                    1: FlexColumnWidth(),
-                                    2: FlexColumnWidth(),
-                                    3: FlexColumnWidth(),
-                                    4: FlexColumnWidth(),
-                                    5: FlexColumnWidth(),
-                                    6: FlexColumnWidth(),
-                                    7: FlexColumnWidth(),
-                                    8: FixedColumnWidth(100.0),
-                                  },
-                                  children: [
-                                    TableRow(
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                      ),
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text('#',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text('Instructor Name',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text('Email Address',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text('Subjects',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text('Subject Code',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text('Adviser',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text('Handled Section',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text('Actions',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                        ),
-                                      ],
-                                    ),
-                                    // Generate rows dynamically from Firestore
-                                    for (var i = 0; i < users.length; i++)
-                                      TableRow(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text((i + 1).toString()),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              '${users[i]['first_name']} '
-                                              '${users[i]['middle_name']?.isNotEmpty == true ? users[i]['middle_name'] + ' ' : ''}'
-                                              '${users[i]['last_name']}',
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child:
-                                                Text(users[i]['email_Address']),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(users[i]['subject_Name']),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(users[i]['subject_Code']),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(users[i]['adviser']),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(users[i]['handled_section'] ?? 'N/A'),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Row(
-                                              children: [
-                                                IconButton(
-                                                  icon: Icon(Icons.edit,
-                                                      color: Colors.blue),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      selectedInstructorId = users[
-                                                              i]
-                                                          .id; // Store the selected subject's ID
-                                                      toggleEditInstructors();
-                                                    });
-                                                  },
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets.all(8.0),
-                                                  child: DropdownButton<String>(
-                                                    value: users[i]['Status'], // Assuming 'status' holds 'active' or 'inactive'
-                                                    icon: Icon(Icons.more_vert), // Dropdown icon
-                                                    items: <String>['active', 'inactive'].map((String status) {
-                                                      return DropdownMenuItem<String>(
-                                                        value: status,
-                                                        child: Text(status),
-                                                      );
-                                                    }).toList(),
-                                                    onChanged: (String? newStatus) {
-                                                      if (newStatus != null && newStatus != users[i]['Status']) {
-                                                        _showStatusChangeDialog(context, users[i].id, newStatus); // Call the dialog method
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                    ],
                   ),
-                ),
-              ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
+
             ],
           ),
         ),
@@ -2685,52 +2613,96 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                 ),
               ),
               Expanded(
-                child: Card(
-                  margin: EdgeInsets.all(16),
-                  elevation: 10,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Sections List',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+              child: Card(
+                margin: EdgeInsets.all(16),
+                elevation: 10,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sections List',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        SizedBox(height: 16),
-                        SizedBox(height: 16),
-                        Expanded(
-                          child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('sections')
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
+                      ),
+                      SizedBox(height: 16),
 
-                              if (!snapshot.hasData ||
-                                  snapshot.data!.docs.isEmpty) {
-                                return Center(
-                                  child: Text(
-                                    'No Section Added',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.grey,
-                                    ),
+                      // Fixed header row
+                      Table(
+                        border: TableBorder.all(color: Colors.grey),
+                        columnWidths: const <int, TableColumnWidth>{
+                          0: FixedColumnWidth(40.0),
+                          1: FlexColumnWidth(),
+                          2: FlexColumnWidth(),
+                          3: FlexColumnWidth(),
+                          4: FlexColumnWidth(),
+                          5: FixedColumnWidth(100.0),
+                        },
+                        children: [
+                          TableRow(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                            ),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Section Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Section Adviser', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Semester', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Section Capacity', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      // Scrollable data rows
+                      Expanded(
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance.collection('sections').snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+
+                            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'No Section Added',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.grey,
                                   ),
-                                );
-                              }
+                                ),
+                              );
+                            }
 
-                              final sections = snapshot.data!.docs;
+                            final sections = snapshot.data!.docs;
 
-                              return Table(
+                            return SingleChildScrollView(
+                              physics: BouncingScrollPhysics(),
+                              child: Table(
                                 border: TableBorder.all(color: Colors.grey),
                                 columnWidths: const <int, TableColumnWidth>{
                                   0: FixedColumnWidth(40.0),
@@ -2738,54 +2710,9 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                   2: FlexColumnWidth(),
                                   3: FlexColumnWidth(),
                                   4: FlexColumnWidth(),
-                                  5: FlexColumnWidth(),
-                                  6: FixedColumnWidth(100.0),
+                                  5: FixedColumnWidth(100.0),
                                 },
                                 children: [
-                                  TableRow(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                    ),
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('#',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Section Name',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Section Adviser',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Semester',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Section Capacity',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text('Actions',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
-                                  ),
-                                  // Generate rows dynamically from Firestore
                                   for (var i = 0; i < sections.length; i++)
                                     TableRow(
                                       children: [
@@ -2795,13 +2722,11 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child:
-                                              Text(sections[i]['section_name']),
+                                          child: Text(sections[i]['section_name']),
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child:
-                                              Text(sections[i]['section_adviser']),
+                                          child: Text(sections[i]['section_adviser']),
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
@@ -2816,23 +2741,16 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                           child: Row(
                                             children: [
                                               IconButton(
-                                                icon: Icon(Icons.edit,
-                                                    color: Colors.blue),
+                                                icon: Icon(Icons.edit, color: Colors.blue),
                                                 onPressed: () {
-                                                 selectedSectionId = sections[
-                                                            i]
-                                                        .id;
-                                                toggleEditSections();
+                                                  selectedSectionId = sections[i].id;
+                                                  toggleEditSections();
                                                 },
                                               ),
                                               IconButton(
-                                                icon: Icon(
-                                                  Icons.delete_forever,
-                                                  color: Colors.red,
-                                                ),
+                                                icon: Icon(Icons.delete_forever, color: Colors.red),
                                                 onPressed: () {
-                                                _showDeleteSectionConfirmation(context, sections[i].id);
-
+                                                  _showDeleteSectionConfirmation(context, sections[i].id);
                                                 },
                                               ),
                                             ],
@@ -2841,15 +2759,17 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                       ],
                                     ),
                                 ],
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
+            ),
+
             ],
           ),
         ),
@@ -2973,209 +2893,187 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
             ),
           ),
           Expanded(
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.blue, width: 2.0),
-              ),
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _getFilteredDropStudents(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
+  child: Container(
+    margin: EdgeInsets.symmetric(horizontal: 16.0),
+    padding: EdgeInsets.all(8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: Colors.blue, width: 2.0),
+    ),
+    child: StreamBuilder<QuerySnapshot>(
+      stream: _getFilteredDropStudents(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-                  final students = snapshot.data!.docs.where((student) {
-                    final data = student.data() as Map<String, dynamic>;
-                    final query = _searchQuery.toLowerCase();
+        final students = snapshot.data!.docs.where((student) {
+          final data = student.data() as Map<String, dynamic>;
+          final query = _searchQuery.toLowerCase();
 
-                    final studentId = data['student_id']?.toLowerCase() ?? '';
-                    final firstName = data['first_name']?.toLowerCase() ?? '';
-                    final lastName = data['last_name']?.toLowerCase() ?? '';
-                    final middleName = data['middle_name']?.toLowerCase() ?? '';
-                    final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
-                    final strand =
-                        data['seniorHigh_Strand']?.toLowerCase() ?? '';
-                    final gradeLevel = data['grade_level']?.toLowerCase() ?? '';
+          final studentId = data['student_id']?.toLowerCase() ?? '';
+          final firstName = data['first_name']?.toLowerCase() ?? '';
+          final lastName = data['last_name']?.toLowerCase() ?? '';
+          final middleName = data['middle_name']?.toLowerCase() ?? '';
+          final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
+          final strand = data['seniorHigh_Strand']?.toLowerCase() ?? '';
+          final gradeLevel = data['grade_level']?.toLowerCase() ?? '';
 
-                    final fullName = '$firstName $middleName $lastName';
+          final fullName = '$firstName $middleName $lastName';
 
-                    return studentId.contains(query) ||
-                        fullName.contains(query) ||
-                        track.contains(query) ||
-                        strand.contains(query) ||
-                        gradeLevel.contains(query);
-                  }).toList();
+          return studentId.contains(query) ||
+              fullName.contains(query) ||
+              track.contains(query) ||
+              strand.contains(query) ||
+              gradeLevel.contains(query);
+        }).toList();
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Row(
+        return Column(
+          children: [
+            // Fixed header row
+            Row(
+              children: [
+                Expanded(child: Text('Student ID')),
+                Expanded(child: Text('First Name')),
+                Expanded(child: Text('Last Name')),
+                Expanded(child: Text('Middle Name')),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Track'),
+                      GestureDetector(
+                        onTap: _toggleTrackIcon,
+                        child: Row(
                           children: [
-                            Checkbox(value: false, onChanged: (bool? value) {}),
-                            Expanded(child: Text('Student ID')),
-                            Expanded(child: Text('First Name')),
-                            Expanded(child: Text('Last Name')),
-                            Expanded(child: Text('Middle Name')),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Track'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleTrackIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_trackIconState == 0 ||
-                                            _trackIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_trackIconState == 0 ||
-                                            _trackIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Strand'),
-                                  PopupMenuButton<String>(
-                                    icon: Icon(Icons.arrow_drop_down),
-                                    onSelected: (String value) {
-                                      setState(() {
-                                        _selectedStrand = value;
-                                      });
-                                    },
-                                    itemBuilder: (BuildContext context) {
-                                      return [
-                                        'ALL',
-                                        'STEM',
-                                        'HUMSS',
-                                        'ABM',
-                                        'ICT',
-                                        'HE',
-                                        'IA'
-                                      ].map((String strand) {
-                                        return PopupMenuItem<String>(
-                                          value: strand,
-                                          child: Text(strand),
-                                        );
-                                      }).toList();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Text('Grade Level'),
-                                  GestureDetector(
-                                    onTap:
-                                        _toggleGradeLevelIcon, // Handles the tap to change icons
-                                    child: Row(
-                                      children: [
-                                        if (_gradeLevelIconState == 0 ||
-                                            _gradeLevelIconState ==
-                                                1) // Show up arrow for state 0 and 1
-                                          Icon(Iconsax.arrow_up_3_copy,
-                                              size: 16),
-                                        if (_gradeLevelIconState == 0 ||
-                                            _gradeLevelIconState ==
-                                                2) // Show down arrow for state 0 and 2
-                                          Icon(Iconsax.arrow_down_copy,
-                                              size: 16),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(child: Text('Date')),
-                            Expanded(child: Text('')),
-                            
+                            if (_trackIconState == 0 || _trackIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_trackIconState == 0 || _trackIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
                           ],
                         ),
-                        Divider(),
-                        ...students.map((student) {
-                          final data = student.data() as Map<String, dynamic>;
-                          return Row(
-                            children: [
-                              Checkbox(
-                                  value: false, onChanged: (bool? value) {}),
-                              Expanded(child: Text(data['student_id'] ?? '')),
-                              Expanded(child: Text(data['first_name'] ?? '')),
-                              Expanded(child: Text(data['last_name'] ?? '')),
-                              Expanded(child: Text(data['middle_name'] ?? '')),
-                              Expanded(
-                                  child: Text(data['seniorHigh_Track'] ?? '')),
-                              Expanded(
-                                  child: Text(data['seniorHigh_Strand'] ?? '')),
-                              Expanded(child: Text(data['grade_level'] ?? '')),
-                              Expanded(child: Text('Date')),
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () {
-                                    showConfirmationDropDialog(context, data['student_id']);
-                                  },
-                                  style: ButtonStyle(
-                                    // Remove any elevation and shadows
-                                    elevation: MaterialStateProperty.all(0),
-                                    shadowColor: MaterialStateProperty.all(Colors.transparent),
-                                    // Ensure no overlay color on hover
-                                    overlayColor: MaterialStateProperty.all(Colors.transparent), 
-                                    backgroundColor: MaterialStateProperty.all(Colors.transparent),
-                                    shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20), // Maintain rounded corners
-                                      ),
-                                    ),
-                                    foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                        if (states.contains(MaterialState.hovered)) {
-                                          return Colors.green; // Change text color to black on hover
-                                        }
-                                        return Colors.red; // Default text color
-                                      },
-                                    ),
-                                  ),
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            'Reactivate',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                          SizedBox(width: 4),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Strand'),
+                      PopupMenuButton<String>(
+                        icon: Icon(Icons.arrow_drop_down),
+                        onSelected: (String value) {
+                          setState(() {
+                            _selectedStrand = value;
+                          });
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return [
+                            'ALL', 'STEM', 'HUMSS', 'ABM', 'ICT', 'HE', 'IA'
+                          ].map((String strand) {
+                            return PopupMenuItem<String>(
+                              value: strand,
+                              child: Text(strand),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('Grade Level'),
+                      GestureDetector(
+                        onTap: _toggleGradeLevelIcon,
+                        child: Row(
+                          children: [
+                            if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+                              Icon(Iconsax.arrow_up_3_copy, size: 16),
+                            if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+                              Icon(Iconsax.arrow_down_copy, size: 16),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(child: Text('Date')),
+                Expanded(child: Text('')),
+              ],
+            ),
+            Divider(),
+
+            // Scrollable student list
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: students.map((student) {
+                    final data = student.data() as Map<String, dynamic>;
+                    return Row(
+                      children: [
+                        Expanded(child: Text(data['student_id'] ?? '')),
+                        Expanded(child: Text(data['first_name'] ?? '')),
+                        Expanded(child: Text(data['last_name'] ?? '')),
+                        Expanded(child: Text(data['middle_name'] ?? '')),
+                        Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                        Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                        Expanded(child: Text(data['grade_level'] ?? '')),
+                        Expanded(child: Text(data['date'] ?? 'Date')), // Placeholder 'Date'
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {
+                              showConfirmationDropDialog(context, data['student_id']);
+                            },
+                            style: ButtonStyle(
+                              elevation: MaterialStateProperty.all(0),
+                              shadowColor: MaterialStateProperty.all(Colors.transparent),
+                              overlayColor: MaterialStateProperty.all(Colors.transparent),
+                              backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-
-                            ],
-                          );
-                        }).toList(),
+                              foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                                (Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.hovered)) {
+                                    return Colors.green;
+                                  }
+                                  return Colors.red;
+                                },
+                              ),
+                            ),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Reactivate',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                    SizedBox(width: 4),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
-                    ),
-                  );
-                },
+                    );
+                  }).toList(),
+                ),
               ),
             ),
-          ),
+          ],
+        );
+      },
+    ),
+  ),
+),
+
         ],
       ),
     );
