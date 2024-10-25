@@ -74,13 +74,24 @@ class _AddingSectionsState extends State<AddingSections> {
       return;
     }
 
+    int? capacity;
+    try {
+      capacity = int.parse(_sectionCapacity.text);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid number for capacity')),
+      );
+      return;
+    }
+
     try {
       // Create a document in Firestore
       await subjectsCollection.add({
         'section_name': _sectionName.text,
         'section_adviser': _selectedAdviser,
         'semester': _selectedSemester,
-        'section_capacity': _sectionCapacity.text,
+        'section_capacity': capacity,
+        'capacityCount': 0,
         'created_at': Timestamp.now(),
       });
 
@@ -203,6 +214,7 @@ class _AddingSectionsState extends State<AddingSections> {
                       SizedBox(height: 16),
                       TextFormField(
                         controller: _sectionCapacity,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: 'Section Capacity',
                           border: OutlineInputBorder(),

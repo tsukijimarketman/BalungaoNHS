@@ -10,6 +10,7 @@ import 'package:pbma_portal/Manage/AddingSubjects.dart';
 import 'package:pbma_portal/Manage/EditInstructor.dart';
 import 'package:pbma_portal/Manage/EditSections.dart';
 import 'package:pbma_portal/Manage/EditSubject.dart';
+import 'package:pbma_portal/Manage/StudentInSection.dart';
 import 'package:pbma_portal/Manage/SubjectsandGrade.dart';
 import 'package:pbma_portal/launcher.dart';
 import 'package:pbma_portal/pages/Auth_View/Adding_InstructorAcc_Desktview.dart';
@@ -234,39 +235,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
 
   //BuildStrandInstructorContent
-  Stream<QuerySnapshot<Map<String, dynamic>>>_getFilteredInstructorStudents() async* {
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
+  Stream<QuerySnapshot<Map<String, dynamic>>> _getFilteredInstructorStudents() async* {
+  final userDoc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .get();
 
-    final userData = userDoc.data()!;
-    final userGradeLevel = userData['gradeLevel'];
-    final userStrand = userData['strand'];
-    final userTrack = userData['track'];
+  final userData = userDoc.data()!;
+  final instructorFirstName = userData['first_name'];
+  final instructorLastName = userData['last_name'];
+  final instructorFullName = '$instructorFirstName $instructorLastName';
 
-    Query<Map<String, dynamic>> query = FirebaseFirestore.instance
-        .collection('users')
-        .where('grade_level', isEqualTo: userGradeLevel)
-        .where('seniorHigh_Strand', isEqualTo: userStrand)
-        .where('seniorHigh_Track', isEqualTo: userTrack)
-        .where('enrollment_status', isEqualTo: 'approved')
-        .where('accountType', isEqualTo: 'student');
+  // Fetch sections where the adviser matches the instructor's name
+  final sectionsSnapshot = await FirebaseFirestore.instance
+      .collection('sections')
+      .where('section_adviser', isEqualTo: instructorFullName)
+      .get();
 
-    if (_trackIconState != 0) {
-      query = query.where('seniorHigh_Track', isEqualTo: _trackIconState);
-    }
+  // Extract the section names from the sections where the adviser matches
+  final sectionNames = sectionsSnapshot.docs.map((doc) => doc['section_name']).toList();
 
-    if (_gradeLevelIconState != 0) {
-      query = query.where('grade_level', isEqualTo: _gradeLevelIconState);
-    }
+  // Now fetch the students that belong to these sections
+  Query<Map<String, dynamic>> query = FirebaseFirestore.instance
+      .collection('users')
+      .where('enrollment_status', isEqualTo: 'approved')
+      .where('accountType', isEqualTo: 'student');
 
-    if (_selectedStrand != 'ALL') {
-      query = query.where('seniorHigh_Strand', isEqualTo: _selectedStrand);
-    }
-
-    yield* query.snapshots();
+  // Filter students based on their section names if we have any
+  if (sectionNames.isNotEmpty) {
+    query = query.where('section', whereIn: sectionNames);
   }
+
+  yield* query.snapshots();
+}
   //BuildStrandInstructorContent
 
 
@@ -2639,7 +2640,8 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                           2: FlexColumnWidth(),
                           3: FlexColumnWidth(),
                           4: FlexColumnWidth(),
-                          5: FixedColumnWidth(100.0),
+                          5: FlexColumnWidth(),
+                          6: FixedColumnWidth(100.0),
                         },
                         children: [
                           TableRow(
@@ -2666,6 +2668,10 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text('Section Capacity', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text('Capacity Count', style: TextStyle(fontWeight: FontWeight.bold)),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -2710,7 +2716,8 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                   2: FlexColumnWidth(),
                                   3: FlexColumnWidth(),
                                   4: FlexColumnWidth(),
-                                  5: FixedColumnWidth(100.0),
+                                  5: FlexColumnWidth(),
+                                  6: FixedColumnWidth(100.0),
                                 },
                                 children: [
                                   for (var i = 0; i < sections.length; i++)
@@ -2734,10 +2741,14 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: Text(sections[i]['section_capacity']),
+                                          child: Text(sections[i]['section_capacity'].toString()),
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
+                                          child: Text(sections[i]['capacityCount'].toString()),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(2.0),
                                           child: Row(
                                             children: [
                                               IconButton(
@@ -2751,6 +2762,12 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                                                 icon: Icon(Icons.delete_forever, color: Colors.red),
                                                 onPressed: () {
                                                   _showDeleteSectionConfirmation(context, sections[i].id);
+                                                },
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.pageview, color: Colors.blue),
+                                                onPressed: () {
+                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => StudentInSection(sectionName: sections[i]['section_name'])));
                                                 },
                                               ),
                                             ],

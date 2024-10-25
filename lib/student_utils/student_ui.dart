@@ -261,7 +261,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
 
   String? _studentId;
   String? _fullName;
-  String? _strand;
+  late String _strand;
   String? _track;
   String? _gradeLevel;
   String? _semester;
@@ -330,17 +330,46 @@ class _ScreensExampleState extends State<_ScreensExample> {
 
         // Check if any documents were returned
         if (userSnapshot.docs.isNotEmpty) {
-          // Assuming 'uid' is unique, take the first document
           DocumentSnapshot userDoc = userSnapshot.docs.first;
 
-          // Update the 'section' field in the user's document
-          await FirebaseFirestore.instance.collection('users').doc(userDoc.id).update({
-            'section': _selectedSection,
-          });
+          // Fetch the selected section document to check capacity
+          QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+              .collection('sections')
+              .where('section_name', isEqualTo: _selectedSection)
+              .get();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Section saved successfully!')),
-          );
+          // Check if any section documents were returned
+          if (sectionSnapshot.docs.isNotEmpty) {
+            DocumentSnapshot sectionDoc = sectionSnapshot.docs.first; // Get the first section document
+
+            int capacityCount = sectionDoc['capacityCount'] ?? 0;
+            int capacity = sectionDoc['section_capacity'] ?? 0;
+
+            // Check if there's available capacity
+            if (capacityCount < capacity) {
+              // Update the 'section' field in the user's document
+              await FirebaseFirestore.instance.collection('users').doc(userDoc.id).update({
+                'section': _selectedSection,
+              });
+
+              // Increment the capacityCount
+              await FirebaseFirestore.instance.collection('sections').doc(sectionDoc.id).update({
+                'capacityCount': FieldValue.increment(1), // Use FieldValue.increment to safely increment
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Section saved successfully!')),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('This section is full. Please select another section.')),
+              );
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Section document not found.')),
+            );
+          }
         } else {
           print('No document found for the current user.');
           ScaffoldMessenger.of(context).showSnackBar(
@@ -367,6 +396,45 @@ class _ScreensExampleState extends State<_ScreensExample> {
   }
 }
 
+
+
+Future<bool> _canSelectSection() async {
+  if (_selectedSection != null) {
+    // Fetch the section's document to check the capacity
+    final sectionDoc = await FirebaseFirestore.instance
+        .collection('sections')
+        .doc(_selectedSection)
+        .get();
+
+    if (sectionDoc.exists) {
+      int capacityCount = sectionDoc['capacityCount'] ?? 0;
+      int capacity = sectionDoc['capacity'] ?? 0;
+      return capacityCount < capacity; // Return true if there's available capacity
+    }
+  }
+  return true; // Default to true if no section is selected
+}
+
+
+String getStrandCourse(String seniorHighStrand) {
+  switch (seniorHighStrand) {
+    case 'Accountancy, Business, and Management (ABM)':
+      return 'ABM';
+    case 'Information and Communication Technology (ICT)':
+      return 'ICT';
+      case 'Science, Technology, Engineering and Mathematics (STEM)':
+      return 'STEM';
+      case 'Humanities and Social Sciences (HUMSS)':
+      return 'HUMSS';
+      case 'Home Economics (HE)':
+      return 'HE';
+      case 'Industrial Arts (IA)':
+      return 'IA';
+    default:
+      return ''; // Return an empty string or some default value if there's no match
+  }
+}
+
 Future<void> _loadSubjects() async {
   if (_selectedSection != null) {
     try {
@@ -383,18 +451,20 @@ Future<void> _loadSubjects() async {
         // Query subjects that have the same semester as the selected section
         QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
             .collection('subjects')
-            .where('semester', isEqualTo: sectionSemester)
+            .where('semester', isEqualTo: sectionSemester)  
             .get();
 
         setState(() {
-          // Store the fetched subjects
-          _subjects = subjectSnapshot.docs
-              .map((doc) => {
-                    'subject_code': doc['subject_code'], // Adjust field names if necessary
-                    'subject_name': doc['subject_name'],
-                    'category': doc['category'], // Assuming 'grade' field exists
-                  })
-              .toList();
+          _subjects = subjectSnapshot.docs.where((doc) {
+            String strandCourse = doc['strandcourse']; // Assuming this field exists
+
+            // Call the getStrandCourse method to check if the courses match
+            return strandCourse == getStrandCourse(_strand);
+          }).map((doc) => {
+                'subject_code': doc['subject_code'], // Adjust field names if necessary
+                'subject_name': doc['subject_name'],
+                'category': doc['category'], // Assuming 'category' field exists
+              }).toList();
         });
 
         // Show a success message
@@ -617,94 +687,108 @@ Future<void> _loadSubjects() async {
             ),
           );
           case 2:
-            return Container(
-        color: Color.fromARGB(255, 1, 93, 168),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Student Data", style: TextStyle(color: Colors.white, fontSize: 24)),
-              SizedBox(height: 20),
-              Text('Student ID no: ${_studentId ?? ''}', style: TextStyle(color: Colors.white,)),
-              Text('Student Full Name: ${_fullName ?? ''}', style: TextStyle(color: Colors.white,)),
-              Text('Strand: ${_strand ?? ''}', style: TextStyle(color: Colors.white,)),
-              Text('Track: ${_track ?? ''}', style: TextStyle(color: Colors.white,)),
-              Text('Grade Level: ${_gradeLevel ?? ''}', style: TextStyle(color: Colors.white,)),
-              Text('Semester: ${_semester ?? ''}', style: TextStyle(color: Colors.white,)),
-              Text("Subjects", style: TextStyle(color: Colors.white, fontSize: 24)),
-          
-              DropdownButton<String>(
-                value: _selectedSection,
-                hint: Text('Select a section', style: TextStyle(color: Colors.white)),
-                items: _sections.map((String section) {
-                  return DropdownMenuItem<String>(
-                    value: section,
-                    child: Text(section, style: TextStyle(color: Colors.black)), // Section name
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedSection = newValue; // Update selected section
-                  });
-                },
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveSection, // Call the save function
-                child: Text('Save Section'),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(onPressed: _loadSubjects, 
-              child: Text('Load Subjects')
-              ),
-              _subjects.isNotEmpty
-              ? Table(
-                  border: TableBorder.all(color: Colors.black),
-                  columnWidths: {
-                    0: FlexColumnWidth(2),
-                    1: FlexColumnWidth(4), // Adjust for balanced column width
-                    2: FlexColumnWidth(2),
-                  },
-                  children: [
-                    TableRow(children: [
-                      Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Text('Course Code', style: TextStyle(color: Colors.black)),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Text('Subject', style: TextStyle(color: Colors.black)),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Text('Grade', style: TextStyle(color: Colors.black)),
-                      ),
-                    ]),
-                    // Dynamically create rows based on the fetched subjects
-                    ..._subjects.map((subject) {
-                      return TableRow(children: [
+            return SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Container(
+                      color: Color.fromARGB(255, 1, 93, 168),
+                      child: Center(
+                        child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Student Data", style: TextStyle(color: Colors.white, fontSize: 24)),
+                SizedBox(height: 20),
+                Text('Student ID no: ${_studentId ?? ''}', style: TextStyle(color: Colors.white,)),
+                Text('Student Full Name: ${_fullName ?? ''}', style: TextStyle(color: Colors.white,)),
+                Text('Strand: ${_strand ?? ''}', style: TextStyle(color: Colors.white,)),
+                Text('Track: ${_track ?? ''}', style: TextStyle(color: Colors.white,)),
+                Text('Grade Level: ${_gradeLevel ?? ''}', style: TextStyle(color: Colors.white,)),
+                Text('Semester: ${_semester ?? ''}', style: TextStyle(color: Colors.white,)),
+                Text("Subjects", style: TextStyle(color: Colors.white, fontSize: 24)),
+                        
+                DropdownButton<String>(
+  value: _selectedSection,
+  hint: Text('Select a section', style: TextStyle(color: Colors.white)),
+  items: _sections.map((String section) {
+    return DropdownMenuItem<String>(
+      value: section,
+      child: Text(section, style: TextStyle(color: Colors.black)),
+    );
+  }).toList(),
+  onChanged: (String? newValue) async {
+    // Check if the user can select the section
+    bool canSelect = await _canSelectSection();
+
+    if (canSelect) {
+      setState(() {
+        _selectedSection = newValue; // Update selected section
+      });
+    } else {
+      // Show a message if the section is full
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('This section is full. Please choose another section.')),
+      );
+    }
+  },
+),
+
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _saveSection, // Call the save function
+                  child: Text('Save Section'),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(onPressed: _loadSubjects, 
+                child: Text('Load Subjects')
+                ),
+                _subjects.isNotEmpty
+                ? Table(
+                    border: TableBorder.all(color: Colors.black),
+                    columnWidths: {
+                      0: FlexColumnWidth(2),
+                      1: FlexColumnWidth(4), // Adjust for balanced column width
+                      2: FlexColumnWidth(2),
+                    },
+                    children: [
+                      TableRow(children: [
                         Padding(
                           padding: EdgeInsets.all(12.0),
-                          child: Text(subject['subject_code'], style: TextStyle(color: Colors.black)),
+                          child: Text('Course Code', style: TextStyle(color: Colors.black)),
                         ),
                         Padding(
                           padding: EdgeInsets.all(12.0),
-                          child: Text(subject['subject_name'], style: TextStyle(color: Colors.black)),
+                          child: Text('Subject', style: TextStyle(color: Colors.black)),
                         ),
                         Padding(
                           padding: EdgeInsets.all(12.0),
-                          child: Text(subject['category'] ?? 'N/A', style: TextStyle(color: Colors.black)),
+                          child: Text('Grade', style: TextStyle(color: Colors.black)),
                         ),
-                      ]);
-                    }).toList(),
-                  ],
-                )
-              : Text('No subjects available', style: TextStyle(color: Colors.white)),
-        ],
-      ),
-    ),
-  );
+                      ]),
+                      // Dynamically create rows based on the fetched subjects
+                      ..._subjects.map((subject) {
+                        return TableRow(children: [
+                          Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: Text(subject['subject_code'], style: TextStyle(color: Colors.black)),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: Text(subject['subject_name'], style: TextStyle(color: Colors.black)),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: Text(subject['category'] ?? 'N/A', style: TextStyle(color: Colors.black)),
+                          ),
+                        ]);
+                      }).toList(),
+                    ],
+                  )
+                : Text('No subjects available', style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+            );
           case 3:
             return Container(
               color: Color.fromARGB(255, 1, 93, 168),
