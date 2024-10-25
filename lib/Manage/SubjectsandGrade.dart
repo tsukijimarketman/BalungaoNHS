@@ -32,109 +32,16 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
       for (int i = 0; i < isEditing.length; i++) {
         isEditing[i] = false;
       }
-      _saveSubjectsAndGrades();
     });
   }
-
-  Future<void> _saveSubjectsAndGrades() async {
-  try {
-    // Get the student ID from the passed data
-    String studentId = widget.studentData['student_id'] ?? '';
-
-    if (studentId.isNotEmpty) {
-      // Query to find the document with the given student_id
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('student_id', isEqualTo: studentId)
-          .limit(1) // Ensure only one document is returned
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        DocumentSnapshot studentDoc = querySnapshot.docs.first;
-
-        final studentData = studentDoc.data() as Map<String, dynamic>;
-        String gradeLevel = studentData['grade_level'] ?? 'Unknown';
-
-        // Create a reference to the collection based on the grade level
-        CollectionReference subjectsCollection = FirebaseFirestore.instance
-            .collection('users')
-            .doc(studentDoc.id) // Use the ID of the found document
-            .collection('grade_levels')
-            .doc(gradeLevel)
-            .collection('subjects');
-
-        for (var subject in subjects) {
-          String subjectName = subject['assignedSubject'] ?? 'Unknown';
-          String grade = subject['grade'] ?? 'No Grade';
-
-          // Save each subject and grade to the Firestore collection
-          await subjectsCollection.doc(subjectName).set({
-            'grade': grade,
-          });
-        }
-
-        print('Subjects and grades saved successfully.');
-      } else {
-        print('No document found for student ID: $studentId');
-      }
-    } else {
-      print('Student ID is empty.');
-    }
-  } catch (e) {
-    print('Error saving subjects and grades: $e');
-  }
-}
-
-
-
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData().then((_) => _fetchAssignedSubjects());
+    _fetchUserData();
+    _fetchStudentSectionAndSubjects(widget.studentData); // Fetch subjects on init
+
   }
-
-Future<void> _fetchAssignedSubjects() async {
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      String uid = user.uid;
-
-      // Fetch the user's document
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users') // Collection for user data
-          .doc(uid) // Document for the current user
-          .get();
-
-      if (userDoc.exists) {
-        // Retrieve the assignedSubjects field from the document
-        Map<String, dynamic>? data = userDoc.data() as Map<String, dynamic>?;
-        String assignedSubjects = data?['assignedSubject'] ?? '';
-
-        // Handle the string according to your needs
-        List<Map<String, dynamic>> fetchedSubjects = [];
-        if (assignedSubjects.isNotEmpty) {
-          // Example of splitting the string if necessary, adjust according to your use case
-          fetchedSubjects.add({'assignedSubject': assignedSubjects, 'grade': ''});
-        }
-
-        setState(() {
-          subjects = fetchedSubjects;
-          isEditing = List<bool>.filled(subjects.length, false); // Initialize editing state
-        });
-      } else {
-        print('No document found for UID: $uid');
-      }
-    } else {
-      print('No current user found.');
-    }
-  } catch (e) {
-    print('Error fetching assigned subjects: $e');
-  }
-}
-
-
-  
 
    Future<void> _fetchUserData() async {
   try {
@@ -154,6 +61,7 @@ Future<void> _fetchAssignedSubjects() async {
         setState(() {
           _accountType = (data['accountType'] as String).toUpperCase();
           _email = data['email_Address'];
+          
         });
       } else {
         print('No document found for UID: $uid');
@@ -171,6 +79,75 @@ Future<void> _fetchAssignedSubjects() async {
     });
   }
 }
+
+Future<void> _fetchStudentSectionAndSubjects(Map<String, dynamic> userData) async {
+  try {
+    String sectionName = userData['section'] ?? ''; // Assuming section name is stored in user data
+    String firstName = userData['first_name'] ?? '';
+    String lastName = userData['last_name'] ?? '';
+    String seniorHighStrand = userData['seniorHigh_Strand'] ?? '';
+
+    // Get the corresponding course strand
+    String courseStrand = getStrandCourse(seniorHighStrand);
+
+    // Fetch the section document based on the section name and adviser name
+    QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+        .collection('sections')
+        .where('section_name', isEqualTo: sectionName)
+        .where('section_adviser', isEqualTo: '$firstName $lastName') // Combine first and last name
+        .get();
+
+    if (sectionSnapshot.docs.isNotEmpty) {
+      // Get the semester of the section
+      String semester = sectionSnapshot.docs.first['semester'];
+
+      // Fetch subjects that match the semester and course strand
+      QuerySnapshot subjectsSnapshot = await FirebaseFirestore.instance
+          .collection('subjects')
+          .where('semester', isEqualTo: semester)
+          .where('strandcourse', isEqualTo: courseStrand) // Filter by the course strand
+          .get();
+
+      // Store subjects in the list
+      subjects = subjectsSnapshot.docs.map((doc) {
+        return {
+          'subject_code': doc['subject_code'], // Fetch subject_code
+          'subject_name': doc['subject_name'],
+          'grade': '', // Initialize with an empty string since you mentioned there’s no grade in subjects collection
+        };
+      }).toList();
+
+      // Initialize editing states
+      isEditing = List<bool>.filled(subjects.length, false);
+      
+      setState(() {});
+    } else {
+      print('No section found for section name: $sectionName and adviser: $firstName $lastName');
+    }
+  } catch (e) {
+    print('Error fetching student section and subjects: $e');
+  }
+}
+
+String getStrandCourse(String seniorHighStrand) {
+  switch (seniorHighStrand) {
+    case 'Accountancy, Business, and Management (ABM)':
+      return 'ABM';
+    case 'Information and Communication Technology (ICT)':
+      return 'ICT';
+    case 'Science, Technology, Engineering and Mathematics (STEM)':
+      return 'STEM';
+    case 'Humanities and Social Sciences (HUMSS)':
+      return 'HUMSS';
+    case 'Home Economics (HE)':
+      return 'HE';
+    case 'Industrial Arts (IA)':
+      return 'IA';
+    default:
+      return ''; // Return an empty string or some default value if there's no match
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -313,41 +290,99 @@ Future<void> _fetchAssignedSubjects() async {
                     children: [
                       Table(
   border: TableBorder.all(),
-  children: List.generate(subjects.length, (index) {
-    return TableRow(
+  children: [
+    // Header Row
+    TableRow(
+      decoration: BoxDecoration(
+        color: Colors.grey[300], // Light gray background for header
+      ),
       children: [
-        TableCell(child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(subjects[index]['assignedSubject'] ?? 'No Subject'),
-        )),
         TableCell(
-          child: isEditing[index]
-              ? CupertinoTextField(
-                  placeholder: subjects[index]['grade'] ?? 'Enter Grade',
-                  onChanged: (value) {
-                    setState(() {
-                      subjects[index]['grade'] = value;
-                    });
-                  },
-                )
-              : GestureDetector(
-                  onTap: () => toggleEdit(index),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      subjects[index]['grade'] ?? 'No Grade',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Subject Code', // Header for Subject Code
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Subject Name', // Header for Subject Name
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Grade', // Header for Grade
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+    
+    // Data Rows
+    ...List.generate(subjects.length, (index) {
+      return TableRow(
+        children: [
+          TableCell(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(subjects[index]['subject_code'] ?? 'No Code'), // Display subject code
+            ),
+          ),
+          TableCell(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(subjects[index]['subject_name'] ?? 'No Subject'), // Display subject name
+            ),
+          ),
+          TableCell(
+            child: isEditing[index]
+                ? CupertinoTextField(
+                    placeholder: subjects[index]['grade'] ?? 'Enter Grade',
+                    onChanged: (value) {
+                      setState(() {
+                        subjects[index]['grade'] = value; // Update grade in subjects list
+                      });
+                    },
+                  )
+                : GestureDetector(
+                    onTap: () => toggleEdit(index),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        subjects[index]['grade'] ?? 'No Grade',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                   ),
-                ),
-        ),
-      ],
-    );
-  }),
+          ),
+        ],
+      );
+    }),
+  ],
 ),
+
+
                       SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
