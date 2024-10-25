@@ -23,6 +23,7 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+  String selectedCourse = "All";
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Map<String, bool> _selectedStudents = {};
   String _selectedDrawerItem = 'Dashboard';
@@ -1988,184 +1989,215 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                   ),
                 ),
               ),
-              Expanded(
-  child: Card(
-    margin: EdgeInsets.all(16),
-    elevation: 10,
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Subjects List',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 16),
-          
-          // Fixed header row
-          Table(
-            border: TableBorder.all(color: Colors.grey),
-            columnWidths: const <int, TableColumnWidth>{
-              0: FixedColumnWidth(40.0),
-              1: FlexColumnWidth(),
-              2: FlexColumnWidth(),
-              3: FlexColumnWidth(),
-              4: FlexColumnWidth(),
-              5: FlexColumnWidth(),
-              6: FlexColumnWidth(),
-              7: FixedColumnWidth(100.0),
-            },
-            children: [
-              TableRow(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                ),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('#',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Course',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Subject Name',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Code',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Category',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Semester',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Actions',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          // Scrollable data rows
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('subjects').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No Subject Added',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey,
-                      ),
+              // Dropdown for selecting a course
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Filter by Course:',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                  );
-                }
+                    SizedBox(width: 16),
+                    DropdownButton<String>(
+                      value: selectedCourse,
+                      items: ["All", "STEM", "ABM", "HUMSS", "ICT", "HE", "IA"] // Add all your course options here
+                          .map((course) => DropdownMenuItem<String>(
+                                value: course,
+                                child: Text(course),
+                              ))
+                          .toList(),
+                      onChanged: (course) {
+                        setState(() {
+                          selectedCourse = course!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Card(
+                  margin: EdgeInsets.all(16),
+                  elevation: 10,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Subjects List',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
 
-                final subjects = snapshot.data!.docs;
-
-                return SingleChildScrollView(
-                  child: Table(
-                    border: TableBorder.all(color: Colors.grey),
-                    columnWidths: const <int, TableColumnWidth>{
-                      0: FixedColumnWidth(40.0),
-                      1: FlexColumnWidth(),
-                      2: FlexColumnWidth(),
-                      3: FlexColumnWidth(),
-                      4: FlexColumnWidth(),
-                      5: FlexColumnWidth(),
-                      6: FlexColumnWidth(),
-                      7: FixedColumnWidth(100.0),
-                    },
-                    children: [
-                      for (var i = 0; i < subjects.length; i++)
-                        TableRow(
+                        // Fixed header row
+                        Table(
+                          border: TableBorder.all(color: Colors.grey),
+                          columnWidths: const <int, TableColumnWidth>{
+                            0: FixedColumnWidth(50.0),
+                            1: FlexColumnWidth(),
+                            2: FlexColumnWidth(),
+                            3: FlexColumnWidth(),
+                            4: FlexColumnWidth(),
+                            5: FlexColumnWidth(),
+                            6: FixedColumnWidth(100.0),
+                          },
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text((i + 1).toString()),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(subjects[i]['strandcourse']),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(subjects[i]['subject_name']),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(subjects[i]['subject_code']),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(subjects[i]['category']),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(subjects[i]['semester']),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.edit, color: Colors.blue),
-                                    onPressed: () {
-                                      setState(() {
-                                        selectedSubjectId = subjects[i].id;
-                                        _showEditSubjects = true;
-                                      });
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.delete_forever, color: Colors.red),
-                                    onPressed: () {
-                                      _showDeleteSubjectConfirmation(context, subjects[i].id);
-                                    },
-                                  ),
-                                ],
+                            TableRow(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
                               ),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('#',
+                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Course',
+                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Subject Name',
+                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Code',
+                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Category',
+                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Semester',
+                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Actions',
+                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-),
 
+                        // Scrollable data rows
+                        Expanded(
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance.collection('subjects').snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Center(child: CircularProgressIndicator());
+                              }
+
+                              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                                return Center(
+                                  child: Text(
+                                    'No Subject Added',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              // Sort and filter subjects by selected course
+                              final subjects = snapshot.data!.docs;
+                              subjects.sort((a, b) => a['strandcourse'].compareTo(b['strandcourse']));
+
+                              // Apply filtering based on the selected course
+                              final filteredSubjects = selectedCourse == "All"
+                                  ? subjects
+                                  : subjects.where((subject) => subject['strandcourse'] == selectedCourse).toList();
+
+                              return SingleChildScrollView(
+                                child: Table(
+                                  border: TableBorder.all(color: Colors.grey),
+                                  columnWidths: const <int, TableColumnWidth>{
+                                    0: FixedColumnWidth(50.0),
+                                    1: FlexColumnWidth(),
+                                    2: FlexColumnWidth(),
+                                    3: FlexColumnWidth(),
+                                    4: FlexColumnWidth(),
+                                    5: FlexColumnWidth(),
+                                    6: FixedColumnWidth(100.0),
+                                  },
+                                  children: [
+                                    for (var i = 0; i < filteredSubjects.length; i++)
+                                      TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text((i + 1).toString()),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(filteredSubjects[i]['strandcourse']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(filteredSubjects[i]['subject_name']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(filteredSubjects[i]['subject_code']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(filteredSubjects[i]['category']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(filteredSubjects[i]['semester']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(Icons.edit, color: Colors.blue),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      selectedSubjectId = filteredSubjects[i].id;
+                                                      _showEditSubjects = true;
+                                                    });
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.delete_forever, color: Colors.red),
+                                                  onPressed: () {
+                                                    _showDeleteSubjectConfirmation(context, filteredSubjects[i].id);
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
