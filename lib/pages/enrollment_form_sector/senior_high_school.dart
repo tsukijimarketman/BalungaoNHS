@@ -18,6 +18,8 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
   String _selectedTrack = '';
   String _selectedStrand = '';
   String _selectedtransferee = '';
+  String _selectedsemester = '';
+
 
   @override
   void initState() {
@@ -50,6 +52,7 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
       'seniorHigh_Track': _selectedTrack,
       'seniorHigh_Strand': _selectedStrand,
       'transferee': _selectedtransferee,
+      'semester': 'Grade ${_gradeLevel.text} -  ${_selectedsemester}',
     };
   }
   
@@ -254,6 +257,53 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              SizedBox(width: widget.spacing),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Flexible(
+                child: Container(
+                  width: 300,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedsemester.isEmpty ? null : _selectedsemester,
+                    decoration: InputDecoration(
+                      labelText: 'Please select Semester',
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                    ),
+                    items: [
+                      '1st Semester',
+                      '2nd Semester'
+                    ].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedsemester = value!;
+                        _notifyParent();
+                      });
+                    },
+                  ),
+                ),
+              ),
                   ],
                 ),
               ),
