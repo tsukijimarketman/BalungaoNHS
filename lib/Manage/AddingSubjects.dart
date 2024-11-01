@@ -25,6 +25,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
   final TextEditingController _subjectCode = TextEditingController();
   String? _selectedCategory = '--' ;
   String? _selectedSemester = '--' ;
+  String? _selectedCourse = '--';
 
   final CollectionReference subjectsCollection =
       FirebaseFirestore.instance.collection('subjects');
@@ -38,7 +39,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
 
   Future<void> _saveSubject() async {
     // Basic validation before saving
-    if (_subjectName.text.isEmpty || _subjectCode.text.isEmpty || _selectedCategory == '--' || _selectedSemester == '--') {
+    if (_selectedCategory == '--' || _subjectName.text.isEmpty || _subjectCode.text.isEmpty || _selectedCategory == '--' || _selectedSemester == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
@@ -48,6 +49,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
     try {
       // Create a document in Firestore
       await subjectsCollection.add({
+        'strandcourse': _selectedCourse,
         'subject_name': _subjectName.text,
         'subject_code': _subjectCode.text,
         'category': _selectedCategory,
@@ -66,6 +68,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
       _subjectName.clear();
       _subjectCode.clear();
       setState(() {
+        _selectedCourse = '--';
         _selectedCategory = '--';
         _selectedSemester = '--';
       });
@@ -116,6 +119,24 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
                       Text(
                         'Add New Subject',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 16),
+                      // Course
+                      DropdownButtonFormField<String>(
+                        value: _selectedCourse,
+                        decoration: InputDecoration(
+                          labelText: 'Course',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: ['--', 'ABM', 'STEM', 'HUMSS', 'ICT', 'HE', 'IA']
+                            .map((strandcourse) => DropdownMenuItem<String>(
+                                  value: strandcourse,
+                                  child: Text(strandcourse),
+                                ))
+                            .toList(),
+                        onChanged: (val) {
+                           _selectedCourse = val;
+                        },
                       ),
                       SizedBox(height: 16),
                       // Subject Name

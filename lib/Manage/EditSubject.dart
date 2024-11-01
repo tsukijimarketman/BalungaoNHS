@@ -29,6 +29,7 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
   final TextEditingController _subjectCode = TextEditingController();
   String? _selectedCategory = '--' ;
   String? _selectedSemester = '--' ;
+  String? _selectedCourse = '--';
 
   final CollectionReference subjectsCollection =
       FirebaseFirestore.instance.collection('subjects');
@@ -46,6 +47,7 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
     if (subjectDoc.exists) {
       Map<String, dynamic>? data = subjectDoc.data() as Map<String, dynamic>?;
       setState(() {
+        _selectedCourse = data?['strandcourse'] ?? '';
         _subjectName.text = data?['subject_name'] ?? '';
         _subjectCode.text = data?['subject_code'] ?? '';
         _selectedCategory = data?['category'] ?? '--';
@@ -56,7 +58,7 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
 
   // Update the subject in Firestore
   Future<void> _updateSubject() async {
-    if (_subjectName.text.isEmpty || _subjectCode.text.isEmpty || _selectedCategory == '--' || _selectedSemester == '--') {
+    if (_selectedCategory == '--' || _subjectName.text.isEmpty || _subjectCode.text.isEmpty || _selectedCategory == '--' || _selectedSemester == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
@@ -65,6 +67,7 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
 
     try {
       await subjectsCollection.doc(widget.subjectId).update({
+        'strandcourse': _selectedCourse,
         'subject_name': _subjectName.text,
         'subject_code': _subjectCode.text,
         'category': _selectedCategory,
@@ -131,6 +134,24 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
                       Text(
                         'Edit Subject',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 16),
+                      // Course
+                      DropdownButtonFormField<String>(
+                        value: _selectedCourse,
+                        decoration: InputDecoration(
+                          labelText: 'Course',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: ['--', 'ABM', 'STEM', 'HUMSS', 'ICT', 'HE', 'IA']
+                            .map((strandcourse) => DropdownMenuItem<String>(
+                                  value: strandcourse,
+                                  child: Text(strandcourse),
+                                ))
+                            .toList(),
+                        onChanged: (val) {
+                           _selectedCourse = val;
+                        },
                       ),
                       SizedBox(height: 16),
                       // Subject Name

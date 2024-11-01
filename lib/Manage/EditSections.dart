@@ -3,12 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
+
 class EditSectionsForm extends StatefulWidget {
   final double screenWidth;
   final double screenHeight;
   final VoidCallback closeEditSections;
   final String? sectionId;
-
 
   EditSectionsForm({
     super.key,
@@ -16,8 +17,6 @@ class EditSectionsForm extends StatefulWidget {
     required this.screenHeight,
     required this.closeEditSections,
     this.sectionId,
-
-    
   });
 
   @override
@@ -28,10 +27,10 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
   final TextEditingController _sectionName = TextEditingController();
   final TextEditingController _sectionAdviser = TextEditingController();
   final TextEditingController _sectionCapacity = TextEditingController();
-  String? _selectedSemester = '--' ;
+  final TextEditingController _capacityCount = TextEditingController(); // New controller
+  String? _selectedSemester = '--';
   String? _selectedAdviser;
   List<DropdownMenuItem<String>> advisersDropdownItems = [];
-
 
   final CollectionReference sectionsCollection =
       FirebaseFirestore.instance.collection('sections');
@@ -43,7 +42,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     _fetchAdvisers(); // Fetch advisers when form loads
   }
 
-  // Fetch subject details from Firestore using the subjectId
+  // Fetch section details from Firestore using the sectionId
   Future<void> _fetchSectionData() async {
     DocumentSnapshot sectionDoc = await sectionsCollection.doc(widget.sectionId).get();
 
@@ -53,7 +52,8 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
         _sectionName.text = data?['section_name'] ?? '';
         _selectedAdviser = data?['section_adviser'] ?? '';
         _selectedSemester = data?['semester'] ?? '--';
-        _sectionCapacity.text = data?['section_capacity'] ?? '';
+        _sectionCapacity.text = data?['section_capacity'].toString() ?? '';
+        _capacityCount.text = data?['capacityCount'].toString() ?? ''; // Initialize capacityCount
       });
     }
   }
@@ -76,12 +76,27 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     });
   }
 
-
-  // Update the subject in Firestore
+  // Update the section in Firestore
   Future<void> _updateSection() async {
-    if (_sectionName.text.isEmpty || _selectedAdviser == null || _selectedSemester == '--' || _sectionCapacity.text.isEmpty) {
+    if (_sectionName.text.isEmpty || _selectedAdviser == null || _selectedSemester == '--' || _sectionCapacity.text.isEmpty || _capacityCount.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    int newCapacity = int.tryParse(_sectionCapacity.text) ?? 0;
+    int newCapacityCount = int.tryParse(_capacityCount.text) ?? 0; // Parse new capacityCount
+
+    // Fetch the current capacityCount
+    DocumentSnapshot sectionDoc = await sectionsCollection.doc(widget.sectionId).get();
+    Map<String, dynamic>? data = sectionDoc.data() as Map<String, dynamic>?;
+    int currentCapacityCount = data?['capacityCount'] ?? 0;
+
+    // Validate capacity
+    if (newCapacity < currentCapacityCount) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Capacity cannot be less than current enrolled count of $currentCapacityCount')),
       );
       return;
     }
@@ -91,7 +106,8 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
         'section_name': _sectionName.text,
         'section_adviser': _selectedAdviser,
         'semester': _selectedSemester,
-        'section_capacity': _sectionCapacity.text,
+        'section_capacity': newCapacity,
+        'capacityCount': newCapacityCount, // Update capacityCount
         'updated_at': Timestamp.now(),
       });
 
@@ -108,10 +124,11 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     }
   }
 
- @override
+  @override
   void dispose() {
     _sectionName.dispose();
     _sectionCapacity.dispose();
+    _capacityCount.dispose(); // Dispose capacityCount controller
     super.dispose();
   }
 
@@ -156,7 +173,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 16),
-                      // Subject Name
+                      // Section Name
                       TextFormField(
                         controller: _sectionName,
                         decoration: InputDecoration(
@@ -166,7 +183,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      // Subject Code
+                      // Section Adviser
                       DropdownButtonFormField<String>(
                         value: _selectedAdviser,
                         decoration: InputDecoration(
@@ -195,15 +212,17 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                           'Grade 12 - 1st Semester',
                           'Grade 12 - 2nd Semester'
                         ].map((semester) => DropdownMenuItem<String>(
-                              value: semester,
-                              child: Text(semester),
-                            ))
-                            .toList(),
+                          value: semester,
+                          child: Text(semester),
+                        )).toList(),
                         onChanged: (val) {
-                          _selectedSemester = val;
+                          setState(() {
+                            _selectedSemester = val;
+                          });
                         },
                       ),
                       SizedBox(height: 16),
+                      // Section Capacity
                       TextFormField(
                         controller: _sectionCapacity,
                         decoration: InputDecoration(
@@ -211,6 +230,24 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                           border: OutlineInputBorder(),
                           hintText: 'Enter section capacity',
                         ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      // Capacity Count
+                      TextFormField(
+                        controller: _capacityCount, // New text field for capacityCount
+                        decoration: InputDecoration(
+                          labelText: 'Capacity Count',
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter capacity count',
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                       ),
                       // Save Changes button
                       SizedBox(height: 24),
