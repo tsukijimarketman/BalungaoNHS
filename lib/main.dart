@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'PBMA Portal',
-      home:  StudentUI(),  //Launcher
+      home:  Launcher(),  //Launcher
     );
   }
 }

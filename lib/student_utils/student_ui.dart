@@ -1030,284 +1030,969 @@ class _ScreensExampleState extends State<_ScreensExample> {
               ),
             );
           case 3:
-            return Container(
-              color: Color.fromARGB(255, 1, 93, 168),
-              height: screenHeight,
-              width: screenWidth,
+            return SingleChildScrollView(
               child: Container(
-                margin: EdgeInsets.all(30),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                await _pickImage(); // Open image picker to select a new image
-
-                                if (_imageBytes != null || _imageFile != null) {
-                                  await replaceProfilePicture(); // Upload and replace the profile picture
-
-                                  // Reload the new image URL from Firestore after uploading
-                                  await _imageGetterFromExampleState();
-
-                                  setState(
-                                      () {}); // Refresh the UI after updating the image URL
-                                }
-                              },
-                              child: MouseRegion(
-                                onEnter: (_) {
-                                  setState(() {
-                                    _isHovered = true;
-                                  });
+                color: Color.fromARGB(255, 1, 93, 168),
+                width: screenWidth,
+                child: Container(
+                  margin: EdgeInsets.all(30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  await _pickImage(); // Open image picker to select a new image
+              
+                                  if (_imageBytes != null || _imageFile != null) {
+                                    await replaceProfilePicture(); // Upload and replace the profile picture
+              
+                                    // Reload the new image URL from Firestore after uploading
+                                    await _imageGetterFromExampleState();
+              
+                                    setState(
+                                        () {}); // Refresh the UI after updating the image URL
+                                  }
                                 },
-                                onExit: (_) {
-                                  setState(() {
-                                    _isHovered = false;
-                                  });
-                                },
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 85,
-                                      backgroundImage: _imageBytes != null
-                                          ? MemoryImage(_imageBytes!)
-                                              as ImageProvider
-                                          : _imageFile != null
-                                              ? FileImage(_imageFile!)
-                                                  as ImageProvider
-                                              : _imageUrl != null
-                                                  ? NetworkImage(_imageUrl!)
-                                                      as ImageProvider
-                                                  : const NetworkImage(
-                                                      'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png',
-                                                    ),
-                                    ),
-                                    if (_isHovered)
-                                      Container(
-                                        width: 170,
-                                        height: 170,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.5),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.image,
-                                          color: Colors.white,
-                                          size: 60,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ).showCursorOnHover,
-                            SizedBox(width: 20),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Gerick M. Velasquez",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: "B",
-                                      fontSize: 30),
-                                ),
-                                SizedBox(height: 15),
-                                GestureDetector(
-                                  onTap: () async {
-                                    await _pickImage(); // Open image picker to select a new image
-
-                                    if (_imageBytes != null ||
-                                        _imageFile != null) {
-                                      await replaceProfilePicture(); // Upload and replace the profile picture
-
-                                      // Reload the new image URL from Firestore after uploading
-                                      await _imageGetterFromExampleState();
-
-                                      setState(
-                                          () {}); // Refresh the UI after updating the image URL
-                                    }
+                                child: MouseRegion(
+                                  onEnter: (_) {
+                                    setState(() {
+                                      _isHovered = true;
+                                    });
                                   },
-                                  child: Container(
-                                    height: 40,
-                                    width: 150,
-                                    decoration: BoxDecoration(
-                                      color: Colors.yellow,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Edit Profile",
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontFamily: "B",
-                                            fontSize: 15),
+                                  onExit: (_) {
+                                    setState(() {
+                                      _isHovered = false;
+                                    });
+                                  },
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 85,
+                                        backgroundImage: _imageBytes != null
+                                            ? MemoryImage(_imageBytes!)
+                                                as ImageProvider
+                                            : _imageFile != null
+                                                ? FileImage(_imageFile!)
+                                                    as ImageProvider
+                                                : _imageUrl != null
+                                                    ? NetworkImage(_imageUrl!)
+                                                        as ImageProvider
+                                                    : const NetworkImage(
+                                                        'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png',
+                                                      ),
                                       ),
+                                      if (_isHovered)
+                                        Container(
+                                          width: 170,
+                                          height: 170,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.5),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.image,
+                                            color: Colors.white,
+                                            size: 60,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ).showCursorOnHover,
+                              SizedBox(width: 20),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Gerick",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: "B",
+                                            fontSize: 30),
+                                      ),
+                                      SizedBox(width: 10,),
+                                      Text(
+                                        "Molina",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: "B",
+                                            fontSize: 30),
+                                      ),
+                                      SizedBox(width: 10,),
+                                      Text(
+                                        "Velasquez",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: "B",
+                                            fontSize: 30),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 15),
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await _pickImage(); // Open image picker to select a new image
+                                      
+                                          if (_imageBytes != null ||
+                                              _imageFile != null) {
+                                            await replaceProfilePicture(); // Upload and replace the profile picture
+                                      
+                                            // Reload the new image URL from Firestore after uploading
+                                            await _imageGetterFromExampleState();
+                                      
+                                            setState(
+                                                () {}); // Refresh the UI after updating the image URL
+                                          }
+                                        },
+                                        child: Container(
+                                          height: 40,
+                                          width: 150,
+                                          decoration: BoxDecoration(
+                                            color: Colors.yellow,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Edit Profile",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontFamily: "B",
+                                                    fontSize: 15),
+                                              ),
+                                              SizedBox(width: 5,),
+                                              Icon(Icons.edit, size: 20, color: Colors.black,)
+                                            ],
+                                          ),
+                                        ),
+                                      ).showCursorOnHover.moveUpOnHover,
+                                      SizedBox(width: 15,),
+                                      GestureDetector(
+                                        onTap: () {
+                                          
+                                        },
+                                        child: Container(
+                                          height: 40,
+                                          width: 150,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Logout",
+                                                style: TextStyle(
+                                                    color: Color.fromARGB(255, 1, 93, 168),
+                                                    fontFamily: "B",
+                                                    fontSize: 15),
+                                              ),
+                                              SizedBox(width: 5,),
+                                              Icon(Icons.logout_rounded, size: 20, color: Color.fromARGB(255, 1, 93, 168),)
+                                            ],
+                                          ),
+                                        ),
+                                      ).showCursorOnHover.moveUpOnHover,
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      Text(
+                        "Student Information",
+                        style: TextStyle(
+                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                "First Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Gerick",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
                                     ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
                                   ),
-                                ).showCursorOnHover.moveUpOnHover,
-                              ],
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              "Student Number",
-                              style: TextStyle(
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Middle Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
                                   color: Colors.white,
-                                  fontFamily: "B",
-                                  fontSize: 20),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              "2024-PBMA-0011",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontFamily: "B",
-                                  fontSize: 15),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              "Learner Reference Number",
-                              style: TextStyle(
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Molina",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Last Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
                                   color: Colors.white,
-                                  fontFamily: "B",
-                                  fontSize: 20),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              "101815080468",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontFamily: "B",
-                                  fontSize: 15),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              "First Name",
-                              style: TextStyle(
-                                fontFamily: "M",
-                                fontSize: 15,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 13),
-                            Container(
-                              width: 350,
-                              child: TextFormField(
-                                initialValue: "Gerick",
-                                enabled: false,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: "R",
-                                  fontSize: 13,
                                 ),
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10),
-                                  disabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.white),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Velasquez",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
                                   ),
-                                  filled: true,fillColor: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              "Middle Name",
-                              style: TextStyle(
-                                fontFamily: "M",
-                                fontSize: 15,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 13),
-                            Container(
-                              width: 350,
-                              child: TextFormField(
-                                initialValue: "Molina",
-                                enabled: false,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: "R",
-                                  fontSize: 13,
-                                ),
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10),
-                                  disabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.white),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
                                   ),
-                                  filled: true,
-                                 fillColor: Colors.white,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              "Last Name",
-                              style: TextStyle(
-                                fontFamily: "M",
-                                fontSize: 15,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 13),
-                            Container(
-                              width: 350,
-                              child: TextFormField(
-                                initialValue: "Velasquez",
-                                enabled: false,
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Extension Name",
                                 style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: "R",
-                                  fontSize: 13,
-                                ),
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10),
-                                  disabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: Colors.white),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.white,
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                "Age",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 100,
+                                child: TextFormField(
+                                  initialValue: "21",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Gender",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 100,
+                                child: TextFormField(
+                                  initialValue: "Male",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Birthdate",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 100,
+                                child: TextFormField(
+                                  initialValue: "06/11/2003",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Email Address",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 300,
+                                child: TextFormField(
+                                  initialValue: "teenbritish11@gmail.com",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Phone Number",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "09919382645",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Student Number",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "2024-PBMA-0011",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "LRN",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "101815080468",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Home Address",
+                        style: TextStyle(
+                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                "House Number",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 125,
+                                child: TextFormField(
+                                  initialValue: "81",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Street Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 125,
+                                child: TextFormField(
+                                  initialValue: "Zone 2",
+                                  enabled:true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Subdivision/Barangay",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 200,
+                                child: TextFormField(
+                                  initialValue: "Tebag",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "City/Municipality",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 200,
+                                child: TextFormField(
+                                  initialValue: "Mangaldan",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Province",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 200,
+                                child: TextFormField(
+                                  initialValue: "Pangasinan",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Country",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 200,
+                                child: TextFormField(
+                                  initialValue: "Philippines",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Parent Guardian Information",
+                        style: TextStyle(
+                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                "Father's Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Gerry A. Velasquez",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Mother's Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Glenda M. Velasquez",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Guardian's Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Glenda M. Velasquez",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Relationship",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "Mother",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
