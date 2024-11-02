@@ -3167,10 +3167,10 @@ Future<void> _setInstructorStatusActive(String instructorId) async {
                 ),
                 Row(
                   children: [
-                    Icon(
-                      size: 30,
-                      Iconsax.profile_circle_copy,
-                    ),
+                    // Icon(
+                    //   size: 30,
+                    //   Iconsax.profile_circle_copy,
+                    // ),
                     SizedBox(
                         width: 15), // Add spacing between the icon and the text
                     Column(

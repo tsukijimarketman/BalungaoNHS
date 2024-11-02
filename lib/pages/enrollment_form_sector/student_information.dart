@@ -22,13 +22,14 @@ class StudentInformation extends StatefulWidget {
     required this.onImageFileChanged,
     required this.onWebImageDataChanged,
     required this.onImageUrlChanged,
-  });
+    Key? key
+  }) : super (key: key);
 
   @override
-  State<StudentInformation> createState() => _StudentInformationState();
+  State<StudentInformation> createState() => StudentInformationState();
 }
 
-class _StudentInformationState extends State<StudentInformation>
+class StudentInformationState extends State<StudentInformation>
     with AutomaticKeepAliveClientMixin {
   final FocusNode _lrnFocusNode = FocusNode();
   final FocusNode _lastNameFocusNode = FocusNode();
@@ -54,6 +55,32 @@ class _StudentInformationState extends State<StudentInformation>
   final TextEditingController _indigenousController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+
+
+  // Method to reset form
+  void resetFields() {
+    setState(() {
+    _lrnController.clear();
+    _lastNameController.clear();
+    _firstNameController.clear();
+    _middleNameController.clear();
+    _extensionNameController.clear();
+    _ageController.clear();
+    _birthdateController.clear();
+    _emailAddressController.clear();
+    _indigenousController.clear();
+    _genderController.clear();
+    _phoneNumberController.clear();
+    _gender = '';
+    _indigenousGroup = '';
+    
+    // Reset image-related fields
+    _imageFile = null;
+    _webImageData = null;
+    _imageUrl = null;
+    });
+
+  }
 
   String _gender = '';
   String _indigenousGroup = '';

@@ -8,13 +8,13 @@ class HomeAddress extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
 
 
-  HomeAddress({required this.spacing, required this.onDataChanged});
+  HomeAddress({required this.spacing, required this.onDataChanged, Key? key}) : super(key: key);
 
   @override
-  State<HomeAddress> createState() => _HomeAddressState();
+  State<HomeAddress> createState() => HomeAddressState();
 }
 
-class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientMixin {
+class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientMixin {
   final FocusNode _houseNumberFocusNode = FocusNode();
   final FocusNode _streetNameFocusNode = FocusNode();
   final FocusNode _subdivisionFocusNode = FocusNode();
@@ -28,6 +28,15 @@ class _HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClient
   final TextEditingController _cityMunicipality = TextEditingController();
   final TextEditingController _province = TextEditingController();
   final TextEditingController _country = TextEditingController();
+
+  void resetForm() {
+    _houseNumber.clear();
+    _streetName.clear();
+    _subdivisionBarangay.clear();
+    _cityMunicipality.clear();
+    _province.clear();
+    _country.clear();
+  }
 
   @override
   void initState() {

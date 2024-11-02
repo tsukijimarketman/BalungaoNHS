@@ -29,6 +29,13 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
 
   bool _showSignInCard = false;
 
+  // Define the reset functions for each form section
+  final GlobalKey<StudentInformationState> _studentInfoKey = GlobalKey();
+  final GlobalKey<JuniorHighSchoolState> _juniorHSKey = GlobalKey();
+  final GlobalKey<HomeAddressState> _homeAddressKey = GlobalKey();
+  final GlobalKey<ParentInformationState> _parentInfoKey = GlobalKey();
+  final GlobalKey<SeniorHighSchoolState> _seniorHSKey = GlobalKey();
+
   // Define the _formKey
   final _formKey = GlobalKey<FormState>();
   File? _imageFile;
@@ -139,6 +146,19 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Data Saved Successfully')),
         );
+
+        // Reset each form section
+      _studentInfoKey.currentState?.resetFields();
+      _juniorHSKey.currentState?.resetForm();
+      _homeAddressKey.currentState?.resetForm();
+      _parentInfoKey.currentState?.resetForm();
+      _seniorHSKey.currentState?.resetFields();
+
+      // Reset image data using the callback
+      _updateImageFile(null);
+      _updateWebImageData(null);
+      _updateImageUrl(null);
+
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to Save Data: $error')),
@@ -306,6 +326,7 @@ Widget build(BuildContext context) {
             child: ListView(
               children: [
                 StudentInformation(
+                  key: _studentInfoKey,
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                   onImageFileChanged: _updateImageFile,
@@ -314,20 +335,24 @@ Widget build(BuildContext context) {
                 ),
                 SizedBox(height: 30),
                 HomeAddress(
+                  key: _homeAddressKey,
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                 ),
                 SizedBox(height: 30),
                 ParentInformation(
+                  key: _parentInfoKey,
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                 ),
                 SizedBox(height: 30),
                 JuniorHighSchool(
+                  key: _juniorHSKey,
                   onDataChanged: _updateStudentData,
                 ),
                 SizedBox(height: 30),
                 SeniorHighSchool(
+                  key: _seniorHSKey,
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                 ),

@@ -5,13 +5,13 @@ class ParentInformation extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
   final double spacing;
 
-  ParentInformation({required this.spacing, required this.onDataChanged});
+  ParentInformation({required this.spacing, required this.onDataChanged, Key? key}) : super(key: key);
 
   @override
-  State<ParentInformation> createState() => _ParentInformationState();
+  State<ParentInformation> createState() => ParentInformationState();
 }
 
-class _ParentInformationState extends State<ParentInformation> with AutomaticKeepAliveClientMixin{
+class ParentInformationState extends State<ParentInformation> with AutomaticKeepAliveClientMixin{
   final FocusNode fathersNameFocusNode = FocusNode();
   final FocusNode mothersNameFocusNode = FocusNode();
   final FocusNode guardianNameFocusNode = FocusNode();
@@ -21,7 +21,14 @@ class _ParentInformationState extends State<ParentInformation> with AutomaticKee
   final TextEditingController _mothersName = TextEditingController();
   final TextEditingController _guardianName = TextEditingController();
   final TextEditingController _relationshipGuardian = TextEditingController();
-   
+  
+  void resetForm() {
+    _fathersName.clear();
+    _mothersName.clear();
+    _guardianName.clear();
+    _relationshipGuardian.clear();
+  }
+
   @override
   void initState() {
     super.initState();
