@@ -1,6 +1,18 @@
+// ignore_for_file: unused_element
+
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:pbma_portal/student_utils/cases/case0.dart';
+import 'package:pbma_portal/widgets/hover_extensions.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class StudentUI extends StatefulWidget {
@@ -11,22 +23,35 @@ class StudentUI extends StatefulWidget {
 }
 
 class _StudentUIState extends State<StudentUI> {
-  final _controller = SidebarXController(selectedIndex: 0, extended: true);
-  final _key = GlobalKey<ScaffoldState>();
+  final SidebarXController _sidebarController =
+      SidebarXController(selectedIndex: 0);
+  final ValueNotifier<String?> _imageNotifier = ValueNotifier<String?>(null);
+  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
-  // Declare the selectedSemester variable
   String selectedSemester = 'SELECT SEMESTER';
+  
 
-  // Store grade inputs in a Map
-  final Map<String, TextEditingController> gradeControllers = {
-    'subject1': TextEditingController(),
-    'subject2': TextEditingController(),
-    'subject3': TextEditingController(),
-  };
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialProfileImage();
+  }
+
+  Future<void> _loadInitialProfileImage() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final userDoc =
+          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      final docSnapshot = await userDoc.get();
+      final imageUrl = docSnapshot.data()?['image_url'];
+      _imageNotifier.value = imageUrl; // Set initial profile picture URL
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isSmallScreen = MediaQuery.of(context).size.width < 600;
+
     return Scaffold(
       key: _key,
       appBar: isSmallScreen
@@ -47,22 +72,31 @@ class _StudentUIState extends State<StudentUI> {
               ),
             )
           : null,
-      drawer: ExampleSidebarX(controller: _controller),
+      drawer: isSmallScreen
+          ? ExampleSidebarX(
+              controller: _sidebarController,
+              imageNotifier: _imageNotifier, // Pass imageNotifier here
+            )
+          : null,
       body: Row(
         children: [
-          if (!isSmallScreen) ExampleSidebarX(controller: _controller),
+          if (!isSmallScreen)
+            ExampleSidebarX(
+              controller: _sidebarController,
+              imageNotifier: _imageNotifier, // Pass imageNotifier here as well
+            ),
           Expanded(
             child: Center(
-              // Pass selectedSemester and onSemesterChanged to _ScreensExample
               child: _ScreensExample(
-                controller: _controller,
+                controller: _sidebarController,
                 selectedSemester: selectedSemester,
                 onSemesterChanged: (newValue) {
                   setState(() {
                     selectedSemester = newValue;
                   });
                 },
-                gradeControllers: gradeControllers, // Pass the grade controllers
+                imageNotifier:
+                    _imageNotifier, // Pass imageNotifier to _ScreensExample
               ),
             ),
           ),
@@ -76,44 +110,48 @@ class ExampleSidebarX extends StatefulWidget {
   const ExampleSidebarX({
     Key? key,
     required SidebarXController controller,
+    required this.imageNotifier,
   })  : _controller = controller,
         super(key: key);
 
   final SidebarXController _controller;
+  final ValueNotifier<String?> imageNotifier;
 
   @override
   State<ExampleSidebarX> createState() => _ExampleSidebarXState();
 }
 
 class _ExampleSidebarXState extends State<ExampleSidebarX> {
-
   @override
   void initState() {
     super.initState();
     _loadStudentData();
+
+    // Listen to changes in imageNotifier
+    widget.imageNotifier.addListener(() {
+      setState(() {}); // Rebuild when imageNotifier updates
+    });
   }
 
   String? _studentId;
   String? _imageUrl; // Variable to store the student's image URL
 
   Future<void> _loadStudentData() async {
-    User? user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
+    User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
       try {
-        // Query the 'users' collection where the 'uid' field matches the current user's UID
         QuerySnapshot userSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .where('uid', isEqualTo: user.uid)
             .get();
 
         if (userSnapshot.docs.isNotEmpty) {
-          // Assuming only one document will be returned, get the first document
           DocumentSnapshot userDoc = userSnapshot.docs.first;
 
           setState(() {
             _studentId = userDoc['student_id'];
-          _imageUrl = userDoc['image_url']; 
+            widget.imageNotifier.value = userDoc['image_url'];
           });
         } else {
           print('No matching student document found.');
@@ -125,7 +163,6 @@ class _ExampleSidebarXState extends State<ExampleSidebarX> {
       print('User is not logged in.');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -191,12 +228,13 @@ class _ExampleSidebarXState extends State<ExampleSidebarX> {
                   padding: const EdgeInsets.all(16.0),
                   child: CircleAvatar(
                     radius: 100,
-                    backgroundImage: _imageUrl != null
-                        ? NetworkImage(_imageUrl!) // Use _imageUrl directly as a String
-                        : NetworkImage('https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png'),
+                    backgroundImage: widget.imageNotifier.value != null
+                        ? NetworkImage(widget.imageNotifier.value!)
+                        : NetworkImage(
+                            'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png'),
                   ),
                 ),
-
+                if (extended)
                   Text(
                     _studentId ?? "No ID", // Display student ID if available
                     style: TextStyle(color: Colors.white),
@@ -221,10 +259,6 @@ class _ExampleSidebarXState extends State<ExampleSidebarX> {
             icon: Icons.how_to_reg_sharp,
             label: 'Check Enrollment',
           ),
-          SidebarXItem(
-            icon: Icons.lock,
-            label: 'Change Password',
-          ),
           const SidebarXItem(
             icon: Icons.settings,
             label: 'Settings',
@@ -241,23 +275,21 @@ class _ScreensExample extends StatefulWidget {
     required this.controller,
     required this.selectedSemester,
     required this.onSemesterChanged,
-    required this.gradeControllers,
+    required this.imageNotifier,
   }) : super(key: key);
 
   final SidebarXController controller;
   final String selectedSemester;
   final ValueChanged<String> onSemesterChanged;
-  final Map<String, TextEditingController> gradeControllers;
+  final ValueNotifier<String?> imageNotifier;
 
   @override
   State<_ScreensExample> createState() => _ScreensExampleState();
 }
 
 class _ScreensExampleState extends State<_ScreensExample> {
-  
   List<String> _sections = [];
   List<Map<String, dynamic>> _subjects = []; // To store the fetched subjects
-
 
   String? _studentId;
   String? _fullName;
@@ -267,22 +299,30 @@ class _ScreensExampleState extends State<_ScreensExample> {
   String? _semester;
   String? _selectedSection;
 
-   @override
+  @override
   void initState() {
     super.initState();
+
+    // Call all necessary functions during widget initialization
     _fetchSections();
     _loadStudentData();
+    _imageGetterFromExampleState();
+    _loadSubjects(); // Ensure _selectedSection is checked before calling this
   }
 
   Future<void> _fetchSections() async {
-    final snapshot = await FirebaseFirestore.instance.collection('sections').get();
+    final snapshot =
+        await FirebaseFirestore.instance.collection('sections').get();
     setState(() {
-      _sections = snapshot.docs.map((doc) => doc['section_name'] as String).toList(); // Adjust the field name as necessary
+      _sections = snapshot.docs
+          .map((doc) => doc['section_name'] as String)
+          .toList(); // Adjust the field name as necessary
     });
   }
- 
+
   Future<void> _loadStudentData() async {
-    User? user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
+    User? user =
+        FirebaseAuth.instance.currentUser; // Get the current logged-in user
 
     if (user != null) {
       try {
@@ -298,11 +338,313 @@ class _ScreensExampleState extends State<_ScreensExample> {
 
           setState(() {
             _studentId = userDoc['student_id'];
-            _fullName = '${userDoc['first_name']} ${userDoc['middle_name'] ?? ''} ${userDoc['last_name']} ${userDoc['extension_name'] ?? ''}'.trim();
+            _fullName =
+                '${userDoc['first_name']} ${userDoc['middle_name'] ?? ''} ${userDoc['last_name']} ${userDoc['extension_name'] ?? ''}'
+                    .trim();
             _strand = userDoc['seniorHigh_Strand'];
             _track = userDoc['seniorHigh_Track'];
             _gradeLevel = userDoc['grade_level'];
             _semester = userDoc['semester'];
+          });
+
+          // Load grades based on the selected semester
+        await _loadGrades(widget.selectedSemester);
+        } else {
+          print('No matching student document found.');
+        }
+      } catch (e) {
+        print('Failed to load student data: $e');
+      }
+    } else {
+      print('User is not logged in.');
+    }
+  }
+
+  Future<void> _loadGrades(String selectedSemester) async {
+  try {
+    String collectionName = selectedSemester;
+
+    QuerySnapshot gradeSnapshot = await FirebaseFirestore.instance
+        .collection(collectionName)
+        .get();
+
+    print('Queried collection: $collectionName');
+    print('Current user UID: ${FirebaseAuth.instance.currentUser?.uid}');
+    print('Total documents found: ${gradeSnapshot.docs.length}');
+
+    if (gradeSnapshot.docs.isNotEmpty) {
+      // Clear previous subjects and grades
+      _subjects.clear();
+
+      for (var gradeDoc in gradeSnapshot.docs) {
+        String docId = gradeDoc.id; // This is the seniorHigh_Strand
+        var studentData = gradeDoc.data() as Map<String, dynamic>;
+
+        print('Current document ID: $docId');
+        print('Document data: $studentData');
+
+        // Loop through each student in the document
+        studentData.forEach((studentKey, studentValue) {
+          // Get the list of grades for the student
+          List<dynamic> gradesList = studentValue['grades'] ?? [];
+
+          // Check each grade entry for matching UID
+          for (var gradeEntry in gradesList) {
+            if (gradeEntry is Map<String, dynamic>) {
+              String uid = gradeEntry['uid'] ?? ''; // Get the uid from the grade entry
+              
+              print('Comparing UID: $uid with current user UID: ${FirebaseAuth.instance.currentUser?.uid}');
+
+              // Check if the uid matches the current user's uid
+              if (uid == FirebaseAuth.instance.currentUser?.uid) {
+                String subjectCode = gradeEntry['subject_code'] ?? '';
+                String subjectName = gradeEntry['subject_name'] ?? '';
+                String grade = gradeEntry['grade']?.toString() ?? '';
+
+                // Add to subjects list
+                _subjects.add({
+                  'subject_code': subjectCode,
+                  'subject_name': subjectName,
+                  'grade': grade,
+                });
+
+                print('Added grade: $grade for subject: $subjectName');
+              }
+            }
+          }
+        });
+      }
+
+      setState(() {
+        // This will rebuild the widget with updated subjects and grades
+      });
+
+      if (_subjects.isEmpty) {
+        print('No grades found for the current user UID in the selected semester.');
+      }
+    } else {
+      print('No documents found in the selected semester collection.');
+    }
+  } catch (e) {
+    print('Error loading grades: $e');
+  }
+}
+
+  Future<void> _saveSection() async {
+    if (_selectedSection != null && _selectedSection!.isNotEmpty) {
+      try {
+        // Get the currently logged-in user
+        User? user = FirebaseAuth.instance.currentUser;
+
+        if (user != null) {
+          // Query Firestore for the document where 'uid' matches the logged-in user's UID
+          QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .where('uid', isEqualTo: user.uid)
+              .get();
+
+          // Check if any documents were returned
+          if (userSnapshot.docs.isNotEmpty) {
+            DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+            // Fetch the selected section document to check capacity
+            QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+                .collection('sections')
+                .where('section_name', isEqualTo: _selectedSection)
+                .get();
+
+            // Check if any section documents were returned
+            if (sectionSnapshot.docs.isNotEmpty) {
+              DocumentSnapshot sectionDoc =
+                  sectionSnapshot.docs.first; // Get the first section document
+
+              int capacityCount = sectionDoc['capacityCount'] ?? 0;
+              int capacity = sectionDoc['section_capacity'] ?? 0;
+
+              // Check if there's available capacity
+              if (capacityCount < capacity) {
+                // Update the 'section' field in the user's document
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(userDoc.id)
+                    .update({
+                  'section': _selectedSection,
+                });
+
+                // Increment the capacityCount
+                await FirebaseFirestore.instance
+                    .collection('sections')
+                    .doc(sectionDoc.id)
+                    .update({
+                  'capacityCount': FieldValue.increment(
+                      1), // Use FieldValue.increment to safely increment
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Section saved successfully!')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          'This section is full. Please select another section.')),
+                );
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Section document not found.')),
+              );
+            }
+          } else {
+            print('No document found for the current user.');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('User document not found.')),
+            );
+          }
+        } else {
+          print('No user is logged in.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'No user is logged in. Please log in to save the section.')),
+          );
+        }
+      } catch (e) {
+        print('Error saving section: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving section: $e')),
+        );
+      }
+    } else {
+      // Show an error message if no section is selected
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a section before saving.')),
+      );
+    }
+  }
+
+  Future<bool> _canSelectSection() async {
+    if (_selectedSection != null) {
+      // Fetch the section's document to check the capacity
+      final sectionDoc = await FirebaseFirestore.instance
+          .collection('sections')
+          .doc(_selectedSection)
+          .get();
+
+      if (sectionDoc.exists) {
+        int capacityCount = sectionDoc['capacityCount'] ?? 0;
+        int capacity = sectionDoc['capacity'] ?? 0;
+        return capacityCount <
+            capacity; // Return true if there's available capacity
+      }
+    }
+    return true; // Default to true if no section is selected
+  }
+
+  String getStrandCourse(String seniorHighStrand) {
+    switch (seniorHighStrand) {
+      case 'Accountancy, Business, and Management (ABM)':
+        return 'ABM';
+      case 'Information and Communication Technology (ICT)':
+        return 'ICT';
+      case 'Science, Technology, Engineering and Mathematics (STEM)':
+        return 'STEM';
+      case 'Humanities and Social Sciences (HUMSS)':
+        return 'HUMSS';
+      case 'Home Economics (HE)':
+        return 'HE';
+      case 'Industrial Arts (IA)':
+        return 'IA';
+      default:
+        return ''; // Return an empty string or some default value if there's no match
+    }
+  }
+
+  Future<void> _loadSubjects() async {
+    if (_selectedSection != null) {
+      try {
+        // Fetch the selected section's document
+        QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+            .collection('sections')
+            .where('section_name', isEqualTo: _selectedSection)
+            .get();
+
+        if (sectionSnapshot.docs.isNotEmpty) {
+          DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
+          String sectionSemester = sectionDoc[
+              'semester']; // Assuming 'semester' field exists in 'sections'
+
+          // Query subjects that have the same semester as the selected section
+          QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
+              .collection('subjects')
+              .where('semester', isEqualTo: sectionSemester)
+              .get();
+
+          setState(() {
+            _subjects = subjectSnapshot.docs
+                .where((doc) {
+                  String strandCourse =
+                      doc['strandcourse']; // Assuming this field exists
+
+                  // Call the getStrandCourse method to check if the courses match
+                  return strandCourse == getStrandCourse(_strand);
+                })
+                .map((doc) => {
+                      'subject_code': doc[
+                          'subject_code'], // Adjust field names if necessary
+                      'subject_name': doc['subject_name'],
+                      'category':
+                          doc['category'], // Assuming 'category' field exists
+                    })
+                .toList();
+          });
+
+          // Show a success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Subjects loaded successfully!')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No matching section found.')),
+          );
+        }
+      } catch (e) {
+        print('Error loading subjects: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading subjects: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Please select a section before loading subjects.')),
+      );
+    }
+  }
+
+  File? _imageFile; // For mobile (Android/iOS)
+  Uint8List? _imageBytes; // For web
+
+  String? _imageUrl;
+
+  Future<void> _imageGetterFromExampleState() async {
+    User? user =
+        FirebaseAuth.instance.currentUser; // Get the current logged-in user
+
+    if (user != null) {
+      try {
+        // Query the 'users' collection where the 'uid' field matches the current user's UID
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        if (userSnapshot.docs.isNotEmpty) {
+          // Assuming only one document will be returned, get the first document
+          DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+          setState(() {
+            _imageUrl = userDoc['image_url'];
           });
         } else {
           print('No matching student document found.');
@@ -315,180 +657,95 @@ class _ScreensExampleState extends State<_ScreensExample> {
     }
   }
 
-  Future<void> _saveSection() async {
-  if (_selectedSection != null && _selectedSection!.isNotEmpty) {
-    try {
-      // Get the currently logged-in user
-      User? user = FirebaseAuth.instance.currentUser;
+  final ImagePicker picker = ImagePicker();
 
-      if (user != null) {
-        // Query Firestore for the document where 'uid' matches the logged-in user's UID
-        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: user.uid)
-            .get();
+  bool _isHovered = false;
 
-        // Check if any documents were returned
-        if (userSnapshot.docs.isNotEmpty) {
-          DocumentSnapshot userDoc = userSnapshot.docs.first;
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-          // Fetch the selected section document to check capacity
-          QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
-              .collection('sections')
-              .where('section_name', isEqualTo: _selectedSection)
-              .get();
-
-          // Check if any section documents were returned
-          if (sectionSnapshot.docs.isNotEmpty) {
-            DocumentSnapshot sectionDoc = sectionSnapshot.docs.first; // Get the first section document
-
-            int capacityCount = sectionDoc['capacityCount'] ?? 0;
-            int capacity = sectionDoc['section_capacity'] ?? 0;
-
-            // Check if there's available capacity
-            if (capacityCount < capacity) {
-              // Update the 'section' field in the user's document
-              await FirebaseFirestore.instance.collection('users').doc(userDoc.id).update({
-                'section': _selectedSection,
-              });
-
-              // Increment the capacityCount
-              await FirebaseFirestore.instance.collection('sections').doc(sectionDoc.id).update({
-                'capacityCount': FieldValue.increment(1), // Use FieldValue.increment to safely increment
-              });
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Section saved successfully!')),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('This section is full. Please select another section.')),
-              );
-            }
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Section document not found.')),
-            );
-          }
-        } else {
-          print('No document found for the current user.');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User document not found.')),
-          );
-        }
+    if (pickedFile != null) {
+      if (kIsWeb) {
+        // For web, store the image as Uint8List
+        final bytes = await pickedFile.readAsBytes();
+        setState(() {
+          _imageBytes = bytes;
+          _imageFile = null; // Clear mobile file if on web
+        });
       } else {
-        print('No user is logged in.');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No user is logged in. Please log in to save the section.')),
-        );
+        // For mobile, store the image as File
+        setState(() {
+          _imageFile = File(pickedFile.path);
+          _imageBytes = null; // Clear web bytes if on mobile
+        });
       }
-    } catch (e) {
-      print('Error saving section: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving section: $e')),
-      );
-    }
-  } else {
-    // Show an error message if no section is selected
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please select a section before saving.')),
-    );
-  }
-}
-
-
-
-Future<bool> _canSelectSection() async {
-  if (_selectedSection != null) {
-    // Fetch the section's document to check the capacity
-    final sectionDoc = await FirebaseFirestore.instance
-        .collection('sections')
-        .doc(_selectedSection)
-        .get();
-
-    if (sectionDoc.exists) {
-      int capacityCount = sectionDoc['capacityCount'] ?? 0;
-      int capacity = sectionDoc['capacity'] ?? 0;
-      return capacityCount < capacity; // Return true if there's available capacity
     }
   }
-  return true; // Default to true if no section is selected
-}
 
-
-String getStrandCourse(String seniorHighStrand) {
-  switch (seniorHighStrand) {
-    case 'Accountancy, Business, and Management (ABM)':
-      return 'ABM';
-    case 'Information and Communication Technology (ICT)':
-      return 'ICT';
-      case 'Science, Technology, Engineering and Mathematics (STEM)':
-      return 'STEM';
-      case 'Humanities and Social Sciences (HUMSS)':
-      return 'HUMSS';
-      case 'Home Economics (HE)':
-      return 'HE';
-      case 'Industrial Arts (IA)':
-      return 'IA';
-    default:
-      return ''; // Return an empty string or some default value if there's no match
-  }
-}
-
-Future<void> _loadSubjects() async {
-  if (_selectedSection != null) {
+  Future<void> replaceProfilePicture() async {
     try {
-      // Fetch the selected section's document
-      QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
-          .collection('sections')
-          .where('section_name', isEqualTo: _selectedSection)
+      final currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser == null) {
+        print("No user is currently signed in.");
+        return;
+      }
+
+      final userQuerySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid', isEqualTo: currentUser.uid)
+          .limit(1)
           .get();
 
-      if (sectionSnapshot.docs.isNotEmpty) {
-        DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
-        String sectionSemester = sectionDoc['semester']; // Assuming 'semester' field exists in 'sections'
+      if (userQuerySnapshot.docs.isEmpty) {
+        print("User document not found for UID: ${currentUser.uid}");
+        return;
+      }
 
-        // Query subjects that have the same semester as the selected section
-        QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
-            .collection('subjects')
-            .where('semester', isEqualTo: sectionSemester)  
-            .get();
+      final userDoc = userQuerySnapshot.docs.first;
+      final userDocRef = userDoc.reference;
 
-        setState(() {
-          _subjects = subjectSnapshot.docs.where((doc) {
-            String strandCourse = doc['strandcourse']; // Assuming this field exists
+      String? oldImageUrl = userDoc.data()['image_url'];
+      print("Old Image URL: $oldImageUrl");
 
-            // Call the getStrandCourse method to check if the courses match
-            return strandCourse == getStrandCourse(_strand);
-          }).map((doc) => {
-                'subject_code': doc['subject_code'], // Adjust field names if necessary
-                'subject_name': doc['subject_name'],
-                'category': doc['category'], // Assuming 'category' field exists
-              }).toList();
-        });
+      if (oldImageUrl != null && oldImageUrl.isNotEmpty) {
+        try {
+          final oldImageRef = FirebaseStorage.instance.refFromURL(oldImageUrl);
+          await oldImageRef.delete();
+          print("Old profile picture deleted successfully.");
+        } catch (e) {
+          print("Failed to delete old profile picture: $e");
+        }
+      }
 
-        // Show a success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Subjects loaded successfully!')),
-        );
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('student_pictures')
+          .child('${DateTime.now().toIso8601String()}.png');
+
+      if (_imageBytes != null) {
+        await storageRef.putData(_imageBytes!);
+      } else if (_imageFile != null) {
+        await storageRef.putFile(_imageFile!);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No matching section found.')),
-        );
+        print("No image selected.");
+        return;
+      }
+
+      final newImageUrl = await storageRef.getDownloadURL();
+      print("New Image URL: $newImageUrl");
+
+      await userDocRef.update({'image_url': newImageUrl});
+      print("Profile picture updated successfully.");
+
+      // Update the imageNotifier with the new URL to trigger a rebuild in ExampleSidebarX
+      if (mounted) {
+        widget.imageNotifier.value = newImageUrl;
       }
     } catch (e) {
-      print('Error loading subjects: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading subjects: $e')),
-      );
+      print("Failed to replace profile picture: $e");
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please select a section before loading subjects.')),
-    );
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -501,12 +758,7 @@ Future<void> _loadSubjects() async {
         final pageTitle = _getTitleByIndex(widget.controller.selectedIndex);
         switch (widget.controller.selectedIndex) {
           case 0:
-            return Container(
-              color: Color.fromARGB(255, 1, 93, 168),
-              child: Center(
-                child: Text("Home"),
-              ),
-            );
+            return Case0();
           case 1:
             return Container(
             padding: EdgeInsets.all(16.0),
@@ -535,7 +787,12 @@ Future<void> _loadSubjects() async {
                   ),
                   child: DropdownButton<String>(
                     value: widget.selectedSemester,
-                    items: ['SELECT SEMESTER', 'First Semester', 'Second Semester']
+                    items: [
+                      'SELECT SEMESTER',
+                      'Grade 11 - 1st Semester', 
+                      'Grade 11 - 2nd Semester', 
+                      'Grade 12 - 1st Semester', 
+                      'Grade 12 - 2nd Semester']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -543,8 +800,11 @@ Future<void> _loadSubjects() async {
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
-                      widget.onSemesterChanged(newValue!);
-                    },
+                    if (newValue != null) {
+                    widget.onSemesterChanged(newValue);
+                    _loadGrades(newValue); // Always load grades for the selected semester
+                  }
+                },
                     underline: SizedBox(),
                     isExpanded: true,
                     dropdownColor: Colors.white,
@@ -564,75 +824,38 @@ Future<void> _loadSubjects() async {
                     children: [
                       TableRow(children: [
                         Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Course Code', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Subject', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Grade', style: TextStyle(color: Colors.black)),
-                        ),
-                      ]),
-                      // First subject row
-                      TableRow(children: [
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('COURSE001', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Subject 1', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text(
-                            widget.gradeControllers['subject1']?.text ?? 'N/A',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      ]),
-                      // Second subject row
-                      TableRow(children: [
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('COURSE002', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Subject 2', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text(
-                            widget.gradeControllers['subject2']?.text ?? 'N/A',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      ]),
-                      // Third subject row
-                      TableRow(children: [
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('COURSE003', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Subject 3', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text(
-                            widget.gradeControllers['subject3']?.text ?? 'N/A',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      ]),
-                    ],
-                  ),
+                  padding: EdgeInsets.all(12.0),
+                  child: Text('Course Code', style: TextStyle(color: Colors.black)),
                 ),
+                Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text('Subject', style: TextStyle(color: Colors.black)),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text('Grade', style: TextStyle(color: Colors.black)),
+                ),
+              ]),
+              // Generate rows dynamically based on _subjects
+              ..._subjects.map((subject) {
+                return TableRow(children: [
+                  Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(subject['subject_code'] ?? '', style: TextStyle(color: Colors.black)),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(subject['subject_name'] ?? '', style: TextStyle(color: Colors.black)),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(subject['grade'] ?? 'N/A', style: TextStyle(color: Colors.black)),
+                  ),
+                ]);
+              }).toList(),
+            ],
+          ),
+        ),
                 SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween, 
@@ -641,11 +864,7 @@ Future<void> _loadSubjects() async {
                       children: [
                         ElevatedButton(
                         onPressed: () {
-                          // Handle finalizing grades (e.g., validation)
-                          print('Grades finalized:');
-                          widget.gradeControllers.forEach((key, controller) {
-                            print('$key: ${controller.text}');
-                          });
+                         
                         },
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Color.fromARGB(255, 1, 93, 168), 
@@ -690,117 +909,1104 @@ Future<void> _loadSubjects() async {
             return SingleChildScrollView(
               physics: BouncingScrollPhysics(),
               child: Container(
-                      color: Color.fromARGB(255, 1, 93, 168),
-                      child: Center(
-                        child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Student Data", style: TextStyle(color: Colors.white, fontSize: 24)),
-                SizedBox(height: 20),
-                Text('Student ID no: ${_studentId ?? ''}', style: TextStyle(color: Colors.white,)),
-                Text('Student Full Name: ${_fullName ?? ''}', style: TextStyle(color: Colors.white,)),
-                Text('Strand: ${_strand ?? ''}', style: TextStyle(color: Colors.white,)),
-                Text('Track: ${_track ?? ''}', style: TextStyle(color: Colors.white,)),
-                Text('Grade Level: ${_gradeLevel ?? ''}', style: TextStyle(color: Colors.white,)),
-                Text('Semester: ${_semester ?? ''}', style: TextStyle(color: Colors.white,)),
-                Text("Subjects", style: TextStyle(color: Colors.white, fontSize: 24)),
-                        
-                DropdownButton<String>(
-  value: _selectedSection,
-  hint: Text('Select a section', style: TextStyle(color: Colors.white)),
-  items: _sections.map((String section) {
-    return DropdownMenuItem<String>(
-      value: section,
-      child: Text(section, style: TextStyle(color: Colors.black)),
-    );
-  }).toList(),
-  onChanged: (String? newValue) async {
-    // Check if the user can select the section
-    bool canSelect = await _canSelectSection();
-
-    if (canSelect) {
-      setState(() {
-        _selectedSection = newValue; // Update selected section
-      });
-    } else {
-      // Show a message if the section is full
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('This section is full. Please choose another section.')),
-      );
-    }
-  },
-),
-
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _saveSection, // Call the save function
-                  child: Text('Save Section'),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(onPressed: _loadSubjects, 
-                child: Text('Load Subjects')
-                ),
-                _subjects.isNotEmpty
-                ? Table(
-                    border: TableBorder.all(color: Colors.black),
-                    columnWidths: {
-                      0: FlexColumnWidth(2),
-                      1: FlexColumnWidth(4), // Adjust for balanced column width
-                      2: FlexColumnWidth(2),
-                    },
+                color: Color.fromARGB(255, 1, 93, 168),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TableRow(children: [
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Course Code', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Subject', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Grade', style: TextStyle(color: Colors.black)),
-                        ),
-                      ]),
-                      // Dynamically create rows based on the fetched subjects
-                      ..._subjects.map((subject) {
-                        return TableRow(children: [
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(subject['subject_code'], style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(subject['subject_name'], style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(subject['category'] ?? 'N/A', style: TextStyle(color: Colors.black)),
-                          ),
-                        ]);
-                      }).toList(),
+                      Text("Student Data",
+                          style: TextStyle(color: Colors.white, fontSize: 24)),
+                      SizedBox(height: 20),
+                      Text('Student ID no: ${_studentId ?? ''}',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                      Text('Student Full Name: ${_fullName ?? ''}',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                      Text('Strand: ${_strand ?? ''}',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                      Text('Track: ${_track ?? ''}',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                      Text('Grade Level: ${_gradeLevel ?? ''}',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                      Text('Semester: ${_semester ?? ''}',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                      Text("Subjects",
+                          style: TextStyle(color: Colors.white, fontSize: 24)),
+                      DropdownButton<String>(
+                        value: _selectedSection,
+                        hint: Text('Select a section',
+                            style: TextStyle(color: Colors.white)),
+                        items: _sections.map((String section) {
+                          return DropdownMenuItem<String>(
+                            value: section,
+                            child: Text(section,
+                                style: TextStyle(color: Colors.black)),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) async {
+                          // Check if the user can select the section
+                          bool canSelect = await _canSelectSection();
+
+                          if (canSelect) {
+                            setState(() {
+                              _selectedSection =
+                                  newValue; // Update selected section
+                            });
+                          } else {
+                            // Show a message if the section is full
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'This section is full. Please choose another section.')),
+                            );
+                          }
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _saveSection, // Call the save function
+                        child: Text('Save Section'),
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                          onPressed: _loadSubjects,
+                          child: Text('Load Subjects')),
+                      _subjects.isNotEmpty
+                          ? Table(
+                              border: TableBorder.all(color: Colors.black),
+                              columnWidths: {
+                                0: FlexColumnWidth(2),
+                                1: FlexColumnWidth(
+                                    4), // Adjust for balanced column width
+                                2: FlexColumnWidth(2),
+                              },
+                              children: [
+                                TableRow(children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Text('Course Code',
+                                        style: TextStyle(color: Colors.black)),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Text('Subject',
+                                        style: TextStyle(color: Colors.black)),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Text('Category',
+                                        style: TextStyle(color: Colors.black)),
+                                  ),
+                                ]),
+                                // Dynamically create rows based on the fetched subjects
+                                ..._subjects.map((subject) {
+                                  return TableRow(children: [
+                                    Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Text(subject['subject_code'],
+                                          style:
+                                              TextStyle(color: Colors.black)),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Text(subject['subject_name'],
+                                          style:
+                                              TextStyle(color: Colors.black)),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Text(subject['category'] ?? 'N/A',
+                                          style:
+                                              TextStyle(color: Colors.black)),
+                                    ),
+                                  ]);
+                                }).toList(),
+                              ],
+                            )
+                          : Text('No subjects available',
+                              style: TextStyle(color: Colors.white)),
                     ],
-                  )
-                : Text('No subjects available', style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
                   ),
                 ),
-            );
-          case 3:
-            return Container(
-              color: Color.fromARGB(255, 1, 93, 168),
-              child: Center(
-                child: Text("Change Password"),
               ),
             );
-          case 4:
-            return Container(
-              color: Color.fromARGB(255, 1, 93, 168),
-              child: Center(
-                child: Text("Settings"),
+          case 3:
+            return SingleChildScrollView(
+              child: Container(
+                color: Color.fromARGB(255, 1, 93, 168),
+                width: screenWidth,
+                child: Container(
+                  margin: EdgeInsets.all(30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  await _pickImage(); // Open image picker to select a new image
+              
+                                  if (_imageBytes != null || _imageFile != null) {
+                                    await replaceProfilePicture(); // Upload and replace the profile picture
+              
+                                    // Reload the new image URL from Firestore after uploading
+                                    await _imageGetterFromExampleState();
+              
+                                    setState(
+                                        () {}); // Refresh the UI after updating the image URL
+                                  }
+                                },
+                                child: MouseRegion(
+                                  onEnter: (_) {
+                                    setState(() {
+                                      _isHovered = true;
+                                    });
+                                  },
+                                  onExit: (_) {
+                                    setState(() {
+                                      _isHovered = false;
+                                    });
+                                  },
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 85,
+                                        backgroundImage: _imageBytes != null
+                                            ? MemoryImage(_imageBytes!)
+                                                as ImageProvider
+                                            : _imageFile != null
+                                                ? FileImage(_imageFile!)
+                                                    as ImageProvider
+                                                : _imageUrl != null
+                                                    ? NetworkImage(_imageUrl!)
+                                                        as ImageProvider
+                                                    : const NetworkImage(
+                                                        'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png',
+                                                      ),
+                                      ),
+                                      if (_isHovered)
+                                        Container(
+                                          width: 170,
+                                          height: 170,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.5),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.image,
+                                            color: Colors.white,
+                                            size: 60,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ).showCursorOnHover,
+                              SizedBox(width: 20),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Gerick",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: "B",
+                                            fontSize: 30),
+                                      ),
+                                      SizedBox(width: 10,),
+                                      Text(
+                                        "Molina",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: "B",
+                                            fontSize: 30),
+                                      ),
+                                      SizedBox(width: 10,),
+                                      Text(
+                                        "Velasquez",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: "B",
+                                            fontSize: 30),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 15),
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await _pickImage(); // Open image picker to select a new image
+                                      
+                                          if (_imageBytes != null ||
+                                              _imageFile != null) {
+                                            await replaceProfilePicture(); // Upload and replace the profile picture
+                                      
+                                            // Reload the new image URL from Firestore after uploading
+                                            await _imageGetterFromExampleState();
+                                      
+                                            setState(
+                                                () {}); // Refresh the UI after updating the image URL
+                                          }
+                                        },
+                                        child: Container(
+                                          height: 40,
+                                          width: 150,
+                                          decoration: BoxDecoration(
+                                            color: Colors.yellow,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Edit Profile",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontFamily: "B",
+                                                    fontSize: 15),
+                                              ),
+                                              SizedBox(width: 5,),
+                                              Icon(Icons.edit, size: 20, color: Colors.black,)
+                                            ],
+                                          ),
+                                        ),
+                                      ).showCursorOnHover.moveUpOnHover,
+                                      SizedBox(width: 15,),
+                                      GestureDetector(
+                                        onTap: () {
+                                          
+                                        },
+                                        child: Container(
+                                          height: 40,
+                                          width: 150,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Logout",
+                                                style: TextStyle(
+                                                    color: Color.fromARGB(255, 1, 93, 168),
+                                                    fontFamily: "B",
+                                                    fontSize: 15),
+                                              ),
+                                              SizedBox(width: 5,),
+                                              Icon(Icons.logout_rounded, size: 20, color: Color.fromARGB(255, 1, 93, 168),)
+                                            ],
+                                          ),
+                                        ),
+                                      ).showCursorOnHover.moveUpOnHover,
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      Text(
+                        "Student Information",
+                        style: TextStyle(
+                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                "First Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Gerick",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Middle Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Molina",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Last Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Velasquez",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Extension Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                "Age",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 100,
+                                child: TextFormField(
+                                  initialValue: "21",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Gender",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 100,
+                                child: TextFormField(
+                                  initialValue: "Male",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Birthdate",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 100,
+                                child: TextFormField(
+                                  initialValue: "06/11/2003",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Email Address",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 300,
+                                child: TextFormField(
+                                  initialValue: "teenbritish11@gmail.com",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Phone Number",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "09919382645",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Student Number",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "2024-PBMA-0011",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "LRN",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "101815080468",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Home Address",
+                        style: TextStyle(
+                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                "House Number",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 125,
+                                child: TextFormField(
+                                  initialValue: "81",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Street Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 125,
+                                child: TextFormField(
+                                  initialValue: "Zone 2",
+                                  enabled:true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Subdivision/Barangay",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 200,
+                                child: TextFormField(
+                                  initialValue: "Tebag",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "City/Municipality",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 200,
+                                child: TextFormField(
+                                  initialValue: "Mangaldan",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Province",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 200,
+                                child: TextFormField(
+                                  initialValue: "Pangasinan",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Country",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 200,
+                                child: TextFormField(
+                                  initialValue: "Philippines",
+                                  enabled: true,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Parent Guardian Information",
+                        style: TextStyle(
+                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                "Father's Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Gerry A. Velasquez",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Mother's Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Glenda M. Velasquez",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Guardian's Name",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 309,
+                                child: TextFormField(
+                                  initialValue: "Glenda M. Velasquez",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(
+                                "Relationship",
+                                style: TextStyle(
+                                  fontFamily: "M",
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 13),
+                              Container(
+                                width: 150,
+                                child: TextFormField(
+                                  initialValue: "Mother",
+                                  enabled: false,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontFamily: "R",
+                                    fontSize: 13,
+                                  ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(color: Colors.white),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[300],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
             );
           default:
@@ -822,8 +2028,6 @@ Future<void> _loadSubjects() async {
       case 2:
         return 'Check Enrollment';
       case 3:
-        return 'Change Password';
-      case 4:
         return 'Settings';
       default:
         return 'Not found page';
