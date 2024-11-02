@@ -29,11 +29,7 @@ class _StudentUIState extends State<StudentUI> {
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
   String selectedSemester = 'SELECT SEMESTER';
-  final Map<String, TextEditingController> gradeControllers = {
-    'subject1': TextEditingController(),
-    'subject2': TextEditingController(),
-    'subject3': TextEditingController(),
-  };
+  
 
   @override
   void initState() {
@@ -99,7 +95,6 @@ class _StudentUIState extends State<StudentUI> {
                     selectedSemester = newValue;
                   });
                 },
-                gradeControllers: gradeControllers,
                 imageNotifier:
                     _imageNotifier, // Pass imageNotifier to _ScreensExample
               ),
@@ -280,14 +275,12 @@ class _ScreensExample extends StatefulWidget {
     required this.controller,
     required this.selectedSemester,
     required this.onSemesterChanged,
-    required this.gradeControllers,
     required this.imageNotifier,
   }) : super(key: key);
 
   final SidebarXController controller;
   final String selectedSemester;
   final ValueChanged<String> onSemesterChanged;
-  final Map<String, TextEditingController> gradeControllers;
   final ValueNotifier<String?> imageNotifier;
 
   @override
@@ -353,6 +346,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
             _gradeLevel = userDoc['grade_level'];
             _semester = userDoc['semester'];
           });
+
+          // Load grades based on the selected semester
+        await _loadGrades(widget.selectedSemester);
         } else {
           print('No matching student document found.');
         }
@@ -363,6 +359,76 @@ class _ScreensExampleState extends State<_ScreensExample> {
       print('User is not logged in.');
     }
   }
+
+  Future<void> _loadGrades(String selectedSemester) async {
+  try {
+    String collectionName = selectedSemester;
+
+    QuerySnapshot gradeSnapshot = await FirebaseFirestore.instance
+        .collection(collectionName)
+        .get();
+
+    print('Queried collection: $collectionName');
+    print('Current user UID: ${FirebaseAuth.instance.currentUser?.uid}');
+    print('Total documents found: ${gradeSnapshot.docs.length}');
+
+    if (gradeSnapshot.docs.isNotEmpty) {
+      // Clear previous subjects and grades
+      _subjects.clear();
+
+      for (var gradeDoc in gradeSnapshot.docs) {
+        String docId = gradeDoc.id; // This is the seniorHigh_Strand
+        var studentData = gradeDoc.data() as Map<String, dynamic>;
+
+        print('Current document ID: $docId');
+        print('Document data: $studentData');
+
+        // Loop through each student in the document
+        studentData.forEach((studentKey, studentValue) {
+          // Get the list of grades for the student
+          List<dynamic> gradesList = studentValue['grades'] ?? [];
+
+          // Check each grade entry for matching UID
+          for (var gradeEntry in gradesList) {
+            if (gradeEntry is Map<String, dynamic>) {
+              String uid = gradeEntry['uid'] ?? ''; // Get the uid from the grade entry
+              
+              print('Comparing UID: $uid with current user UID: ${FirebaseAuth.instance.currentUser?.uid}');
+
+              // Check if the uid matches the current user's uid
+              if (uid == FirebaseAuth.instance.currentUser?.uid) {
+                String subjectCode = gradeEntry['subject_code'] ?? '';
+                String subjectName = gradeEntry['subject_name'] ?? '';
+                String grade = gradeEntry['grade']?.toString() ?? '';
+
+                // Add to subjects list
+                _subjects.add({
+                  'subject_code': subjectCode,
+                  'subject_name': subjectName,
+                  'grade': grade,
+                });
+
+                print('Added grade: $grade for subject: $subjectName');
+              }
+            }
+          }
+        });
+      }
+
+      setState(() {
+        // This will rebuild the widget with updated subjects and grades
+      });
+
+      if (_subjects.isEmpty) {
+        print('No grades found for the current user UID in the selected semester.');
+      }
+    } else {
+      print('No documents found in the selected semester collection.');
+    }
+  } catch (e) {
+    print('Error loading grades: $e');
+  }
+}
 
   Future<void> _saveSection() async {
     if (_selectedSection != null && _selectedSection!.isNotEmpty) {
@@ -695,203 +761,150 @@ class _ScreensExampleState extends State<_ScreensExample> {
             return Case0();
           case 1:
             return Container(
-              padding: EdgeInsets.all(16.0),
-              color: Color.fromARGB(255, 1, 93, 168),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'REPORT CARD',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+            padding: EdgeInsets.all(16.0),
+            color: Color.fromARGB(255, 1, 93, 168),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, 
+              children: [
+                Text(
+                  'REPORT CARD',
+                  style: TextStyle(
+                    color: Colors.white, 
+                    fontSize: 24, 
+                    fontWeight: FontWeight.bold, 
                   ),
-                  SizedBox(height: 20),
-                  Container(
-                    width: 200,
-                    height: 30,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: DropdownButton<String>(
-                      value: widget.selectedSemester,
-                      items: [
-                        'SELECT SEMESTER',
-                        'First Semester',
-                        'Second Semester'
-                      ].map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        widget.onSemesterChanged(newValue!);
-                      },
-                      underline: SizedBox(),
-                      isExpanded: true,
-                      dropdownColor: Colors.white,
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    color: Colors.white,
-                    child: Table(
-                      border: TableBorder.all(color: Colors.black),
-                      columnWidths: {
-                        0: FlexColumnWidth(2),
-                        1: FlexColumnWidth(
-                            4), // Adjust for balanced column width
-                        2: FlexColumnWidth(2),
-                      },
-                      children: [
-                        TableRow(children: [
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('Course Code',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('Subject',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('Grade',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                        ]),
-                        // First subject row
-                        TableRow(children: [
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('COURSE001',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('Subject 1',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(
-                              widget.gradeControllers['subject1']?.text ??
-                                  'N/A',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                        ]),
-                        // Second subject row
-                        TableRow(children: [
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('COURSE002',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('Subject 2',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(
-                              widget.gradeControllers['subject2']?.text ??
-                                  'N/A',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                        ]),
-                        // Third subject row
-                        TableRow(children: [
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('COURSE003',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text('Subject 3',
-                                style: TextStyle(color: Colors.black)),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(
-                              widget.gradeControllers['subject3']?.text ??
-                                  'N/A',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                        ]),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              // Handle finalizing grades (e.g., validation)
-                              print('Grades finalized:');
-                              widget.gradeControllers
-                                  .forEach((key, controller) {
-                                print('$key: ${controller.text}');
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Color.fromARGB(255, 1, 93, 168),
-                              backgroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 30, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              minimumSize: Size(80, 20),
-                            ),
-                            child: Text(
-                              'Finalize',
-                              style: TextStyle(fontSize: 10),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            'Note: You can only finalize this \nwhen the subject is completed.',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        ],
-                      ),
+                ),
+                SizedBox(height: 20), 
 
-                      // Print Result button aligned to the right
-                      ElevatedButton(
+                
+                Container(
+                  width: 200, 
+                  height: 30,
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white, 
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: DropdownButton<String>(
+                    value: widget.selectedSemester,
+                    items: [
+                      'SELECT SEMESTER',
+                      'Grade 11 - 1st Semester', 
+                      'Grade 11 - 2nd Semester', 
+                      'Grade 12 - 1st Semester', 
+                      'Grade 12 - 2nd Semester']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                    if (newValue != null) {
+                    widget.onSemesterChanged(newValue);
+                    _loadGrades(newValue); // Always load grades for the selected semester
+                  }
+                },
+                    underline: SizedBox(),
+                    isExpanded: true,
+                    dropdownColor: Colors.white,
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(
+                  color: Colors.white, 
+                  child: Table(
+                    border: TableBorder.all(color: Colors.black), 
+                    columnWidths: {
+                      0: FlexColumnWidth(2),
+                      1: FlexColumnWidth(4), // Adjust for balanced column width
+                      2: FlexColumnWidth(2),
+                    },
+                    children: [
+                      TableRow(children: [
+                        Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text('Course Code', style: TextStyle(color: Colors.black)),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text('Subject', style: TextStyle(color: Colors.black)),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text('Grade', style: TextStyle(color: Colors.black)),
+                ),
+              ]),
+              // Generate rows dynamically based on _subjects
+              ..._subjects.map((subject) {
+                return TableRow(children: [
+                  Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(subject['subject_code'] ?? '', style: TextStyle(color: Colors.black)),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(subject['subject_name'] ?? '', style: TextStyle(color: Colors.black)),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Text(subject['grade'] ?? 'N/A', style: TextStyle(color: Colors.black)),
+                  ),
+                ]);
+              }).toList(),
+            ],
+          ),
+        ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                  children: [
+                    Row(
+                      children: [
+                        ElevatedButton(
                         onPressed: () {
-                          // Handle print result functionality here
+                         
                         },
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.black,
-                          backgroundColor: Colors.yellow,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 12),
+                          foregroundColor: Color.fromARGB(255, 1, 93, 168), 
+                          backgroundColor: Colors.white, 
+                          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
                           ),
+                          minimumSize: Size(80, 20),
                         ),
-                        child: Text('Print Result'),
+                        child: Text('Finalize', style: TextStyle(fontSize: 10),),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            );
+                        SizedBox(width: 10),
+                        Text(
+                          'Note: You can only finalize this \nwhen the subject is completed.',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+
+                    // Print Result button aligned to the right
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle print result functionality here
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black, 
+                        backgroundColor: Colors.yellow, 
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12), 
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5), 
+                          ),
+                      ),
+                      child: Text('Print Result'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
           case 2:
             return SingleChildScrollView(
               physics: BouncingScrollPhysics(),
@@ -993,7 +1006,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                   ),
                                   Padding(
                                     padding: EdgeInsets.all(12.0),
-                                    child: Text('Grade',
+                                    child: Text('Category',
                                         style: TextStyle(color: Colors.black)),
                                   ),
                                 ]),

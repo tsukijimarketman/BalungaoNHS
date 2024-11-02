@@ -69,14 +69,14 @@ class _StudentInSectionState extends State<StudentInSection> {
           actions: [
             // Cancel button
             CupertinoDialogAction(
-              child: Text('Cancel'),
+              child: Text('Cancel', style: TextStyle(color: Colors.red),),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
             ),
             // Save button
             CupertinoDialogAction(
-              child: Text('Save'),
+              child: Text('Save', style: TextStyle(color: Colors.blue),),
               onPressed: () async {
                 // Update the section for the student in Firestore
                 await FirebaseFirestore.instance
@@ -115,76 +115,79 @@ class _StudentInSectionState extends State<StudentInSection> {
 
           return SingleChildScrollView(
             physics: BouncingScrollPhysics(),
-            child: Table(
-              border: TableBorder.all(color: Colors.grey),
-              columnWidths: const <int, TableColumnWidth>{
-                0: FixedColumnWidth(40.0),
-                1: FlexColumnWidth(),
-                2: FlexColumnWidth(),
-                3: FlexColumnWidth(),
-                4: FlexColumnWidth(),
-              },
-              children: [
-                // Header Row
-                TableRow(
-                  decoration: BoxDecoration(color: Colors.grey[200]), // Header background color
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('No', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('First Name', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Student ID', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Section', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-                // Data Rows
-                for (var i = 0; i < students.length; i++)
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Table(
+                border: TableBorder.all(color: Colors.grey),
+                columnWidths: const <int, TableColumnWidth>{
+                  0: FixedColumnWidth(40.0),
+                  1: FlexColumnWidth(),
+                  2: FlexColumnWidth(),
+                  3: FlexColumnWidth(),
+                  4: IntrinsicColumnWidth(),           
+                },
+                children: [
+                  // Header Row
                   TableRow(
+                    decoration: BoxDecoration(color: Colors.grey[200]), // Header background color
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text((i + 1).toString()),
+                        child: Text('No', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(students[i]['first_name'] ?? 'N/A'), // Adjust field name accordingly
+                        child: Text('First Name', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(students[i]['student_id'] ?? 'N/A'), // Adjust field name accordingly
+                        child: Text('Student ID', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(students[i]['section'] ?? 'N/A'), // Assuming this field exists
+                        child: Text('Section', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       Padding(
-                        padding: EdgeInsets.all(8.0),
-                      child: IconButton(
-                        onPressed: (){
-                           _showSectionDialog(
-                              context,
-                              students[i].id, // Pass the student ID
-                              students[i]['section'] ?? 'N/A', 
-                           );
-                        }, 
-                        icon: Icon(Icons.edit_document, color: Colors.blue,)),)
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
                     ],
                   ),
-              ],
+                  // Data Rows
+                  for (var i = 0; i < students.length; i++)
+                    TableRow(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text((i + 1).toString()),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(students[i]['first_name'] ?? 'N/A'), // Adjust field name accordingly
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(students[i]['student_id'] ?? 'N/A'), // Adjust field name accordingly
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(students[i]['section'] ?? 'N/A'), // Assuming this field exists
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                        child: IconButton(
+                          onPressed: (){
+                             _showSectionDialog(
+                                context,
+                                students[i].id, // Pass the student ID
+                                students[i]['section'] ?? 'N/A', 
+                             );
+                          }, 
+                          icon: Icon(Icons.edit_note_rounded, color: Colors.blue,)),)
+                      ],
+                    ),
+                ],
+              ),
             ),
           );
         },

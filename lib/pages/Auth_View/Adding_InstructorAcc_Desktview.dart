@@ -3,11 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AddInstructorDialog extends StatefulWidget {
+  final double screenWidth;
+  final double screenHeight;
   final VoidCallback closeAddInstructors;
 
   AddInstructorDialog({
     super.key,
     required this.closeAddInstructors,
+    required this.screenWidth,
+    required this.screenHeight,
   });
 
   @override
@@ -109,95 +113,157 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Add Instructor Account'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              controller: _firstNameController,
-              decoration: InputDecoration(labelText: 'First Name'),
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter a first name' : null,
-            ),
-            TextFormField(
-              controller: _middleNameController,
-              decoration: InputDecoration(labelText: 'Middle Name'),
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter a middle name' : null,
-            ),
-            TextFormField(
-              controller: _lastNameController,
-              decoration: InputDecoration(labelText: 'Last Name'),
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter a last name' : null,
-            ),
-            TextFormField(
-              controller: _subjectNameController,
-              decoration: InputDecoration(labelText: 'Subject Name'),
-            ),
-            TextFormField(
-              controller: _subjectCodeController,
-              decoration: InputDecoration(labelText: 'Subject Code'),
-            ),
-            DropdownButtonFormField<String>(
-              value: _adviserStatus,
-              decoration: InputDecoration(labelText: 'Adviser Status'),
-              items: [
-                DropdownMenuItem(value: '--', child: Text('--')),
-                DropdownMenuItem(value: 'yes', child: Text('Yes')),
-                DropdownMenuItem(value: 'no', child: Text('No')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _adviserStatus = value ?? '--';
-                  _selectedSection = null; // Reset selected section when adviser status changes
-                });
-              },
-              validator: (value) => value == null ? 'Please select adviser status' : null,
-            ),
-            if (_adviserStatus == 'yes') ...[
-              DropdownButtonFormField<String>(
-                value: _selectedSection,
-                decoration: InputDecoration(labelText: 'Select Section'),
-                items: _sections.map((section) {
-                  return DropdownMenuItem(
-                    value: section,
-                    child: Text(section),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedSection = value; // Update selected section
-                  });
-                },
-                validator: (value) => value == null ? 'Please select a section' : null,
+    return GestureDetector(
+      onTap: widget.closeAddInstructors,
+      child: Stack(
+        children: [          
+          Center(
+            child: GestureDetector(
+              onTap: (){},
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 500),
+                width: widget.screenWidth / 2,
+                height: widget.screenHeight / 1.4,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey),
+                ),
+                padding: EdgeInsets.all(20),
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: TextButton(
+                          onPressed: widget.closeAddInstructors,
+                          style: TextButton.styleFrom(
+                            side: BorderSide(color: Colors.red),
+                          ),
+                          child: Text('Back', style: TextStyle(color: Colors.red)),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text('Add Instructor Account',style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                      SizedBox(height: 8),
+                       Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: _firstNameController,
+                              decoration: InputDecoration(
+                              labelText: 'First Name',
+                              border: OutlineInputBorder(),
+                              ),
+                              validator: (value) => value?.isEmpty ?? true ? 'Please enter a first name' : null,
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              controller: _middleNameController,
+                              decoration: InputDecoration(
+                              labelText: 'Middle Name',
+                              border: OutlineInputBorder(),
+                              ),
+                              validator: (value) => value?.isEmpty ?? true ? 'Please enter a middle name' : null,
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              controller: _lastNameController,
+                              decoration: InputDecoration(labelText: 'Last Name', border: OutlineInputBorder(),),
+                              validator: (value) => value?.isEmpty ?? true ? 'Please enter a last name' : null,
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              controller: _subjectNameController,
+                              decoration: InputDecoration(labelText: 'Subject Name', border: OutlineInputBorder(),),
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              controller: _subjectCodeController,
+                              decoration: InputDecoration(labelText: 'Subject Code', border: OutlineInputBorder(),),
+                            ),
+                            SizedBox(height: 8),
+                            DropdownButtonFormField<String>(
+                              value: _adviserStatus,
+                              decoration: InputDecoration(labelText: 'Adviser Status', border: OutlineInputBorder(),),
+                              items: [
+                                DropdownMenuItem(value: '--', child: Text('--')),
+                                DropdownMenuItem(value: 'yes', child: Text('Yes')),
+                                DropdownMenuItem(value: 'no', child: Text('No')),
+                              ],
+                              onChanged: (value) {
+                                setState(() {
+                                  _adviserStatus = value ?? '--';
+                                  _selectedSection = null; // Reset selected section when adviser status changes
+                                });
+                              },
+                              validator: (value) => value == null ? 'Please select adviser status' : null,
+                            ),
+                            if (_adviserStatus == 'yes') ...[
+                              DropdownButtonFormField<String>(
+                                value: _selectedSection,
+                                decoration: InputDecoration(labelText: 'Select Section'),
+                                items: _sections.map((section) {
+                                  return DropdownMenuItem(
+                                    value: section,
+                                    child: Text(section),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedSection = value; // Update selected section
+                                  });
+                                },
+                                validator: (value) => value == null ? 'Please select a section' : null,
+                              ),
+                            ],
+                            SizedBox(height: 8),
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: InputDecoration(labelText: 'Email Address', border: OutlineInputBorder(),),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (value) => value?.isEmpty ?? true ? 'Please enter an email address' : null,
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              controller: _passwordController,
+                              decoration: InputDecoration(labelText: 'Password', border: OutlineInputBorder(),),
+                              obscureText: true,
+                              validator: (value) => value?.isEmpty ?? true ? 'Please enter a password' : null,
+                            ),
+                          ],
+                        ),
+                      ),
+                                            SizedBox(height: 20),
+
+                        Container(
+                          width: widget.screenWidth * 1,
+                          height: widget.screenHeight * 0.06,
+                          child: ElevatedButton(
+                            onPressed: _submitForm,
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                elevation: 5, // Elevation level for shadow depth
+                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                              ),
+                              ),
+                              child: Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 14,),),
+                            ),
+                        ),
+                      ],
+                              ),
+                  ),
+                ),
               ),
-            ],
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email Address'),
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter an email address' : null,
             ),
-            TextFormField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter a password' : null,
-            ),
-          ],
-        ),
+        ]
       ),
-      actions: [
-        TextButton(
-          onPressed: widget.closeAddInstructors,
-          child: Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _submitForm,
-          child: Text('Save'),
-        ),
-      ],
     );
   }
 }
