@@ -20,6 +20,8 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
 
   String _email = '';
   String _accountType = '';
+  String _firstName = '';
+  String _lastName = '';
   List<Map<String, dynamic>> subjects = [];
   List<bool> isEditing = [];
 
@@ -40,35 +42,34 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
 
     // Fetch the semester from the sections collection
     String sectionName = widget.studentData['section'];
-    String firstName = widget.studentData['first_name'];
-    String lastName = widget.studentData['last_name'];
 
     // Get the corresponding section document
     QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
         .collection('sections')
         .where('section_name', isEqualTo: sectionName)
-        .where('section_adviser', isEqualTo: '$firstName $lastName')
+        .where('section_adviser', isEqualTo: '$_firstName $_lastName')
         .get();
 
     if (sectionSnapshot.docs.isNotEmpty) {
       String semester = sectionSnapshot.docs.first['semester'];
-      String seniorHighStrand = widget.studentData['seniorHigh_Strand']; // Get the strand
+      String seniorHighStrand = widget.studentData['seniorHigh_Strand'];
 
-      // Get the student UID from the student data map
-      String studentUid = widget.studentData['uid']; // Ensure the student UID is included in the studentData map
+      // Get student's full name and UID
+      String studentFullName = '${widget.studentData['first_name']} ${widget.studentData['last_name']}';
+      String studentUID = widget.studentData['uid']; // Assuming uid is part of studentData
 
-      // Create a new collection for the semester
-      CollectionReference semesterCollection = FirebaseFirestore.instance.collection(semester);
+      // Create a new collection for the strand
+      CollectionReference strandCollection = FirebaseFirestore.instance.collection(semester);
 
-      // Set the document ID as the seniorHigh_Strand
-      DocumentReference strandDocument = semesterCollection.doc(seniorHighStrand);
+      // Create or reference the document for the seniorHigh_Strand
+      DocumentReference strandDocument = strandCollection.doc(seniorHighStrand);
 
       // Prepare the data to save
-      // Create a list to hold the subject data
       List<Map<String, dynamic>> gradesToSave = subjects.map((subject) {
         return {
-          'student_id': widget.studentData['student_id'], // Assuming you have a student ID to reference
-          'uid': studentUid, // Save the student UID here
+          'student_id': widget.studentData['student_id'],
+          'full_name': studentFullName,
+          'uid': studentUID, // Include UID here
           'subject_code': subject['subject_code'],
           'subject_name': subject['subject_name'],
           'grade': subject['grade'],
@@ -76,15 +77,17 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
         };
       }).toList();
 
-      // Save the grades to the document for the specific strand
+      // Save the grades to the nested document named after the student's full name
       await strandDocument.set({
-        'grades': gradesToSave,
+        studentFullName: {
+          'grades': gradesToSave,
+        },
       }, SetOptions(merge: true)); // Merge to update existing grades if the document already exists
 
       // Optionally, show a success message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Grades submitted successfully!')));
     } else {
-      print('No section found for section name: $sectionName and adviser: $firstName $lastName');
+      print('No section found for section name: $sectionName and adviser: $_firstName $_lastName');
     }
   } catch (e) {
     print('Error submitting grades: $e');
@@ -96,103 +99,144 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
 
 
 
+
+
+
   @override
-  void initState() {
-    super.initState();
-    _fetchUserData();
-    _fetchStudentSectionAndSubjects(
-        widget.studentData); // Fetch subjects on init
-  }
+void initState() {
+  super.initState();
+  _fetchUserData().then((_) {
+    print('First Name: $_firstName, Last Name: $_lastName'); // Debug output
+    _fetchStudentSectionAndSubjects(widget.studentData);
+  });
+}
 
-  
+Future<void> _fetchUserData() async {
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String uid = user.uid;
 
-  Future<void> _fetchUserData() async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        String uid = user.uid;
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
-        DocumentSnapshot userDoc =
-            await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>;
 
-        if (userDoc.exists) {
-          final data = userDoc.data() as Map<String, dynamic>;
-
-          setState(() {
-            _accountType = (data['accountType'] as String).toUpperCase();
-            _email = data['email_Address'];
-          });
-        } else {
-          print('No document found for UID: $uid');
-          setState(() {
-            _accountType = 'Not Found';
-          });
-        }
+        setState(() {
+          _accountType = (data['accountType'] as String).toUpperCase();
+          _email = data['email_Address'];
+          _firstName = data['first_name']; // Get first name
+          _lastName = data['last_name']; // Get last name
+        });
       } else {
-        print('No current user found.');
+        print('No document found for UID: $uid');
+        setState(() {
+          _accountType = 'Not Found';
+        });
       }
-    } catch (e) {
-      print('Error fetching user data: $e');
-      setState(() {
-        _accountType = 'Error';
-      });
+    } else {
+      print('No current user found.');
     }
+  } catch (e) {
+    print('Error fetching user data: $e');
+    setState(() {
+      _accountType = 'Error';
+    });
   }
+}
 
-  Future<void> _fetchStudentSectionAndSubjects(
-      Map<String, dynamic> userData) async {
-    try {
-      String sectionName = userData['section'] ??
-          ''; // Assuming section name is stored in user data
-      String firstName = userData['first_name'] ?? '';
-      String lastName = userData['last_name'] ?? '';
-      String seniorHighStrand = userData['seniorHigh_Strand'] ?? '';
+  Future<void> _fetchStudentSectionAndSubjects(Map<String, dynamic> userData) async {
+  try {
+    print('First Name: $_firstName, Last Name: $_lastName');
+    String sectionName = userData['section'] ?? '';
+    String seniorHighStrand = userData['seniorHigh_Strand'] ?? '';
+    
+    // Combine first and last names to create full name
+    String studentFullName = '${userData['first_name']} ${userData['last_name']}';
 
-      // Get the corresponding course strand
-      String courseStrand = getStrandCourse(seniorHighStrand);
+    // Get the corresponding course strand
+    String courseStrand = getStrandCourse(seniorHighStrand);
 
-      // Fetch the section document based on the section name and adviser name
-      QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
-          .collection('sections')
-          .where('section_name', isEqualTo: sectionName)
-          .where('section_adviser',
-              isEqualTo: '$firstName $lastName') // Combine first and last name
+    // Log section name and adviser
+    print('Fetching section for: Section Name: $sectionName, Adviser: $_firstName $_lastName');
+
+    // Fetch the section document based on the section name and the logged-in user's name
+    QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+        .collection('sections')
+        .where('section_name', isEqualTo: sectionName)
+        .where('section_adviser', isEqualTo: '$_firstName $_lastName')
+        .get();
+
+    if (sectionSnapshot.docs.isNotEmpty) {
+      // Get the semester of the section
+      String semester = sectionSnapshot.docs.first['semester'];
+      print('Found semester: $semester');
+
+      // Fetch subjects that match the semester and course strand
+      QuerySnapshot subjectsSnapshot = await FirebaseFirestore.instance
+          .collection('subjects')
+          .where('semester', isEqualTo: semester)
+          .where('strandcourse', isEqualTo: courseStrand)
           .get();
 
-      if (sectionSnapshot.docs.isNotEmpty) {
-        // Get the semester of the section
-        String semester = sectionSnapshot.docs.first['semester'];
+      print('Number of subjects found: ${subjectsSnapshot.docs.length}');
 
-        // Fetch subjects that match the semester and course strand
-        QuerySnapshot subjectsSnapshot = await FirebaseFirestore.instance
-            .collection('subjects')
-            .where('semester', isEqualTo: semester)
-            .where('strandcourse',
-                isEqualTo: courseStrand) // Filter by the course strand
-            .get();
+      // Store subjects in the list
+      subjects = subjectsSnapshot.docs.map((doc) {
+        return {
+          'subject_code': doc['subject_code'],
+          'subject_name': doc['subject_name'],
+          'grade': '', // Initialize with an empty string
+        };
+      }).toList();
 
-        // Store subjects in the list
-        subjects = subjectsSnapshot.docs.map((doc) {
-          return {
-            'subject_code': doc['subject_code'], // Fetch subject_code
-            'subject_name': doc['subject_name'],
-            'grade':
-                '', // Initialize with an empty string since you mentioned there’s no grade in subjects collection
-          };
-        }).toList();
+      // Now, fetch the existing grades for the student
+      String studentUID = userData['uid']; // Get the UID from userData
 
-        // Initialize editing states
-        isEditing = List<bool>.filled(subjects.length, false);
+      // Fetch the grades for this student from Firestore
+      DocumentReference gradesDocument = FirebaseFirestore.instance
+          .collection(semester)
+          .doc(seniorHighStrand);
 
-        setState(() {});
-      } else {
-        print(
-            'No section found for section name: $sectionName and adviser: $firstName $lastName');
+      DocumentSnapshot gradesSnapshot = await gradesDocument.get();
+
+      if (gradesSnapshot.exists) {
+        // Cast to Map<String, dynamic>
+        Map<String, dynamic> gradesData = gradesSnapshot.data() as Map<String, dynamic>? ?? {};
+        
+        // Accessing the grades for the specific student using their full name
+        Map<String, dynamic>? studentGrades = gradesData[studentFullName] as Map<String, dynamic>?;
+
+        if (studentGrades != null) {
+          List<dynamic> existingGrades = studentGrades['grades'] ?? [];
+
+          // Update subjects with existing grades
+          for (var subject in subjects) {
+            var existingGrade = existingGrades.firstWhere(
+              (grade) => grade['subject_code'] == subject['subject_code'],
+              orElse: () => null,
+            );
+
+            if (existingGrade != null) {
+              subject['grade'] = existingGrade['grade']; // Assign existing grade
+            }
+          }
+        }
       }
-    } catch (e) {
-      print('Error fetching student section and subjects: $e');
+
+      // Initialize editing states
+      isEditing = List<bool>.filled(subjects.length, false);
+
+      setState(() {});
+    } else {
+      print('No section found for section name: $sectionName and adviser: $_firstName $_lastName');
     }
+  } catch (e) {
+    print('Error fetching student section and subjects: $e');
   }
+}
+
 
   String getStrandCourse(String seniorHighStrand) {
     switch (seniorHighStrand) {

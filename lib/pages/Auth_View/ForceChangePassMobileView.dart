@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/Accounts/student_dashboard.dart';
 import 'package:pbma_portal/student_utils/student_ui.dart';
 
 class ChangePasswordMobile extends StatefulWidget {

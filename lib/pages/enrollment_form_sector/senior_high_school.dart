@@ -5,13 +5,13 @@ class SeniorHighSchool extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
   final double spacing;
 
-  SeniorHighSchool({required this.spacing, required this.onDataChanged});
+  SeniorHighSchool({required this.spacing, required this.onDataChanged, Key? key}) : super(key: key);
 
   @override
-  State<SeniorHighSchool> createState() => _SeniorHighSchoolState();
+  State<SeniorHighSchool> createState() => SeniorHighSchoolState();
 }
 
-class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepAliveClientMixin {
+class SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepAliveClientMixin {
   final FocusNode _gradeLevelFocusNode = FocusNode();
 
   final TextEditingController _gradeLevel = TextEditingController();
@@ -20,6 +20,17 @@ class _SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepA
   String _selectedtransferee = '';
   String _selectedsemester = '';
 
+
+
+  void resetFields() {
+  setState(() {
+    _gradeLevel.clear();      
+    _selectedTrack = '';        
+    _selectedStrand = '';       
+    _selectedtransferee = ''; 
+    _selectedsemester = '';  
+  });
+}
 
   @override
   void initState() {

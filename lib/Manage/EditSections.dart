@@ -253,12 +253,21 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                       SizedBox(height: 24),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: ElevatedButton(
-                          onPressed: _updateSection,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                        child: Container(
+                          width: widget.screenWidth * 1,
+                          height: widget.screenHeight * 0.06,
+                          child: ElevatedButton(
+                            onPressed: _updateSection,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              elevation: 5, // Elevation level for shadow depth
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                            ),
+                            ),
+                            child: Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 14,),),
                           ),
-                          child: Text('Save Changes'),
                         ),
                       ),
                     ],

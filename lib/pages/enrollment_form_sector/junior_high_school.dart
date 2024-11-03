@@ -4,18 +4,25 @@ import 'package:flutter/services.dart';
 class JuniorHighSchool extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
 
-  JuniorHighSchool({required this.onDataChanged});
+  JuniorHighSchool({required this.onDataChanged, Key? key}) : super(key: key);
 
   @override
-  State<JuniorHighSchool> createState() => _JuniorHighSchoolState();
+  State<JuniorHighSchool> createState() => JuniorHighSchoolState();
 }
 
-class _JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepAliveClientMixin {
+class JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepAliveClientMixin {
   final FocusNode _juniorHSFocusNode = FocusNode();
   final FocusNode _schoolAddFocusNode = FocusNode();
 
   final TextEditingController _juniorHS = TextEditingController();
   final TextEditingController _schoolAdd = TextEditingController();
+
+
+  // Method to reset the form
+  void resetForm() {
+    _juniorHS.clear();
+    _schoolAdd.clear();
+  }
 
   @override
   void initState() {

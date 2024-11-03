@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pbma_portal/launcher.dart';
@@ -28,6 +29,13 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
   Color _textColor3 = Color.fromARGB(255, 1, 93, 168);
 
   bool _showSignInCard = false;
+
+  // Define the reset functions for each form section
+  final GlobalKey<StudentInformationState> _studentInfoKey = GlobalKey();
+  final GlobalKey<JuniorHighSchoolState> _juniorHSKey = GlobalKey();
+  final GlobalKey<HomeAddressState> _homeAddressKey = GlobalKey();
+  final GlobalKey<ParentInformationState> _parentInfoKey = GlobalKey();
+  final GlobalKey<SeniorHighSchoolState> _seniorHSKey = GlobalKey();
 
   // Define the _formKey
   final _formKey = GlobalKey<FormState>();
@@ -102,50 +110,88 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      String? imageUrl;
+  if (_formKey.currentState!.validate()) {
+    String? imageUrl;
 
-      if (_imageFile != null || _webImageData != null) {
-        final storageRef = FirebaseStorage.instance.ref();
-        final imageRef =
-            storageRef.child('student_pictures/${DateTime.now().toIso8601String()}.png');
+    if (_imageFile != null || _webImageData != null) {
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child('student_pictures/${DateTime.now().toIso8601String()}.png');
 
-        try {
-          if (kIsWeb && _webImageData != null) {
-            await imageRef.putData(_webImageData!);
-          } else if (_imageFile != null) {
-            await imageRef.putFile(_imageFile!);
-          }
-
-          imageUrl = await imageRef.getDownloadURL();
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to Upload Image: $e')),
-          );
+      try {
+        if (kIsWeb && _webImageData != null) {
+          await imageRef.putData(_webImageData!);
+        } else if (_imageFile != null) {
+          await imageRef.putFile(_imageFile!);
         }
+
+        imageUrl = await imageRef.getDownloadURL();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to Upload Image: $e')),
+        );
+        return; // Exit the function if image upload fails
       }
-
-      final combinedData = {
-        ..._studentData,
-        ..._homeAddressData,
-        ..._juniorHSData,
-        ..._parentInfoData,
-        ..._seniorHSData,
-        'enrollment_status': 'pending',
-        'image_url': imageUrl,
-      };
-
-      FirebaseFirestore.instance.collection('users').add(combinedData).then((value) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Data Saved Successfully')),
-        );
-      }).catchError((error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to Save Data: $error')),
-        );
-      });
     }
+
+    final combinedData = {
+      ..._studentData,
+      ..._homeAddressData,
+      ..._juniorHSData,
+      ..._parentInfoData,
+      ..._seniorHSData,
+      'enrollment_status': 'pending',
+      'image_url': imageUrl,
+    };
+
+    FirebaseFirestore.instance.collection('users').add(combinedData).then((value) {
+      // Show Cupertino dialog with instructions
+      showCupertinoDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            title: Text("Important Notice"),
+            content: Text(
+              "To validate your enrollment, please submit the following documents to the school within 15 days:\n\n"
+              "- Birth Certificate\n"
+              "- 2x2 Picture\n"
+              "- Form 137 from previous school\n\n"
+              "Failure to submit these documents within the specified timeframe will result in the rejection of your enrollment request.",
+            ),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+
+                  // Display the Snackbar and reset form fields after dialog is dismissed
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Data Saved Successfully')),
+                  );
+
+                  // Reset each form section
+                  _studentInfoKey.currentState?.resetFields();
+                  _juniorHSKey.currentState?.resetForm();
+                  _homeAddressKey.currentState?.resetForm();
+                  _parentInfoKey.currentState?.resetForm();
+                  _seniorHSKey.currentState?.resetFields();
+
+                  // Reset image data using the callback
+                  _updateImageFile(null);
+                  _updateWebImageData(null);
+                  _updateImageUrl(null);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to Save Data: $error')),
+      );
+    });
   }
+}
 
 
 
@@ -306,6 +352,7 @@ Widget build(BuildContext context) {
             child: ListView(
               children: [
                 StudentInformation(
+                  key: _studentInfoKey,
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                   onImageFileChanged: _updateImageFile,
@@ -314,20 +361,24 @@ Widget build(BuildContext context) {
                 ),
                 SizedBox(height: 30),
                 HomeAddress(
+                  key: _homeAddressKey,
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                 ),
                 SizedBox(height: 30),
                 ParentInformation(
+                  key: _parentInfoKey,
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                 ),
                 SizedBox(height: 30),
                 JuniorHighSchool(
+                  key: _juniorHSKey,
                   onDataChanged: _updateStudentData,
                 ),
                 SizedBox(height: 30),
                 SeniorHighSchool(
+                  key: _seniorHSKey,
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                 ),
