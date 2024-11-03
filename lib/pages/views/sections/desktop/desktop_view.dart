@@ -28,6 +28,7 @@ class DesktopView extends StatefulWidget {
 
 class _DesktopViewState extends State<DesktopView>
     with TickerProviderStateMixin {
+  final GlobalKey _footerKey = GlobalKey();
   late AnimationController imageController;
   late Animation<double> imageReveal;
   late Animation<double> imageOpacity;
@@ -162,6 +163,7 @@ class _DesktopViewState extends State<DesktopView>
               children: [
                 FirstSection(onGetStartedPressed: toggleTAC),
                 SecondSection(),
+                Footer(key: _footerKey,),
               ],
             ),
           ),
@@ -268,7 +270,9 @@ class _DesktopViewState extends State<DesktopView>
                                 });
                               },
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  scrollToSection(_footerKey);
+                                },
                                 child: Text(
                                   "Contact us",
                                   style: TextStyle(

@@ -678,8 +678,6 @@ class _SecondSectionState extends State<SecondSection>
                 SizedBox(
                   height: 50,
                 ),
-                //THIS IS THE FOOTER
-                Footer()
               ],
             ),
           ),
