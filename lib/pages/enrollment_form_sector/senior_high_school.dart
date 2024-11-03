@@ -24,10 +24,11 @@ class SeniorHighSchoolState extends State<SeniorHighSchool> with AutomaticKeepAl
 
   void resetFields() {
   setState(() {
-    _gradeLevel.clear();        // Clear the grade level text field
-    _selectedTrack = '';        // Reset track dropdown
-    _selectedStrand = '';       // Reset strand dropdown
-    _selectedtransferee = '';   // Reset transferee dropdown
+    _gradeLevel.clear();      
+    _selectedTrack = '';        
+    _selectedStrand = '';       
+    _selectedtransferee = ''; 
+    _selectedsemester = '';  
   });
 }
 
