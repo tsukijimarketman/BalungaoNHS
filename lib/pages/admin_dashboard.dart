@@ -881,7 +881,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return _buildManageSections();
       case 'Dropped Student':
         return _buildDropStudent();
-      case 'Report Analytics':
+      case 'Reports':
         return _buildAnalytics();
       default:
         return Center(child: Text('Body Content Here'));
@@ -3781,7 +3781,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       color: Colors.grey[300],
       alignment: Alignment.center,
       child: Text(
-        'Report Analytics',
+        'Reports',
         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
       ),
     );
@@ -3884,7 +3884,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'Dropped Student', Iconsax.dropbox_copy, 'Dropped Student'),
             _buildDrawerItem('Configuration', Iconsax.user, 'Configuration'),
             _buildDrawerItem(
-                'Report Analytics', Iconsax.data_copy, 'Report Analytics'),
+                'Reports', Iconsax.data_copy, 'Reports'),
             ListTile(
               leading: Icon(Iconsax.logout),
               title: Text('Log out'),
