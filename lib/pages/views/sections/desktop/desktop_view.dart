@@ -56,7 +56,7 @@ class _DesktopViewState extends State<DesktopView>
         CurvedAnimation(
             parent: _textController2,
             curve: Interval(0.0, 0.3, curve: Curves.easeOut)));
-    
+
     coreValues = AnimationController(
         vsync: this,
         duration: Duration(milliseconds: 1000),
@@ -76,12 +76,12 @@ class _DesktopViewState extends State<DesktopView>
         duration: Duration(milliseconds: 1000),
         reverseDuration: Duration(milliseconds: 375));
 
-
     _scrollController = ScrollController();
-    _scrollController.addListener((){
+    _scrollController.addListener(() {
       context.read<DisplayOffset>().changeDisplayOffset(
-        (MediaQuery.of(context).size.height+_scrollController.position.pixels).toInt()
-      );
+          (MediaQuery.of(context).size.height +
+                  _scrollController.position.pixels)
+              .toInt());
     });
 
     _scrollController.addListener(_scrollListener);
@@ -163,7 +163,9 @@ class _DesktopViewState extends State<DesktopView>
               children: [
                 FirstSection(onGetStartedPressed: toggleTAC),
                 SecondSection(),
-                Footer(key: _footerKey,),
+                Footer(
+                  key: _footerKey,
+                ),
               ],
             ),
           ),
@@ -343,17 +345,16 @@ class _DesktopViewState extends State<DesktopView>
           AnimatedSwitcher(
             duration: Duration(milliseconds: 550),
             child: _showSignInCard
-                ? Stack(
-                  children: [
-                     Positioned.fill(
+                ? Stack(children: [
+                    Positioned.fill(
                       child: GestureDetector(
                         onTap: closeSignInCard,
                         child: Stack(
                           children: [
                             BackdropFilter(
                               filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                              child:
-                                  Container(color: Colors.black.withOpacity(0.5)),
+                              child: Container(
+                                  color: Colors.black.withOpacity(0.5)),
                             ),
                             Center(
                               child: GestureDetector(
@@ -374,15 +375,13 @@ class _DesktopViewState extends State<DesktopView>
                         ),
                       ),
                     ),
-                  ]
-                )
+                  ])
                 : SizedBox.shrink(),
           ),
           AnimatedSwitcher(
             duration: Duration(milliseconds: 550),
             child: _TAC
-                ? Stack(
-                  children:[ 
+                ? Stack(children: [
                     Positioned.fill(
                       child: GestureDetector(
                         onTap: closeTAC,
@@ -390,8 +389,8 @@ class _DesktopViewState extends State<DesktopView>
                           children: [
                             BackdropFilter(
                               filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                              child:
-                                  Container(color: Colors.black.withOpacity(0.5)),
+                              child: Container(
+                                  color: Colors.black.withOpacity(0.5)),
                             ),
                             Center(
                               child: GestureDetector(
@@ -412,8 +411,7 @@ class _DesktopViewState extends State<DesktopView>
                         ),
                       ),
                     ),
-                  ]
-                )
+                  ])
                 : SizedBox.shrink(),
           ),
         ],
