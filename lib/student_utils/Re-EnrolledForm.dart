@@ -12,9 +12,9 @@ class ReEnrollForm extends StatefulWidget {
 }
 
 class _ReEnrollFormState extends State<ReEnrollForm> {
-  final FocusNode _gradeLevelFocusNode = FocusNode();
-  final TextEditingController _gradeLevel = TextEditingController();
-  String _selectedsemester = '';
+  final FocusNode _gradeLevelsFocusNode = FocusNode();
+  final TextEditingController _gradeLevels = TextEditingController();
+  String _selectedsemesters = '';
 
   Future<void> _updateEnrollment() async {
   final user = FirebaseAuth.instance.currentUser;
@@ -23,7 +23,7 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
     return;
   }
 
-  final semesterValue = 'Grade ${_gradeLevel.text} - ${_selectedsemester}';
+  final semesterValue = 'Grade ${_gradeLevels.text} - ${_selectedsemesters}';
   final userUid = user.uid;
 
   try {
@@ -43,7 +43,7 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
 
     // Update the document with the new grade_level and semester
     await userDoc.update({
-      'grade_level': _gradeLevel.text,
+      'grade_level': _gradeLevels.text,
       'semester': semesterValue,
       'enrollment_status': 'reEnrollSubmitted'
     });
@@ -75,16 +75,16 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
       child: Container(
         width: screenWidth / 2,
         height: screenHeight / 1.2,
-        padding: const EdgeInsets.all(16.0), // Padding for internal spacing
+
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.white ,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Card(
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Padding(
-            padding: const EdgeInsets.all(16.0), // Padding inside Card
+            padding:  EdgeInsets.all(16.0), // Padding inside Card
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -96,19 +96,19 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 24), // Space between title and input
+                 SizedBox(height: 24), // Space between title and input
                 Container(
                   width: 300,
                   child: TextFormField(
-                    controller: _gradeLevel,
-                    focusNode: _gradeLevelFocusNode,
+                    controller: _gradeLevels,
+                    focusNode: _gradeLevelsFocusNode,
                     decoration: InputDecoration(
                       labelText: 'Grade Level',
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 101, 100, 100),
                         fontSize: 16,
                       ),
-                      suffixText: (_gradeLevelFocusNode.hasFocus || _gradeLevel.text.isNotEmpty) ? '*' : '',
+                      suffixText: (_gradeLevelsFocusNode.hasFocus || _gradeLevels.text.isNotEmpty) ? '*' : '',
                       suffixStyle: TextStyle(color: Colors.red),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -136,11 +136,11 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ),
-                const SizedBox(height: 16), // Space between fields
+                 SizedBox(height: 16), // Space between fields
                 Container(
                   width: 300,
                   child: DropdownButtonFormField<String>(
-                    value: _selectedsemester.isEmpty ? null : _selectedsemester,
+                    value: _selectedsemesters.isEmpty ? null : _selectedsemesters,
                     decoration: InputDecoration(
                       labelText: 'Please select Semester',
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
@@ -165,12 +165,12 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
                         .toList(),
                     onChanged: (value) {
                       setState(() {
-                        _selectedsemester = value!;
+                        _selectedsemesters = value!;
                       });
                     },
                   ),
                 ),
-                const SizedBox(height: 24), // Space before the button
+                 SizedBox(height: 24), // Space before the button
                 ElevatedButton(
                   onPressed: _updateEnrollment,
                   child: Text('Enroll'),

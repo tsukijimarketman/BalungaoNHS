@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:pbma_portal/pages/Auth_View/ForceChangePassMobileView.dart';
 import 'package:pbma_portal/pages/Auth_View/Forgot_Pass_Mobileview.dart';
 import 'package:pbma_portal/pages/admin_dashboard.dart';
+import 'package:pbma_portal/student_utils/Re-EnrolledForm.dart';
 import 'package:pbma_portal/student_utils/student_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,6 +29,7 @@ class _SignInMobileState extends State<SignInMobile> {
 
   bool _showForgotPass = false;
   bool _showChangePassword = false;
+  bool _showReEnroll = false;
 
   void toggleForgotPass() {
     setState(() {
@@ -71,6 +73,10 @@ class _SignInMobileState extends State<SignInMobile> {
                       key: ValueKey('changePasswordScreen'),
                       email: _emailController.text.trim(),
                     )
+                    : _showReEnroll
+                      ? ReEnrollForm(
+                          key: ValueKey('ReEnrollView'),
+                        )
                   : Container(
                       key: ValueKey('signInView'),
                       width: screenWidth / 1.2,
@@ -306,6 +312,7 @@ Future<void> _signInWithStudentId(String studentId, String password) async {
         final accountType = (userDocs.docs.first.data()
             as Map<String, dynamic>?)?['accountType'];
         final passwordChanged = userData?['passwordChanged'] ?? false;
+        final enrollmentStatus = userData?['enrollment_status'];
 
         if (accountType == "admin") {
           Navigator.push(
@@ -322,21 +329,21 @@ Future<void> _signInWithStudentId(String studentId, String password) async {
           );
         } else if (accountType == "student") {
           if (!passwordChanged) {
-              setState(() {
-                _showChangePassword = true;
-              });
-            } else {
-              // final firstName = userData?['first_name'] ?? 'First';
-              // final middleName = userData?['middle_name'] ?? 'Middle';
-              // final lastName = userData?['last_name'] ?? 'Last';
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StudentUI()
-                ),
-              );
-            }
+            setState(() {
+              _showChangePassword = true;
+            });
+          } else if (enrollmentStatus == 're-enrolled') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ReEnrollForm()
+              ),
+            );
+          } else{
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => StudentUI()),
+            );
+          }
         } else {
           _showDialog('Login Failed', 'Account type is not recognized.');
         }
