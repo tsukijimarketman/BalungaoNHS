@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:pbma_portal/pages/Auth_View/ForceChangePassDesktopView.dart';
 import 'package:pbma_portal/pages/Auth_View/Forgot_Pass_desktopview.dart';
 import 'package:pbma_portal/pages/admin_dashboard.dart';
+import 'package:pbma_portal/student_utils/Re-EnrolledForm.dart';
 import 'package:pbma_portal/student_utils/student_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,6 +31,7 @@ class _SignInDesktopState extends State<SignInDesktop> {
 
   bool _showForgotPass = false;
   bool _showChangePassword = false;
+  bool _showReEnroll = false;
 
   void toggleForgotPass() {
     setState(() {
@@ -60,7 +62,8 @@ class _SignInDesktopState extends State<SignInDesktop> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    return Stack(children: [
+    return Stack(
+      children: [
       Center(
         child: AnimatedSwitcher(
           duration: Duration(milliseconds: 550),
@@ -74,14 +77,18 @@ class _SignInDesktopState extends State<SignInDesktop> {
                       key: ValueKey('changePasswordScreen'),
                       email: _emailController.text.trim(),
                     )
-                  : Container(
-                      key: ValueKey('signInView'),
-                      width: screenWidth / 2,
-                      height: screenHeight / 1.2,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                    : _showReEnroll
+                      ? ReEnrollForm(
+                          key: ValueKey('ReEnrollView'),
+                        )
+                          : Container(
+                              key: ValueKey('signInView'),
+                              width: screenWidth / 2,
+                              height: screenHeight / 1.2,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                       child: Column(
                         children: [
                           Container(
@@ -316,6 +323,7 @@ class _SignInDesktopState extends State<SignInDesktop> {
           final accountType = (userDocs.docs.first.data()
               as Map<String, dynamic>?)?['accountType'];
           final passwordChanged = userData?['passwordChanged'] ?? false;
+          final enrollmentStatus = userData?['enrollment_status'];
 
           if (accountType == "admin") {
             Navigator.push(
@@ -331,27 +339,27 @@ class _SignInDesktopState extends State<SignInDesktop> {
             );
           } else if (accountType == "student") {
             if (!passwordChanged) {
-              setState(() {
-                _showChangePassword = true;
-              });
-            } else {
-              // final firstName = userData?['first_name'] ?? 'First';
-              // final middleName = userData?['middle_name'] ?? 'Middle';
-              // final lastName = userData?['last_name'] ?? 'Last';
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StudentUI()
-                ),
-              );
-            }
-          } else {
-            _showDialog('Login Failed', 'Account type is not recognized.');
+            setState(() {
+              _showChangePassword = true;
+            });
+          } else if (enrollmentStatus == 're-enrolled') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ReEnrollForm()
+              ),
+            );
+          } else{
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => StudentUI()),
+            );
           }
         } else {
-          _showDialog('User Not Found', 'User document not found.');
+          _showDialog('Login Failed', 'Account type is not recognized.');
         }
+      } else {
+        _showDialog('User Not Found', 'User document not found.');
+      }
 
         _saveRememberMe(true, email);
       }

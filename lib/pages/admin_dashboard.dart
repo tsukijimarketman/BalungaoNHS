@@ -46,6 +46,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _showEditInstructors = false;
   bool _showAddSections = false;
   bool _showEditSections = false;
+  String _selectedSemester = '1st Semester'; // Initial semester option
+  String _curriculum = ''; // Curriculum text
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -652,6 +654,79 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
   //BuildManageSections
 
+  // Configuration
+  // Method to save data to Firebase
+  void _saveConfiguration() {
+  FirebaseFirestore.instance.collection('configurations').doc('currentConfig').set({
+    'curriculum': _curriculum,
+    'semester': _selectedSemester,
+  }).then((_) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Configuration saved successfully!')),
+    );
+
+    // Update enrollment status for all students
+    await _updateEnrollmentStatusForStudents();
+
+  }).catchError((error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to save configuration: $error')),
+    );
+    });
+}
+
+// Function to update enrollment status for all students
+Future<void> _updateEnrollmentStatusForStudents() async {
+  try {
+    // Query to get all documents with accountType = "student"
+    QuerySnapshot studentDocs = await FirebaseFirestore.instance
+        .collection('users') // replace 'users' with the actual name of your users collection
+        .where('accountType', isEqualTo: 'student')
+        .get();
+
+    // Batch update to change enrollment_status for each student document
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    for (QueryDocumentSnapshot doc in studentDocs.docs) {
+      batch.update(doc.reference, {'enrollment_status': 're-enrolled'});
+    }
+
+    // Commit the batch update
+    await batch.commit();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Enrollment status updated for all students.')),
+    );
+
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to update enrollment status: $error')),
+    );
+  }
+}
+
+  // Configuration
+
+  // Re-Enrolled Students
+  Stream<QuerySnapshot> _getReEnrolledStudents() {
+    return getReEnrolledStudents(_trackIconState, _gradeLevelIconState,
+        _transfereeIconState, _selectedStrand);
+  }
+
+  Future<void> updateEnrollmentStatus(String studentId) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(studentId).update({
+        'enrollment_status': 'approved',
+      });
+      // Optionally return a success message or handle success feedback here
+    } catch (error) {
+      // Optionally throw the error or return it for further handling
+      throw Exception('Failed to update enrollment status: $error');
+    }
+  }
+
+  // Re-Enrolled Students
+
   //Filtering
   void _toggleGradeLevelIcon() {
     setState(() {
@@ -766,10 +841,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return _buildStrandInstructoraContent();
       case 'Manage Newcomers':
         return _buildNewcomersContent();
+        case 'Manage Re-Enrolled Students':
+        return _buildReEnrolledStudentContent();
       case 'Manage Subjects':
         return _buildManageSubjects();
       case 'Manage Instructors':
         return _buildManageInstructorContent();
+      case 'Configuration':
+        return _buildConfigurationContent();
       case 'Manage Sections':
         return _buildManageSections();
       case 'Dropped Student':
@@ -2791,6 +2870,282 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  Widget _buildConfigurationContent() {
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('This is Configuration', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          SizedBox(height: 16),
+          
+          // Curriculum Text Field
+          CupertinoTextField(
+            placeholder: 'Enter Curriculum',
+            onChanged: (value) {
+              setState(() {
+                _curriculum = value;
+              });
+            },
+          ),
+          SizedBox(height: 16),
+          
+          // Semester Selection Radio Buttons
+          ListTile(
+            title: Text('1st Semester'),
+            leading: Radio<String>(
+              value: '1st Semester',
+              groupValue: _selectedSemester,
+              onChanged: (String? value) {
+                setState(() {
+                  _selectedSemester = value!;
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: Text('2nd Semester'),
+            leading: Radio<String>(
+              value: '2nd Semester',
+              groupValue: _selectedSemester,
+              onChanged: (String? value) {
+                setState(() {
+                  _selectedSemester = value!;
+                });
+              },
+            ),
+          ),
+          
+          // Save Button
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _curriculum.isNotEmpty ? _saveConfiguration : null,
+            child: Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReEnrolledStudentContent(){
+    return Container(
+      color: Colors.grey[300],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Manage Re-Enrolled Students',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 300,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search Student',
+                      prefixIcon: Icon(Iconsax.search_normal_1_copy),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.blue, width: 2.0),
+              ),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _getReEnrolledStudents(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  final students = snapshot.data!.docs.where((student) {
+                    final data = student.data() as Map<String, dynamic>;
+                    final query = _searchQuery.toLowerCase();
+
+                    final studentId = data['student_id']?.toLowerCase() ?? '';
+                    final firstName = data['first_name']?.toLowerCase() ?? '';
+                    final lastName = data['last_name']?.toLowerCase() ?? '';
+                    final middleName = data['middle_name']?.toLowerCase() ?? '';
+                    final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
+                    final strand =
+                        data['seniorHigh_Strand']?.toLowerCase() ?? '';
+                    final gradeLevel = data['grade_level']?.toLowerCase() ?? '';
+
+                    final fullName = '$firstName $middleName $lastName';
+
+                    return studentId.contains(query) ||
+                        fullName.contains(query) ||
+                        track.contains(query) ||
+                        strand.contains(query) ||
+                        gradeLevel.contains(query);
+                  }).toList();
+
+                  return Column(
+                    children: [
+                      // Fixed header row
+                      Row(
+                        children: [
+                          Expanded(child: Text('First Name')),
+                          Expanded(child: Text('Last Name')),
+                          Expanded(child: Text('Middle Name')),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text('Track'),
+                                GestureDetector(
+                                  onTap: _toggleTrackIcon,
+                                  child: Row(
+                                    children: [
+                                      if (_trackIconState == 0 ||
+                                          _trackIconState == 1)
+                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                      if (_trackIconState == 0 ||
+                                          _trackIconState == 2)
+                                        Icon(Iconsax.arrow_down_copy, size: 16),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text('Strand'),
+                                PopupMenuButton<String>(
+                                  icon: Icon(Icons.arrow_drop_down),
+                                  onSelected: (String value) {
+                                    setState(() {
+                                      _selectedStrand = value;
+                                    });
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return [
+                                      'ALL',
+                                      'STEM',
+                                      'HUMSS',
+                                      'ABM',
+                                      'ICT',
+                                      'HE',
+                                      'IA'
+                                    ].map((String strand) {
+                                      return PopupMenuItem<String>(
+                                        value: strand,
+                                        child: Text(strand),
+                                      );
+                                    }).toList();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text('Grade Level'),
+                                GestureDetector(
+                                  onTap: _toggleGradeLevelIcon,
+                                  child: Row(
+                                    children: [
+                                      if (_gradeLevelIconState == 0 ||
+                                          _gradeLevelIconState == 1)
+                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                      if (_gradeLevelIconState == 0 ||
+                                          _gradeLevelIconState == 2)
+                                        Icon(Iconsax.arrow_down_copy, size: 16),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(child: Text('')),
+                        ],
+                      ),
+                      Divider(),
+
+                      // Scrollable rows for student data
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: students.map((student) {
+                              final data =
+                                  student.data() as Map<String, dynamic>;
+                              return Row(
+                                children: [
+                                  Expanded(
+                                      child: Text(data['first_name'] ?? '')),
+                                  Expanded(
+                                      child: Text(data['last_name'] ?? '')),
+                                  Expanded(
+                                      child: Text(data['middle_name'] ?? '')),
+                                  Expanded(
+                                      child:
+                                          Text(data['seniorHigh_Track'] ?? '')),
+                                  Expanded(
+                                      child: Text(
+                                          data['seniorHigh_Strand'] ?? '')),
+                                  Expanded(
+                                      child: Text(data['grade_level'] ?? '')),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(Iconsax.tick_circle_copy,
+                                              color: Colors.green),
+                                          onPressed: () {
+                                            updateEnrollmentStatus(student.id);
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Iconsax.close_circle_copy,
+                                              color: Colors.red),
+                                          onPressed: () {
+                                            (context, student.id);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildManageSections() {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -3484,6 +3839,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'Strand Instructor', Iconsax.teacher, 'Strand Instructor'),
             _buildDrawerItem(
                 'Manage Newcomers', Iconsax.task, 'Manage Newcomers'),
+                _buildDrawerItem(
+                'Manage Re-Enrolled Students ', Iconsax.task, 'Manage Re-Enrolled Students'),
             _buildDrawerItem(
                 'Manage Subjects', Iconsax.activity, 'Manage Subjects'),
             _buildDrawerItem(
@@ -3492,6 +3849,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'Manage Sections', Iconsax.user, 'Manage Sections'),
             _buildDrawerItem(
                 'Dropped Student', Iconsax.dropbox_copy, 'Dropped Student'),
+            _buildDrawerItem(
+                'Configuration', Iconsax.user, 'Configuration'),
             _buildDrawerItem(
                 'Report Analytics', Iconsax.data_copy, 'Report Analytics'),
             ListTile(
