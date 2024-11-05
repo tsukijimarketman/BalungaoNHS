@@ -218,7 +218,7 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                     width: screenWidth / 2.57,
                     child: CupertinoTextField(
                       controller: _confirmPasswordController,
-                      placeholder: 'Password',
+                      placeholder: 'Confirm Password',
                       obscureText: _obscureTextConfirm,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.0),

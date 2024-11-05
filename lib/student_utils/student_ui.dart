@@ -298,6 +298,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
   String? _gradeLevel;
   String? _semester;
   String? _selectedSection;
+  String? _enrollmentStatus;
 
   @override
   void initState() {
@@ -308,6 +309,37 @@ class _ScreensExampleState extends State<_ScreensExample> {
     _loadStudentData();
     _imageGetterFromExampleState();
     _loadSubjects(); // Ensure _selectedSection is checked before calling this
+    _fetchEnrollmentStatus();
+  }
+
+  Future<void> _fetchEnrollmentStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return; // Handle user not logged in
+
+    try {
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid', isEqualTo: user.uid)
+          .limit(1) // Assuming there's one document per user
+          .get();
+
+      if (docSnapshot.docs.isNotEmpty) {
+        setState(() {
+          // Assuming enrollment_status is a field in your document
+          _enrollmentStatus = docSnapshot.docs.first['enrollment_status'];
+          // Also fetch other student details if needed
+          _studentId = docSnapshot.docs.first['student_id'];
+          _fullName = docSnapshot.docs.first['full_name'];
+          _strand = docSnapshot.docs.first['strand'];
+          _track = docSnapshot.docs.first['track'];
+          _gradeLevel = docSnapshot.docs.first['grade_level'];
+          _semester = docSnapshot.docs.first['semester'];
+        });
+      }
+    } catch (e) {
+      // Handle errors (e.g., network issues)
+      print('Error fetching enrollment status: $e');
+    }
   }
 
   Future<void> _fetchSections() async {
@@ -906,139 +938,182 @@ class _ScreensExampleState extends State<_ScreensExample> {
             ),
           );
           case 2:
-            return SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: Container(
-                color: Color.fromARGB(255, 1, 93, 168),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Student Data",
-                          style: TextStyle(color: Colors.white, fontSize: 24)),
-                      SizedBox(height: 20),
-                      Text('Student ID no: ${_studentId ?? ''}',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      Text('Student Full Name: ${_fullName ?? ''}',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      Text('Strand: ${_strand ?? ''}',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      Text('Track: ${_track ?? ''}',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      Text('Grade Level: ${_gradeLevel ?? ''}',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      Text('Semester: ${_semester ?? ''}',
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      Text("Subjects",
-                          style: TextStyle(color: Colors.white, fontSize: 24)),
-                      DropdownButton<String>(
-                        value: _selectedSection,
-                        hint: Text('Select a section',
-                            style: TextStyle(color: Colors.white)),
-                        items: _sections.map((String section) {
-                          return DropdownMenuItem<String>(
-                            value: section,
-                            child: Text(section,
-                                style: TextStyle(color: Colors.black)),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) async {
-                          // Check if the user can select the section
-                          bool canSelect = await _canSelectSection();
-
-                          if (canSelect) {
-                            setState(() {
-                              _selectedSection =
-                                  newValue; // Update selected section
-                            });
-                          } else {
-                            // Show a message if the section is full
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'This section is full. Please choose another section.')),
-                            );
-                          }
-                        },
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _saveSection, // Call the save function
-                        child: Text('Save Section'),
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                          onPressed: _loadSubjects,
-                          child: Text('Load Subjects')),
-                      _subjects.isNotEmpty
-                          ? Table(
-                              border: TableBorder.all(color: Colors.black),
-                              columnWidths: {
-                                0: FlexColumnWidth(2),
-                                1: FlexColumnWidth(
-                                    4), // Adjust for balanced column width
-                                2: FlexColumnWidth(2),
+            return Container(
+              width: screenWidth / 1,
+              height: screenHeight / 1,
+              color: Color.fromARGB(255, 1, 93, 168),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (_enrollmentStatus == null) // While loading
+                    CircularProgressIndicator()
+                    else if (_enrollmentStatus == 'reEnrollSubmitted')
+                    Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Image.asset(
+                              'assets/PBMA.png',
+                              width: screenWidth / 5,
+                              height: screenHeight / 2,
+                            ),
+                          ),
+                        ),
+                          RichText(
+                        text: TextSpan(
+                          style: TextStyle(color: Colors.black), // Default text color
+                          children: [
+                            TextSpan(text: 'Your enrollment is ',
+                            style: TextStyle(color: Colors.white, fontSize: 24)),
+                            TextSpan(
+                              text: 'currently under review',
+                              style: TextStyle(color: Colors.yellow, fontSize: 24), // Change this to your desired color
+                            ),
+                            TextSpan(text: '. Please be patient as the admin processes your application.\n If you have any questions or need further assistance, feel free to reach out to the admin office.\n Thank you for your understanding!',
+                             style: TextStyle(color: Colors.white, fontSize: 24)),
+                          ],
+                        ),
+                      )
+                      ],
+                    )
+                    else if (_enrollmentStatus == 'approved') ...[
+                    SingleChildScrollView(
+                      physics: BouncingScrollPhysics(),
+                      child: Container(
+                        child: Column(
+                          children: [
+                            Text("Student Data",
+                                style: TextStyle(color: Colors.white, fontSize: 24)),
+                            SizedBox(height: 20),
+                            Text('Student ID no: ${_studentId ?? ''}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                )),
+                            Text('Student Full Name: ${_fullName ?? ''}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                )),
+                            Text('Strand: ${_strand ?? ''}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                )),
+                            Text('Track: ${_track ?? ''}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                )),
+                            Text('Grade Level: ${_gradeLevel ?? ''}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                )),
+                            Text('Semester: ${_semester ?? ''}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                )),
+                            Text("Subjects",
+                                style: TextStyle(color: Colors.white, fontSize: 24)),
+                            DropdownButton<String>(
+                              value: _selectedSection,
+                              hint: Text('Select a section',
+                                  style: TextStyle(color: Colors.white)),
+                              items: _sections.map((String section) {
+                                return DropdownMenuItem<String>(
+                                  value: section,
+                                  child: Text(section,
+                                      style: TextStyle(color: Colors.black)),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) async {
+                                // Check if the user can select the section
+                                bool canSelect = await _canSelectSection();
+                                        
+                                if (canSelect) {
+                                  setState(() {
+                                    _selectedSection =
+                                        newValue; // Update selected section
+                                  });
+                                } else {
+                                  // Show a message if the section is full
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'This section is full. Please choose another section.')),
+                                  );
+                                }
                               },
-                              children: [
-                                TableRow(children: [
-                                  Padding(
-                                    padding: EdgeInsets.all(12.0),
-                                    child: Text('Course Code',
-                                        style: TextStyle(color: Colors.black)),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(12.0),
-                                    child: Text('Subject',
-                                        style: TextStyle(color: Colors.black)),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(12.0),
-                                    child: Text('Category',
-                                        style: TextStyle(color: Colors.black)),
-                                  ),
-                                ]),
-                                // Dynamically create rows based on the fetched subjects
-                                ..._subjects.map((subject) {
-                                  return TableRow(children: [
-                                    Padding(
-                                      padding: EdgeInsets.all(12.0),
-                                      child: Text(subject['subject_code'],
-                                          style:
-                                              TextStyle(color: Colors.black)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(12.0),
-                                      child: Text(subject['subject_name'],
-                                          style:
-                                              TextStyle(color: Colors.black)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(12.0),
-                                      child: Text(subject['category'] ?? 'N/A',
-                                          style:
-                                              TextStyle(color: Colors.black)),
-                                    ),
-                                  ]);
-                                }).toList(),
-                              ],
-                            )
-                          : Text('No subjects available',
-                              style: TextStyle(color: Colors.white)),
-                    ],
-                  ),
+                            ),
+                            SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: _saveSection, // Call the save function
+                              child: Text('Save Section'),
+                            ),
+                            SizedBox(height: 20),
+                            ElevatedButton(
+                                onPressed: _loadSubjects,
+                                child: Text('Load Subjects')),
+                            _subjects.isNotEmpty
+                                ? Table(
+                                    border: TableBorder.all(color: Colors.black),
+                                    columnWidths: {
+                                      0: FlexColumnWidth(2),
+                                      1: FlexColumnWidth(
+                                          4), // Adjust for balanced column width
+                                      2: FlexColumnWidth(2),
+                                    },
+                                    children: [
+                                      TableRow(children: [
+                                        Padding(
+                                          padding: EdgeInsets.all(12.0),
+                                          child: Text('Course Code',
+                                              style: TextStyle(color: Colors.black)),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.all(12.0),
+                                          child: Text('Subject',
+                                              style: TextStyle(color: Colors.black)),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.all(12.0),
+                                          child: Text('Category',
+                                              style: TextStyle(color: Colors.black)),
+                                        ),
+                                      ]),
+                                      // Dynamically create rows based on the fetched subjects
+                                      ..._subjects.map((subject) {
+                                        return TableRow(children: [
+                                          Padding(
+                                            padding: EdgeInsets.all(12.0),
+                                            child: Text(subject['subject_code'],
+                                                style:
+                                                    TextStyle(color: Colors.black)),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.all(12.0),
+                                            child: Text(subject['subject_name'],
+                                                style:
+                                                    TextStyle(color: Colors.black)),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.all(12.0),
+                                            child: Text(subject['category'] ?? 'N/A',
+                                                style:
+                                                    TextStyle(color: Colors.black)),
+                                          ),
+                                        ]);
+                                      }).toList(),
+                                    ],
+                                  )
+                                : Text('No subjects available',
+                                    style: TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  ]
                 ),
               ),
             );
