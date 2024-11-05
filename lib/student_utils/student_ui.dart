@@ -30,7 +30,6 @@ class _StudentUIState extends State<StudentUI> {
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
   String selectedSemester = 'SELECT SEMESTER';
-  
 
   @override
   void initState() {
@@ -343,16 +342,6 @@ class _ScreensExampleState extends State<_ScreensExample> {
     }
   }
 
-  Future<void> _fetchSections() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('sections').get();
-    setState(() {
-      _sections = snapshot.docs
-          .map((doc) => doc['section_name'] as String)
-          .toList(); // Adjust the field name as necessary
-    });
-  }
-
   Future<void> _loadStudentData() async {
     User? user =
         FirebaseAuth.instance.currentUser; // Get the current logged-in user
@@ -381,7 +370,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           });
 
           // Load grades based on the selected semester
-        await _loadGrades(widget.selectedSemester);
+          await _loadGrades();
         } else {
           print('No matching student document found.');
         }
@@ -393,74 +382,94 @@ class _ScreensExampleState extends State<_ScreensExample> {
     }
   }
 
-  Future<void> _loadGrades(String selectedSemester) async {
+Map<String, List<Map<String, String>>> semesterGrades = {};
+
+  // Case 1
+ Future<void> _loadGrades() async {
   try {
-    String collectionName = selectedSemester;
+    List<String> collectionsToCheck = [
+      'Grade 11 - 1st Semester',
+      'Grade 11 - 2nd Semester',
+      'Grade 12 - 1st Semester',
+      'Grade 12 - 2nd Semester',
+    ];
 
-    QuerySnapshot gradeSnapshot = await FirebaseFirestore.instance
-        .collection(collectionName)
-        .get();
+    // Clear previous grades
+    semesterGrades.clear(); // Make sure to clear previous data
 
-    print('Queried collection: $collectionName');
-    print('Current user UID: ${FirebaseAuth.instance.currentUser?.uid}');
-    print('Total documents found: ${gradeSnapshot.docs.length}');
+    // Loop through collections to fetch grades
+    for (String collectionName in collectionsToCheck) {
+      QuerySnapshot gradeSnapshot =
+          await FirebaseFirestore.instance.collection(collectionName).get();
 
-    if (gradeSnapshot.docs.isNotEmpty) {
-      // Clear previous subjects and grades
-      _subjects.clear();
+      print('Checking collection: $collectionName');
 
-      for (var gradeDoc in gradeSnapshot.docs) {
-        String docId = gradeDoc.id; // This is the seniorHigh_Strand
-        var studentData = gradeDoc.data() as Map<String, dynamic>;
+      if (gradeSnapshot.docs.isNotEmpty) {
+        List<Map<String, String>> gradesList = []; // Temporary list for grades in this semester
 
-        print('Current document ID: $docId');
-        print('Document data: $studentData');
+        for (var gradeDoc in gradeSnapshot.docs) {
+          var studentData = gradeDoc.data() as Map<String, dynamic>;
 
-        // Loop through each student in the document
-        studentData.forEach((studentKey, studentValue) {
-          // Get the list of grades for the student
-          List<dynamic> gradesList = studentValue['grades'] ?? [];
+          // Loop through each student in the document
+          studentData.forEach((studentKey, studentValue) {
+            // Get the list of grades for the student
+            List<dynamic> gradesListFromDoc = studentValue['grades'] ?? [];
 
-          // Check each grade entry for matching UID
-          for (var gradeEntry in gradesList) {
-            if (gradeEntry is Map<String, dynamic>) {
-              String uid = gradeEntry['uid'] ?? ''; // Get the uid from the grade entry
-              
-              print('Comparing UID: $uid with current user UID: ${FirebaseAuth.instance.currentUser?.uid}');
+            // Check each grade entry for matching UID
+            for (var gradeEntry in gradesListFromDoc) {
+              if (gradeEntry is Map<String, dynamic>) {
+                String uid = gradeEntry['uid'] ?? ''; // Get the uid from the grade entry
 
-              // Check if the uid matches the current user's uid
-              if (uid == FirebaseAuth.instance.currentUser?.uid) {
-                String subjectCode = gradeEntry['subject_code'] ?? '';
-                String subjectName = gradeEntry['subject_name'] ?? '';
-                String grade = gradeEntry['grade']?.toString() ?? '';
+                // Check if the uid matches the current user's uid
+                if (uid == FirebaseAuth.instance.currentUser?.uid) {
+                  String subjectCode = gradeEntry['subject_code'] ?? '';
+                  String subjectName = gradeEntry['subject_name'] ?? '';
+                  String grade = gradeEntry['grade']?.toString() ?? '';
 
-                // Add to subjects list
-                _subjects.add({
-                  'subject_code': subjectCode,
-                  'subject_name': subjectName,
-                  'grade': grade,
-                });
+                  // Add to temporary grades list
+                  gradesList.add({
+                    'subject_code': subjectCode,
+                    'subject_name': subjectName,
+                    'grade': grade,
+                  });
 
-                print('Added grade: $grade for subject: $subjectName');
+                  print('Added grade: $grade for subject: $subjectName');
+                }
               }
             }
-          }
-        });
-      }
+          });
+        }
 
-      setState(() {
-        // This will rebuild the widget with updated subjects and grades
-      });
-
-      if (_subjects.isEmpty) {
-        print('No grades found for the current user UID in the selected semester.');
+        if (gradesList.isNotEmpty) {
+          semesterGrades[collectionName] = gradesList; // Save to the semesterGrades map
+        }
       }
-    } else {
-      print('No documents found in the selected semester collection.');
+    }
+
+    setState(() {
+      // Update UI
+    });
+
+    if (semesterGrades.isEmpty) {
+      print('No grades found for the current user UID across all semesters.');
     }
   } catch (e) {
     print('Error loading grades: $e');
   }
+}
+
+  // Case 1
+
+  // Case 2
+  Future<void> _saveAndLoadSubjects() async {
+  // Save the section first
+  await _saveSection();
+
+  // After saving the section, load the subjects
+  await _loadSubjects();
+
+  setState(() {});
+
 }
 
   Future<void> _saveSection() async {
@@ -556,43 +565,6 @@ class _ScreensExampleState extends State<_ScreensExample> {
     }
   }
 
-  Future<bool> _canSelectSection() async {
-    if (_selectedSection != null) {
-      // Fetch the section's document to check the capacity
-      final sectionDoc = await FirebaseFirestore.instance
-          .collection('sections')
-          .doc(_selectedSection)
-          .get();
-
-      if (sectionDoc.exists) {
-        int capacityCount = sectionDoc['capacityCount'] ?? 0;
-        int capacity = sectionDoc['capacity'] ?? 0;
-        return capacityCount <
-            capacity; // Return true if there's available capacity
-      }
-    }
-    return true; // Default to true if no section is selected
-  }
-
-  String getStrandCourse(String seniorHighStrand) {
-    switch (seniorHighStrand) {
-      case 'Accountancy, Business, and Management (ABM)':
-        return 'ABM';
-      case 'Information and Communication Technology (ICT)':
-        return 'ICT';
-      case 'Science, Technology, Engineering and Mathematics (STEM)':
-        return 'STEM';
-      case 'Humanities and Social Sciences (HUMSS)':
-        return 'HUMSS';
-      case 'Home Economics (HE)':
-        return 'HE';
-      case 'Industrial Arts (IA)':
-        return 'IA';
-      default:
-        return ''; // Return an empty string or some default value if there's no match
-    }
-  }
-
   Future<void> _loadSubjects() async {
     if (_selectedSection != null) {
       try {
@@ -652,6 +624,88 @@ class _ScreensExampleState extends State<_ScreensExample> {
         SnackBar(
             content: Text('Please select a section before loading subjects.')),
       );
+    }
+  }
+
+  void _finalizeSelection() async {
+  if (_selectedSection != null && _subjects.isNotEmpty) {
+    // Use the student ID of the logged-in user
+    String? studentId = _studentId; // Assuming _studentId holds the current student's ID
+
+    // Create a reference to the Firestore subcollection for the current user
+    CollectionReference userCollection = FirebaseFirestore.instance.collection('students').doc(studentId).collection('sections');
+
+    // Save the selected section and subjects
+    try {
+      await userCollection.doc(_selectedSection).set({
+        'selectedSection': _selectedSection,
+        'subjects': _subjects,
+        // Add any other relevant fields here
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Finalized successfully!')),
+      );
+    } catch (e) {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error finalizing selection: $e')),
+      );
+    }
+  } else {
+    // Show error message if selection is not made
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please select a section and load subjects before finalizing.')),
+    );
+  }
+}
+
+   Future<void> _fetchSections() async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('sections').get();
+    setState(() {
+      _sections = snapshot.docs
+          .map((doc) => doc['section_name'] as String)
+          .toList(); // Adjust the field name as necessary
+    });
+  }
+  // Case 2
+
+  Future<bool> _canSelectSection() async {
+    if (_selectedSection != null) {
+      // Fetch the section's document to check the capacity
+      final sectionDoc = await FirebaseFirestore.instance
+          .collection('sections')
+          .doc(_selectedSection)
+          .get();
+
+      if (sectionDoc.exists) {
+        int capacityCount = sectionDoc['capacityCount'] ?? 0;
+        int capacity = sectionDoc['capacity'] ?? 0;
+        return capacityCount <
+            capacity; // Return true if there's available capacity
+      }
+    }
+    return true; // Default to true if no section is selected
+  }
+
+  String getStrandCourse(String seniorHighStrand) {
+    switch (seniorHighStrand) {
+      case 'Accountancy, Business, and Management (ABM)':
+        return 'ABM';
+      case 'Information and Communication Technology (ICT)':
+        return 'ICT';
+      case 'Science, Technology, Engineering and Mathematics (STEM)':
+        return 'STEM';
+      case 'Humanities and Social Sciences (HUMSS)':
+        return 'HUMSS';
+      case 'Home Economics (HE)':
+        return 'HE';
+      case 'Industrial Arts (IA)':
+        return 'IA';
+      default:
+        return ''; // Return an empty string or some default value if there's no match
     }
   }
 
@@ -804,151 +858,116 @@ class _ScreensExampleState extends State<_ScreensExample> {
           case 0:
             return Case0();
           case 1:
-            return Container(
-            padding: EdgeInsets.all(16.0),
-            color: Color.fromARGB(255, 1, 93, 168),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, 
+          if (semesterGrades.isEmpty) {
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      color: Color.fromARGB(255, 1, 93, 168),
+      child: Center(
+        child: Text(
+          'No grades found.'
+          )
+          )
+          );
+  }
+
+  return SingleChildScrollView(
+    physics: BouncingScrollPhysics(),
+    child: Container(
+      padding: EdgeInsets.all(16.0),
+      color: Color.fromARGB(255, 1, 93, 168),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'REPORT CARD',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 20),
+          ...semesterGrades.entries.map((entry) {
+            String semester = entry.key; // e.g., 'Grade 11 - 1st Semester'
+            List<Map<String, String>> grades = entry.value; // List of grades for that semester
+    
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'REPORT CARD',
+                  semester,
                   style: TextStyle(
-                    color: Colors.white, 
-                    fontSize: 24, 
-                    fontWeight: FontWeight.bold, 
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 20), 
-
-                
                 Container(
-                  width: 200, 
-                  height: 30,
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white, 
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: DropdownButton<String>(
-                    value: widget.selectedSemester,
-                    items: [
-                      'SELECT SEMESTER',
-                      'Grade 11 - 1st Semester', 
-                      'Grade 11 - 2nd Semester', 
-                      'Grade 12 - 1st Semester', 
-                      'Grade 12 - 2nd Semester']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                    if (newValue != null) {
-                    widget.onSemesterChanged(newValue);
-                    _loadGrades(newValue); // Always load grades for the selected semester
-                  }
-                },
-                    underline: SizedBox(),
-                    isExpanded: true,
-                    dropdownColor: Colors.white,
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Container(
-                  color: Colors.white, 
+                  color: Colors.white,
                   child: Table(
-                    border: TableBorder.all(color: Colors.black), 
+                    border: TableBorder.all(color: Colors.black),
                     columnWidths: {
                       0: FlexColumnWidth(2),
-                      1: FlexColumnWidth(4), // Adjust for balanced column width
+                      1: FlexColumnWidth(4),
                       2: FlexColumnWidth(2),
                     },
                     children: [
                       TableRow(children: [
                         Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Text('Course Code', style: TextStyle(color: Colors.black)),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Text('Subject', style: TextStyle(color: Colors.black)),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Text('Grade', style: TextStyle(color: Colors.black)),
-                ),
-              ]),
-              // Generate rows dynamically based on _subjects
-              ..._subjects.map((subject) {
-                return TableRow(children: [
-                  Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Text(subject['subject_code'] ?? '', style: TextStyle(color: Colors.black)),
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Course Code', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Subject', style: TextStyle(color: Colors.black)),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text('Grade', style: TextStyle(color: Colors.black)),
+                        ),
+                      ]),
+                      ...grades.map((subject) {
+                        return TableRow(children: [
+                          Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: Text(subject['subject_code'] ?? '', style: TextStyle(color: Colors.black)),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: Text(subject['subject_name'] ?? '', style: TextStyle(color: Colors.black)),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: Text(subject['grade'] ?? 'N/A', style: TextStyle(color: Colors.black)),
+                          ),
+                        ]);
+                      }).toList(),
+                    ],
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Text(subject['subject_name'] ?? '', style: TextStyle(color: Colors.black)),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Text(subject['grade'] ?? 'N/A', style: TextStyle(color: Colors.black)),
-                  ),
-                ]);
-              }).toList(),
-            ],
-          ),
-        ),
+                ),
                 SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-                  children: [
-                    Row(
-                      children: [
-                        ElevatedButton(
-                        onPressed: () {
-                         
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Color.fromARGB(255, 1, 93, 168), 
-                          backgroundColor: Colors.white, 
-                          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          minimumSize: Size(80, 20),
-                        ),
-                        child: Text('Finalize', style: TextStyle(fontSize: 10),),
-                      ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Note: You can only finalize this \nwhen the subject is completed.',
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                      ],
-                    ),
-
-                    // Print Result button aligned to the right
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle print result functionality here
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black, 
-                        backgroundColor: Colors.yellow, 
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12), 
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5), 
-                          ),
-                      ),
-                      child: Text('Print Result'),
-                    ),
-                  ],
-                ),
               ],
+            );
+          }).toList(),
+          ElevatedButton(
+            onPressed: () {
+              // Handle print result functionality here
+            },
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black,
+              backgroundColor: Colors.yellow,
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
             ),
-          );
+            child: Text('Print Result'),
+          ),
+        ],
+      ),
+    ),
+  );
+
           case 2:
             return Container(
               width: screenWidth / 1,
@@ -956,118 +975,257 @@ class _ScreensExampleState extends State<_ScreensExample> {
               color: Color.fromARGB(255, 1, 93, 168),
               child: Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if (_enrollmentStatus == null) // While loading
-                    CircularProgressIndicator()
-                    else if (_enrollmentStatus == 'reEnrollSubmitted')
-                    Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Image.asset(
-                              'assets/PBMA.png',
-                              width: screenWidth / 5,
-                              height: screenHeight / 2,
-                            ),
-                          ),
-                        ),
-                          RichText(
-                        text: TextSpan(
-                          style: TextStyle(color: Colors.black), // Default text color
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_enrollmentStatus == null) // While loading
+                        CircularProgressIndicator()
+                      else if (_enrollmentStatus == 'reEnrollSubmitted')
+                        Column(
                           children: [
-                            TextSpan(text: 'Your enrollment is ',
-                            style: TextStyle(color: Colors.white, fontSize: 24)),
-                            TextSpan(
-                              text: 'currently under review',
-                              style: TextStyle(color: Colors.yellow, fontSize: 24), // Change this to your desired color
+                            Container(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Image.asset(
+                                  'assets/PBMA.png',
+                                  width: screenWidth / 5,
+                                  height: screenHeight / 2,
+                                ),
+                              ),
                             ),
-                            TextSpan(text: '. Please be patient as the admin processes your application.\n If you have any questions or need further assistance, feel free to reach out to the admin office.\n Thank you for your understanding!',
-                             style: TextStyle(color: Colors.white, fontSize: 24)),
+                            Container(
+                              alignment: Alignment.center,
+                              child: RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                      color: Colors.black), // Default text color
+                                  children: [
+                                    TextSpan(
+                                        text: 'Your enrollment is ',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 24)),
+                                    TextSpan(
+                                      text: 'currently under review',
+                                      style: TextStyle(
+                                          color: Colors.yellow,
+                                          fontSize:
+                                              24), // Change this to your desired color
+                                    ),
+                                    TextSpan(
+                                        text:
+                                            '. Please be patient as the admin processes your application.\n If you have any questions or need further assistance, feel free to reach out to the admin office.\n Thank you for your understanding!',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 24)),
+                                  ],
+                                ),
+                              ),
+                            )
                           ],
-                        ),
-                      )
-                      ],
-                    )
-                    else if (_enrollmentStatus == 'approved') ...[
-                    SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      child: Container(
-                        child: Column(
-                          children: [
-                            Text("Student Data",
-                                style: TextStyle(color: Colors.white, fontSize: 24)),
-                            SizedBox(height: 20),
-                            Text('Student ID no: ${_studentId ?? ''}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                )),
-                            Text('Student Full Name: ${_fullName ?? ''}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                )),
-                            Text('Strand: ${_strand ?? ''}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                )),
-                            Text('Track: ${_track ?? ''}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                )),
-                            Text('Grade Level: ${_gradeLevel ?? ''}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                )),
-                            Text('Semester: ${_semester ?? ''}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                )),
-                            Text("Subjects",
-                                style: TextStyle(color: Colors.white, fontSize: 24)),
-                            DropdownButton<String>(
-                              value: _selectedSection,
-                              hint: Text('Select a section',
-                                  style: TextStyle(color: Colors.white)),
-                              items: _sections.map((String section) {
-                                return DropdownMenuItem<String>(
-                                  value: section,
-                                  child: Text(section,
-                                      style: TextStyle(color: Colors.black)),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) async {
-                                // Check if the user can select the section
-                                bool canSelect = await _canSelectSection();
-                                        
-                                if (canSelect) {
-                                  setState(() {
-                                    _selectedSection =
-                                        newValue; // Update selected section
-                                  });
-                                } else {
-                                  // Show a message if the section is full
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'This section is full. Please choose another section.')),
-                                  );
-                                }
-                              },
-                            ),
-                            SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: _saveSection, // Call the save function
-                              child: Text('Save Section'),
-                            ),
-                            SizedBox(height: 20),
-                            ElevatedButton(
-                                onPressed: _loadSubjects,
-                                child: Text('Load Subjects')),
-                            _subjects.isNotEmpty
-                                ? Table(
+                        )
+                      else if (_enrollmentStatus == 'approved') ...[
+                        Container(
+                          height: screenHeight / 1,
+                          width: screenWidth / 1,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 20,),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 180.0),
+                                  child: Text(
+                                    "Student Data",
+                                      style: TextStyle(
+                                          color: Colors.yellow, 
+                                          fontSize: 18)
+                                          ),
+                                ),
+                                SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 400.0),
+                                      child: Text('Student ID no:',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 145.0),
+                                      child: Text('${_studentId ?? ''}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                                    SizedBox(height: 15),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 400.0),
+                                      child: Text('Student Full Name:',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 100.0),
+                                      child: Text('${_fullName ?? ''}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                                    SizedBox(height: 15),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 400.0),
+                                      child: Text('Strand:',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 210.0),
+                                      child: Text('${_strand ?? ''}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                                    SizedBox(height: 15),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 400.0),
+                                      child: Text('Track:',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 220.0),
+                                      child: Text('${_track ?? ''}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                                    SizedBox(height: 15),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 400.0),
+                                      child: Text('Grade Level:',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 165.0),
+                                      child: Text('${_gradeLevel ?? ''}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                                    SizedBox(height: 15),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 400.0),
+                                      child: Text('Semester:',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          )),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 185.0),
+                                      child: Text('${_semester ?? ''}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                                    SizedBox(height: 15),
+                                Center(
+                                  child: DropdownButton<String>(
+                                    value: _selectedSection,
+                                    hint: Text('Select a section',
+                                        style: TextStyle(color: Colors.white)),
+                                    items: _sections.map((String section) {
+                                      return DropdownMenuItem<String>(
+                                        value: section,
+                                        child: Text(section,
+                                            style: TextStyle(color: Colors.black)),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) async {
+                                      // Check if the user can select the section
+                                      bool canSelect = await _canSelectSection();
+                                  
+                                      if (canSelect) {
+                                        setState(() {
+                                          _selectedSection =
+                                              newValue; // Update selected section
+                                        });
+                                      } else {
+                                        // Show a message if the section is full
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'This section is full. Please choose another section.')),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        _saveAndLoadSubjects, // Call the save function
+                                    child: Text('Load Section'),
+                                  ),
+                                ),
+                                SizedBox(height: 15,),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 180.0),
+                                  child: Text("Subjects",
+                                      style: TextStyle(
+                                        color: Colors.yellow, 
+                                          fontSize: 18
+                                      )
+                                  )
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(200, 20, 200, 50),
+                                  child: Table(
                                     border: TableBorder.all(color: Colors.black),
                                     columnWidths: {
                                       0: FlexColumnWidth(2),
@@ -1076,57 +1234,107 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                       2: FlexColumnWidth(2),
                                     },
                                     children: [
+                                      // Header row
                                       TableRow(children: [
                                         Padding(
                                           padding: EdgeInsets.all(12.0),
                                           child: Text('Course Code',
-                                              style: TextStyle(color: Colors.black)),
+                                              style:
+                                                  TextStyle(color: Colors.black)),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(12.0),
                                           child: Text('Subject',
-                                              style: TextStyle(color: Colors.black)),
+                                              style:
+                                                  TextStyle(color: Colors.black)),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(12.0),
                                           child: Text('Category',
-                                              style: TextStyle(color: Colors.black)),
+                                              style:
+                                                  TextStyle(color: Colors.black)),
                                         ),
                                       ]),
-                                      // Dynamically create rows based on the fetched subjects
-                                      ..._subjects.map((subject) {
-                                        return TableRow(children: [
+                                      // Data rows; if there are no subjects, show a placeholder row
+                                      if (_subjects.isNotEmpty) ...[
+                                        // Dynamically create rows based on the fetched subjects
+                                        ..._subjects.map((subject) {
+                                          return TableRow(children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(12.0),
+                                              child: Text(subject['subject_code'],
+                                                  style: TextStyle(
+                                                      color: Colors.black)),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(12.0),
+                                              child: Text(subject['subject_name'],
+                                                  style: TextStyle(
+                                                      color: Colors.black)),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(12.0),
+                                              child: Text(
+                                                  subject['category'] ?? 'N/A',
+                                                  style: TextStyle(
+                                                      color: Colors.black)),
+                                            ),
+                                          ]);
+                                        }).toList(),
+                                      ] else
+                                        // Placeholder row when there are no subjects
+                                        TableRow(children: [
                                           Padding(
                                             padding: EdgeInsets.all(12.0),
-                                            child: Text(subject['subject_code'],
-                                                style:
-                                                    TextStyle(color: Colors.black)),
+                                            child: Text('No subjects available',
+                                                style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontStyle: FontStyle.italic)),
                                           ),
                                           Padding(
                                             padding: EdgeInsets.all(12.0),
-                                            child: Text(subject['subject_name'],
-                                                style:
-                                                    TextStyle(color: Colors.black)),
+                                            child: SizedBox(), // Empty cell
                                           ),
                                           Padding(
                                             padding: EdgeInsets.all(12.0),
-                                            child: Text(subject['category'] ?? 'N/A',
-                                                style:
-                                                    TextStyle(color: Colors.black)),
+                                            child: SizedBox(), // Empty cell
                                           ),
-                                        ]);
-                                      }).toList(),
+                                        ]),
                                     ],
-                                  )
-                                : Text('No subjects available',
-                                    style: TextStyle(color: Colors.white)),
-                          ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 200.0),
+                                  child: Container(
+                                    alignment: Alignment.bottomRight,
+                                    child: ElevatedButton(
+                                      onPressed: _finalizeSelection,
+                                      style: ElevatedButton.styleFrom(
+                                      foregroundColor: Color.fromARGB(255, 1, 93, 168),
+                                      backgroundColor: Colors.white,
+                                      padding: EdgeInsets.symmetric(
+                                      horizontal: 30, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                      minimumSize: Size(80, 20),
+                                  ),
+                                      child: Text(
+                                      'Finalize',
+                                      style: TextStyle(fontSize: 10),
+                                     ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                )
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                  ]
-                ),
+                      ],
+                    ]),
               ),
             );
           case 3:
@@ -1147,13 +1355,14 @@ class _ScreensExampleState extends State<_ScreensExample> {
                               GestureDetector(
                                 onTap: () async {
                                   await _pickImage(); // Open image picker to select a new image
-              
-                                  if (_imageBytes != null || _imageFile != null) {
+
+                                  if (_imageBytes != null ||
+                                      _imageFile != null) {
                                     await replaceProfilePicture(); // Upload and replace the profile picture
-              
+
                                     // Reload the new image URL from Firestore after uploading
                                     await _imageGetterFromExampleState();
-              
+
                                     setState(
                                         () {}); // Refresh the UI after updating the image URL
                                   }
@@ -1192,7 +1401,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                           width: 170,
                                           height: 170,
                                           decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(0.5),
+                                            color:
+                                                Colors.black.withOpacity(0.5),
                                             shape: BoxShape.circle,
                                           ),
                                           child: const Icon(
@@ -1218,7 +1428,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                             fontFamily: "B",
                                             fontSize: 30),
                                       ),
-                                      SizedBox(width: 10,),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
                                       Text(
                                         "Molina",
                                         style: TextStyle(
@@ -1226,7 +1438,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                             fontFamily: "B",
                                             fontSize: 30),
                                       ),
-                                      SizedBox(width: 10,),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
                                       Text(
                                         "Velasquez",
                                         style: TextStyle(
@@ -1242,14 +1456,14 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                       GestureDetector(
                                         onTap: () async {
                                           await _pickImage(); // Open image picker to select a new image
-                                      
+
                                           if (_imageBytes != null ||
                                               _imageFile != null) {
                                             await replaceProfilePicture(); // Upload and replace the profile picture
-                                      
+
                                             // Reload the new image URL from Firestore after uploading
                                             await _imageGetterFromExampleState();
-                                      
+
                                             setState(
                                                 () {}); // Refresh the UI after updating the image URL
                                           }
@@ -1259,9 +1473,12 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                           width: 150,
                                           decoration: BoxDecoration(
                                             color: Colors.yellow,
-                                            borderRadius: BorderRadius.circular(10),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
-                                          child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
                                                 "Edit Profile",
@@ -1270,13 +1487,21 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                                     fontFamily: "B",
                                                     fontSize: 15),
                                               ),
-                                              SizedBox(width: 5,),
-                                              Icon(Icons.edit, size: 20, color: Colors.black,)
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Icon(
+                                                Icons.edit,
+                                                size: 20,
+                                                color: Colors.black,
+                                              )
                                             ],
                                           ),
                                         ),
                                       ).showCursorOnHover.moveUpOnHover,
-                                      SizedBox(width: 15,),
+                                      SizedBox(
+                                        width: 15,
+                                      ),
                                       GestureDetector(
                                         onTap: ()async {
                                           logout();
@@ -1286,19 +1511,30 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                           width: 150,
                                           decoration: BoxDecoration(
                                             color: Colors.white,
-                                            borderRadius: BorderRadius.circular(10),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
-                                          child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
                                                 "Logout",
                                                 style: TextStyle(
-                                                    color: Color.fromARGB(255, 1, 93, 168),
+                                                    color: Color.fromARGB(
+                                                        255, 1, 93, 168),
                                                     fontFamily: "B",
                                                     fontSize: 15),
                                               ),
-                                              SizedBox(width: 5,),
-                                              Icon(Icons.logout_rounded, size: 20, color: Color.fromARGB(255, 1, 93, 168),)
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Icon(
+                                                Icons.logout_rounded,
+                                                size: 20,
+                                                color: Color.fromARGB(
+                                                    255, 1, 93, 168),
+                                              )
                                             ],
                                           ),
                                         ),
@@ -1317,7 +1553,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
                       Text(
                         "Student Information",
                         style: TextStyle(
-                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                            color: Colors.yellow,
+                            fontSize: 25,
+                            fontFamily: "SB"),
                       ),
                       SizedBox(
                         height: 10,
@@ -1350,7 +1588,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1384,11 +1623,13 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1422,7 +1663,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1456,7 +1698,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1498,7 +1741,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1532,7 +1776,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1566,7 +1811,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1600,7 +1846,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1634,11 +1881,13 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
@@ -1672,7 +1921,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1706,7 +1956,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -1723,7 +1974,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
                       Text(
                         "Home Address",
                         style: TextStyle(
-                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                            color: Colors.yellow,
+                            fontSize: 25,
+                            fontFamily: "SB"),
                       ),
                       SizedBox(
                         height: 10,
@@ -1756,7 +2009,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
@@ -1780,7 +2034,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                 width: 125,
                                 child: TextFormField(
                                   initialValue: "Zone 2",
-                                  enabled:true,
+                                  enabled: true,
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontFamily: "R",
@@ -1790,9 +2044,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
-                                    
                                     filled: true,
                                     fillColor: Colors.white,
                                   ),
@@ -1825,7 +2079,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
@@ -1859,7 +2114,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
@@ -1893,7 +2149,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
@@ -1927,7 +2184,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
@@ -1944,7 +2202,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
                       Text(
                         "Parent Guardian Information",
                         style: TextStyle(
-                            color: Colors.yellow, fontSize: 25, fontFamily: "SB"),
+                            color: Colors.yellow,
+                            fontSize: 25,
+                            fontFamily: "SB"),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1974,7 +2234,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -2008,11 +2269,13 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -2046,7 +2309,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],
@@ -2080,7 +2344,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                     contentPadding: EdgeInsets.only(left: 10),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white),
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                     ),
                                     filled: true,
                                     fillColor: Colors.grey[300],

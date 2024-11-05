@@ -31,7 +31,7 @@ class _SignInDesktopState extends State<SignInDesktop> {
 
   bool _showForgotPass = false;
   bool _showChangePassword = false;
-  bool _showReEnroll = false;
+  bool _showReEnrollView = false;
 
   void toggleForgotPass() {
     setState(() {
@@ -43,6 +43,18 @@ class _SignInDesktopState extends State<SignInDesktop> {
   void closeForgotPass() {
     setState(() {
       _showForgotPass = false;
+    });
+  }
+
+  void toggleChangePassword() {
+    setState(() {
+      _showChangePassword = !_showChangePassword;
+    });
+  }
+
+  void toggleReEnroll() {
+    setState(() {
+      _showReEnrollView = !_showReEnrollView;
     });
   }
 
@@ -60,6 +72,8 @@ class _SignInDesktopState extends State<SignInDesktop> {
 
   @override
   Widget build(BuildContext context) {
+    print('Current view: ${_showForgotPass ? "Forgot Password" : _showChangePassword ? "Change Password" : _showReEnrollView ? "ReEnroll" : "Sign In"}');
+
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Stack(
@@ -77,10 +91,10 @@ class _SignInDesktopState extends State<SignInDesktop> {
                       key: ValueKey('changePasswordScreen'),
                       email: _emailController.text.trim(),
                     )
-                    : _showReEnroll
-                      ? ReEnrollForm(
-                          key: ValueKey('ReEnrollView'),
-                        )
+                    : _showReEnrollView
+                    ? ReEnrollForm(
+                        key: ValueKey('ReEnrollView'),
+                      )
                           : Container(
                               key: ValueKey('signInView'),
                               width: screenWidth / 2,
