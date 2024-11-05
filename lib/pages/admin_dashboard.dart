@@ -54,7 +54,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   final DateFormat formatter = DateFormat('MM-dd-yyyy');
 
-
   Map<String, String> strandMapping = {
     'STEM': 'Science, Technology, Engineering and Mathematics (STEM)',
     'HUMSS': 'Humanities and Social Sciences (HUMSS)',
@@ -142,7 +141,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
           DocumentReference studentDoc = querySnapshot.docs.first.reference;
 
           // Add the 'Status' field and set its value to 'drop'
-          batch.update(studentDoc, {'Status': 'inactive', 'dropDate': FieldValue.serverTimestamp(),});
+          batch.update(studentDoc, {
+            'Status': 'inactive',
+            'dropDate': FieldValue.serverTimestamp(),
+          });
         } else {
           // Handle the case where the document doesn't exist
           print('Document with student_id $studentId not found.');
@@ -223,13 +225,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
               "Are you sure you want to move the selected students to the drop list?"),
           actions: <Widget>[
             CupertinoDialogAction(
-              child: Text("Cancel", style: TextStyle(color: Colors.red),),
+              child: Text(
+                "Cancel",
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
             ),
             CupertinoDialogAction(
-              child: Text("Yes", style: TextStyle(color: Colors.blue),),
+              child: Text(
+                "Yes",
+                style: TextStyle(color: Colors.blue),
+              ),
               onPressed: () {
                 moveToDropList(); // Call your function to move to drop list
                 Navigator.of(context).pop(); // Close the dialog
@@ -287,31 +295,37 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   void _showDeleteConfirmationDialog(BuildContext context, String studentId) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return CupertinoAlertDialog(
-        title: Text("Delete Student"),
-        content: Text("Are you sure you want to delete this student?"),
-        actions: <Widget>[
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("Delete Student"),
+          content: Text("Are you sure you want to delete this student?"),
+          actions: <Widget>[
             CupertinoDialogAction(
-              child: Text("Cancel", style: TextStyle(color: Colors.red),),
+              child: Text(
+                "Cancel",
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
             ),
-          CupertinoDialogAction(
-            child: Text("Yes", style: TextStyle(color: Colors.blue),),
-            onPressed: () {
-              deleteNewComersStudent(studentId); // Proceed to delete
-              Navigator.of(context).pop(); // Close the dialog
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+            CupertinoDialogAction(
+              child: Text(
+                "Yes",
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+                deleteNewComersStudent(studentId); // Proceed to delete
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void deleteNewComersStudent(String studentId) async {
     try {
@@ -547,7 +561,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
       // Check if a document was found
       if (studentDoc.docs.isNotEmpty) {
         // Update the status field to 'active'
-        await studentDoc.docs.first.reference.update({'Status': 'active', 'dropDate': FieldValue.delete(),});
+        await studentDoc.docs.first.reference.update({
+          'Status': 'active',
+          'dropDate': FieldValue.delete(),
+        });
         print('Student status updated to active for ID: $studentId');
       } else {
         print('No student found with ID: $studentId');
@@ -567,13 +584,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
           content: Text('Do you want to activate this student?'),
           actions: [
             CupertinoDialogAction(
-              child: Text('Cancel', style: TextStyle(color: Colors.red),),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
             ),
             CupertinoDialogAction(
-              child: Text('Yes', style: TextStyle(color: Colors.blue),),
+              child: Text(
+                'Yes',
+                style: TextStyle(color: Colors.blue),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog after action
                 _setStudentStatusActive(
@@ -657,53 +680,55 @@ class _AdminDashboardState extends State<AdminDashboard> {
   // Configuration
   // Method to save data to Firebase
   void _saveConfiguration() {
-  FirebaseFirestore.instance.collection('configurations').doc('currentConfig').set({
-    'curriculum': _curriculum,
-    'semester': _selectedSemester,
-  }).then((_) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Configuration saved successfully!')),
-    );
+    FirebaseFirestore.instance
+        .collection('configurations')
+        .doc('currentConfig')
+        .set({
+      'curriculum': _curriculum,
+      'semester': _selectedSemester,
+    }).then((_) async {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Configuration saved successfully!')),
+      );
 
-    // Update enrollment status for all students
-    await _updateEnrollmentStatusForStudents();
-
-  }).catchError((error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to save configuration: $error')),
-    );
+      // Update enrollment status for all students
+      await _updateEnrollmentStatusForStudents();
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save configuration: $error')),
+      );
     });
-}
+  }
 
 // Function to update enrollment status for all students
-Future<void> _updateEnrollmentStatusForStudents() async {
-  try {
-    // Query to get all documents with accountType = "student"
-    QuerySnapshot studentDocs = await FirebaseFirestore.instance
-        .collection('users') // replace 'users' with the actual name of your users collection
-        .where('accountType', isEqualTo: 'student')
-        .get();
+  Future<void> _updateEnrollmentStatusForStudents() async {
+    try {
+      // Query to get all documents with accountType = "student"
+      QuerySnapshot studentDocs = await FirebaseFirestore.instance
+          .collection(
+              'users') // replace 'users' with the actual name of your users collection
+          .where('accountType', isEqualTo: 'student')
+          .get();
 
-    // Batch update to change enrollment_status for each student document
-    WriteBatch batch = FirebaseFirestore.instance.batch();
+      // Batch update to change enrollment_status for each student document
+      WriteBatch batch = FirebaseFirestore.instance.batch();
 
-    for (QueryDocumentSnapshot doc in studentDocs.docs) {
-      batch.update(doc.reference, {'enrollment_status': 're-enrolled'});
+      for (QueryDocumentSnapshot doc in studentDocs.docs) {
+        batch.update(doc.reference, {'enrollment_status': 're-enrolled'});
+      }
+
+      // Commit the batch update
+      await batch.commit();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Enrollment status updated for all students.')),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update enrollment status: $error')),
+      );
     }
-
-    // Commit the batch update
-    await batch.commit();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Enrollment status updated for all students.')),
-    );
-
-  } catch (error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to update enrollment status: $error')),
-    );
   }
-}
 
   // Configuration
 
@@ -715,7 +740,10 @@ Future<void> _updateEnrollmentStatusForStudents() async {
 
   Future<void> updateEnrollmentStatus(String studentId) async {
     try {
-      await FirebaseFirestore.instance.collection('users').doc(studentId).update({
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(studentId)
+          .update({
         'enrollment_status': 'approved',
       });
       // Optionally return a success message or handle success feedback here
@@ -841,7 +869,7 @@ Future<void> _updateEnrollmentStatusForStudents() async {
         return _buildStrandInstructoraContent();
       case 'Manage Newcomers':
         return _buildNewcomersContent();
-        case 'Manage Re-Enrolled Students':
+      case 'Manage Re-Enrolled Students':
         return _buildReEnrolledStudentContent();
       case 'Manage Subjects':
         return _buildManageSubjects();
@@ -2110,7 +2138,8 @@ Future<void> _updateEnrollmentStatusForStudents() async {
                                           icon: Icon(Iconsax.close_circle_copy,
                                               color: Colors.red),
                                           onPressed: () {
-                                            _showDeleteConfirmationDialog(context, student.id);
+                                            _showDeleteConfirmationDialog(
+                                                context, student.id);
                                           },
                                         ),
                                       ],
@@ -2876,9 +2905,10 @@ Future<void> _updateEnrollmentStatusForStudents() async {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('This is Configuration', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('This is Configuration',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           SizedBox(height: 16),
-          
+
           // Curriculum Text Field
           CupertinoTextField(
             placeholder: 'Enter Curriculum',
@@ -2889,7 +2919,7 @@ Future<void> _updateEnrollmentStatusForStudents() async {
             },
           ),
           SizedBox(height: 16),
-          
+
           // Semester Selection Radio Buttons
           ListTile(
             title: Text('1st Semester'),
@@ -2915,7 +2945,7 @@ Future<void> _updateEnrollmentStatusForStudents() async {
               },
             ),
           ),
-          
+
           // Save Button
           SizedBox(height: 16),
           ElevatedButton(
@@ -2927,7 +2957,7 @@ Future<void> _updateEnrollmentStatusForStudents() async {
     );
   }
 
-  Widget _buildReEnrolledStudentContent(){
+  Widget _buildReEnrolledStudentContent() {
     return Container(
       color: Colors.grey[300],
       child: Column(
@@ -3345,13 +3375,14 @@ Future<void> _updateEnrollmentStatusForStudents() async {
                                                     ['capacityCount']
                                                 .toString()),
                                           ),
-                                          
                                           Padding(
                                             padding: const EdgeInsets.all(2.0),
                                             child: Row(
                                               children: [
                                                 IconButton(
-                                                  icon: Icon(Icons.remove_red_eye_sharp,
+                                                  icon: Icon(
+                                                      Icons
+                                                          .remove_red_eye_sharp,
                                                       color: Colors.blue),
                                                   onPressed: () {
                                                     Navigator.push(
@@ -3671,12 +3702,14 @@ Future<void> _updateEnrollmentStatusForStudents() async {
                                   Expanded(
                                       child: Text(data['grade_level'] ?? '')),
                                   Expanded(
-                                      child: Text(
-                                        data['dropDate'] != null
-                                            ? formatter.format((data['dropDate'] as Timestamp).toDate())
-                                            : '',
-                                      ),
+                                    child: Text(
+                                      data['dropDate'] != null
+                                          ? formatter.format(
+                                              (data['dropDate'] as Timestamp)
+                                                  .toDate())
+                                          : '',
                                     ),
+                                  ),
                                   Expanded(
                                     child: TextButton(
                                       onPressed: () {
@@ -3839,8 +3872,8 @@ Future<void> _updateEnrollmentStatusForStudents() async {
                 'Strand Instructor', Iconsax.teacher, 'Strand Instructor'),
             _buildDrawerItem(
                 'Manage Newcomers', Iconsax.task, 'Manage Newcomers'),
-                _buildDrawerItem(
-                'Manage Re-Enrolled Students ', Iconsax.task, 'Manage Re-Enrolled Students'),
+            _buildDrawerItem('Manage Re-Enrolled Students ', Iconsax.task,
+                'Manage Re-Enrolled Students'),
             _buildDrawerItem(
                 'Manage Subjects', Iconsax.activity, 'Manage Subjects'),
             _buildDrawerItem(
@@ -3849,8 +3882,7 @@ Future<void> _updateEnrollmentStatusForStudents() async {
                 'Manage Sections', Iconsax.user, 'Manage Sections'),
             _buildDrawerItem(
                 'Dropped Student', Iconsax.dropbox_copy, 'Dropped Student'),
-            _buildDrawerItem(
-                'Configuration', Iconsax.user, 'Configuration'),
+            _buildDrawerItem('Configuration', Iconsax.user, 'Configuration'),
             _buildDrawerItem(
                 'Report Analytics', Iconsax.data_copy, 'Report Analytics'),
             ListTile(

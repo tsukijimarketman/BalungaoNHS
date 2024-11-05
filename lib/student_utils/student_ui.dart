@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pbma_portal/launcher.dart';
 import 'package:pbma_portal/student_utils/cases/case0.dart';
 import 'package:pbma_portal/widgets/hover_extensions.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -779,6 +780,17 @@ class _ScreensExampleState extends State<_ScreensExample> {
     }
   }
 
+  Future<void> logout() async {
+  try {
+    await FirebaseAuth.instance.signOut();
+    print("User logged out successfully");
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder)=>Launcher()));
+  } catch (e) {
+    print("Error logging out: $e");
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -1266,8 +1278,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                       ).showCursorOnHover.moveUpOnHover,
                                       SizedBox(width: 15,),
                                       GestureDetector(
-                                        onTap: () {
-                                          
+                                        onTap: ()async {
+                                          logout();
                                         },
                                         child: Container(
                                           height: 40,
