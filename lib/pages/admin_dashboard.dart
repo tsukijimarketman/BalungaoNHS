@@ -1610,7 +1610,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       children: [
                         Row(
                           children: [
-                            Checkbox(value: false, onChanged: (bool? value) {}),
+                            // Checkbox(value: false, onChanged: (bool? value) {}),
                             Expanded(child: Text('Student ID')),
                             Expanded(child: Text('Name')),
                             Expanded(
@@ -1694,7 +1694,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 ],
                               ),
                             ),
-                            Expanded(child: Text('Average')),
+                            // Expanded(child: Text('Average')),
                           ],
                         ),
                         Divider(),
@@ -1711,8 +1711,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             },
                             child: Row(
                               children: [
-                                Checkbox(
-                                    value: false, onChanged: (bool? value) {}),
+                                // Checkbox(
+                                //     value: false, onChanged: (bool? value) {}),
                                 Expanded(child: Text(data['student_id'] ?? '')),
                                 Expanded(
                                     child: Text(
