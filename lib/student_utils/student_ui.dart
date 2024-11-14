@@ -949,19 +949,46 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
               ],
             );
           }).toList(),
-          ElevatedButton(
-            onPressed: () {
-              // Handle print result functionality here
-            },
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.black,
-              backgroundColor: Colors.yellow,
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  // Handle print result functionality here
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.yellow,
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                child: Text('Print Result'),
               ),
-            ),
-            child: Text('Print Result'),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0 , 100, 15, 0),
+                    child: Text('Urbano Delos Angeles IV', style: TextStyle(fontSize: 18, fontFamily: "B", color: Colors.white)),
+                  ),
+                   SizedBox(height: 8), // Adjust spacing if needed
+    Container(
+      width: 250, // Adjust the width to control line length
+      height: 3,   // Height of the line
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Colors.blue, Colors.yellow],
+        ),
+      ),
+    ),
+    SizedBox(height: 8), // Adjust spacing if needed
+                  Text('SCHOOL PRINCIPAL', style: TextStyle(fontSize: 12, color: Colors.white),)
+                ],
+              )
+            ],
           ),
         ],
       ),
