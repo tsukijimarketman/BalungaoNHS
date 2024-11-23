@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:html' as html;
 import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -87,6 +88,8 @@ class StudentInformationState extends State<StudentInformation>
   File? _imageFile;
   Uint8List? _webImageData;
   String? _imageUrl;
+  String? _emailError;
+
 
   @override
   void initState() {
@@ -229,6 +232,19 @@ class StudentInformationState extends State<StudentInformation>
       );
     }
   }
+
+    Future<bool> checkIfEmailExists() async {
+  // Use the value of the controller, not the controller object itself
+  final String email = _emailAddressController.text;
+
+  final QuerySnapshot snapshot = await FirebaseFirestore.instance
+      .collection('users') // Replace 'users' with your actual collection name
+      .where('email_Address', isEqualTo: email) // Query based on the email field value
+      .get();
+
+  return snapshot.docs.isNotEmpty; // Return true if the email exists
+}
+
 
     @override
     Widget build(BuildContext context) {
@@ -825,15 +841,38 @@ class StudentInformationState extends State<StudentInformation>
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your Email Address';
-                      }
-                      return null;
-                    },
-                    onChanged: (text) {
-                      setState(() {});
-                    },
-                  ),
+  if (value == null || value.isEmpty) {
+    return 'Please enter your Email Address';
+  }
+
+  // If _emailError has an error, return that
+  if (_emailError != null) {
+    return _emailError;
+  }
+
+  return null;
+},
+
+onChanged: (value) async {
+  if (value.isEmpty) {
+    setState(() {
+      _emailError = 'Please enter your Email Address';
+    });
+    return;
+  }
+
+  // Perform async check
+  bool emailExists = await checkIfEmailExists();
+
+  setState(() {
+    if (emailExists) {
+      _emailError = 'This email is already registered.';
+    } else {
+      _emailError = null; // Clear error
+    }
+  });
+},
+                  )
                 ),
                 SizedBox(width: widget.spacing),
                 Container(

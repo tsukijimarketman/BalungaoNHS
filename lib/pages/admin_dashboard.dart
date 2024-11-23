@@ -11,6 +11,7 @@ import 'package:pbma_portal/Manage/AddingSubjects.dart';
 import 'package:pbma_portal/Manage/EditInstructor.dart';
 import 'package:pbma_portal/Manage/EditSections.dart';
 import 'package:pbma_portal/Manage/EditSubject.dart';
+import 'package:pbma_portal/Manage/NewcomersValidator.dart';
 import 'package:pbma_portal/Manage/StudentInSection.dart';
 import 'package:pbma_portal/Manage/SubjectsandGrade.dart';
 import 'package:pbma_portal/launcher.dart';
@@ -873,8 +874,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return _buildReEnrolledStudentContent();
       case 'Manage Subjects':
         return _buildManageSubjects();
-      case 'Manage Instructors':
-        return _buildManageInstructorContent();
+      case 'Manage Teachers':
+        return _buildManageTeachersContent();
       case 'Configuration':
         return _buildConfigurationContent();
       case 'Manage Sections':
@@ -1473,11 +1474,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               String studentId = data['student_id'] ?? '';
                               return GestureDetector(
                                 onTap: () {
+                                  final studentDocId = student.id; // Get the document ID here
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          StudentDetails(studentData: data),
+                                          StudentDetails(
+                                           studentData: data,
+                                           studentDocId: studentDocId,
+                                          ),
                                     ),
                                   );
                                 },
@@ -2106,46 +2111,57 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             children: students.map((student) {
                               final data =
                                   student.data() as Map<String, dynamic>;
-                              return Row(
-                                children: [
-                                  Expanded(
-                                      child: Text(data['first_name'] ?? '')),
-                                  Expanded(
-                                      child: Text(data['last_name'] ?? '')),
-                                  Expanded(
-                                      child: Text(data['middle_name'] ?? '')),
-                                  Expanded(
-                                      child:
-                                          Text(data['seniorHigh_Track'] ?? '')),
-                                  Expanded(
-                                      child: Text(
-                                          data['seniorHigh_Strand'] ?? '')),
-                                  Expanded(
-                                      child: Text(data['grade_level'] ?? '')),
-                                  Expanded(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(Iconsax.tick_circle_copy,
-                                              color: Colors.green),
-                                          onPressed: () {
-                                            approveStudent(student.id);
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: Icon(Iconsax.close_circle_copy,
-                                              color: Colors.red),
-                                          onPressed: () {
-                                            _showDeleteConfirmationDialog(
-                                                context, student.id);
-                                          },
-                                        ),
-                                      ],
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context, MaterialPageRoute(
+                                      builder: (context) => Newcomersvalidator(
+                                        studentData: data
+                                      )
+                                    )
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        child: Text(data['first_name'] ?? '')),
+                                    Expanded(
+                                        child: Text(data['last_name'] ?? '')),
+                                    Expanded(
+                                        child: Text(data['middle_name'] ?? '')),
+                                    Expanded(
+                                        child:
+                                            Text(data['seniorHigh_Track'] ?? '')),
+                                    Expanded(
+                                        child: Text(
+                                            data['seniorHigh_Strand'] ?? '')),
+                                    Expanded(
+                                        child: Text(data['grade_level'] ?? '')),
+                                    Expanded(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Iconsax.tick_circle_copy,
+                                                color: Colors.green),
+                                            onPressed: () {
+                                              approveStudent(student.id);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Iconsax.close_circle_copy,
+                                                color: Colors.red),
+                                            onPressed: () {
+                                              _showDeleteConfirmationDialog(
+                                                  context, student.id);
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               );
                             }).toList(),
                           ),
@@ -2537,7 +2553,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildManageInstructorContent() {
+  Widget _buildManageTeachersContent() {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -2551,7 +2567,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Manage Instructors',
+                  'Manage Teachers',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -2570,7 +2586,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     ),
                     onPressed: toggleAddInstructors,
                     child: Text(
-                      'Add New Instructor',
+                      'Add New Teacher',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -2586,7 +2602,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Instructor List',
+                          'Teacher Lists',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -2621,7 +2637,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text('Instructor Name',
+                                  child: Text('Teacher Name',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                 ),
@@ -2684,7 +2700,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                   snapshot.data!.docs.isEmpty) {
                                 return Center(
                                   child: Text(
-                                    'No Instructor Added',
+                                    'No Teacher Added',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontStyle: FontStyle.italic,
@@ -3877,7 +3893,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             _buildDrawerItem(
                 'Manage Subjects', Iconsax.activity, 'Manage Subjects'),
             _buildDrawerItem(
-                'Manage Instructors', Iconsax.user, 'Manage Instructors'),
+                'Manage Teachers', Iconsax.user, 'Manage Teachers'),
             _buildDrawerItem(
                 'Manage Sections', Iconsax.user, 'Manage Sections'),
             _buildDrawerItem(

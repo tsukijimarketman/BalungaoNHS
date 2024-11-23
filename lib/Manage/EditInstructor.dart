@@ -23,15 +23,24 @@ class EditInstructor extends StatefulWidget {
 class _EditInstructorState extends State<EditInstructor> {
   final TextEditingController _subjectName = TextEditingController();
   final TextEditingController _subjectCode = TextEditingController();
+  final FocusNode _subjectNameFocusNode = FocusNode();
+  final FocusNode _subjectCodeFocusNode = FocusNode();
   String _adviserStatus = '--'; // Default value for adviser status
   String? _selectedSection; // To store the selected section
   List<String> _sections = []; // To store section names
+  List<String> _subjectNameSuggestions = [];
+  List<String> _subjectCodeSuggestions = [];
+  bool _isSubjectNameSelected =
+      false; // Track whether a suggestion was selected
+  bool _isSubjectCodeSelected =
+      false; // Track whether a suggestion was selected for subject code
 
   @override
   void initState() {
     super.initState();
     _loadInstructorData(); // Load the instructor's existing data
     _fetchSections();
+    _fetchSubjects();
   }
 
   // Load the existing data for the instructor from Firestore
@@ -39,7 +48,8 @@ class _EditInstructorState extends State<EditInstructor> {
     if (widget.instructorId == null) return; // Ensure instructorId is not null
 
     try {
-      DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore.instance
+      DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore
+          .instance
           .collection('users')
           .doc(widget.instructorId)
           .get();
@@ -48,11 +58,14 @@ class _EditInstructorState extends State<EditInstructor> {
         setState(() {
           _subjectName.text = doc.data()?['subject_Name'] ?? '';
           _subjectCode.text = doc.data()?['subject_Code'] ?? '';
-          _adviserStatus = doc.data()?['adviserStatus'] ?? '--'; // Load adviser status
+          _adviserStatus =
+              doc.data()?['adviserStatus'] ?? '--'; // Load adviser status
 
-         String? handledSection = doc.data()?['handled_section'];
-        _selectedSection = _sections.contains(handledSection) ? handledSection : null; // Validate section
-      });
+          String? handledSection = doc.data()?['handled_section'];
+          _selectedSection = _sections.contains(handledSection)
+              ? handledSection
+              : null; // Validate section
+        });
       } else {
         print('No document found for instructor ID: ${widget.instructorId}');
       }
@@ -62,34 +75,74 @@ class _EditInstructorState extends State<EditInstructor> {
   }
 
   Future<void> _fetchSections() async {
-  try {
-    final snapshot = await FirebaseFirestore.instance.collection('sections').get();
-    final sections = snapshot.docs.map((doc) => doc['section_name'] as String).toList(); // Assuming each section document has a 'section_name' field
-    setState(() {
-      _sections = sections; // Update sections list
-      if (_selectedSection != null && !_sections.contains(_selectedSection)) {
-        _selectedSection = null; // Reset if it doesn't exist
-      }
-    });
-  } catch (e) {
-    // Handle errors
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error fetching sections: $e')),
-    );
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('sections').get();
+      final sections = snapshot.docs
+          .map((doc) => doc['section_name'] as String)
+          .toList(); // Assuming each section document has a 'section_name' field
+      setState(() {
+        _sections = sections; // Update sections list
+        if (_selectedSection != null && !_sections.contains(_selectedSection)) {
+          _selectedSection = null; // Reset if it doesn't exist
+        }
+      });
+    } catch (e) {
+      // Handle errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching sections: $e')),
+      );
+    }
   }
-}
+
+  Future<void> _fetchSubjects() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('subjects').get();
+      setState(() {
+        _subjectNameSuggestions = snapshot.docs
+            .map((doc) => doc['subject_name'].toString()) // Keep camel case
+            .toList();
+        _subjectCodeSuggestions = snapshot.docs
+            .map((doc) => doc['subject_code'].toString()) // Keep camel case
+            .toList();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching subjects: $e')),
+      );
+    }
+  }
+
+  List<String> _filterSuggestions(String query, List<String> suggestions) {
+    // Convert query to lowercase for case-insensitive matching
+    String queryLower = query.toLowerCase();
+
+    return suggestions
+        .where((suggestion) => suggestion
+            .toLowerCase()
+            .contains(queryLower)) // Case-insensitive comparison
+        .toSet() // Remove duplicates
+        .toList();
+  }
 
   // Save the updated data to Firestore
   Future<void> _saveChanges() async {
-    if (_subjectName.text.isEmpty || _subjectCode.text.isEmpty || _adviserStatus == '--') {
+    if (_subjectName.text.isEmpty ||
+        _subjectCode.text.isEmpty ||
+        _adviserStatus == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields and select adviser status')),
+        SnackBar(
+            content: Text('Please fill all fields and select adviser status')),
       );
       return;
     }
 
     try {
-      await FirebaseFirestore.instance.collection('users').doc(widget.instructorId).update({
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.instructorId)
+          .update({
         'subject_Name': _subjectName.text,
         'subject_Code': _subjectCode.text,
         'adviser': _adviserStatus, // Update adviser status
@@ -146,40 +199,54 @@ class _EditInstructorState extends State<EditInstructor> {
                           style: TextButton.styleFrom(
                             side: BorderSide(color: Colors.red),
                           ),
-                          child: Text('Back', style: TextStyle(color: Colors.red)),
+                          child:
+                              Text('Back', style: TextStyle(color: Colors.red)),
                         ),
                       ),
                       SizedBox(height: 8),
                       // Form title
                       Text(
-                        'Edit Instructor',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        'Edit Teacher',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 16),
-                      // Subject Name
-                      TextFormField(
-                        controller: _subjectName,
-                        decoration: InputDecoration(
-                          labelText: 'Subject Name',
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter subject name',
-                        ),
+                      _buildSuggestionField(
+                        _subjectName,
+                        'Subject Name',
+                        _subjectNameSuggestions,
+                        _isSubjectNameSelected,
+                        _subjectNameFocusNode, // Pass the FocusNode here
+                        (suggestion) {
+                          setState(() {
+                            _subjectName.text = suggestion;
+                            _isSubjectNameSelected = true;
+                          });
+                        },
                       ),
-                      SizedBox(height: 16),
-                      // Subject Code
-                      TextFormField(
-                        controller: _subjectCode,
-                        decoration: InputDecoration(
-                          labelText: 'Subject Code',
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter subject code',
-                        ),
+
+                      _buildSuggestionField(
+                        _subjectCode,
+                        'Subject Code',
+                        _subjectCodeSuggestions,
+                        _isSubjectCodeSelected,
+                        _subjectCodeFocusNode, // Pass the FocusNode here
+                        (suggestion) {
+                          setState(() {
+                            _subjectCode.text = suggestion;
+                            _isSubjectCodeSelected = true;
+                          });
+                        },
                       ),
+
                       SizedBox(height: 16),
                       // Adviser Status Dropdown
                       DropdownButtonFormField<String>(
                         value: _adviserStatus,
-                        decoration: InputDecoration(labelText: 'Adviser Status', border: OutlineInputBorder(),),
+                        decoration: InputDecoration(
+                          labelText: 'Adviser Status',
+                          border: OutlineInputBorder(),
+                        ),
                         items: [
                           DropdownMenuItem(value: '--', child: Text('--')),
                           DropdownMenuItem(value: 'yes', child: Text('Yes')),
@@ -192,7 +259,7 @@ class _EditInstructorState extends State<EditInstructor> {
                         },
                         validator: (value) {
                           if (value == '--') {
-                            return 'Please select adviser status';
+                            return 'Please select teacher status';
                           }
                           return null;
                         },
@@ -200,7 +267,8 @@ class _EditInstructorState extends State<EditInstructor> {
                       if (_adviserStatus == 'yes') ...[
                         DropdownButtonFormField<String>(
                           value: _selectedSection,
-                          decoration: InputDecoration(labelText: 'Select Section'),
+                          decoration:
+                              InputDecoration(labelText: 'Select Section'),
                           items: _sections.map((section) {
                             return DropdownMenuItem(
                               value: section,
@@ -209,10 +277,12 @@ class _EditInstructorState extends State<EditInstructor> {
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
-                              _selectedSection = value; // Update selected section
+                              _selectedSection =
+                                  value; // Update selected section
                             });
                           },
-                          validator: (value) => value == null ? 'Please select a section' : null,
+                          validator: (value) =>
+                              value == null ? 'Please select a section' : null,
                         ),
                       ],
                       SizedBox(height: 24),
@@ -227,12 +297,19 @@ class _EditInstructorState extends State<EditInstructor> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
                               elevation: 5, // Elevation level for shadow depth
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 15), // Padding
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
+                            child: Text(
+                              'Save Changes',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
                             ),
-                            child: Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 14,),),
                           ),
                         ),
                       ),
@@ -244,6 +321,63 @@ class _EditInstructorState extends State<EditInstructor> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSuggestionField(
+      TextEditingController controller,
+      String labelText,
+      List<String> suggestions,
+      bool isSubjectSelected,
+      FocusNode focusNode,
+      Function(String) onSuggestionTap) {
+    return Column(
+      children: [
+        TextFormField(
+          controller: controller,
+          focusNode: focusNode, // Attach the focus node to the field
+          decoration: InputDecoration(
+            labelText: labelText,
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            setState(() {
+              // Reset selection flag only when editing
+              isSubjectSelected = false;
+            });
+          },
+          onTap: () {
+            setState(() {
+              // When the field is tapped, show suggestions
+              isSubjectSelected = false;
+            });
+          },
+        ),
+        // Show suggestions only when the field is focused and text is entered
+        if (controller.text.isNotEmpty &&
+            focusNode.hasFocus &&
+            !isSubjectSelected)
+          Container(
+            height: 150,
+            child: ListView(
+              children: _filterSuggestions(controller.text, suggestions)
+                  .map((suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                  onTap: () {
+                    onSuggestionTap(
+                        suggestion); // Trigger the callback for subject selection
+                    setState(() {
+                      isSubjectSelected =
+                          true; // Mark as selected after tapping
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        SizedBox(height: 8),
+      ],
     );
   }
 }
