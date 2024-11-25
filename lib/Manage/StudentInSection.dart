@@ -124,7 +124,9 @@ class _StudentInSectionState extends State<StudentInSection> {
                   1: FlexColumnWidth(),
                   2: FlexColumnWidth(),
                   3: FlexColumnWidth(),
-                  4: IntrinsicColumnWidth(),           
+                  4: FlexColumnWidth(),
+                  5: FlexColumnWidth(),
+                  6: IntrinsicColumnWidth(),           
                 },
                 children: [
                   // Header Row
@@ -142,6 +144,14 @@ class _StudentInSectionState extends State<StudentInSection> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text('Student ID', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('Track', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('Strand', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -168,6 +178,14 @@ class _StudentInSectionState extends State<StudentInSection> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(students[i]['student_id'] ?? 'N/A'), // Adjust field name accordingly
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(students[i]['seniorHigh_Track'] ?? 'N/A'), // Adjust field name accordingly
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(students[i]['seniorHigh_Strand'] ?? 'N/A'), // Adjust field name accordingly
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),

@@ -55,6 +55,7 @@ dependencies:
   http: ^1.2.2
   file_picker: ^8.1.4
   open_file: ^3.5.10
+  animated_text_kit: ^4.2.1
 
   
   

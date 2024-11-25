@@ -19,6 +19,8 @@ import 'package:pbma_portal/pages/Auth_View/Adding_InstructorAcc_Desktview.dart'
 import 'package:pbma_portal/pages/student_details.dart';
 import 'package:pbma_portal/student_utils/Student_Utils.dart';
 import 'package:pbma_portal/Admin Dashboard Sorting/Dashboard Sorting.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+
 
 class AdminDashboard extends StatefulWidget {
   @override
@@ -29,7 +31,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   String selectedCourse = "All";
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Map<String, bool> _selectedStudents = {};
-  String _selectedDrawerItem = 'Dashboard';
+  String? _selectedDrawerItem;
   String _email = '';
   String _accountType = '';
   int _gradeLevelIconState = 0;
@@ -49,6 +51,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _showEditSections = false;
   String _selectedSemester = '1st Semester'; // Initial semester option
   String _curriculum = ''; // Curriculum text
+  bool _isLoading = true;
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -328,6 +331,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  void _showAcceptConfirmationDialog(BuildContext context, String studentId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("Approve Student"),
+          content: Text("Are you sure you want to approve this student?"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text(
+                "Cancel",
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text(
+                "Yes",
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+              approveStudent(studentId);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void deleteNewComersStudent(String studentId) async {
     try {
       await FirebaseFirestore.instance
@@ -394,13 +430,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
         content: Text('Are you sure you want to delete this subject?'),
         actions: [
           CupertinoDialogAction(
-            child: Text('Cancel'),
+            child: Text('Cancel',
+                style: TextStyle(color: Colors.red),
+            ),
             onPressed: () {
               Navigator.of(context).pop(); // Close the dialog
             },
           ),
           CupertinoDialogAction(
-            child: Text('Yes'),
+            child: Text('Yes',
+                style: TextStyle(color: Colors.blue),),
             onPressed: () {
               _deleteSubject(subjectId); // Call delete function
               Navigator.of(context).pop(); // Close the dialog
@@ -486,13 +525,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Text("Are you sure you want to change the status to $newStatus?"),
           actions: <Widget>[
             CupertinoDialogAction(
-              child: Text("Cancel"),
+              child: Text("Cancel",
+                style: TextStyle(color: Colors.red),),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
             ),
             CupertinoDialogAction(
-              child: Text("Yes"),
+              child: Text("Yes",
+                style: TextStyle(color: Colors.blue),),
               onPressed: () {
                 // Call the appropriate method based on the new status
                 if (newStatus == 'inactive') {
@@ -660,13 +701,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
         content: Text('Are you sure you want to delete this subject?'),
         actions: [
           CupertinoDialogAction(
-            child: Text('Cancel'),
+            child: Text('Cancel',
+                style: TextStyle(color: Colors.red),),
             onPressed: () {
               Navigator.of(context).pop(); // Close the dialog
             },
           ),
           CupertinoDialogAction(
-            child: Text('Yes'),
+            child: Text('Yes',
+                style: TextStyle(color: Colors.blue),),
             onPressed: () {
               _deleteSection(sectionId); // Call delete function
               Navigator.of(context).pop(); // Close the dialog
@@ -781,9 +824,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
   //Disabling Drawer
   bool _isItemDisabled(String item) {
     if (_accountType == 'ADMIN') {
-      return item == 'Strand Instructor';
+      return item == 'Strand Teacher';
     } else if (_accountType == 'INSTRUCTOR') {
-      return item != 'Strand Instructor';
+      return item != 'Strand Teacher';
     }
     return false;
   }
@@ -808,38 +851,58 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   //Retrieving the Current AccountType
   Future<void> _fetchUserData() async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        String uid = user.uid;
+  setState(() {
+    _isLoading = true;
+  });
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String uid = user.uid;
 
-        DocumentSnapshot userDoc =
-            await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
-        if (userDoc.exists) {
-          final data = userDoc.data() as Map<String, dynamic>;
+      if (userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>;
 
-          setState(() {
-            _accountType = (data['accountType'] as String).toUpperCase();
-            _email = data['email_Address'];
-            _selectedDrawerItem = _accountType == 'INSTRUCTOR'
-                ? 'Strand Instructor'
-                : 'Dashboard';
-          });
-        } else {
-          print('No document found for UID: $uid');
-          setState(() {
-            _accountType = 'Not Found';
-          });
-        }
+        setState(() {
+          _accountType = (data['accountType'] as String).toUpperCase();
+          _email = data['email_Address'];
+          
+          // Set _selectedDrawerItem based on _accountType
+          _selectedDrawerItem = _accountType == 'INSTRUCTOR'
+              ? 'Strand Teacher'
+              : 'Dashboard';
+        });
       } else {
-        print('No current user found.');
+        print('No document found for UID: $uid');
+        setState(() {
+          _accountType = 'Not Found';
+        });
       }
+    } else {
+      print('No current user found.');
+    }
+  } catch (e) {
+    print('Error fetching user data: $e');
+    setState(() {
+      _accountType = 'Error';
+    });
+  } finally {
+    setState(() {
+      _isLoading = false; // Set loading to false after data is loaded
+    });
+  }
+}
+
+Future<void> logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      print("User logged out successfully");
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (builder) => Launcher()));
     } catch (e) {
-      print('Error fetching user data: $e');
-      setState(() {
-        _accountType = 'Error';
-      });
+      print("Error logging out: $e");
     }
   }
 
@@ -866,8 +929,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return _buildDashboardContent();
       case 'Students':
         return _buildStudentsContent();
-      case 'Strand Instructor':
-        return _buildStrandInstructoraContent();
+      case 'Strand Teacher':
+        return _buildStrandTeacherContent();
       case 'Manage Newcomers':
         return _buildNewcomersContent();
       case 'Manage Re-Enrolled Students':
@@ -890,16 +953,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   //method para sa Adviser and Not Adviser
-  Widget _buildStrandInstructoraContent() {
+  Widget _buildStrandTeacherContent() {
     return FutureBuilder<QuerySnapshot>(
       future: FirebaseFirestore.instance
           .collection('users')
           .where('accountType', isEqualTo: 'instructor')
           .get(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
+         if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(
+          child: CircularProgressIndicator()
+        );
+      }
 
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -1474,15 +1539,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               String studentId = data['student_id'] ?? '';
                               return GestureDetector(
                                 onTap: () {
-                                  final studentDocId = student.id; // Get the document ID here
+                                  final studentDocId =
+                                      student.id; // Get the document ID here
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          StudentDetails(
-                                           studentData: data,
-                                           studentDocId: studentDocId,
-                                          ),
+                                      builder: (context) => StudentDetails(
+                                        studentData: data,
+                                        studentDocId: studentDocId,
+                                      ),
                                     ),
                                   );
                                 },
@@ -1542,7 +1607,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Strand Instructor',
+              'Strand Teacher',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
@@ -1756,7 +1821,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Strand Instructor',
+              'Strand Teacher',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
@@ -2114,12 +2179,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               return GestureDetector(
                                 onTap: () {
                                   Navigator.push(
-                                    context, MaterialPageRoute(
-                                      builder: (context) => Newcomersvalidator(
-                                        studentData: data
-                                      )
-                                    )
-                                  );
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              Newcomersvalidator(
+                                                  studentData: data)));
                                 },
                                 child: Row(
                                   children: [
@@ -2130,8 +2194,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     Expanded(
                                         child: Text(data['middle_name'] ?? '')),
                                     Expanded(
-                                        child:
-                                            Text(data['seniorHigh_Track'] ?? '')),
+                                        child: Text(
+                                            data['seniorHigh_Track'] ?? '')),
                                     Expanded(
                                         child: Text(
                                             data['seniorHigh_Strand'] ?? '')),
@@ -2146,11 +2210,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                             icon: Icon(Iconsax.tick_circle_copy,
                                                 color: Colors.green),
                                             onPressed: () {
-                                              approveStudent(student.id);
+                                              _showAcceptConfirmationDialog(context, student.id);
                                             },
                                           ),
                                           IconButton(
-                                            icon: Icon(Iconsax.close_circle_copy,
+                                            icon: Icon(
+                                                Iconsax.close_circle_copy,
                                                 color: Colors.red),
                                             onPressed: () {
                                               _showDeleteConfirmationDialog(
@@ -3314,7 +3379,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           ],
                         ),
 
-                        // Scrollable data rows
                         Expanded(
                           child: StreamBuilder<QuerySnapshot>(
                             stream: FirebaseFirestore.instance
@@ -3385,11 +3449,45 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                     ['section_capacity']
                                                 .toString()),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(sections[i]
-                                                    ['capacityCount']
-                                                .toString()),
+                                          FutureBuilder<QuerySnapshot>(
+                                            future: FirebaseFirestore.instance
+                                                .collection('users')
+                                                .where('section',
+                                                    isEqualTo: sections[i]
+                                                        ['section_name'])
+                                                .get(),
+                                            builder: (context, userSnapshot) {
+                                              if (userSnapshot
+                                                      .connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return Align(
+                                                  alignment: Alignment
+                                                      .centerLeft, // Align to top-left, adjust as needed
+                                                  child: Transform.scale(
+                                                    scale:
+                                                        0.5, // Scale down to 50% of its original size
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  ),
+                                                );
+                                              }
+
+                                              if (userSnapshot.hasData) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text(userSnapshot
+                                                      .data!.docs.length
+                                                      .toString()),
+                                                );
+                                              } else {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text('0'),
+                                                );
+                                              }
+                                            },
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(2.0),
@@ -3402,14 +3500,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                       color: Colors.blue),
                                                   onPressed: () {
                                                     Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                StudentInSection(
-                                                                    sectionName:
-                                                                        sections[i]
-                                                                            [
-                                                                            'section_name'])));
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            StudentInSection(
+                                                          sectionName: sections[
+                                                                  i]
+                                                              ['section_name'],
+                                                        ),
+                                                      ),
+                                                    );
                                                   },
                                                 ),
                                                 IconButton(
@@ -3840,7 +3940,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '$_accountType',
+                          _accountType == 'ADMIN' ? 'ADMIN' : (_accountType == 'INSTRUCTOR' ? 'TEACHER' : ''),
                           style: TextStyle(
                             color: Colors.black, // Black color for the text
                             fontSize: 16, // Smaller font size for the label
@@ -3885,7 +3985,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             _buildDrawerItem('Dashboard', Iconsax.dash_dash, 'Dashboard'),
             _buildDrawerItem('Students', Iconsax.user, 'Students'),
             _buildDrawerItem(
-                'Strand Instructor', Iconsax.teacher, 'Strand Instructor'),
+                'Strand Teacher', Iconsax.teacher, 'Strand Teacher'),
             _buildDrawerItem(
                 'Manage Newcomers', Iconsax.task, 'Manage Newcomers'),
             _buildDrawerItem('Manage Re-Enrolled Students ', Iconsax.task,
@@ -3899,8 +3999,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             _buildDrawerItem(
                 'Dropped Student', Iconsax.dropbox_copy, 'Dropped Student'),
             _buildDrawerItem('Configuration', Iconsax.user, 'Configuration'),
-            _buildDrawerItem(
-                'Reports', Iconsax.data_copy, 'Reports'),
+            _buildDrawerItem('Reports', Iconsax.data_copy, 'Reports'),
             ListTile(
               leading: Icon(Iconsax.logout),
               title: Text('Log out'),
@@ -3919,13 +4018,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         // Confirm button
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(); // Close the dialog
-                            // Navigate to the Launcher (or perform actual logout)
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Launcher()),
-                            );
+                            logout();
                           },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.blue, // Blue background
@@ -3967,7 +4060,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ],
         ),
       ),
-      body: _buildBodyContent(),
-    );
-  }
+      body: _isLoading
+        ? Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        )
+        : _buildBodyContent(),
+  );
+}
 }

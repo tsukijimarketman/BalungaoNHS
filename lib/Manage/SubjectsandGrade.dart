@@ -527,7 +527,23 @@ Future<void> _fetchUserData() async {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          ElevatedButton(
+                          Container(
+                            height: 30,
+                            width: 150,
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.blue),
+                                  elevation:
+                                      MaterialStateProperty.all<double>(5),
+                                  shape:
+                                      MaterialStateProperty.all<OutlinedBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
                             onPressed: () {
                               setState(() {
                                 // Toggle all fields to edit mode
@@ -536,12 +552,30 @@ Future<void> _fetchUserData() async {
                                 }
                               });
                             },
-                            child: Text('Edit'),
+                            child: Text('Edit', style: TextStyle(color: Colors.white),),
                           ),
-                          ElevatedButton(
+                          ),
+                          Container(
+                            height: 30,
+                            width: 150,
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.green.shade500),
+                                  elevation:
+                                      MaterialStateProperty.all<double>(5),
+                                  shape:
+                                      MaterialStateProperty.all<OutlinedBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
                             onPressed: submitGrades,
-                            child: Text('Submit'),
+                            child: Text('Submit', style: TextStyle(color: Colors.white),),
                           ),
+                          )
                         ],
                       ),
                     ],
