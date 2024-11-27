@@ -28,38 +28,126 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  String _adviserStatus = '--'; // Default value for adviser status
-  String? _selectedSection; // To store the selected section
-  List<String> _sections = []; // To store section names
+  String _adviserStatus = '--';
+  String? _selectedSection;
+  List<String> _sections = [];
+  List<String> _subjectNameSuggestions = [];
+  List<String> _subjectCodeSuggestions = [];
+  bool _isSubjectNameSelected = false; // Track whether a suggestion was selected
+  bool _isSubjectCodeSelected = false; // Track whether a suggestion was selected for subject code
+  String? _emailError;
 
   @override
   void initState() {
     super.initState();
-    _fetchSections(); // Fetch sections when the dialog is initialized
+    _fetchSections();
+    _fetchSubjects();
   }
 
   Future<void> _fetchSections() async {
     try {
-      final snapshot = await FirebaseFirestore.instance.collection('sections').get();
-      final sections = snapshot.docs.map((doc) => doc['section_name'] as String).toList(); // Assuming each section document has a 'name' field
+      final snapshot =
+          await FirebaseFirestore.instance.collection('sections').get();
+      final sections =
+          snapshot.docs.map((doc) => doc['section_name'] as String).toList();
       setState(() {
-        _sections = sections; // Update sections list
+        _sections = sections;
       });
     } catch (e) {
-      // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching sections: $e')),
       );
     }
   }
 
+  Future<void> _fetchSubjects() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('subjects').get();
+      setState(() {
+        _subjectNameSuggestions = snapshot.docs
+            .map((doc) => doc['subject_name'].toString()) // Keep camel case
+            .toList();
+        _subjectCodeSuggestions = snapshot.docs
+            .map((doc) => doc['subject_code'].toString()) // Keep camel case
+            .toList();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching subjects: $e')),
+      );
+    }
+  }
+
+  List<String> _filterSuggestions(String query, List<String> suggestions) {
+    // Convert query to lowercase for case-insensitive matching
+    String queryLower = query.toLowerCase();
+
+    return suggestions
+        .where((suggestion) => suggestion
+            .toLowerCase()
+            .contains(queryLower)) // Case-insensitive comparison
+        .toSet() // Remove duplicates
+        .toList();
+  }
+
+  Future<String?> _emailValidator(String? value) async {
+  if (value == null || value.isEmpty) {
+    return 'Please enter an email address';
+  }
+
+  // Convert entered email to lowercase to perform case-insensitive comparison
+  String enteredEmail = value.trim().toLowerCase();
+
+  // Call the function that checks if the email already exists (case-insensitive check)
+  bool isInUse = await _isEmailInUse(enteredEmail);
+
+  if (isInUse) {
+    return 'Email is already in use';
+  }
+
+  return null;
+}
+
+
+Future<bool> _isEmailInUse(String email) async {
+  try {
+    // Query all users in Firestore
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .get();
+
+    // Convert entered email to lowercase for case-insensitive comparison
+    String emailLowerCase = email.toLowerCase();
+
+    // Loop through the documents to compare case-insensitive email
+    for (var doc in snapshot.docs) {
+      String storedEmail = (doc['email_Address'] as String).toLowerCase(); // Convert stored email to lowercase
+
+      // Check if the stored email matches the entered email
+      if (storedEmail == emailLowerCase) {
+        return true; // Email found, it's already in use
+      }
+    }
+
+    return false; // Email not found
+  } catch (e) {
+    // Handle error if query fails
+    print("Error checking email: $e");
+    return false; // Default to email not found
+  }
+}
+
+
   void _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       if (_adviserStatus == '--') {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please select a valid adviser status (Yes or No).')),
+          SnackBar(
+              content:
+                  Text('Please select a valid adviser status (Yes or No).')),
         );
-        return; // Exit the method if adviser status is invalid
+        return;
       }
 
       final firstName = _firstNameController.text;
@@ -70,17 +158,12 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
       final email = _emailController.text;
       final password = _passwordController.text;
 
-      String handledSectionValue;
-
-    // Set handled section based on adviser status
-    if (_adviserStatus == 'yes') {
-      handledSectionValue = _selectedSection ?? 'N/A'; // Use selected section or 'N/A' if none selected
-    } else {
-      handledSectionValue = 'N/A'; // Default to 'N/A' if adviser status is 'no'
-    }
+      String handledSectionValue =
+          _adviserStatus == 'yes' ? _selectedSection ?? 'N/A' : 'N/A';
 
       try {
-        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
@@ -94,8 +177,8 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
           'email_Address': email,
           'accountType': 'instructor',
           'Status': 'active',
-          'adviser': _adviserStatus, // Save adviser status
-          'handled_section': handledSectionValue, // Save selected section if applicable
+          'adviser': _adviserStatus,
+          'handled_section': handledSectionValue,
           'uid': uid,
         });
 
@@ -104,9 +187,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
         );
         widget.closeAddInstructors();
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding instructor: $e')),
-        );
+              print('Error adding instructor: $e');
       }
     }
   }
@@ -116,10 +197,10 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
     return GestureDetector(
       onTap: widget.closeAddInstructors,
       child: Stack(
-        children: [          
+        children: [
           Center(
             child: GestureDetector(
-              onTap: (){},
+              onTap: () {},
               child: AnimatedContainer(
                 duration: Duration(milliseconds: 500),
                 width: widget.screenWidth / 2,
@@ -142,71 +223,86 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
                           style: TextButton.styleFrom(
                             side: BorderSide(color: Colors.red),
                           ),
-                          child: Text('Back', style: TextStyle(color: Colors.red)),
+                          child:
+                              Text('Back', style: TextStyle(color: Colors.red)),
                         ),
                       ),
                       SizedBox(height: 8),
-                      Text('Add Instructor Account',style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                      Text('Add Teacher',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                       SizedBox(height: 8),
-                       Form(
+                      Form(
                         key: _formKey,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            TextFormField(
-                              controller: _firstNameController,
-                              decoration: InputDecoration(
-                              labelText: 'First Name',
-                              border: OutlineInputBorder(),
-                              ),
-                              validator: (value) => value?.isEmpty ?? true ? 'Please enter a first name' : null,
+                            _buildTextField(_firstNameController, 'First Name',
+                                'Please enter a first name'),
+                            _buildTextField(_middleNameController,
+                                'Middle Name', 'Please enter a middle name'),
+                            _buildTextField(_lastNameController, 'Last Name',
+                                'Please enter a last name'),
+                            // For subject name field
+                            _buildSuggestionField(
+                              _subjectNameController,
+                              'Subject Name',
+                              _subjectNameSuggestions,
+                              _isSubjectNameSelected, // Track selection status for subject name
+                              (suggestion) {
+                                setState(() {
+                                  _subjectNameController.text =
+                                      suggestion; // Set the controller text to the selected suggestion
+                                  _isSubjectNameSelected =
+                                      true; // Mark as selected
+                                });
+                              },
                             ),
-                            SizedBox(height: 8),
-                            TextFormField(
-                              controller: _middleNameController,
-                              decoration: InputDecoration(
-                              labelText: 'Middle Name',
-                              border: OutlineInputBorder(),
-                              ),
-                              validator: (value) => value?.isEmpty ?? true ? 'Please enter a middle name' : null,
-                            ),
-                            SizedBox(height: 8),
-                            TextFormField(
-                              controller: _lastNameController,
-                              decoration: InputDecoration(labelText: 'Last Name', border: OutlineInputBorder(),),
-                              validator: (value) => value?.isEmpty ?? true ? 'Please enter a last name' : null,
-                            ),
-                            SizedBox(height: 8),
-                            TextFormField(
-                              controller: _subjectNameController,
-                              decoration: InputDecoration(labelText: 'Subject Name', border: OutlineInputBorder(),),
-                            ),
-                            SizedBox(height: 8),
-                            TextFormField(
-                              controller: _subjectCodeController,
-                              decoration: InputDecoration(labelText: 'Subject Code', border: OutlineInputBorder(),),
+
+// For subject code field
+                            _buildSuggestionField(
+                              _subjectCodeController,
+                              'Subject Code',
+                              _subjectCodeSuggestions,
+                              _isSubjectCodeSelected, // Track selection status for subject code
+                              (suggestion) {
+                                setState(() {
+                                  _subjectCodeController.text =
+                                      suggestion; // Set the controller text to the selected suggestion
+                                  _isSubjectCodeSelected =
+                                      true; // Mark as selected
+                                });
+                              },
                             ),
                             SizedBox(height: 8),
                             DropdownButtonFormField<String>(
                               value: _adviserStatus,
-                              decoration: InputDecoration(labelText: 'Adviser Status', border: OutlineInputBorder(),),
+                              decoration: InputDecoration(
+                                  labelText: 'Adviser Status',
+                                  border: OutlineInputBorder()),
                               items: [
-                                DropdownMenuItem(value: '--', child: Text('--')),
-                                DropdownMenuItem(value: 'yes', child: Text('Yes')),
-                                DropdownMenuItem(value: 'no', child: Text('No')),
+                                DropdownMenuItem(
+                                    value: '--', child: Text('--')),
+                                DropdownMenuItem(
+                                    value: 'yes', child: Text('Yes')),
+                                DropdownMenuItem(
+                                    value: 'no', child: Text('No')),
                               ],
                               onChanged: (value) {
                                 setState(() {
                                   _adviserStatus = value ?? '--';
-                                  _selectedSection = null; // Reset selected section when adviser status changes
+                                  _selectedSection = null;
                                 });
                               },
-                              validator: (value) => value == null ? 'Please select adviser status' : null,
+                              validator: (value) => value == null
+                                  ? 'Please select adviser status'
+                                  : null,
                             ),
-                            if (_adviserStatus == 'yes') ...[
+                            if (_adviserStatus == 'yes')
                               DropdownButtonFormField<String>(
                                 value: _selectedSection,
-                                decoration: InputDecoration(labelText: 'Select Section'),
+                                decoration: InputDecoration(
+                                    labelText: 'Select Section'),
                                 items: _sections.map((section) {
                                   return DropdownMenuItem(
                                     value: section,
@@ -215,55 +311,154 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
                                 }).toList(),
                                 onChanged: (value) {
                                   setState(() {
-                                    _selectedSection = value; // Update selected section
+                                    _selectedSection = value;
                                   });
                                 },
-                                validator: (value) => value == null ? 'Please select a section' : null,
+                                validator: (value) => value == null
+                                    ? 'Please select a section'
+                                    : null,
                               ),
-                            ],
                             SizedBox(height: 8),
                             TextFormField(
-                              controller: _emailController,
-                              decoration: InputDecoration(labelText: 'Email Address', border: OutlineInputBorder(),),
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) => value?.isEmpty ?? true ? 'Please enter an email address' : null,
-                            ),
+  controller: _emailController,
+  decoration: InputDecoration(
+    labelText: 'Email Address',
+    border: OutlineInputBorder(),
+    errorText: _emailError, // Display error message here
+  ),
+  keyboardType: TextInputType.emailAddress,
+  onChanged: (value) {
+    setState(() {
+      _emailError = null; // Clear error message on input change
+    });
+  },
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter an email address';
+    }
+    // Synchronous check for email validation
+    bool isInUse = false;
+    _isEmailInUse(value).then((result) {
+      isInUse = result;
+      if (isInUse) {
+        setState(() {
+          _emailError = 'Email is already in use'; // Set error state
+        });
+      }
+    });
+    if (isInUse) {
+      return 'Email is already in use';
+    }
+    return null;
+  },
+),
+
                             SizedBox(height: 8),
-                            TextFormField(
-                              controller: _passwordController,
-                              decoration: InputDecoration(labelText: 'Password', border: OutlineInputBorder(),),
-                              obscureText: true,
-                              validator: (value) => value?.isEmpty ?? true ? 'Please enter a password' : null,
-                            ),
+                            _buildTextField(
+                                _passwordController,
+                                'Password',
+                                'Please enter a password',
+                                TextInputType.visiblePassword,
+                                true),
                           ],
                         ),
                       ),
-                                            SizedBox(height: 20),
-
-                        Container(
-                          width: widget.screenWidth * 1,
-                          height: widget.screenHeight * 0.06,
-                          child: ElevatedButton(
-                            onPressed: _submitForm,
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                elevation: 5, // Elevation level for shadow depth
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                              ),
-                              ),
-                              child: Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 14,),),
+                      SizedBox(height: 20),
+                      Container(
+                        width: widget.screenWidth,
+                        height: widget.screenHeight * 0.06,
+                        child: ElevatedButton(
+                          onPressed: _submitForm,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            elevation: 5,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
+                          ),
+                          child: Text('Save Changes',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14)),
                         ),
-                      ],
-                              ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-        ]
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller, String labelText, String errorMessage,
+    [TextInputType? keyboardType, bool obscureText = false]
+  ) {
+    return Column(
+      children: [
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: labelText,
+            border: OutlineInputBorder(),
+          ),
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          validator: (value) => value?.isEmpty ?? true ? errorMessage : null,
+        ),
+        SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildSuggestionField(
+      TextEditingController controller,
+      String labelText,
+      List<String> suggestions,
+      bool isSubjectSelected,
+      Function(String) onSuggestionTap) {
+    return Column(
+      children: [
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: labelText,
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            setState(() {
+              // Reset selection flag only when editing
+              isSubjectSelected = false;
+            });
+          },
+        ),
+        // Show suggestions only if the controller text is not empty and no suggestion has been selected
+        if (controller.text.isNotEmpty && !isSubjectSelected)
+          Container(
+            height: 150,
+            child: ListView(
+              children: _filterSuggestions(controller.text, suggestions)
+                  .map((suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                  onTap: () {
+                    onSuggestionTap(
+                        suggestion); // Trigger the callback for subject selection
+                    setState(() {
+                      isSubjectSelected =
+                          true; // Mark as selected after tapping
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        SizedBox(height: 8),
+      ],
     );
   }
 }

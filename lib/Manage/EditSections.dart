@@ -24,10 +24,8 @@ class EditSectionsForm extends StatefulWidget {
 }
 
 class _EditSectionsFormState extends State<EditSectionsForm> {
-  final TextEditingController _sectionName = TextEditingController();
   final TextEditingController _sectionAdviser = TextEditingController();
   final TextEditingController _sectionCapacity = TextEditingController();
-  final TextEditingController _capacityCount = TextEditingController(); // New controller
   String? _selectedSemester = '--';
   String? _selectedAdviser;
   List<DropdownMenuItem<String>> advisersDropdownItems = [];
@@ -48,12 +46,11 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
 
     if (sectionDoc.exists) {
       Map<String, dynamic>? data = sectionDoc.data() as Map<String, dynamic>?;
+
       setState(() {
-        _sectionName.text = data?['section_name'] ?? '';
         _selectedAdviser = data?['section_adviser'] ?? '';
         _selectedSemester = data?['semester'] ?? '--';
         _sectionCapacity.text = data?['section_capacity'].toString() ?? '';
-        _capacityCount.text = data?['capacityCount'].toString() ?? ''; // Initialize capacityCount
       });
     }
   }
@@ -78,7 +75,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
 
   // Update the section in Firestore
   Future<void> _updateSection() async {
-    if (_sectionName.text.isEmpty || _selectedAdviser == null || _selectedSemester == '--' || _sectionCapacity.text.isEmpty || _capacityCount.text.isEmpty) {
+    if (_selectedAdviser == null || _selectedSemester == '--' || _sectionCapacity.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
@@ -86,11 +83,11 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     }
 
     int newCapacity = int.tryParse(_sectionCapacity.text) ?? 0;
-    int newCapacityCount = int.tryParse(_capacityCount.text) ?? 0; // Parse new capacityCount
 
     // Fetch the current capacityCount
     DocumentSnapshot sectionDoc = await sectionsCollection.doc(widget.sectionId).get();
     Map<String, dynamic>? data = sectionDoc.data() as Map<String, dynamic>?;
+
     int currentCapacityCount = data?['capacityCount'] ?? 0;
 
     // Validate capacity
@@ -103,11 +100,9 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
 
     try {
       await sectionsCollection.doc(widget.sectionId).update({
-        'section_name': _sectionName.text,
         'section_adviser': _selectedAdviser,
         'semester': _selectedSemester,
         'section_capacity': newCapacity,
-        'capacityCount': newCapacityCount, // Update capacityCount
         'updated_at': Timestamp.now(),
       });
 
@@ -126,9 +121,8 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
 
   @override
   void dispose() {
-    _sectionName.dispose();
+    _sectionAdviser.dispose();
     _sectionCapacity.dispose();
-    _capacityCount.dispose(); // Dispose capacityCount controller
     super.dispose();
   }
 
@@ -171,16 +165,6 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                       Text(
                         'Edit Section',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 16),
-                      // Section Name
-                      TextFormField(
-                        controller: _sectionName,
-                        decoration: InputDecoration(
-                          labelText: 'Section Name',
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter section name',
-                        ),
                       ),
                       SizedBox(height: 16),
                       // Section Adviser
@@ -231,23 +215,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                           hintText: 'Enter section capacity',
                         ),
                         keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                      ),
-                      SizedBox(height: 16),
-                      // Capacity Count
-                      TextFormField(
-                        controller: _capacityCount, // New text field for capacityCount
-                        decoration: InputDecoration(
-                          labelText: 'Capacity Count',
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter capacity count',
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
+                        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
                       ),
                       // Save Changes button
                       SizedBox(height: 24),

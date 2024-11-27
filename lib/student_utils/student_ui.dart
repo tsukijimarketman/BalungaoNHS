@@ -382,188 +382,180 @@ class _ScreensExampleState extends State<_ScreensExample> {
     }
   }
 
-Map<String, List<Map<String, String>>> semesterGrades = {};
+  Map<String, List<Map<String, String>>> semesterGrades = {};
 
   // Case 1
- Future<void> _loadGrades() async {
-  try {
-    List<String> collectionsToCheck = [
-      'Grade 11 - 1st Semester',
-      'Grade 11 - 2nd Semester',
-      'Grade 12 - 1st Semester',
-      'Grade 12 - 2nd Semester',
-    ];
+  Future<void> _loadGrades() async {
+    try {
+      List<String> collectionsToCheck = [
+        'Grade 11 - 1st Semester',
+        'Grade 11 - 2nd Semester',
+        'Grade 12 - 1st Semester',
+        'Grade 12 - 2nd Semester',
+      ];
 
-    // Clear previous grades
-    semesterGrades.clear(); // Make sure to clear previous data
+      // Clear previous grades
+      semesterGrades.clear(); // Make sure to clear previous data
 
-    // Loop through collections to fetch grades
-    for (String collectionName in collectionsToCheck) {
-      QuerySnapshot gradeSnapshot =
-          await FirebaseFirestore.instance.collection(collectionName).get();
+      // Loop through collections to fetch grades
+      for (String collectionName in collectionsToCheck) {
+        QuerySnapshot gradeSnapshot =
+            await FirebaseFirestore.instance.collection(collectionName).get();
 
-      print('Checking collection: $collectionName');
+        print('Checking collection: $collectionName');
 
-      if (gradeSnapshot.docs.isNotEmpty) {
-        List<Map<String, String>> gradesList = []; // Temporary list for grades in this semester
+        if (gradeSnapshot.docs.isNotEmpty) {
+          List<Map<String, String>> gradesList =
+              []; // Temporary list for grades in this semester
 
-        for (var gradeDoc in gradeSnapshot.docs) {
-          var studentData = gradeDoc.data() as Map<String, dynamic>;
+          for (var gradeDoc in gradeSnapshot.docs) {
+            var studentData = gradeDoc.data() as Map<String, dynamic>;
 
-          // Loop through each student in the document
-          studentData.forEach((studentKey, studentValue) {
-            // Get the list of grades for the student
-            List<dynamic> gradesListFromDoc = studentValue['grades'] ?? [];
+            // Loop through each student in the document
+            studentData.forEach((studentKey, studentValue) {
+              // Get the list of grades for the student
+              List<dynamic> gradesListFromDoc = studentValue['grades'] ?? [];
 
-            // Check each grade entry for matching UID
-            for (var gradeEntry in gradesListFromDoc) {
-              if (gradeEntry is Map<String, dynamic>) {
-                String uid = gradeEntry['uid'] ?? ''; // Get the uid from the grade entry
+              // Check each grade entry for matching UID
+              for (var gradeEntry in gradesListFromDoc) {
+                if (gradeEntry is Map<String, dynamic>) {
+                  String uid = gradeEntry['uid'] ??
+                      ''; // Get the uid from the grade entry
 
-                // Check if the uid matches the current user's uid
-                if (uid == FirebaseAuth.instance.currentUser?.uid) {
-                  String subjectCode = gradeEntry['subject_code'] ?? '';
-                  String subjectName = gradeEntry['subject_name'] ?? '';
-                  String grade = gradeEntry['grade']?.toString() ?? '';
+                  // Check if the uid matches the current user's uid
+                  if (uid == FirebaseAuth.instance.currentUser?.uid) {
+                    String subjectCode = gradeEntry['subject_code'] ?? '';
+                    String subjectName = gradeEntry['subject_name'] ?? '';
+                    String grade = gradeEntry['grade']?.toString() ?? '';
 
-                  // Add to temporary grades list
-                  gradesList.add({
-                    'subject_code': subjectCode,
-                    'subject_name': subjectName,
-                    'grade': grade,
-                  });
+                    // Add to temporary grades list
+                    gradesList.add({
+                      'subject_code': subjectCode,
+                      'subject_name': subjectName,
+                      'grade': grade,
+                    });
 
-                  print('Added grade: $grade for subject: $subjectName');
+                    print('Added grade: $grade for subject: $subjectName');
+                  }
                 }
               }
-            }
-          });
-        }
+            });
+          }
 
-        if (gradesList.isNotEmpty) {
-          semesterGrades[collectionName] = gradesList; // Save to the semesterGrades map
+          if (gradesList.isNotEmpty) {
+            semesterGrades[collectionName] =
+                gradesList; // Save to the semesterGrades map
+          }
         }
       }
-    }
 
-    setState(() {
-      // Update UI
-    });
+      setState(() {
+        // Update UI
+      });
 
-    if (semesterGrades.isEmpty) {
-      print('No grades found for the current user UID across all semesters.');
+      if (semesterGrades.isEmpty) {
+        print('No grades found for the current user UID across all semesters.');
+      }
+    } catch (e) {
+      print('Error loading grades: $e');
     }
-  } catch (e) {
-    print('Error loading grades: $e');
   }
-}
 
   // Case 1
 
   // Case 2
-  Future<void> _saveAndLoadSubjects() async {
-  // Save the section first
-  await _saveSection();
-
-  // After saving the section, load the subjects
-  await _loadSubjects();
-
-  setState(() {});
-
-}
-
-  Future<void> _saveSection() async {
-    if (_selectedSection != null && _selectedSection!.isNotEmpty) {
+  Future<void> _saveandfinalization() async {
+    if (_selectedSection != null) {
       try {
-        // Get the currently logged-in user
-        User? user = FirebaseAuth.instance.currentUser;
-
-        if (user != null) {
-          // Query Firestore for the document where 'uid' matches the logged-in user's UID
-          QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-              .collection('users')
-              .where('uid', isEqualTo: user.uid)
-              .get();
-
-          // Check if any documents were returned
-          if (userSnapshot.docs.isNotEmpty) {
-            DocumentSnapshot userDoc = userSnapshot.docs.first;
-
-            // Fetch the selected section document to check capacity
-            QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
-                .collection('sections')
-                .where('section_name', isEqualTo: _selectedSection)
-                .get();
-
-            // Check if any section documents were returned
-            if (sectionSnapshot.docs.isNotEmpty) {
-              DocumentSnapshot sectionDoc =
-                  sectionSnapshot.docs.first; // Get the first section document
-
-              int capacityCount = sectionDoc['capacityCount'] ?? 0;
-              int capacity = sectionDoc['section_capacity'] ?? 0;
-
-              // Check if there's available capacity
-              if (capacityCount < capacity) {
-                // Update the 'section' field in the user's document
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(userDoc.id)
-                    .update({
-                  'section': _selectedSection,
-                });
-
-                // Increment the capacityCount
-                await FirebaseFirestore.instance
-                    .collection('sections')
-                    .doc(sectionDoc.id)
-                    .update({
-                  'capacityCount': FieldValue.increment(
-                      1), // Use FieldValue.increment to safely increment
-                });
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Section saved successfully!')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                          'This section is full. Please select another section.')),
-                );
-              }
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Section document not found.')),
-              );
-            }
-          } else {
-            print('No document found for the current user.');
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('User document not found.')),
-            );
-          }
-        } else {
-          print('No user is logged in.');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(
-                    'No user is logged in. Please log in to save the section.')),
-          );
-        }
+        await _saveSection();
+        await _finalizeSelection();
+        setState(() {}); // Update UI to show loaded subjects
       } catch (e) {
-        print('Error saving section: $e');
+        print('Error saving and loading subjects: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving section: $e')),
+          SnackBar(content: Text('Error saving and loading subjects: $e')),
         );
       }
     } else {
-      // Show an error message if no section is selected
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a section before saving.')),
+        SnackBar(content: Text('Please select a section first.')),
       );
     }
   }
+
+  Future<void> _saveSection() async {
+  if (_selectedSection != null && _selectedSection!.isNotEmpty) {
+    try {
+      // Get the currently logged-in user
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Query Firestore for the document where 'uid' matches the logged-in user's UID
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        // Check if any documents were returned
+        if (userSnapshot.docs.isNotEmpty) {
+          DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+          // Fetch the selected section document
+          QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+              .collection('sections')
+              .where('section_name', isEqualTo: _selectedSection)
+              .get();
+
+          // Check if any section documents were returned
+          if (sectionSnapshot.docs.isNotEmpty) {
+            DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
+
+            // Update the 'section' field in the user's document
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(userDoc.id)
+                .update({
+              'section': _selectedSection,
+            });
+
+            // No need to increment capacityCount anymore
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Section saved successfully!')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Section document not found.')),
+            );
+          }
+        } else {
+          print('No document found for the current user.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User document not found.')),
+          );
+        }
+      } else {
+        print('No user is logged in.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'No user is logged in. Please log in to save the section.')),
+        );
+      }
+    } catch (e) {
+      print('Error saving section: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving section: $e')),
+      );
+    }
+  } else {
+    // Show an error message if no section is selected
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please select a section before saving.')),
+    );
+  }
+}
+
 
   Future<void> _loadSubjects() async {
     if (_selectedSection != null) {
@@ -627,48 +619,169 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
     }
   }
 
-  void _finalizeSelection() async {
-  if (_selectedSection != null && _subjects.isNotEmpty) {
-    // Use the student ID of the logged-in user
-    String? studentId = _studentId; // Assuming _studentId holds the current student's ID
+  bool _isFinalized = false;
 
-    // Create a reference to the Firestore subcollection for the current user
-    CollectionReference userCollection = FirebaseFirestore.instance.collection('students').doc(studentId).collection('sections');
-
-    // Save the selected section and subjects
+  Future<void> _fetchSubjects() async {
     try {
-      await userCollection.doc(_selectedSection).set({
-        'selectedSection': _selectedSection,
-        'subjects': _subjects,
-        // Add any other relevant fields here
-      });
+      // Get the user document reference using the student ID
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .where('student_id', isEqualTo: _studentId)
+          .limit(1)
+          .get();
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Finalized successfully!')),
-      );
+      if (userDoc.docs.isNotEmpty) {
+        final userDocId = userDoc.docs.first.id;
+
+        // Fetch subjects data from the sections subcollection for the selected section
+        final sectionDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userDocId)
+            .collection('sections')
+            .doc(_selectedSection)
+            .get();
+
+        if (sectionDoc.exists) {
+          setState(() {
+            _subjects = List<Map<String, dynamic>>.from(
+                sectionDoc.data()?['subjects'] ?? []);
+            _isFinalized = sectionDoc.data()?['isFinalized'] ?? false;
+          });
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: User not found.')),
+        );
+      }
     } catch (e) {
-      // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error finalizing selection: $e')),
+        SnackBar(content: Text('Error fetching subjects: $e')),
       );
     }
-  } else {
-    // Show error message if selection is not made
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please select a section and load subjects before finalizing.')),
-    );
   }
-}
 
-   Future<void> _fetchSections() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('sections').get();
-    setState(() {
-      _sections = snapshot.docs
-          .map((doc) => doc['section_name'] as String)
-          .toList(); // Adjust the field name as necessary
-    });
+  Future<void> _finalizeSelection() async {
+    if (_selectedSection != null && _subjects.isNotEmpty) {
+      try {
+        // Get the user document reference using the student ID
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .where('student_id', isEqualTo: _studentId)
+            .limit(1)
+            .get();
+
+        if (userDoc.docs.isNotEmpty) {
+          final userDocId = userDoc.docs.first.id;
+
+          // Set the data in the sections subcollection inside this user's document
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userDocId)
+              .collection('sections')
+              .doc(_selectedSection!)
+              .set({
+            'selectedSection': _selectedSection,
+            'subjects': _subjects,
+            'isFinalized': true,
+          });
+
+          setState(() {
+            _isFinalized = true; // Disable further editing
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Section and subjects finalized successfully!')),
+          );
+
+          // Fetch subjects again to update the table view with the saved data
+          _fetchSubjects();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: User not found.')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error finalizing selection: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Please select a section and load subjects first.')),
+      );
+    }
+  }
+
+  Future<void> _fetchSections() async {
+    try {
+      // Define the mapping between seniorHigh_Strand descriptive names and abbreviations
+      Map<String, String> strandMap = {
+        'Science, Technology, Engineering and Mathematics (STEM)': 'STEM',
+        'Humanities and Social Sciences (HUMSS)': 'HUMSS',
+        'Accountancy, Business, and Management (ABM)': 'ABM',
+        'Information and Communication Technology (ICT)': 'ICT',
+        'Home Economics (HE)': 'HE',
+        'Industrial Arts (IA)': 'IA'
+      };
+
+      // Get the currently logged-in user
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Fetch the user document to get seniorHigh_Strand and grade_level
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        if (userSnapshot.docs.isNotEmpty) {
+          DocumentSnapshot userDoc = userSnapshot.docs.first;
+          String userStrand = userDoc['seniorHigh_Strand'];
+          String userGradeLevel = userDoc['grade_level'];
+
+          // Get the abbreviation for the user's strand
+          String? strandAbbreviation = strandMap[userStrand];
+
+          if (strandAbbreviation != null) {
+            // Fetch sections that match the user's grade level and strand abbreviation
+            final snapshot = await FirebaseFirestore.instance
+                .collection('sections')
+                .where('section_name',
+                    isGreaterThanOrEqualTo:
+                        '$userGradeLevel-$strandAbbreviation')
+                .where('section_name',
+                    isLessThanOrEqualTo:
+                        '$userGradeLevel-$strandAbbreviation\uf8ff')
+                .get();
+
+            setState(() {
+              _sections = snapshot.docs
+                  .map((doc) => doc['section_name'] as String)
+                  .toList();
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Strand abbreviation not found.')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User document not found.')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No user is logged in.')),
+        );
+      }
+    } catch (e) {
+      print('Error fetching sections: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching sections: $e')),
+      );
+    }
   }
   // Case 2
 
@@ -835,15 +948,15 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
   }
 
   Future<void> logout() async {
-  try {
-    await FirebaseAuth.instance.signOut();
-    print("User logged out successfully");
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder)=>Launcher()));
-  } catch (e) {
-    print("Error logging out: $e");
+    try {
+      await FirebaseAuth.instance.signOut();
+      print("User logged out successfully");
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (builder) => Launcher()));
+    } catch (e) {
+      print("Error logging out: $e");
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -858,143 +971,157 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
           case 0:
             return Case0();
           case 1:
-          if (semesterGrades.isEmpty) {
-          return Container(
-            padding: EdgeInsets.all(16.0),
-            color: Color.fromARGB(255, 1, 93, 168),
-            child: Center(
-              child: Text(
-                'No grades found.'
-                )
-                )
-                );
-  }
+            if (semesterGrades.isEmpty) {
+              return Container(
+                  padding: EdgeInsets.all(16.0),
+                  color: Color.fromARGB(255, 1, 93, 168),
+                  child: Center(child: Text('No grades found.')));
+            }
+            return SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                color: Color.fromARGB(255, 1, 93, 168),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'REPORT CARD',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    ...semesterGrades.entries.map((entry) {
+                      String semester =
+                          entry.key; // e.g., 'Grade 11 - 1st Semester'
+                      List<Map<String, String>> grades =
+                          entry.value; // List of grades for that semester
 
-  return SingleChildScrollView(
-    physics: BouncingScrollPhysics(),
-    child: Container(
-      padding: EdgeInsets.all(16.0),
-      color: Color.fromARGB(255, 1, 93, 168),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'REPORT CARD',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 20),
-          ...semesterGrades.entries.map((entry) {
-            String semester = entry.key; // e.g., 'Grade 11 - 1st Semester'
-            List<Map<String, String>> grades = entry.value; // List of grades for that semester
-    
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  semester,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  child: Table(
-                    border: TableBorder.all(color: Colors.black),
-                    columnWidths: {
-                      0: FlexColumnWidth(2),
-                      1: FlexColumnWidth(4),
-                      2: FlexColumnWidth(2),
-                    },
-                    children: [
-                      TableRow(children: [
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Course Code', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Subject', style: TextStyle(color: Colors.black)),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Grade', style: TextStyle(color: Colors.black)),
-                        ),
-                      ]),
-                      ...grades.map((subject) {
-                        return TableRow(children: [
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(subject['subject_code'] ?? '', style: TextStyle(color: Colors.black)),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            semester,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(subject['subject_name'] ?? '', style: TextStyle(color: Colors.black)),
+                          Container(
+                            color: Colors.white,
+                            child: Table(
+                              border: TableBorder.all(color: Colors.black),
+                              columnWidths: {
+                                0: FlexColumnWidth(2),
+                                1: FlexColumnWidth(4),
+                                2: FlexColumnWidth(2),
+                              },
+                              children: [
+                                TableRow(children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Text('Course Code',
+                                        style: TextStyle(color: Colors.black)),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Text('Subject',
+                                        style: TextStyle(color: Colors.black)),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: Text('Grade',
+                                        style: TextStyle(color: Colors.black)),
+                                  ),
+                                ]),
+                                ...grades.map((subject) {
+                                  return TableRow(children: [
+                                    Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Text(subject['subject_code'] ?? '',
+                                          style:
+                                              TextStyle(color: Colors.black)),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Text(subject['subject_name'] ?? '',
+                                          style:
+                                              TextStyle(color: Colors.black)),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(12.0),
+                                      child: Text(subject['grade'] ?? 'N/A',
+                                          style:
+                                              TextStyle(color: Colors.black)),
+                                    ),
+                                  ]);
+                                }).toList(),
+                              ],
+                            ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: Text(subject['grade'] ?? 'N/A', style: TextStyle(color: Colors.black)),
+                          SizedBox(height: 20),
+                        ],
+                      );
+                    }).toList(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            // Handle print result functionality here
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            backgroundColor: Colors.yellow,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                           ),
-                        ]);
-                      }).toList(),
-                    ],
-                  ),
+                          child: Text('Print Result'),
+                        ),
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 100, 15, 0),
+                              child: Text('Urbano Delos Angeles IV',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontFamily: "B",
+                                      color: Colors.white)),
+                            ),
+                            SizedBox(height: 8), // Adjust spacing if needed
+                            Container(
+                              width:
+                                  250, // Adjust the width to control line length
+                              height: 3, // Height of the line
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [Colors.blue, Colors.yellow],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 8), // Adjust spacing if needed
+                            Text(
+                              'SCHOOL PRINCIPAL',
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.white),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(height: 20),
-              ],
-            );
-          }).toList(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  // Handle print result functionality here
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.yellow,
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
-                child: Text('Print Result'),
               ),
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0 , 100, 15, 0),
-                    child: Text('Urbano Delos Angeles IV', style: TextStyle(fontSize: 18, fontFamily: "B", color: Colors.white)),
-                  ),
-                   SizedBox(height: 8), // Adjust spacing if needed
-    Container(
-      width: 250, // Adjust the width to control line length
-      height: 3,   // Height of the line
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [Colors.blue, Colors.yellow],
-        ),
-      ),
-    ),
-    SizedBox(height: 8), // Adjust spacing if needed
-                  Text('SCHOOL PRINCIPAL', style: TextStyle(fontSize: 12, color: Colors.white),)
-                ],
-              )
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-
+            );
           case 2:
             return Container(
               width: screenWidth / 1,
@@ -1026,7 +1153,8 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                               child: RichText(
                                 text: TextSpan(
                                   style: TextStyle(
-                                      color: Colors.black), // Default text color
+                                      color:
+                                          Colors.black), // Default text color
                                   children: [
                                     TextSpan(
                                         text: 'Your enrollment is ',
@@ -1059,129 +1187,126 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(height: 20,),
+                                SizedBox(
+                                  height: 20,
+                                ),
                                 Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 180.0),
-                                  child: Text(
-                                    "Student Data",
+                                  padding: const EdgeInsets.only(left: 180.0),
+                                  child: Text("Student Data",
                                       style: TextStyle(
-                                          color: Colors.yellow, 
-                                          fontSize: 18)
-                                          ),
+                                          color: Colors.yellow, fontSize: 18)),
                                 ),
                                 SizedBox(height: 20),
                                 Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 400.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 400.0),
                                       child: Text('Student ID no:',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 145.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 145.0),
                                       child: Text('${_studentId ?? ''}',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                   ],
                                 ),
-                                    SizedBox(height: 15),
+                                SizedBox(height: 15),
                                 Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 400.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 400.0),
                                       child: Text('Student Full Name:',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 100.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 100.0),
                                       child: Text('${_fullName ?? ''}',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                   ],
                                 ),
-                                    SizedBox(height: 15),
+                                SizedBox(height: 15),
                                 Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 400.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 400.0),
                                       child: Text('Strand:',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 210.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 210.0),
                                       child: Text('${_strand ?? ''}',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                   ],
                                 ),
-                                    SizedBox(height: 15),
+                                SizedBox(height: 15),
                                 Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 400.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 400.0),
                                       child: Text('Track:',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 220.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 220.0),
                                       child: Text('${_track ?? ''}',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                   ],
                                 ),
-                                    SizedBox(height: 15),
+                                SizedBox(height: 15),
                                 Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 400.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 400.0),
                                       child: Text('Grade Level:',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 165.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 165.0),
                                       child: Text('${_gradeLevel ?? ''}',
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20
-                                          )),
+                                              color: Colors.white,
+                                              fontSize: 20)),
                                     ),
                                   ],
                                 ),
-                                    SizedBox(height: 15),
+                                SizedBox(height: 15),
                                 Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 400.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 400.0),
                                       child: Text('Semester:',
                                           style: TextStyle(
                                             color: Colors.white,
@@ -1189,7 +1314,8 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                                           )),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 185.0),
+                                      padding:
+                                          const EdgeInsets.only(left: 185.0),
                                       child: Text('${_semester ?? ''}',
                                           style: TextStyle(
                                             color: Colors.white,
@@ -1198,62 +1324,90 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                                     ),
                                   ],
                                 ),
-                                    SizedBox(height: 15),
+                                SizedBox(height: 15),
                                 Center(
-                                  child: DropdownButton<String>(
-                                    value: _selectedSection,
-                                    hint: Text('Select a section',
-                                        style: TextStyle(color: Colors.white)),
-                                    items: _sections.map((String section) {
-                                      return DropdownMenuItem<String>(
-                                        value: section,
-                                        child: Text(section,
-                                            style: TextStyle(color: Colors.black)),
-                                      );
-                                    }).toList(),
-                                    onChanged: (String? newValue) async {
-                                      // Check if the user can select the section
-                                      bool canSelect = await _canSelectSection();
-                                  
-                                      if (canSelect) {
-                                        setState(() {
-                                          _selectedSection =
-                                              newValue; // Update selected section
-                                        });
-                                      } else {
-                                        // Show a message if the section is full
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'This section is full. Please choose another section.')),
+                                    child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                    border: Border.all(
+                                        color: Colors.black, width: 1.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: DropdownButton<String>(
+                                      value: _selectedSection,
+                                      hint: Text('Select a section',
+                                          style:
+                                              TextStyle(color: Colors.black)),
+                                      items: _sections.map((String section) {
+                                        return DropdownMenuItem<String>(
+                                          value: section,
+                                          child: Text(section,
+                                              style: TextStyle(
+                                                  color: Colors.black)),
                                         );
-                                      }
-                                    },
+                                      }).toList(),
+                                      onChanged: _isFinalized
+                                          ? null
+                                          : (String? newValue) async {
+                                              bool canSelect =
+                                                  await _canSelectSection();
+
+                                              if (canSelect) {
+                                                setState(() {
+                                                  _selectedSection = newValue;
+                                                });
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          'This section is full. Please choose another.')),
+                                                );
+                                              }
+                                            },
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 20),
-                                Container(
-                                  alignment: Alignment.center,
-                                  child: ElevatedButton(
-                                    onPressed:
-                                        _saveAndLoadSubjects, // Call the save function
-                                    child: Text('Load Section'),
+                                )),
+                                if (!_isFinalized) ...[
+                                  SizedBox(height: 20),
+                                  Container(
+                                    alignment: Alignment.center,
+                                    child: ElevatedButton(
+                                      onPressed: _loadSubjects,
+                                      style: ElevatedButton.styleFrom(
+                                        foregroundColor:
+                                            Color.fromARGB(255, 1, 93, 168),
+                                        backgroundColor: Colors.white,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 30, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
+                                        minimumSize: Size(80, 20),
+                                      ),
+                                      child: Text('Load Section'),
+                                    ),
                                   ),
-                                ),
-                                SizedBox(height: 15,),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 180.0),
-                                  child: Text("Subjects",
-                                      style: TextStyle(
-                                        color: Colors.yellow, 
-                                          fontSize: 18
-                                      )
-                                  )
+                                ],
+                                SizedBox(
+                                  height: 15,
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.fromLTRB(200, 20, 200, 50),
+                                    padding: const EdgeInsets.only(left: 180.0),
+                                    child: Text("Subjects",
+                                        style: TextStyle(
+                                            color: Colors.yellow,
+                                            fontSize: 18))),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      200, 20, 200, 50),
                                   child: Table(
-                                    border: TableBorder.all(color: Colors.black),
+                                    border:
+                                        TableBorder.all(color: Colors.black),
                                     columnWidths: {
                                       0: FlexColumnWidth(2),
                                       1: FlexColumnWidth(
@@ -1266,20 +1420,20 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                                         Padding(
                                           padding: EdgeInsets.all(12.0),
                                           child: Text('Course Code',
-                                              style:
-                                                  TextStyle(color: Colors.black)),
+                                              style: TextStyle(
+                                                  color: Colors.white)),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(12.0),
                                           child: Text('Subject',
-                                              style:
-                                                  TextStyle(color: Colors.black)),
+                                              style: TextStyle(
+                                                  color: Colors.white)),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(12.0),
                                           child: Text('Category',
-                                              style:
-                                                  TextStyle(color: Colors.black)),
+                                              style: TextStyle(
+                                                  color: Colors.white)),
                                         ),
                                       ]),
                                       // Data rows; if there are no subjects, show a placeholder row
@@ -1289,22 +1443,24 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                                           return TableRow(children: [
                                             Padding(
                                               padding: EdgeInsets.all(12.0),
-                                              child: Text(subject['subject_code'],
+                                              child: Text(
+                                                  subject['subject_code'],
                                                   style: TextStyle(
-                                                      color: Colors.black)),
+                                                      color: Colors.white)),
                                             ),
                                             Padding(
                                               padding: EdgeInsets.all(12.0),
-                                              child: Text(subject['subject_name'],
+                                              child: Text(
+                                                  subject['subject_name'],
                                                   style: TextStyle(
-                                                      color: Colors.black)),
+                                                      color: Colors.white)),
                                             ),
                                             Padding(
                                               padding: EdgeInsets.all(12.0),
                                               child: Text(
                                                   subject['category'] ?? 'N/A',
                                                   style: TextStyle(
-                                                      color: Colors.black)),
+                                                      color: Colors.white)),
                                             ),
                                           ]);
                                         }).toList(),
@@ -1316,7 +1472,8 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                                             child: Text('No subjects available',
                                                 style: TextStyle(
                                                     color: Colors.red,
-                                                    fontStyle: FontStyle.italic)),
+                                                    fontStyle:
+                                                        FontStyle.italic)),
                                           ),
                                           Padding(
                                             padding: EdgeInsets.all(12.0),
@@ -1335,21 +1492,25 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                                   child: Container(
                                     alignment: Alignment.bottomRight,
                                     child: ElevatedButton(
-                                      onPressed: _finalizeSelection,
+                                      onPressed: _isFinalized
+                                          ? null
+                                          : _saveandfinalization,
                                       style: ElevatedButton.styleFrom(
-                                      foregroundColor: Color.fromARGB(255, 1, 93, 168),
-                                      backgroundColor: Colors.white,
-                                      padding: EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                      minimumSize: Size(80, 20),
-                                  ),
+                                        foregroundColor:
+                                            Color.fromARGB(255, 1, 93, 168),
+                                        backgroundColor: Colors.white,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 30, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
+                                        minimumSize: Size(80, 20),
+                                      ),
                                       child: Text(
-                                      'Finalize',
-                                      style: TextStyle(fontSize: 10),
-                                     ),
+                                        'Finalize',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1530,7 +1691,7 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
                                         width: 15,
                                       ),
                                       GestureDetector(
-                                        onTap: ()async {
+                                        onTap: () async {
                                           logout();
                                         },
                                         child: Container(

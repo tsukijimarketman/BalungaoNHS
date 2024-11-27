@@ -18,7 +18,6 @@ class AddingSections extends StatefulWidget {
 
 class _AddingSectionsState extends State<AddingSections> {
   final TextEditingController _sectionName = TextEditingController();
-  final TextEditingController _sectionAdviser = TextEditingController();
   final TextEditingController _sectionCapacity = TextEditingController();
   String? _selectedSemester = '--' ;
   String? _selectedAdviser;
@@ -29,6 +28,7 @@ class _AddingSectionsState extends State<AddingSections> {
       FirebaseFirestore.instance.collection('users');
 
   List<Map<String, String>> _instructors = [];
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Form Key for validation
 
   @override
   void initState() {
@@ -66,8 +66,13 @@ class _AddingSectionsState extends State<AddingSections> {
   }
 
   Future<void> _saveSubject() async {
+    // Validate the form before proceeding
+    if (!_formKey.currentState!.validate()) {
+      return; // If form is not valid, return early
+    }
+
     // Basic validation before saving
-    if (_sectionName.text.isEmpty || _selectedAdviser == null || _selectedSemester == '--') {
+    if (_selectedAdviser == null || _selectedSemester == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
@@ -85,13 +90,12 @@ class _AddingSectionsState extends State<AddingSections> {
     }
 
     try {
-      // Create a document in Firestore
+      // Create a document in Firestore without capacityCount
       await subjectsCollection.add({
         'section_name': _sectionName.text,
         'section_adviser': _selectedAdviser,
         'semester': _selectedSemester,
         'section_capacity': capacity,
-        'capacityCount': 0,
         'created_at': Timestamp.now(),
       });
 
@@ -137,112 +141,124 @@ class _AddingSectionsState extends State<AddingSections> {
                 ),
                 padding: EdgeInsets.all(20),
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Back button
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: TextButton(
-                          onPressed: widget.closeAddSections,
-                          style: TextButton.styleFrom(
-                            side: BorderSide(color: Colors.red),
+                  child: Form(
+                    key: _formKey, // Form key for validation
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Back button
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: TextButton(
+                            onPressed: widget.closeAddSections,
+                            style: TextButton.styleFrom(
+                              side: BorderSide(color: Colors.red),
+                            ),
+                            child: Text('Back', style: TextStyle(color: Colors.red)),
                           ),
-                          child: Text('Back', style: TextStyle(color: Colors.red)),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      // Form title
-                      Text(
-                        'Add New Section',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 16),
-                      // Subject Name
-                      TextFormField(
-                        controller: _sectionName,
-                        decoration: InputDecoration(
-                          labelText: 'Section Name',
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter section name',
+                        SizedBox(height: 8),
+                        // Form title
+                        Text(
+                          'Add New Section',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      // Section Adviser Dropdown
-                      DropdownButtonFormField<String>(
-                        value: _selectedAdviser,
-                        decoration: InputDecoration(
-                          labelText: 'Section Adviser',
-                          border: OutlineInputBorder(),
+                        SizedBox(height: 16),
+                        // Section Name
+                        TextFormField(
+                          controller: _sectionName,
+                          decoration: InputDecoration(
+                            labelText: 'Section Name',
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter Section Name (e.g. 11-STEM-A)',
+                          ),
+                          validator: (value) {
+                            final regExp = RegExp(r'^(11|12)-(STEM|HUMSS|ABM|ICT|HE|IA)-');
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a section name';
+                            } else if (!regExp.hasMatch(value)) {
+                              return 'Invalid format. Use: Grade Level-Strand-Section';
+                            }
+                            return null;
+                          },
                         ),
-                        items: _instructors
-                            .map((instructor) => DropdownMenuItem<String>(
-                                  value: instructor['name'],
-                                  child: Text(instructor['name'] ?? ''),
-                                ))
-                            .toList(),
-                        onChanged: (val) {
-                          setState(() {
-                            _selectedAdviser = val;
-                          });
-                        },
-                        hint: Text('Select an adviser'),
-                      ),
-                      SizedBox(height: 16),
-                      // Semester Dropdown
-                      DropdownButtonFormField<String>(
-                        value: _selectedSemester,
-                        decoration: InputDecoration(
-                          labelText: 'Semester',
-                          border: OutlineInputBorder(),
+                        SizedBox(height: 16),
+                        // Section Adviser Dropdown
+                        DropdownButtonFormField<String>(
+                          value: _selectedAdviser,
+                          decoration: InputDecoration(
+                            labelText: 'Section Adviser',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: _instructors
+                              .map((instructor) => DropdownMenuItem<String>(
+                                    value: instructor['name'],
+                                    child: Text(instructor['name'] ?? ''),
+                                  ))
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedAdviser = val;
+                            });
+                          },
+                          hint: Text('Select an adviser'),
                         ),
-                        items: [
-                          '--',
-                          'Grade 11 - 1st Semester',
-                          'Grade 11 - 2nd Semester',
-                          'Grade 12 - 1st Semester',
-                          'Grade 12 - 2nd Semester'
-                        ].map((semester) => DropdownMenuItem<String>(
-                              value: semester,
-                              child: Text(semester),
-                            ))
-                            .toList(),
-                        onChanged: (val) {
-                          _selectedSemester = val;
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: _sectionCapacity,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Section Capacity',
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter section capacity',
+                        SizedBox(height: 16),
+                        // Semester Dropdown
+                        DropdownButtonFormField<String>(
+                          value: _selectedSemester,
+                          decoration: InputDecoration(
+                            labelText: 'Semester',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: [
+                            '--',
+                            'Grade 11 - 1st Semester',
+                            'Grade 11 - 2nd Semester',
+                            'Grade 12 - 1st Semester',
+                            'Grade 12 - 2nd Semester'
+                          ].map((semester) => DropdownMenuItem<String>(
+                                value: semester,
+                                child: Text(semester),
+                              ))
+                              .toList(),
+                          onChanged: (val) {
+                            _selectedSemester = val;
+                          },
                         ),
-                      ),
-                      SizedBox(height: 24),
-                      // Save Changes button
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: widget.screenWidth * 1,
-                          height: widget.screenHeight * 0.06,
-                          child: ElevatedButton(
-                            onPressed: _saveSubject,
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                elevation: 5, // Elevation level for shadow depth
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                              ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _sectionCapacity,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Section Capacity',
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter section capacity',
+                          ),
+                        ),
+                        SizedBox(height: 24),
+                        // Save Changes button
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            width: widget.screenWidth * 1,
+                            height: widget.screenHeight * 0.06,
+                            child: ElevatedButton(
+                              onPressed: _saveSubject,
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  elevation: 5, // Elevation level for shadow depth
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Padding
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
                               child: Text('Save Changes', style: TextStyle(color: Colors.white, fontSize: 14,),),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

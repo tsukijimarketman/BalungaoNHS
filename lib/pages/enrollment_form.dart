@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +16,7 @@ import 'package:pbma_portal/pages/enrollment_form_sector/junior_high_school.dart
 import 'package:pbma_portal/pages/enrollment_form_sector/parent_information.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/senior_high_school.dart';
 import 'package:pbma_portal/pages/enrollment_form_sector/student_information.dart';
+import 'package:pbma_portal/pages/enrollment_form_sector/uploading_files.dart';
 
 class EnrollmentForm extends StatefulWidget {
   @override
@@ -48,6 +50,15 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
   Map<String, dynamic> _juniorHSData = {};
   Map<String, dynamic> _parentInfoData = {};
   Map<String, dynamic> _seniorHSData = {};
+
+  List<PlatformFile> _selectedFiles = [];
+
+  // Method to update selected files list
+  void _updateSelectedFiles(List<PlatformFile> files) {
+    setState(() {
+      _selectedFiles = files;
+    });
+  }
 
   void _updateStudentData(Map<String, dynamic> data) {
     setState(() {
@@ -133,6 +144,23 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
       }
     }
 
+     // Upload selected files and collect their URLs
+      List<String> fileUrls = [];
+      for (var file in _selectedFiles) {
+        try {
+          final fileRef = FirebaseStorage.instance.ref().child('uploads/${file.name}');
+          final uploadTask = file.bytes != null ? fileRef.putData(file.bytes!) : fileRef.putFile(File(file.path!));
+          final snapshot = await uploadTask;
+          final downloadUrl = await snapshot.ref.getDownloadURL();
+          fileUrls.add(downloadUrl);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to Upload File ${file.name}: $e')),
+          );
+        }
+      }
+
+
     final combinedData = {
       ..._studentData,
       ..._homeAddressData,
@@ -141,6 +169,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
       ..._seniorHSData,
       'enrollment_status': 'pending',
       'image_url': imageUrl,
+        'file_urls': fileUrls,
     };
 
     FirebaseFirestore.instance.collection('users').add(combinedData).then((value) {
@@ -179,6 +208,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                   _updateImageFile(null);
                   _updateWebImageData(null);
                   _updateImageUrl(null);
+                  _updateSelectedFiles([]);
                 },
               ),
             ],
@@ -197,7 +227,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
 
 
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
   final Size screenSize = MediaQuery.of(context).size;
   double screenWidth = screenSize.width;
   double screenHeight = screenSize.height;
@@ -382,6 +412,11 @@ Widget build(BuildContext context) {
                   spacing: spacing,
                   onDataChanged: _updateStudentData,
                 ),
+                SizedBox(height: 30),
+                UploadingFiles(
+                  spacing: 8.0,
+                  onFilesSelected: _updateSelectedFiles,
+                  ),
                 SizedBox(height: 30),
                 Center(
                   child: SizedBox(
