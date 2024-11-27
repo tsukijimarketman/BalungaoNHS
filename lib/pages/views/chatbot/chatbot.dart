@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async'; // Import for Timer
 
 class ChatBotUI extends StatefulWidget {
   @override
@@ -9,17 +10,36 @@ class ChatBotUI extends StatefulWidget {
 class _ChatBotUIState extends State<ChatBotUI> {
   String? selectedQuestion;
   String? displayedAnswer;
+  Timer? _animationTimer; // Timer for managing animation.
 
   // Typewriter animation for displaying the answer
   Future<void> _showAnswer(String answer) async {
-    setState(() => displayedAnswer = ''); // Reset the displayedAnswer
-    for (int i = 0; i < answer.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 50), () {
+    // Cancel any ongoing animation
+    _animationTimer?.cancel();
+
+    setState(() {
+      displayedAnswer = ''; // Reset the displayedAnswer
+    });
+
+    // Animate the answer typing
+    int index = 0;
+    _animationTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (index < answer.length) {
         setState(() {
-          displayedAnswer = (displayedAnswer ?? '') + answer[i];
+          displayedAnswer = (displayedAnswer ?? '') + answer[index];
         });
-      });
-    }
+        index++;
+      } else {
+        timer.cancel(); // Stop animation once the answer is complete
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // Cancel the timer when the widget is disposed
+    _animationTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -48,7 +68,7 @@ class _ChatBotUIState extends State<ChatBotUI> {
       width: MediaQuery.of(context).size.width * widthFactor,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color:Colors.grey[200],
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -95,60 +115,61 @@ class _ChatBotUIState extends State<ChatBotUI> {
                     ),
                     const SizedBox(height: 16),
                     Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: faqs.map((faq) {
-                      return ElevatedButton(
-                        onPressed: () {
-                          setState(() => selectedQuestion = faq['question']);
-                          _showAnswer(faq['answer']!);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5), // Rounded corners with 5 radius
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: faqs.map((faq) {
+                        return ElevatedButton(
+                          onPressed: () {
+                            setState(() => selectedQuestion = faq['question']);
+                            _showAnswer(faq['answer']!);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            foregroundColor: Colors.black,
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Optional: Adjust padding
-                          foregroundColor: Colors.black
-                        ),
-                        child: Text(faq['question']!),
-                      );
-                    }).toList(),
-                  ),
-
-                    const SizedBox(height: 16),
-                   if (selectedQuestion != null) ...[
-                    Text(
-                      selectedQuestion!,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                          child: Text(faq['question']!),
+                        );
+                      }).toList(),
                     ),
-                    const SizedBox(height: 8),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.4,
+                    const SizedBox(height: 16),
+                    if (selectedQuestion != null) ...[
+                      Text(
+                        selectedQuestion!,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
-                      child: SingleChildScrollView(
-                        child: Container(
-                          padding: const EdgeInsets.all(12), // Padding inside the container
-                          decoration: BoxDecoration(
-                            color: Colors.blue, // Background color
-                            borderRadius: BorderRadius.circular(15), // Rounded corners
-                          ),
-                          child: Text(
-                            displayedAnswer ?? '',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white, // Text color
+                      const SizedBox(height: 8),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.4,
+                        ),
+                        child: SingleChildScrollView(
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Text(
+                              displayedAnswer ?? '',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-
+                    ],
                   ],
                 );
               },
