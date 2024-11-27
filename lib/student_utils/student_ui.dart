@@ -859,15 +859,15 @@ Map<String, List<Map<String, String>>> semesterGrades = {};
             return Case0();
           case 1:
           if (semesterGrades.isEmpty) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      color: Color.fromARGB(255, 1, 93, 168),
-      child: Center(
-        child: Text(
-          'No grades found.'
-          )
-          )
-          );
+          return Container(
+            padding: EdgeInsets.all(16.0),
+            color: Color.fromARGB(255, 1, 93, 168),
+            child: Center(
+              child: Text(
+                'No grades found.'
+                )
+                )
+                );
   }
 
   return SingleChildScrollView(
