@@ -53,6 +53,8 @@ dependencies:
   sidebarx: ^0.17.1
   provider: ^6.1.2
   http: ^1.2.2
+  carousel_slider: ^5.0.0
+  auto_size_text: ^3.0.0
   file_picker: ^8.1.4
   open_file: ^3.5.10
   animated_text_kit: ^4.2.1

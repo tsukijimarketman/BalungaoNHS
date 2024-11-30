@@ -16,8 +16,11 @@ import 'package:pbma_portal/Manage/StudentInSection.dart';
 import 'package:pbma_portal/Manage/SubjectsandGrade.dart';
 import 'package:pbma_portal/launcher.dart';
 import 'package:pbma_portal/pages/Auth_View/Adding_InstructorAcc_Desktview.dart';
+import 'package:pbma_portal/pages/banner.dart';
+import 'package:pbma_portal/pages/news_updates.dart';
 import 'package:pbma_portal/pages/student_details.dart';
 import 'package:pbma_portal/reports/enrollment_report/enrollment_report.dart';
+import 'package:pbma_portal/pages/views/chatbot/faqs.dart';
 import 'package:pbma_portal/student_utils/Student_Utils.dart';
 import 'package:pbma_portal/Admin Dashboard Sorting/Dashboard Sorting.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
@@ -946,6 +949,12 @@ Future<void> logout() async {
         return _buildManageSections();
       case 'Dropped Student':
         return _buildDropStudent();
+      case 'Banner':
+        return BannerImage();
+      case 'News and Updates':
+        return NewsUpdates();
+      case 'FAQS':
+        return FAQAdminPage();
       case 'Reports':
         return _buildAnalytics();
       default:
@@ -3993,7 +4002,11 @@ Future<void> logout() async {
             _buildDrawerItem(
                 'Dropped Student', Iconsax.dropbox_copy, 'Dropped Student'),
             _buildDrawerItem('Configuration', Iconsax.user, 'Configuration'),
-            _buildDrawerItem('Reports', Iconsax.data_copy, 'Reports'),
+            _buildDrawerItem('Banner', Iconsax.image_copy,'Banner'),
+            _buildDrawerItem('News and Updates', Iconsax.activity_copy,'News and Updates'),
+            _buildDrawerItem('FAQS', Iconsax.message_2_copy,'FAQS'),
+            _buildDrawerItem(
+                'Reports', Iconsax.data_copy, 'Reports'),
             ListTile(
               leading: Icon(Iconsax.logout),
               title: Text('Log out'),
