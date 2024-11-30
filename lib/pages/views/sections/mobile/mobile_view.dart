@@ -1,8 +1,11 @@
 import 'dart:ui';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/TermsAndConditions/TAC_Mobile_View.dart';
 import 'package:pbma_portal/pages/Auth_View/SignInMobileView.dart';
+import 'package:pbma_portal/TermsAndConditions/TAC_Mobile_View.dart';
+import 'package:pbma_portal/pages/views/sections/mobile/first_section_mobile.dart';
+import 'package:pbma_portal/pages/views/sections/mobile/footer_mobile.dart';
+import 'package:pbma_portal/pages/views/sections/mobile/second_section_mobile.dart';
 
 class MobileView extends StatefulWidget {
   const MobileView({super.key});
@@ -11,17 +14,18 @@ class MobileView extends StatefulWidget {
   State<MobileView> createState() => _MobileViewState();
 }
 
-class _MobileViewState extends State<MobileView> {
-  Color _textColor4 = Colors.white;
-  Color _textColor5 = Colors.white;
-  Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
-
-  final sectionKey1 = GlobalKey();
-  final sectionKey2 = GlobalKey();
-  final sectionKey3 = GlobalKey();
-
+class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
+  final GlobalKey _footerKey = GlobalKey();
+  final GlobalKey _firstSectionKey = GlobalKey();
+  late ScrollController _scrollController;
   bool _showSignInCard = false;
   bool _TAC = false;
+
+  @override
+  void initState() {
+    _scrollController = ScrollController();
+    super.initState();
+  }
 
   void scrollToSection(GlobalKey key) {
     Scrollable.ensureVisible(key.currentContext!,
@@ -56,343 +60,177 @@ class _MobileViewState extends State<MobileView> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: Image.asset(
+                "assets/pbma.jpg",
+                height: 40,
+                width: 40,
+              ),
+            ),
+            SizedBox(width: 10),
+            Text(
+              "PBMA Portal",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontFamily: "B",
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Color.fromARGB(255, 26, 117, 192),
+        iconTheme: IconThemeData(
+          color: Colors.white, // Make the drawer icon white
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.login, color: Colors.white),
+            onPressed: toggleSignInCard,
+          ),
+          IconButton(
+            icon: Icon(Icons.app_registration, color: Colors.white),
+            onPressed: toggleTAC,
+          ),
+        ],
+      ),
       drawer: Drawer(
+        backgroundColor: Colors.yellowAccent,
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
+          children: [
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 1, 93, 168),
+              decoration:
+                  BoxDecoration(color: Color.fromARGB(255, 26, 117, 192)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      "assets/pbma.jpg", // Replace with your PBMA logo asset path
+                      height: 80,
+                      width: 80,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "Menu",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontFamily: "M",
+                    ),
+                  ),
+                ],
               ),
-              child: Text(
-                'PBMA Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home, color: Colors.black),
+              title: Text(
+                "Home",
+                style: TextStyle(fontFamily: "M"),
               ),
+              onTap: () => scrollToSection(
+                  _firstSectionKey), // Scroll to the first section
             ),
             ListTile(
-              leading: Icon(Icons.dashboard),
-              title: Text('Dashboard'),
-              onTap: () {
-                Navigator.pop(context);
-                scrollToSection(sectionKey1);
-              },
+              leading: Icon(Icons.info, color: Colors.black),
+              title: Text(
+                "About Us",
+                style: TextStyle(fontFamily: "M"),
+              ),
+              onTap: () {},
             ),
             ListTile(
-              leading: Icon(Icons.info),
-              title: Text('About us'),
-              onTap: () {
-                Navigator.pop(context);
-                scrollToSection(sectionKey2);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.contact_mail),
-              title: Text('Contact us'),
-              onTap: () {
-                Navigator.pop(context);
-                scrollToSection(sectionKey3);
-              },
+              leading: Icon(Icons.contact_page, color: Colors.black),
+              title: Text(
+                "Contact Us",
+                style: TextStyle(fontFamily: "M"),
+              ),
+              onTap: () => scrollToSection(_footerKey),
             ),
           ],
         ),
       ),
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(150, 1, 93, 168),
-        elevation: 0,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: Image.asset(
-                "assets/pbma.jpg",
-                height: screenWidth / 13,
-                width: screenWidth / 13,
-              ),
-            ),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: Text(
-          "PBMA",
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: "B",
-            fontSize: screenWidth / 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          MouseRegion(
-            onEnter: (_) {
-              setState(() {
-                _textColor4 = Colors.yellow;
-              });
-            },
-            onExit: (_) {
-              setState(() {
-                _textColor4 = Colors.white;
-              });
-            },
-            child: GestureDetector(
-              onTap: toggleSignInCard,
-              child: Row(
-                children: [
-                  Icon(Icons.login_outlined, size: screenWidth / 35, color: _textColor4),
-                  Text(
-                    "Sign In",
-                    style: TextStyle(
-                      fontFamily: "SB",
-                      fontSize: screenWidth / 35,
-                      color: _textColor4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
       body: Stack(
-        children: [ SingleChildScrollView(
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    key: sectionKey1,
-                    height: screenHeight,
-                    width: screenWidth,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage("assets/campus.jpg"),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
-                    color: Color.fromARGB(150, 1, 93, 168), // Semi-transparent blue tint
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: screenWidth / 5),
-                      Container(
-                        width: 800,
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Prime Brilliant\nMinds Academy",
-                              style: TextStyle(
-                                  fontFamily: "B",
-                                  fontSize: screenWidth / 13,
-                                  color: Colors.white),
-                            ),
-                            SizedBox(height: 30),
-                            Text(
-                              "This will be the introductory line of the prime brilliant minds academy whether they want to write the mission or vision or the encouragement sentence.",
-                              textAlign: TextAlign.justify,
-                              style: TextStyle(
-                                fontFamily: "L",
-                                fontSize: screenWidth / 35,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 30),
-                            MouseRegion(
-                              onEnter: (_) {
-                                setState(() {
-                                  _textColor5 = Colors.yellow;
-                                  _textColor6 = Colors.black;
-                                });
-                              },
-                              onExit: (_) {
-                                setState(() {
-                                  _textColor5 = Colors.white;
-                                  _textColor6 = Color.fromARGB(255, 1, 93, 168);
-                                });
-                              },
-                              child: GestureDetector(
-                                onTap: toggleTAC,
-                                child: Container(
-                                  height: 50,
-                                  width: 200,
-                                  decoration: BoxDecoration(
-                                      color: _textColor5,
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Center(
-                                    child: Text(
-                                      "Enroll Now",
-                                      style: TextStyle(
-                                          color: _textColor6,
-                                          fontFamily: "B",
-                                          fontSize: 20),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+        children: [
+          SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              children: [
+                FirstSectionMobile(
+                  key: _firstSectionKey,
+                  onGetStartedPressed: toggleTAC,
+                ),
+                SecondSectionMobile(),
+                FooterMobile(key: _footerKey),
+              ],
+            ),
+          ),
+          if (_showSignInCard)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: closeSignInCard,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 500),
+                          width: screenWidth * 0.9,
+                          height: screenHeight * 0.6,
+                          curve: Curves.easeInOut,
+                          child: SignInMobile(
+                              closeSignInCardCallback: closeSignInCard),
                         ),
                       ),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 70,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 90,
-                      padding: EdgeInsets.symmetric(horizontal: 80),
-                      width: MediaQuery.of(context).size.width,
-                      color: const Color.fromARGB(122, 158, 158, 158),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '" Education is about igniting a passion for learning and nurturing responsibility, integrity, and compassion in every student. "',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: "SB",
-                              fontSize: (screenWidth / 85) + 2,
-                            ),
-                            textAlign: TextAlign.justify,
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 25,
-                                height: 25,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Icon(Icons.person, size: 20, color: Colors.black),
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Text(
-                                "URBANO R. DELOS ANGELES IV,",
-                                style: TextStyle(
-                                    fontFamily: "B",
-                                    fontSize: (screenWidth / 85) + 2,
-                                    color: Colors.white),
-                              ),
-                              SizedBox(width: 10),
-                              SizedBox(height: 30),
-                              Text(
-                                "Ph.D (School Principal)",
-                                style: TextStyle(
-                                    fontFamily: "M",
-                                    fontSize: (screenWidth / 85) + 2,
-                                    color: Colors.white),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
                     ),
                   ),
-                ],
-              ),
-              Container(
-                key: sectionKey2,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                color: Colors.white30,
-                child: Column(
-                  children: [],
                 ),
               ),
-              Container(
-                key: sectionKey3,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                color: Colors.yellow,
+            ),
+          if (_TAC)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: closeTAC,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 500),
+                          width: screenWidth * 0.9,
+                          height: screenHeight * 0.6,
+                          curve: Curves.easeInOut,
+                          child: TacMobileView(closeTAC: closeTAC),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ],
-          ),
-        ),
-        AnimatedSwitcher(
-            duration: Duration(milliseconds: 550),
-            child: _showSignInCard
-                ? Positioned.fill(
-                    child: GestureDetector(
-                      onTap: closeSignInCard,
-                      child: Stack(
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child: Container(color: Colors.black.withOpacity(0.5)),
-                          ),
-                          Center(
-                            child: GestureDetector( 
-                              onTap: () {},
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 500),
-                                width: screenWidth / 1.2,
-                                height: screenHeight / 1.2,
-                                curve: Curves.easeInOut,
-                                child: SignInMobile(
-                                  key: ValueKey('signInCard'),
-                                  closeSignInCardCallback: closeSignInCard,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-          ),
-          AnimatedSwitcher(
-            duration: Duration(milliseconds: 550),
-            child: _TAC
-                ? Positioned.fill(
-                    child: GestureDetector(
-                      onTap: closeTAC,
-                      child: Stack(
-                        children: [
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                            child:
-                                Container(color: Colors.black.withOpacity(0.5)),
-                          ),
-                          Center(
-                            child: GestureDetector(
-                              onTap: () {},
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 500),
-                                width: screenWidth / 1.2,
-                                height: screenHeight / 1.2,
-                                curve: Curves.easeInOut,
-                                child: TacMobileView(
-                                  key: ValueKey('closeTAC'),
-                                  closeTAC: closeTAC,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-          ),
+            ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }
