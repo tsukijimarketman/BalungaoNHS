@@ -97,6 +97,26 @@ class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientM
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+          // Determine the screen width and breakpoints
+  double screenWidth = MediaQuery.of(context).size.width;
+
+  // Define width for text fields based on screen size
+  double fieldWidth;
+  if (screenWidth >= 1200) {
+    // Large screens (Web/Desktop)
+    fieldWidth = 300;
+  } else if (screenWidth >= 800) {
+    // Medium screens (Tablet)
+    fieldWidth = 250;
+  } else {
+    // Small screens (Mobile)
+    fieldWidth = screenWidth * 0.8; // Adjust to take most of the screen width
+  }
+
+  // Define spacing between fields
+  double spacing = screenWidth >= 800 ? 16.0 : 8.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -109,10 +129,12 @@ class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientM
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
+          child: Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
             children: [
               Container(
-                width: 300,
+                width: fieldWidth,
                 child: TextFormField(
                   controller: _houseNumber,
                   focusNode: _houseNumberFocusNode,
@@ -165,9 +187,9 @@ class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientM
                   ],
                 ),
               ),
-              SizedBox(width: widget.spacing),
+              // SizedBox(width: widget.spacing),
               Container(
-                width: 300,
+                width: fieldWidth,
                 child: TextFormField(
                   controller: _streetName,
                   focusNode: _streetNameFocusNode,
@@ -226,9 +248,9 @@ class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientM
                   ],
                 ),
               ),
-              SizedBox(width: widget.spacing),
+              // SizedBox(width: widget.spacing),
               Container(
-                width: 300,
+                width: fieldWidth,
                 child: TextFormField(
                   controller: _subdivisionBarangay,
                   focusNode: _subdivisionFocusNode,
@@ -293,11 +315,12 @@ class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientM
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
+          child: Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
             children: [
-              Flexible(
-                child: Container(
-                  width: 300,
+              Container(
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _cityMunicipality,
                     focusNode: _cityFocusNode,
@@ -358,11 +381,10 @@ class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientM
                     ],
                   ),
                 ),
-              ),
-              SizedBox(width: widget.spacing),
-              Flexible(
-                child: Container(
-                  width: 300,
+              
+              // SizedBox(width: widget.spacing),
+              Container(
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _province,
                     focusNode: _provinceFocusNode,
@@ -423,11 +445,10 @@ class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientM
                     ],
                   ),
                 ),
-              ),
-              SizedBox(width: widget.spacing),
-              Flexible(
-                child: Container(
-                  width: 300,
+              
+              // SizedBox(width: widget.spacing),
+              Container(
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _country,
                     focusNode: _countryFocusNode,
@@ -487,7 +508,7 @@ class HomeAddressState extends State<HomeAddress> with AutomaticKeepAliveClientM
                     ],
                   ),
                 ),
-              ),
+              
             ],
           ),
         ),
