@@ -473,8 +473,8 @@ Future<void> _deleteNews(String newsId) async {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Container(
-          width: 300,
-          height: 250,
+          width: 500,
+          height: 350,
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +493,7 @@ Future<void> _deleteNews(String newsId) async {
                   labelText: 'Description',
                   border: OutlineInputBorder(),
                 ),
-                maxLines: 3,
+                maxLines: 5,
               ),
               const Spacer(),
             ],

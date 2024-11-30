@@ -5,14 +5,20 @@ class UploadingFiles extends StatefulWidget {
     final double spacing;
   final Function(List<PlatformFile>) onFilesSelected;
 
-  const UploadingFiles({required this.onFilesSelected, required this.spacing, Key? key}) : super(key: key);
+   UploadingFiles({required this.onFilesSelected, required this.spacing, Key? key}) : super(key: key);
 
   @override
-  State<UploadingFiles> createState() => _UploadingFilesState();
+  State<UploadingFiles> createState() => UploadingFilesState();
 }
 
-class _UploadingFilesState extends State<UploadingFiles> {
+class UploadingFilesState extends State<UploadingFiles> {
   final List<PlatformFile> _selectedFiles = [];
+
+  void resetFields() {
+    setState(() {
+      _selectedFiles.clear();
+    });
+  }
 
   Future<void> _pickFiles() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: true);
@@ -38,13 +44,15 @@ class _UploadingFilesState extends State<UploadingFiles> {
 
   @override
   Widget build(BuildContext context) {
+     final screenWidth = MediaQuery.of(context).size.width;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Note: Please attach files for Form 137, Birth Certificate, etc.'),
         Container(
-        height: 25,
-        width: 150,
+        height: 40,
+        width: screenWidth < 600 ? screenWidth * 0.4 : 150,
           child: ElevatedButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all<Color>(
@@ -68,7 +76,7 @@ class _UploadingFilesState extends State<UploadingFiles> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: _selectedFiles.map((file) {
         return Container(
-          width: 300, // Set a specific width for the container
+          width: screenWidth < 600 ? screenWidth * 0.9 : 300, // Set a specific width for the container
           height: 50, // Set a specific height for the container
           margin: const EdgeInsets.only(top: 4.0),
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -101,4 +109,4 @@ class _UploadingFilesState extends State<UploadingFiles> {
       ],
     );
   }
-}
+} 

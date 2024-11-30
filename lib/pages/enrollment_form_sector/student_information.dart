@@ -248,46 +248,116 @@ class StudentInformationState extends State<StudentInformation>
 
     @override
     Widget build(BuildContext context) {
+      super.build(context);
+          // Determine the screen width and breakpoints
+  double screenWidth = MediaQuery.of(context).size.width;
+
+  // Define width for text fields based on screen size
+  double fieldWidth;
+  if (screenWidth >= 1200) {
+    // Large screens (Web/Desktop)
+    fieldWidth = 300;
+  } else if (screenWidth >= 800) {
+    // Medium screens (Tablet)
+    fieldWidth = 250;
+  } else {
+    // Small screens (Mobile)
+    fieldWidth = screenWidth * 0.8; // Adjust to take most of the screen width
+  }
+
+  // Define spacing between fields
+  double spacing = screenWidth >= 800 ? 16.0 : 8.0;
+  bool isMobile = screenWidth < 800;
+
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Student Information',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Container(
-                  width: 300,
-                  child: TextFormField(
-                    controller: _lrnController,
-                    focusNode: _lrnFocusNode,
-                    decoration: InputDecoration(
-                      labelText: null,
-                      label: RichText(
-                        text: TextSpan(
-                          text: 'Learner Reference Number',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 101, 100, 100),
-                            fontSize: 16,
-                          ),
-                          children: [
-                            if (_lrnFocusNode.hasFocus || _lrnController.text.isNotEmpty)
-                              TextSpan(
-                                text: '*',
-                                style: TextStyle(
-                                  color: Colors.red, // Red color for the asterisk
-                                ),
-                              ),
-                          ],
-                        ),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          'Student Information',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: isMobile
+            ? Column(
+                children: [
+                  // Upload 2x2 picture on top for mobile
+                 Hero(
+                  tag: isMobile ? 'profile_picture_mobile' : 'profile_picture_desktop',
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
                       ),
-                      border: OutlineInputBorder(
+                      child: _imageFile == null && _webImageData == null
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Iconsax.profile_circle_copy,
+                                    color: Color.fromARGB(255, 101, 100, 100),
+                                    size: 50.0,
+                                  ),
+                                  Text(
+                                    'Upload your 2x2 picture',
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 101, 100, 100),
+                                      fontSize: 8,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : (_webImageData != null
+                              ? Image.memory(
+                                  _webImageData!,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.file(
+                                  _imageFile!,
+                                  fit: BoxFit.cover,
+                                )),
+                    ),
+                  ),
+                ),
+
+                  SizedBox(height: 16.0), // Spacing between fields
+                  // LRN field below for mobile
+                  Container(
+                    width: screenWidth * 0.8, // Adjust width for mobile
+                    child: TextFormField(
+                      controller: _lrnController,
+                      focusNode: _lrnFocusNode,
+                      decoration: InputDecoration(
+                        labelText: null,
+                        label: RichText(
+                          text: TextSpan(
+                            text: 'Learner Reference Number',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 101, 100, 100),
+                              fontSize: 16,
+                            ),
+                            children: [
+                              if (_lrnFocusNode.hasFocus || _lrnController.text.isNotEmpty)
+                                TextSpan(
+                                  text: '*',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 1.0),
                       ),
@@ -299,106 +369,140 @@ class StudentInformationState extends State<StudentInformation>
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         borderSide: BorderSide(color: Colors.blue, width: 1.0),
                       ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your LRN';
+                        } else if (value.length != 12) {
+                          return 'LRN must be exactly 12 digits';
+                        }
+                        return null;
+                      },
+                      onChanged: (text) {
+                        setState(() {});
+                      },
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(12),
+                      ],
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your LRN';
-                      } else if (value.length != 12) {
-                        return 'LRN must be exactly 12 digits';
-                      }
-                      return null;
-                    },
-                    onChanged: (text) {
-                      setState(() {});
-                    },
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly, // Only digits
-                      LengthLimitingTextInputFormatter(12),   // Limit to 12 digits
-                    ],
                   ),
-                ),
-
-                SizedBox(width: widget.spacing),
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue, width: 1.0),
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    ),
-                    child: _imageFile == null && _webImageData == null
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Iconsax.profile_circle_copy,
-                                  color: Color.fromARGB(255, 101, 100, 100),
-                                  size: 50.0,
-                                ),
-                                // Text(
-                                //   '2x2 picture',
-                                //   style: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
-                                //   textAlign: TextAlign.center,
-                                // ),
-                              ],
+                ],
+              )
+            : Row(
+                children: [
+                  // LRN field
+                  Container(
+                    width: 300,
+                    child: TextFormField(
+                      controller: _lrnController,
+                      focusNode: _lrnFocusNode,
+                      decoration: InputDecoration(
+                        labelText: null,
+                        label: RichText(
+                          text: TextSpan(
+                            text: 'Learner Reference Number',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 101, 100, 100),
+                              fontSize: 16,
                             ),
-                          )
-                        : (_webImageData != null
-                            ? Image.memory(
-                                _webImageData!,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.file(
-                                _imageFile!,
-                                fit: BoxFit.cover,
-                              )),
+                            children: [
+                              if (_lrnFocusNode.hasFocus || _lrnController.text.isNotEmpty)
+                                TextSpan(
+                                  text: '*',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your LRN';
+                        } else if (value.length != 12) {
+                          return 'LRN must be exactly 12 digits';
+                        }
+                        return null;
+                      },
+                      onChanged: (text) {
+                        setState(() {});
+                      },
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(12),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: 8.0),
-
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
-                  children: [
-                    OutlinedButton(
-                      onPressed: _pickImage, // Your existing function
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.blue), // Border color
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5), // Rounded corners with radius 10
-                        ),
-                        minimumSize: Size(40, 30), // Minimum width and height
+                  SizedBox(width: widget.spacing),
+                  // Upload 2x2 picture
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
                       ),
-                      child: Text(
-                        'Choose Files',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 12,
-                        ),
-                      ),
+                      child: _imageFile == null && _webImageData == null
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Iconsax.profile_circle_copy,
+                                    color: Color.fromARGB(255, 101, 100, 100),
+                                    size: 50.0,
+                                  ),
+                                  Text(
+                                    'Upload your 2x2 picture',
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 101, 100, 100),
+                                      fontSize: 8,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : (_webImageData != null
+                              ? Image.memory(
+                                  _webImageData!,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.file(
+                                  _imageFile!,
+                                  fit: BoxFit.cover,
+                                )),
                     ),
-                    SizedBox(height: 5.0), // Space between the button and text
-                    Text(
-                      "Upload your 2x2 picture",
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.black, // Customize the text color
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+                  ),
+                ],
+              ),
+      ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
+            child: Wrap(
+              spacing: spacing,
+              runSpacing: spacing,
               children: [
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _lastNameController,
                     focusNode: _lastNameFocusNode,
@@ -458,9 +562,9 @@ class StudentInformationState extends State<StudentInformation>
                     ],
                   ),
                 ),
-                SizedBox(width: widget.spacing),
+                // SizedBox(width: widget.spacing),
                 Container(
-                width: 300,
+                width: fieldWidth,
                 child: TextFormField(
                   controller: _firstNameController,
                   focusNode: _firstNameFocusNode,
@@ -524,9 +628,9 @@ class StudentInformationState extends State<StudentInformation>
                 ),
               ),
 
-                SizedBox(width: widget.spacing),
+                // SizedBox(width: widget.spacing),
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _middleNameController,
                     focusNode: _middleNameFocusNode,
@@ -586,10 +690,12 @@ class StudentInformationState extends State<StudentInformation>
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
+            child: Wrap(
+              spacing: spacing,
+              runSpacing: spacing,
               children: [
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _extensionNameController,
                     focusNode: _extensionNameFocusNode,
@@ -631,9 +737,9 @@ class StudentInformationState extends State<StudentInformation>
                     },
                   ),
                 ),
-                SizedBox(width: widget.spacing),
+                // SizedBox(width: widget.spacing),
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _ageController,
                     focusNode: _ageFocusNode,
@@ -681,9 +787,9 @@ class StudentInformationState extends State<StudentInformation>
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                 ),
-                SizedBox(width: widget.spacing),
+                // SizedBox(width: widget.spacing),
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: DropdownButtonFormField<String>(
                     value: _gender.isEmpty ? null : _gender,
                     onChanged: (value) {
@@ -721,10 +827,12 @@ class StudentInformationState extends State<StudentInformation>
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
+            child: Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
               children: [
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _birthdateController,
                     focusNode: _birthdateFocusNode,
@@ -803,9 +911,9 @@ class StudentInformationState extends State<StudentInformation>
                   ),
                 ),
 
-                SizedBox(width: widget.spacing),
+                // SizedBox(width: widget.spacing),
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _emailAddressController,
                     focusNode: _emailFocusNode,
@@ -841,42 +949,42 @@ class StudentInformationState extends State<StudentInformation>
                       ),
                     ),
                     validator: (value) {
-  if (value == null || value.isEmpty) {
-    return 'Please enter your Email Address';
-  }
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your Email Address';
+                    }
 
-  // If _emailError has an error, return that
-  if (_emailError != null) {
-    return _emailError;
-  }
+                    // If _emailError has an error, return that
+                    if (_emailError != null) {
+                      return _emailError;
+                    }
 
-  return null;
-},
+                    return null;
+                  },
 
-onChanged: (value) async {
-  if (value.isEmpty) {
-    setState(() {
-      _emailError = 'Please enter your Email Address';
-    });
-    return;
-  }
+                  onChanged: (value) async {
+                    if (value.isEmpty) {
+                      setState(() {
+                        _emailError = 'Please enter your Email Address';
+                      });
+                      return;
+                    }
 
-  // Perform async check
-  bool emailExists = await checkIfEmailExists();
+                    // Perform async check
+                    bool emailExists = await checkIfEmailExists();
 
-  setState(() {
-    if (emailExists) {
-      _emailError = 'This email is already registered.';
-    } else {
-      _emailError = null; // Clear error
-    }
-  });
-},
+                    setState(() {
+                      if (emailExists) {
+                        _emailError = 'This email is already registered.';
+                      } else {
+                        _emailError = null; // Clear error
+                      }
+                    });
+                  },
                   )
                 ),
-                SizedBox(width: widget.spacing),
+                // SizedBox(width: widget.spacing),
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: DropdownButtonFormField<String>(
                     value: _indigenousGroup.isEmpty ? null : _indigenousGroup,
                     onChanged: (value) {
@@ -915,10 +1023,10 @@ onChanged: (value) async {
           ),
            Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
+            child: Wrap(
               children: [
                 Container(
-                  width: 300,
+                  width: fieldWidth,
                   child: TextFormField(
                     controller: _phoneNumberController,
                     focusNode: _phoneNumberFocusNode,
@@ -974,7 +1082,7 @@ onChanged: (value) async {
                     LengthLimitingTextInputFormatter(11), ],
                   ),
                 ),
-                SizedBox(width: widget.spacing),
+                // SizedBox(width: widget.spacing),
               ],
             ),
           ),

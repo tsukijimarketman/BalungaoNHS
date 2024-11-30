@@ -1561,36 +1561,39 @@ Future<void> logout() async {
                                     ),
                                   );
                                 },
-                                child: Row(
-                                  children: [
-                                    Checkbox(
-                                      value:
-                                          _selectedStudents[studentId] ?? false,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          _selectedStudents[studentId] = value!;
-                                        });
-                                      },
-                                    ),
-                                    Expanded(
-                                        child: Text(data['student_id'] ?? '')),
-                                    Expanded(
-                                        child: Text(data['first_name'] ?? '')),
-                                    Expanded(
-                                        child: Text(data['last_name'] ?? '')),
-                                    Expanded(
-                                        child: Text(data['middle_name'] ?? '')),
-                                    Expanded(
-                                        child: Text(
-                                            data['seniorHigh_Track'] ?? '')),
-                                    Expanded(
-                                        child: Text(
-                                            data['seniorHigh_Strand'] ?? '')),
-                                    Expanded(
-                                        child: Text(data['grade_level'] ?? '')),
-                                    Expanded(
-                                        child: Text(data['transferee'] ?? '')),
-                                  ],
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: Row(
+                                    children: [
+                                      Checkbox(
+                                        value:
+                                            _selectedStudents[studentId] ?? false,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            _selectedStudents[studentId] = value!;
+                                          });
+                                        },
+                                      ),
+                                      Expanded(
+                                          child: Text(data['student_id'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['first_name'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['last_name'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['middle_name'] ?? '')),
+                                      Expanded(
+                                          child: Text(
+                                              data['seniorHigh_Track'] ?? '')),
+                                      Expanded(
+                                          child: Text(
+                                              data['seniorHigh_Strand'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['grade_level'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['transferee'] ?? '')),
+                                    ],
+                                  ),
                                 ),
                               );
                             }).toList(),
@@ -2195,51 +2198,55 @@ Future<void> logout() async {
                                               Newcomersvalidator(
                                                   studentData: data)));
                                 },
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                        child: Text(data['first_name'] ?? '')),
-                                    Expanded(
-                                        child: Text(data['last_name'] ?? '')),
-                                    Expanded(
-                                        child: Text(data['middle_name'] ?? '')),
-                                    Expanded(
-                                        child: Text(
-                                            data['seniorHigh_Track'] ?? '')),
-                                    Expanded(
-                                        child: Text(
-                                            data['seniorHigh_Strand'] ?? '')),
-                                    Expanded(
-                                        child: Text(data['grade_level'] ?? '')),
-                                    Expanded(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(Iconsax.tick_circle_copy,
-                                                color: Colors.green),
-                                            onPressed: () {
-                                              _showAcceptConfirmationDialog(context, student.id);
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: Icon(
-                                                Iconsax.close_circle_copy,
-                                                color: Colors.red),
-                                            onPressed: () {
-                                              _showDeleteConfirmationDialog(
-                                                  context, student.id);
-                                            },
-                                          ),
-                                        ],
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                          child: Text(data['first_name'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['last_name'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['middle_name'] ?? '')),
+                                      Expanded(
+                                          child: Text(
+                                              data['seniorHigh_Track'] ?? '')),
+                                      Expanded(
+                                          child: Text(
+                                              data['seniorHigh_Strand'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['grade_level'] ?? '')),
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(Iconsax.tick_circle_copy,
+                                                  color: Colors.green),
+                                              onPressed: () {
+                                                _showAcceptConfirmationDialog(context, student.id);
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                  Iconsax.close_circle_copy,
+                                                  color: Colors.red),
+                                              onPressed: () {
+                                                _showDeleteConfirmationDialog(
+                                                    context, student.id);
+                                              },
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               );
                             }).toList(),
                           ),
+
                         ),
                       ),
                     ],
