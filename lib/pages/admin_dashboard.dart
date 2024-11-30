@@ -17,6 +17,7 @@ import 'package:pbma_portal/Manage/SubjectsandGrade.dart';
 import 'package:pbma_portal/launcher.dart';
 import 'package:pbma_portal/pages/Auth_View/Adding_InstructorAcc_Desktview.dart';
 import 'package:pbma_portal/pages/student_details.dart';
+import 'package:pbma_portal/reports/enrollment_report/enrollment_report.dart';
 import 'package:pbma_portal/student_utils/Student_Utils.dart';
 import 'package:pbma_portal/Admin Dashboard Sorting/Dashboard Sorting.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
@@ -3893,14 +3894,7 @@ Future<void> logout() async {
   }
 
   Widget _buildAnalytics() {
-    return Container(
-      color: Colors.grey[300],
-      alignment: Alignment.center,
-      child: Text(
-        'Reports',
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      ),
-    );
+    return EnrollmentReport();
   }
 
   @override

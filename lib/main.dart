@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pbma_portal/launcher.dart';
+import 'package:pbma_portal/reports/enrollment_report/enrollment_report.dart';
 import 'package:pbma_portal/student_utils/student_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher_web/url_launcher_web.dart'; 
