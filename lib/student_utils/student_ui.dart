@@ -1,6 +1,7 @@
 // ignore_for_file: unused_element
 
 import 'dart:io';
+import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +16,10 @@ import 'package:pbma_portal/launcher.dart';
 import 'package:pbma_portal/student_utils/cases/case0.dart';
 import 'package:pbma_portal/student_utils/cases/case2.dart';
 import 'package:pbma_portal/widgets/hover_extensions.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:sidebarx/sidebarx.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class StudentUI extends StatefulWidget {
   const StudentUI({super.key});
@@ -1119,25 +1123,111 @@ class _ScreensExampleState extends State<_ScreensExample> {
                   children: [
                     // Print Button on the left
                     ElevatedButton(
-                      onPressed: () {
-                        // Handle print result functionality
+                    onPressed: () async {
+                      // Generate PDF
+                      final pdf = pw.Document();
+
+                      pdf.addPage(
+                        pw.MultiPage(
+                          pageFormat: PdfPageFormat.legal,
+                          build: (pw.Context context) {
+                            return [
+                              pw.Center(
+                                child: pw.Text(
+                                  'REPORT CARD',
+                                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+                                ),
+                              ),
+                              pw.SizedBox(height: 20),
+                              ...semesterGrades.entries.map((entry) {
+                                String semester = entry.key;
+                                List<Map<String, String>> grades = entry.value;
+
+                                return pw.Column(
+                                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                  children: [
+                                    pw.Text(
+                                      semester,
+                                      style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+                                    ),
+                                    pw.Table.fromTextArray(
+                                      headers: ['Course Code', 'Subject', 'Grade'],
+                                      data: grades.map((subject) {
+                                        return [
+                                          subject['subject_code'] ?? '',
+                                          subject['subject_name'] ?? '',
+                                          subject['grade'] ?? 'N/A',
+                                        ];
+                                      }).toList(),
+                                      cellStyle: pw.TextStyle(fontSize: 12),
+                                      headerStyle: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+                                      border: pw.TableBorder.all(width: 0.5),
+                                    ),
+                                    pw.SizedBox(height: 20),
+                                  ],
+                                );
+                              }).toList(),
+                              pw.SizedBox(height: 52),
+                        pw.Column(
+                            children: [
+                              pw.Text(
+                                'Urbano Delos Angeles IV',
+                                style: pw.TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                              pw.SizedBox(height: 4),
+                              pw.Divider(
+                                thickness: 1.5,
+                                color: PdfColors.black,
+                                indent: 150, // Adjust horizontal padding for the line
+                                endIndent: 150,
+                              ),
+                              pw.SizedBox(height: 4),
+                              pw.Text(
+                                'SCHOOL PRINCIPAL',
+                                style: pw.TextStyle(
+                                  fontSize: 10,
+                                  fontStyle: pw.FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ];
                       },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        backgroundColor: Colors.yellow,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: buttonPadding,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
+                    ),
+                  );
+
+                      // Convert the PDF to bytes
+                      final Uint8List bytes = await pdf.save();
+
+                      // Create a Blob and trigger download
+                      final blob = html.Blob([bytes], 'application/pdf');
+                      final url = html.Url.createObjectUrlFromBlob(blob);
+                      final anchor = html.AnchorElement(href: url)
+                        ..target = 'blank'
+                        ..download = 'report_card.pdf'
+                        ..click();
+                      html.Url.revokeObjectUrl(url);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.yellow,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: buttonPadding,
+                        vertical: 12,
                       ),
-                      child: Text(
-                        'Print Result',
-                        style: TextStyle(fontSize: tableFontSize),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
                       ),
                     ),
+                    child: Text(
+                      'Download Grade',
+                      style: TextStyle(fontSize: tableFontSize),
+                    ),
+                  ),  
+
                     // Principal's Section on the right
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
