@@ -79,30 +79,10 @@ class _SignInDesktopState extends State<SignInDesktop> {
     return Stack(
       children: [
       Center(
-        child: AnimatedSwitcher(
-          duration: Duration(milliseconds: 550),
-          child: _showForgotPass
-              ? ForgotPassDesktopview(
-                  key: ValueKey('forgotPassView'),
-                  closeforgotpassCallback: toggleForgotPass,
-                )
-              : _showChangePassword
-                  ? ChangePasswordDesktop(
-                      key: ValueKey('changePasswordScreen'),
-                      email: _emailController.text.trim(),
-                    )
-                    : _showReEnrollView
-                    ? ReEnrollForm(
-                        key: ValueKey('ReEnrollView'),
-                      )
-                          : Container(
-                              key: ValueKey('signInView'),
-                              width: screenWidth / 2,
-                              height: screenHeight / 1.2,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+        child: Container(
+          width: screenWidth / 2,
+          height: screenHeight / 1.2,
+          child: Card(
                       child: Column(
                         children: [
                           Container(
@@ -256,8 +236,30 @@ class _SignInDesktopState extends State<SignInDesktop> {
                     ),
         ),
       ),
-    ]);
-  }
+      if (_showForgotPass || _showChangePassword || _showReEnrollView)
+        Center(
+          child: AnimatedSwitcher(
+            duration: Duration(milliseconds: 550),
+            child: _showForgotPass
+                ? ForgotPassDesktopview(
+                    key: ValueKey('forgotPassView'),
+                    closeforgotpassCallback: toggleForgotPass,
+                  )
+                : _showChangePassword
+                    ? ChangePasswordDesktop(
+                        key: ValueKey('changePasswordScreen'),
+                        email: _emailController.text.trim(),
+                      )
+                    : _showReEnrollView
+                        ? ReEnrollForm(
+                            key: ValueKey('ReEnrollView'),
+                          )
+                        : SizedBox.shrink(),
+          ),
+        ),
+    ],
+  );
+}
 
   void _checkEmailandPasswords() {
     String input = _emailController.text.trim();
@@ -357,11 +359,16 @@ class _SignInDesktopState extends State<SignInDesktop> {
               _showChangePassword = true;
             });
           } else if (enrollmentStatus == 're-enrolled') {
+            if (enrollmentStatus == 're-enrolled') {
+            setState(() {
+              _showReEnrollView = true;
+            });
+          } else {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ReEnrollForm()
-              ),
+              MaterialPageRoute(builder: (context) => StudentUI()),
             );
+          }
           } else{
             Navigator.push(
               context,
