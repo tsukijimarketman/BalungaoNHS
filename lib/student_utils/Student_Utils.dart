@@ -3,6 +3,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+Future<String> getCurrentCurriculum() async {
+  try {
+    final configSnapshot = await FirebaseFirestore.instance
+        .collection('configurations')
+        .where('isActive', isEqualTo: true)
+        .limit(1)
+        .get();
+
+    if (configSnapshot.docs.isNotEmpty) {
+      return configSnapshot.docs.first.data()['school_year'] ?? 'Unknown';
+    }
+    return 'Unknown';
+  } catch (e) {
+    print('Error getting current curriculum: $e');
+    return 'Unknown';
+  }
+}
+
 Future<String> generateStudentID() async {
   final currentYear = DateTime.now().year.toString();
   final collection = FirebaseFirestore.instance.collection('users');
@@ -35,6 +53,7 @@ Future<void> approveStudent(String studentDocId) async {
   }
 
   final studentId = await generateStudentID();
+  final curriculum = await getCurrentCurriculum();
 
   try {
     final userCredential =
@@ -56,6 +75,7 @@ Future<void> approveStudent(String studentDocId) async {
       'uid': uid,
       'Status': 'active',
       'passwordChanged': false,
+      'school_year': curriculum,  // Add the curriculum here
     });
 
     print('Student approved and Firebase Auth user created successfully.');
