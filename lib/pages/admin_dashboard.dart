@@ -28,7 +28,10 @@ import 'package:pbma_portal/student_utils/Student_Utils.dart';
 import 'package:pbma_portal/Admin Dashboard Sorting/Dashboard Sorting.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:pbma_portal/widgets/hover_extensions.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class AdminDashboard extends StatefulWidget {
   @override
@@ -37,6 +40,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   String selectedCourse = "All";
+  String _selectedSchoolYear = "All"; // Default value
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Map<String, bool> _selectedStudents = {};
   String _selectedDrawerItem = 'Dashboard';
@@ -62,11 +66,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _isLoading = true;
   DocumentSnapshot? _currentInstructorDoc;
   bool _isInstructorLoading = true;
+  String? _selectedConfigId;
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
   final DateFormat formatter = DateFormat('MM-dd-yyyy');
+
+  String? _errorText; // For displaying validation errors
+
+  bool validateInput(String value) {
+    // Regular expression for year format: YYYY-YYYY
+    final regex = RegExp(r'^\d{4}-\d{4}$');
+    return regex.hasMatch(value);
+  }
 
   Map<String, String> strandMapping = {
     'STEM': 'Science, Technology, Engineering and Mathematics (STEM)',
@@ -76,6 +89,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'HE': 'Home Economics (HE)',
     'IA': 'Industrial Arts (IA)',
   };
+  String? _selectedTrack; // For filtering by Track
+String? _selectedGrade; // For filtering by Grade Level
+String? _selectedTransferee; // For filtering by Transferee
+
 
   //BuildDashboardContent
   Stream<QuerySnapshot> _getEnrolledStudentsCount() {
@@ -191,6 +208,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
         .where('accountType', isEqualTo: 'student')
         .where('Status', isEqualTo: 'active'); // Filter for active students
 
+    if (_selectedSchoolYear != "All") {
+      query = query.where('school_year', isEqualTo: _selectedSchoolYear);
+    } 
+
     if (_trackIconState == 1) {
       query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
     } else if (_trackIconState == 2) {
@@ -204,6 +225,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } else if (_gradeLevelIconState == 2) {
       query = query.where('grade_level', isEqualTo: '12');
     }
+    
 
     // Add additional filters for transferee status
     if (_transfereeIconState == 1) {
@@ -262,6 +284,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
       },
     );
   }
+
+   Stream<List<String>> _getSchoolYears() {
+  return FirebaseFirestore.instance
+      .collection('configurations')
+      .snapshots()
+      .map((snapshot) {
+    List<String> years = ['All'];
+    years.addAll(snapshot.docs.map((doc) => doc['school_year'] as String));
+    return years.toSet().toList(); // Remove duplicates
+  });
+}
   //BuildStudentsContent
 
   //BuildStrandInstructorContent
@@ -743,27 +776,181 @@ class _AdminDashboardState extends State<AdminDashboard> {
   //BuildManageSections
 
   // Configuration
+
+  Future<void> _showDeleteeConfirmationDialog(BuildContext context, String configId) {
+  return showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: Text('Delete Configuration'),
+        content: Text('Are you sure you want to delete this configuration?'),
+        actions: [
+          CupertinoDialogAction(
+            child: Text('Cancel', style: TextStyle(color: Colors.blue),),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: Text('Delete', style: TextStyle(color: Colors.red),),
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteConfiguration(configId);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _showActivateConfirmationDialog(BuildContext context, String configId) {
+  return showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: Text('Activate Configuration'),
+        content: Column(
+          children: [
+            Text('Are you sure you want to activate this configuration?'),
+            Text('Please note that activating this will require the student to reenroll.', style: TextStyle(color: Colors.red),)
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: Text('Cancel', style: TextStyle(color: Colors.red),),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          CupertinoDialogAction(
+            child: Text('Activate', style: TextStyle(color: Colors.blue),),
+            onPressed: () {
+              Navigator.pop(context);
+              _activateConfiguration(configId);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _showSaveConfirmationDialog(BuildContext context) {
+  return showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: Text('Save Configuration'),
+        content: Text('Are you sure you want to save this configuration?'),
+        actions: [
+          CupertinoDialogAction(
+            child: Text('Cancel', style: TextStyle(color: Colors.red),),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          CupertinoDialogAction(
+            child: Text('Save', style: TextStyle(color: Colors.blue),),
+            onPressed: () {
+              Navigator.pop(context);
+              _saveConfiguration();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+  void _deleteConfiguration(String configId) async {  
+    try {
+      await FirebaseFirestore.instance
+          .collection('configurations')
+          .doc(configId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Configuration deleted successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete configuration: $e')),
+      );
+    }
+  }
+
+  Future<void> _activateConfiguration(String configId) async {
+  try {
+    // First, set all configurations to inactive
+    final batch = FirebaseFirestore.instance.batch();
+    final configs = await FirebaseFirestore.instance
+        .collection('configurations')
+        .where('isActive', isEqualTo: true)
+        .get();
+    
+    for (var doc in configs.docs) {
+      batch.update(doc.reference, {'isActive': false});
+    }
+    
+    // Set the selected configuration as active
+    batch.update(
+      FirebaseFirestore.instance.collection('configurations').doc(configId),
+      {'isActive': true}
+    );
+    
+    await batch.commit();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Configuration activated successfully')),
+    );
+        await _updateEnrollmentStatusForStudents();
+
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to activate configuration: $error')),
+    );
+  }
+}
+
   // Method to save data to Firebase
   void _saveConfiguration() {
-    FirebaseFirestore.instance
+  // Create a new document with a timestamp-based ID
+  String docId = DateTime.now().millisecondsSinceEpoch.toString();
+  
+  FirebaseFirestore.instance
+      .collection('configurations')
+      .doc(docId)  // Using timestamp as document ID
+      .set({
+    'school_year': _curriculum,
+    'semester': _selectedSemester,
+    'timestamp': FieldValue.serverTimestamp(), // Add timestamp for tracking
+    'isActive': false, // Flag to identify the current active configuration
+  }).then((_) async {
+    // Set all other configurations as inactive
+    QuerySnapshot prevConfigs = await FirebaseFirestore.instance
         .collection('configurations')
-        .doc('currentConfig')
-        .set({
-      'curriculum': _curriculum,
-      'semester': _selectedSemester,
-    }).then((_) async {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Configuration saved successfully!')),
-      );
+        .where('isActive', isEqualTo: true)
+        .where(FieldPath.documentId, isNotEqualTo: docId)
+        .get();
 
-      // Update enrollment status for all students
-      await _updateEnrollmentStatusForStudents();
+    // Create a batch to update all previous configurations
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+    for (var doc in prevConfigs.docs) {
+      batch.update(doc.reference, {'isActive': false});
+    }
+    await batch.commit();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Configuration saved successfully!')),
+    );
+
     }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save configuration: $error')),
-      );
-    });
-  }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to save configuration: $error')),
+    );
+  });
+}
 
 // Function to update enrollment status for all students
   Future<void> _updateEnrollmentStatusForStudents() async {
@@ -1457,10 +1644,77 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+                  )
+                  else
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey),
                   ),
+                  child:StreamBuilder<List<String>>(
+  stream: _getSchoolYears(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return CircularProgressIndicator();
+    
+    return DropdownButton<String>(
+      value: _selectedSchoolYear,
+      items: snapshot.data!.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedSchoolYear = newValue!;
+        });
+      },
+    );
+  },
+) 
+                ),
                 // Add Spacer or Expanded to ensure Search stays on the right
                 Spacer(),
                 // Search Student field stays on the right
+  OutlinedButton(
+  onPressed: () {
+    // Fetch the filtered students from the StreamBuilder
+    final displayedStudents = _getFilteredStudents();
+
+    // Process the filtered students and pass them to the PDF function
+    displayedStudents.listen((snapshot) {
+      final filteredStudents = snapshot.docs.map((student) {
+        final data = student.data() as Map<String, dynamic>;
+        final fullName = '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}'.trim();
+        return {
+          'student_id': data['student_id'] ?? '',
+          'full_name': fullName, // Add the full name
+          'seniorHigh_Track': data['seniorHigh_Track'] ?? '',
+          'seniorHigh_Strand': data['seniorHigh_Strand'] ?? '',
+          'grade_level': data['grade_level'] ?? '',
+          'transferee': data['transferee'] ?? '',
+        };
+      }).toList();
+
+      _downloadPDF(filteredStudents);
+    });
+  },
+  child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
+  style: OutlinedButton.styleFrom(
+    backgroundColor: Colors.white,
+    side: BorderSide(color: Colors.black),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+),
+
+                SizedBox(
+                  width: 
+                  20,
+                ),
                 Container(
                   width: 300,
                   child: TextField(
@@ -1700,6 +1954,139 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
     );
   }
+  Future<void> _downloadPDF(List<Map<String, dynamic>> students) async {
+  final pdf = pw.Document();
+
+  pdf.addPage(
+  pw.Page(
+    pageFormat: PdfPageFormat.a4.landscape, // Set the page orientation to landscape
+    build: (pw.Context context) {
+      return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'Student Report',
+            style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 16),
+          pw.Table(
+            border: pw.TableBorder.all(),
+            columnWidths: {
+              0: pw.FlexColumnWidth(1),
+              1: pw.FlexColumnWidth(2.5),
+              2: pw.FlexColumnWidth(2),
+              3: pw.FlexColumnWidth(2),
+              4: pw.FlexColumnWidth(1),
+              5: pw.FlexColumnWidth(1),
+            },
+            children: [
+              // Table Header
+              pw.TableRow(
+                decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Student ID', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Full Name', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Track', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Strand', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Grade Level', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Transferee', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                ],
+              ),
+              // Table Data
+              ...students.map((student) {
+                final isEvenRow = students.indexOf(student) % 2 == 0;
+                return pw.TableRow(
+                  decoration: pw.BoxDecoration(
+                    color: isEvenRow ? PdfColors.white : PdfColors.grey100,
+                  ),
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['student_id'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['full_name'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['seniorHigh_Track'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['seniorHigh_Strand'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['grade_level'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['transferee'] ?? ''),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ],
+          ),
+          pw.SizedBox(height: 40), // Add space before the principal section
+          pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.Text(
+                  'Urbano Delos Angeles IV',
+                  style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                ),
+                pw.Container(
+                  width: 150,
+                  child: pw.Divider(thickness: 1),
+                ),
+                pw.Text(
+                  'SCHOOL PRINCIPAL',
+                  style: pw.TextStyle(fontSize: 12, fontStyle: pw.FontStyle.italic),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    },
+  ),
+);
+
+
+
+  // Save and share the file
+  final pdfBytes = await pdf.save();
+
+  await Printing.sharePdf(bytes: pdfBytes, filename: 'filtered_students_report.pdf');
+}
+
+
+Future<List<Map<String, dynamic>>> _fetchStudentData() async {
+  final snapshot = await FirebaseFirestore.instance.collection('users').get();
+  return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+}
 
   Widget _buildInstructorWithAdviserDrawer(DocumentSnapshot doc) {
     return Container(
@@ -2955,63 +3342,327 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildConfigurationContent() {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('This is Configuration',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          SizedBox(height: 16),
+ Widget _buildConfigurationContent() {
+  return Padding(
+    padding: EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Configuration Management',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 24),
+        Expanded(
+          child: Row(
+            children: [
+              // Left Card
+              Expanded(
+                child: Card(
+                  elevation: 4,
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('configurations')
+                              .where('isActive', isEqualTo: true)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            
 
-          // Curriculum Text Field
-          CupertinoTextField(
-            placeholder: 'Enter Curriculum',
-            onChanged: (value) {
-              setState(() {
-                _curriculum = value;
-              });
-            },
+                            String activeSemester = 'None';
+                            String activeSchoolYear = 'None';
+                            if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                              final activeConfig = snapshot.data!.docs.first.data() as Map<String, dynamic>;
+                              activeSemester = activeConfig['semester'] ?? 'None';
+                              activeSchoolYear = activeConfig['school_year'] ?? 'None';
+                            }
+          
+                            return Card(
+                              color: Colors.blue,
+                              elevation: 4,
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Current Active Semester',
+                                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                                    SizedBox(height: 16),
+                                    Text(activeSchoolYear,
+                                        style: TextStyle(fontSize: 18, color: Colors.white)),
+                                    SizedBox(height: 8),
+                                    Text(activeSemester,
+                                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Configuration History',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_selectedConfigId != null) {
+                                  _showActivateConfirmationDialog(context, _selectedConfigId!);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Please select a configuration to activate')),
+                                  );
+                                }
+                              },
+                              child: Text('Set as Active'),
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white, backgroundColor: Colors.blue,
+                                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16),
+                        Expanded(
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('configurations')
+                                .orderBy('timestamp', descending: true)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              
+          
+                              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                                return Center(child: Text('No configuration history'));
+                              }
+          
+                              return ListView.builder(
+                                itemCount: snapshot.data!.docs.length,
+                                itemBuilder: (context, index) {
+                                  final doc = snapshot.data!.docs[index];
+                                  final config = doc.data() as Map<String, dynamic>;
+                                  final timestamp = config['timestamp'] != null
+                                      ? (config['timestamp'] as Timestamp)
+                                          .toDate()
+                                      : DateTime.now(); // Handle null timestamp
+                                      
+                                  return Card(
+                                    color: Colors.grey.shade200,
+                                    margin: EdgeInsets.only(bottom: 8),
+                                    child: ListTile(
+                                      leading: Radio<String>(
+                                        value: doc.id,
+                                        groupValue: _selectedConfigId,
+                                        onChanged: (String? value) {
+                                          setState(() {
+                                            _selectedConfigId = value;
+                                          });
+                                        },
+                                      ),
+                                      title: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(config['school_year']),
+                                          Text(config['semester'])
+                                        ],
+                                      ),
+                                      subtitle: Text('Set on: ${DateFormat('MMM dd, yyyy HH:mm').format(timestamp)}'),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (config['isActive'] == true)
+                                            Chip(
+                                              label: Text('Active', style: TextStyle(color: Colors.white)),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          IconButton(
+                                            icon: Icon(Icons.delete, color: Colors.red),
+                                            onPressed: () => _showDeleteeConfirmationDialog(context, doc.id),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 16), // Space between the cards
+              // Right Card
+              Expanded(
+                child: Card(
+                  elevation: 4,
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                              top: 0,
+                              left: 0,
+                              child: Text('New School Year', style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'SB'
+                              ),),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                         Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 300,
+                              height: 50,
+                              child: CupertinoTextField(
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]')), // Allow digits and dashes
+                                                    ],
+                                placeholder: 'Enter School Year (e.g 2024-2025)',
+                                onChanged: (value) {
+                                                setState(() {
+                                                  _curriculum = value;
+                                                  // Update error text based on validation
+                                                  _errorText = validateInput(value)
+                              ? null
+                              : 'Invalid format. Use YYYY-YYYY';
+                                                });
+                                              },
+                                            ),
+                            ),
+                                      if (_errorText != null) // Show error text inline if there's a validation error
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 8.0),
+                                          child: Text(
+                        _errorText!,
+                        style: TextStyle(
+                          color: CupertinoColors.destructiveRed,
+                          fontSize: 14,
+                        ),
+                                          ),
+                                        ),
+                            SizedBox(height: 16),
+                            // Semester Selection Radio Buttons
+                            Material(
+                          elevation: 5.0, // Adds elevation (shadow)
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5), // Matches the Container's borderRadius
+                          ),
+                          color: Colors.transparent, // Makes the Material widget transparent
+                          child: Container(
+                            width: 300,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5), // Rounded corners
+                              ),
+                            ),
+                              child: ListTile(
+                                title: Text('1st Semester'),
+                                leading: Radio<String>(
+                                  value: '1st Semester',
+                                  groupValue: _selectedSemester,
+                                  onChanged: (String? value) {
+                                    setState(() {
+                                      _selectedSemester = value!;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            ),
+                            SizedBox(height: 10,),
+                            Material(
+                              elevation: 5.0, // Adds elevation (shadow)
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5), // Matches the Container's borderRadius
+                          ),
+                          color: Colors.transparent, // Makes the Material widget transparent
+                              child: Container(
+                                width: 300,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(5), // Rounded corners
+                              ),
+                            ),
+                                child: ListTile(
+                                  title: Text('2nd Semester'),
+                                  leading: Radio<String>(
+                                    value: '2nd Semester',
+                                    groupValue: _selectedSemester,
+                                    onChanged: (String? value) {
+                                      setState(() {
+                                        _selectedSemester = value!;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Save Button
+                            SizedBox(height: 16),
+                            Container(
+                              width: 300, 
+                              height: 50,
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStatePropertyAll<Color>(Colors.blue),
+                                  elevation:
+                                          MaterialStateProperty.all<double>(5),
+                                      shape:
+                                          MaterialStateProperty.all<OutlinedBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                ),
+                                onPressed: (){
+                                  setState(() {
+                                    _errorText = validateInput(_curriculum)
+                                        ? null
+                                        : 'Invalid format. Use YYYY-YYYY';
+                                  });
+                                  if (_errorText == null) {
+                                    // Only call _saveConfiguration if the input is valid
+                                    _showSaveConfirmationDialog(context);
+                                  }
+                                },
+                                child: Text('Save', style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white
+                                ),),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ]
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 16),
+        ),
+      ],
+    ),
+  );
+}
 
-          // Semester Selection Radio Buttons
-          ListTile(
-            title: Text('1st Semester'),
-            leading: Radio<String>(
-              value: '1st Semester',
-              groupValue: _selectedSemester,
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedSemester = value!;
-                });
-              },
-            ),
-          ),
-          ListTile(
-            title: Text('2nd Semester'),
-            leading: Radio<String>(
-              value: '2nd Semester',
-              groupValue: _selectedSemester,
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedSemester = value!;
-                });
-              },
-            ),
-          ),
-
-          // Save Button
-          SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _curriculum.isNotEmpty ? _saveConfiguration : null,
-            child: Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildReEnrolledStudentContent() {
     return Container(

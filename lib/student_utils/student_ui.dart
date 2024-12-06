@@ -1560,6 +1560,34 @@ class _ScreensExampleState extends State<_ScreensExample> {
         onFinalize: _saveandfinalization,
       );
           case 3:
+            double screenWidth = MediaQuery.of(context).size.width;
+            final bool isMobile = screenWidth < 600;
+            final bool isTablet = screenWidth >= 600 && screenWidth < 1200;
+            final bool isWeb = screenWidth >= 1200;
+
+            
+            // Define width for text fields based on screen size
+            double fieldWidth;
+            if (screenWidth >= 1200) {
+              // Large screens (Web/Desktop)
+              fieldWidth = 270;
+            } else if (screenWidth >= 800) {
+              // Medium screens (Tablet)
+              fieldWidth = 240;
+            } else {
+              // Small screens (Mobile)
+              fieldWidth = screenWidth * 0.8; // Adjust to take most of the screen width
+            }
+
+            // Define spacing between fields
+            double spacing = screenWidth >= 800 ? 16.0 : 8.0;
+
+            // long term words
+            final double textFontSize1 = isMobile ? 10 : (isTablet ? 8 : 9);
+            final double textFontSize2 = isMobile ? 8 : (isTablet ? 6 : 7);
+            final double textFontSize3 = isMobile ? 12 : (isTablet ? 10 : 11);
+            final double textFontSize4 = isMobile ? 10 : (isTablet ? 8 : 9);
+            
             if (_isLoading) {
               return Container(
                 color: Color.fromARGB(255, 1, 93, 168),
@@ -1570,2000 +1598,2006 @@ class _ScreensExampleState extends State<_ScreensExample> {
                 ),
               );
             }
-            return Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Container(
-                    color: Color.fromARGB(255, 1, 93, 168),
-                    width: screenWidth,
+            return LayoutBuilder(
+              builder: (context, constraints) {
+              // Get screen width
+              double butWidth = constraints.maxWidth;
+              final bool isMobiles = butWidth < 600;
+              final bool isTablets = butWidth >= 600 && butWidth < 1200;
+              final bool isWebs = butWidth >= 1200;
+              
+
+              return Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
                     child: Container(
-                      margin: EdgeInsets.all(30),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () async {
-                                        await _pickImage(); // Open image picker to select a new image
-
-                                        if (_imageBytes != null ||
-                                            _imageFile != null) {
-                                          await replaceProfilePicture(); // Upload and replace the profile picture
-
-                                          // Reload the new image URL from Firestore after uploading
-                                          await _imageGetterFromExampleState();
-
-                                          setState(
-                                              () {}); // Refresh the UI after updating the image URL
-                                        }
-                                      },
-                                      child: MouseRegion(
-                                        onEnter: (_) {
-                                          setState(() {
-                                            _isHovered = true;
-                                          });
+                      color: Color.fromARGB(255, 1, 93, 168),
+                      width: screenWidth,
+                      child: Container(
+                        margin: EdgeInsets.all(isMobiles ? 15 : 30),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await _pickImage(); // Open image picker to select a new image
+              
+                                          if (_imageBytes != null ||
+                                              _imageFile != null) {
+                                            await replaceProfilePicture(); // Upload and replace the profile picture
+              
+                                            // Reload the new image URL from Firestore after uploading
+                                            await _imageGetterFromExampleState();
+              
+                                            setState(
+                                                () {}); // Refresh the UI after updating the image URL
+                                          }
                                         },
-                                        onExit: (_) {
-                                          setState(() {
-                                            _isHovered = false;
-                                          });
-                                        },
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 85,
-                                              backgroundImage: _imageBytes !=
-                                                      null
-                                                  ? MemoryImage(_imageBytes!)
-                                                      as ImageProvider
-                                                  : _imageFile != null
-                                                      ? FileImage(_imageFile!)
-                                                          as ImageProvider
-                                                      : _imageUrl != null
-                                                          ? NetworkImage(
-                                                                  _imageUrl!)
-                                                              as ImageProvider
-                                                          : const NetworkImage(
-                                                              'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png',
-                                                            ),
-                                            ),
-                                            if (_isHovered)
-                                              Container(
-                                                width: 170,
-                                                height: 170,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black
-                                                      .withOpacity(0.5),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: const Icon(
-                                                  Icons.image,
-                                                  color: Colors.white,
-                                                  size: 60,
-                                                ),
+                                        child: MouseRegion(
+                                          onEnter: (_) {
+                                            setState(() {
+                                              _isHovered = true;
+                                            });
+                                          },
+                                          onExit: (_) {
+                                            setState(() {
+                                              _isHovered = false;
+                                            });
+                                          },
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              CircleAvatar(
+                                                radius: isMobiles ? 50 : 85,
+                                                backgroundImage: _imageBytes !=
+                                                        null
+                                                    ? MemoryImage(_imageBytes!)
+                                                        as ImageProvider
+                                                    : _imageFile != null
+                                                        ? FileImage(_imageFile!)
+                                                            as ImageProvider
+                                                        : _imageUrl != null
+                                                            ? NetworkImage(
+                                                                    _imageUrl!)
+                                                                as ImageProvider
+                                                            : const NetworkImage(
+                                                                'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png',
+                                                              ),
                                               ),
-                                          ],
-                                        ),
-                                      ),
-                                    ).showCursorOnHover,
-                                    SizedBox(width: 20),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "${userData['first_name'] ?? 'N/A'}",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontFamily: "B",
-                                                  fontSize: 30),
-                                            ),
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Text(
-                                              "${userData['middle_name'] ?? 'N/A'}",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontFamily: "B",
-                                                  fontSize: 30),
-                                            ),
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Text(
-                                              "${userData['last_name'] ?? 'N/A'}",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontFamily: "B",
-                                                  fontSize: 30),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 15),
-                                        Row(
-                                          children: [
-                                            GestureDetector(
-                                              onTap: () async {
-                                                await _pickImage(); // Open image picker to select a new image
-
-                                                if (_imageBytes != null ||
-                                                    _imageFile != null) {
-                                                  await replaceProfilePicture(); // Upload and replace the profile picture
-
-                                                  // Reload the new image URL from Firestore after uploading
-                                                  await _imageGetterFromExampleState();
-
-                                                  setState(
-                                                      () {}); // Refresh the UI after updating the image URL
-                                                }
-                                              },
-                                              child: Container(
-                                                height: 40,
-                                                width: 150,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.yellow,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
+                                              if (_isHovered)
+                                                Container(
+                                                  width: isMobiles ? 100 : 170,
+                                                  height: isMobiles ? 100 : 170,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black
+                                                        .withOpacity(0.5),
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.image,
+                                                    color: Colors.white,
+                                                    size: 60,
+                                                  ),
                                                 ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      "Edit Profile",
-                                                      style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontFamily: "B",
-                                                          fontSize: 15),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Icon(
-                                                      Icons.edit,
-                                                      size: 20,
-                                                      color: Colors.black,
-                                                    )
-                                                  ],
+                                            ],
+                                          ),
+                                        ),
+                                      ).showCursorOnHover,
+                                      SizedBox(width: isMobiles ? 10 : 20),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Wrap(
+                                            children: [
+                                              Text(
+                                                  "${userData['first_name'] ?? 'N/A'}",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: "B",
+                                                      fontSize: isMobiles ? 14 : 25),
                                                 ),
+                                              
+                                              SizedBox(
+                                                width: 7,
                                               ),
-                                            ).showCursorOnHover.moveUpOnHover,
-                                            SizedBox(
-                                              width: 15,
-                                            ),
-                                            GestureDetector(
-                                              onTap: () async {
-                                                logout();
-                                              },
-                                              child: Container(
-                                                height: 40,
-                                                width: 150,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
+                                              Text(
+                                                  "${userData['middle_name'] ?? 'N/A'}",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: "B",
+                                                      fontSize: isMobiles ? 14 : 25),
                                                 ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      "Logout",
-                                                      style: TextStyle(
-                                                          color: Color.fromARGB(
-                                                              255, 1, 93, 168),
-                                                          fontFamily: "B",
-                                                          fontSize: 15),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Icon(
-                                                      Icons.logout_rounded,
-                                                      size: 20,
-                                                      color: Color.fromARGB(
-                                                          255, 1, 93, 168),
-                                                    )
-                                                  ],
-                                                ),
+                                              
+                                              SizedBox(
+                                                width: 7,
                                               ),
-                                            ).showCursorOnHover.moveUpOnHover,
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 40,
-                            ),
-                            Text(
-                              "Student Information",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontSize: 25,
-                                  fontFamily: "SB"),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      "First Name",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['first_name'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
+                                              Text(
+                                                  "${userData['last_name'] ?? 'N/A'}",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: "B",
+                                                      fontSize: isMobiles ? 14 : 25),
+                                                ),
+                                            ],
                                           ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Middle Name",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['middle_name'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
+                                          SizedBox(height: 15),
+                                          Wrap(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  await _pickImage(); // Open image picker to select a new image
+              
+                                                  if (_imageBytes != null ||
+                                                      _imageFile != null) {
+                                                    await replaceProfilePicture(); // Upload and replace the profile picture
+              
+                                                    // Reload the new image URL from Firestore after uploading
+                                                    await _imageGetterFromExampleState();
+              
+                                                    setState(
+                                                        () {}); // Refresh the UI after updating the image URL
+                                                  }
+                                                },
+                                                child: Container(
+                                                  height: isMobiles ? 30 : 40,
+                                                  width: isMobiles ? 100 : 150,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.yellow,
+                                                    borderRadius:
+                                                        BorderRadius.circular(10),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.center,
+                                                    children: [
+                                                      Text(
+                                                        "Edit Profile",
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontFamily: "B",
+                                                            fontSize: isMobiles ? 12 : 15,),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      Icon(
+                                                        Icons.edit,
+                                                        size: isMobiles ? 12 : 15,
+                                                        color: Colors.black,
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ).showCursorOnHover.moveUpOnHover,
+                                              SizedBox(
+                                                width: 15,
+                                              ),
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  logout();
+                                                },
+                                                child: Container(
+                                                  height: isMobiles ? 30 : 40,
+                                                  width: isMobiles ? 100 : 150,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(10),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.center,
+                                                    children: [
+                                                      Text(
+                                                        "Logout",
+                                                        style: TextStyle(
+                                                            color: Color.fromARGB(
+                                                                255, 1, 93, 168),
+                                                            fontFamily: "B",
+                                                            fontSize: isMobiles ? 12 : 15),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 3,
+                                                      ),
+                                                      Icon(
+                                                        Icons.logout_rounded,
+                                                        size: isMobiles ? 15 : 20,
+                                                        color: Color.fromARGB(
+                                                            255, 1, 93, 168),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ).showCursorOnHover.moveUpOnHover,
+                                            ],
                                           ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Last Name",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['last_name'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Extension Name",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['extension_name'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Age",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 100,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['age'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Gender",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 100,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['gender'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Birthdate",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 100,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['birthdate'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Email Address",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 250,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['email_Address'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Phone Number",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        // Conditionally display the asterisk
-                                        if (phoneController.text.isNotEmpty)
-                                          Text(
-                                            '*',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        controller: phoneController,
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: '09********',
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter your phone number';
-                                          }
-                                          // Ensure the number starts with '09' and has exactly 11 digits
-                                          if (!RegExp(r'^(09\d{9})$')
-                                              .hasMatch(value)) {
-                                            return 'Enter a valid phone number starting with 09 (e.g., 09xxxxxxxxx)';
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (text) {
-                                          setState(() {});
-                                        },
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter
-                                              .digitsOnly,
-                                          LengthLimitingTextInputFormatter(11),
                                         ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Indigenous People (IP)",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['indigenous_group'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Student Number",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['student_id'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "LRN",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['lrn'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              "Home Address",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontSize: 25,
-                                  fontFamily: "SB"),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "House Number",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        if (houseNumberController
-                                            .text.isNotEmpty)
-                                          Text(
-                                            '(optional)',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 125,
-                                      child: TextFormField(
-                                        controller: houseNumberController,
-                                        textCapitalization:
-                                            TextCapitalization.words,
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                        ),
-                                        onChanged: (text) {
-                                          setState(() {});
-                                        },
-                                        inputFormatters: [
-                                          TextInputFormatter.withFunction(
-                                              (oldValue, newValue) {
-                                            // Capitalize the first letter of every word after a space
-                                            String newText = newValue.text
-                                                .split(' ')
-                                                .map((word) {
-                                              if (word.isNotEmpty) {
-                                                return word[0].toUpperCase() +
-                                                    word
-                                                        .substring(1)
-                                                        .toLowerCase();
-                                              }
-                                              return ''; // Handle empty words
-                                            }).join(' '); // Join back the words with spaces
-                                            return newValue.copyWith(
-                                                text: newText,
-                                                selection: newValue.selection);
-                                          }),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Street Name",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        if (streetNameController
-                                            .text.isNotEmpty)
-                                          Text(
-                                            '*',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 125,
-                                      child: TextFormField(
-                                        controller: streetNameController,
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter your street name';
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (text) {
-                                          setState(() {});
-                                        },
-                                        inputFormatters: [
-                                          TextInputFormatter.withFunction(
-                                              (oldValue, newValue) {
-                                            // Capitalize the first letter of every word after a space
-                                            String newText = newValue.text
-                                                .split(' ')
-                                                .map((word) {
-                                              if (word.isNotEmpty) {
-                                                return word[0].toUpperCase() +
-                                                    word
-                                                        .substring(1)
-                                                        .toLowerCase();
-                                              }
-                                              return ''; // Handle empty words
-                                            }).join(' '); // Join back the words with spaces
-                                            return newValue.copyWith(
-                                                text: newText,
-                                                selection: newValue.selection);
-                                          }),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Subdivision/Barangay",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        if (subdivisionBarangayController
-                                            .text.isNotEmpty)
-                                          Text(
-                                            '*',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 200,
-                                      child: TextFormField(
-                                        controller:
-                                            subdivisionBarangayController,
-                                        textCapitalization:
-                                            TextCapitalization.words,
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter your barangay';
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (text) {
-                                          setState(() {});
-                                        },
-                                        inputFormatters: [
-                                          TextInputFormatter.withFunction(
-                                              (oldValue, newValue) {
-                                            // Capitalize the first letter of every word after a space
-                                            String newText = newValue.text
-                                                .split(' ')
-                                                .map((word) {
-                                              if (word.isNotEmpty) {
-                                                return word[0].toUpperCase() +
-                                                    word
-                                                        .substring(1)
-                                                        .toLowerCase();
-                                              }
-                                              return ''; // Handle empty words
-                                            }).join(' '); // Join back the words with spaces
-                                            return newValue.copyWith(
-                                                text: newText,
-                                                selection: newValue.selection);
-                                          }),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "City/Municipality",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        if (cityMunicipalityController
-                                            .text.isNotEmpty)
-                                          Text(
-                                            '*',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 200,
-                                      child: TextFormField(
-                                        controller: cityMunicipalityController,
-                                        textCapitalization:
-                                            TextCapitalization.words,
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter your municipality';
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (text) {
-                                          setState(() {});
-                                        },
-                                        keyboardType: TextInputType.text,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[a-zA-z\s]')),
-                                          TextInputFormatter.withFunction(
-                                              (oldValue, newValue) {
-                                            // Capitalize the first letter of every word after a space
-                                            String newText = newValue.text
-                                                .split(' ')
-                                                .map((word) {
-                                              if (word.isNotEmpty) {
-                                                return word[0].toUpperCase() +
-                                                    word
-                                                        .substring(1)
-                                                        .toLowerCase();
-                                              }
-                                              return ''; // Handle empty words
-                                            }).join(' '); // Join back the words with spaces
-                                            return newValue.copyWith(
-                                                text: newText);
-                                          }),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Province",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        if (provinceController.text.isNotEmpty)
-                                          Text(
-                                            '*',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 200,
-                                      child: TextFormField(
-                                        textCapitalization:
-                                            TextCapitalization.words,
-                                        controller: provinceController,
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter your province';
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (text) {
-                                          setState(() {});
-                                        },
-                                        keyboardType: TextInputType.text,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[a-zA-z\s]')),
-                                          TextInputFormatter.withFunction(
-                                              (oldValue, newValue) {
-                                            // Capitalize the first letter of every word after a space
-                                            String newText = newValue.text
-                                                .split(' ')
-                                                .map((word) {
-                                              if (word.isNotEmpty) {
-                                                return word[0].toUpperCase() +
-                                                    word
-                                                        .substring(1)
-                                                        .toLowerCase();
-                                              }
-                                              return ''; // Handle empty words
-                                            }).join(' '); // Join back the words with spaces
-                                            return newValue.copyWith(
-                                                text: newText);
-                                          }),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Country",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        if (countryController.text.isNotEmpty)
-                                          Text(
-                                            '*',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 200,
-                                      child: TextFormField(
-                                        controller: countryController,
-                                        textCapitalization:
-                                            TextCapitalization.words,
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter your country';
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (text) {
-                                          setState(() {});
-                                        },
-                                        keyboardType: TextInputType.text,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[a-zA-z\s]')),
-                                          TextInputFormatter.withFunction(
-                                              (oldValue, newValue) {
-                                            // Capitalize the first letter of every word after a space
-                                            String newText = newValue.text
-                                                .split(' ')
-                                                .map((word) {
-                                              if (word.isNotEmpty) {
-                                                return word[0].toUpperCase() +
-                                                    word
-                                                        .substring(1)
-                                                        .toLowerCase();
-                                              }
-                                              return ''; // Handle empty words
-                                            }).join(' '); // Join back the words with spaces
-                                            return newValue.copyWith(
-                                                text: newText);
-                                          }),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              "Parent Guardian Information",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontSize: 25,
-                                  fontFamily: "SB"),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Father's Name",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['fathersName'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Mother's Name",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['mothersName'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Guardian's Name",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['guardianName'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Relationship",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['relationshipGuardian'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Phone Number",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        // Conditionally display the asterisk
-                                        if (cellphoneNumController
-                                            .text.isNotEmpty)
-                                          Text(
-                                            '*',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        controller: cellphoneNumController,
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: '09********',
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                        ),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter your phone number';
-                                          }
-                                          // Ensure the number starts with '09' and has exactly 11 digits
-                                          if (!RegExp(r'^(09\d{9})$')
-                                              .hasMatch(value)) {
-                                            return 'Enter a valid phone number starting with 09 (e.g., 09xxxxxxxxx)';
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (text) {
-                                          setState(() {});
-                                        },
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter
-                                              .digitsOnly,
-                                          LengthLimitingTextInputFormatter(11),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              "Senior High School(SHS)",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontSize: 25,
-                                  fontFamily: "SB"),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Grade Level",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['grade_level'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Transferee",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 150,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['transferee'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Track",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['seniorHigh_Track'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Strand",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['seniorHigh_Strand'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Semester",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['semester'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              "Junior High School(JHS)",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontSize: 25,
-                                  fontFamily: "SB"),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      "JHS Name",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['juniorHS'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: 100),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "School Address",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 309,
-                                      child: TextFormField(
-                                        initialValue:
-                                            "${userData['schoolAdd'] ?? 'N/A'}",
-                                        enabled: false,
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              "Change Password",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontSize: 25,
-                                  fontFamily: "SB"),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      "New Password",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 300,
-                                      child: TextFormField(
-                                        controller: _newPasswordController,
-                                        obscureText: _obscureTextNew,
-                                        validator: (value) {
-                                          if (value != null &&
-                                              value.isNotEmpty &&
-                                              value !=
-                                                  _confirmPasswordController
-                                                      .text) {
-                                            return 'Passwords do not match';
-                                          }
-                                          return null;
-                                        },
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: 'Enter new password',
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          prefixIcon: Icon(Icons.lock_outline),
-                                          suffixIcon: IconButton(
-                                            icon: Icon(
-                                              _obscureTextNew
-                                                  ? Icons.visibility
-                                                  : Icons.visibility_off,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                _obscureTextNew =
-                                                    !_obscureTextNew;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: 100),
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Confirm Password",
-                                      style: TextStyle(
-                                        fontFamily: "M",
-                                        fontSize: 15,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(height: 13),
-                                    Container(
-                                      width: 300,
-                                      child: TextFormField(
-                                        controller: _confirmPasswordController,
-                                        obscureText: _obscureTextConfirm,
-                                        validator: (value) {
-                                          if (value != null &&
-                                              value.isNotEmpty &&
-                                              value !=
-                                                  _newPasswordController.text) {
-                                            return 'Passwords do not match';
-                                          }
-                                          return null;
-                                        },
-                                        enabled: true,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: "R",
-                                          fontSize: 13,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: 'Confirm New Password',
-                                          contentPadding:
-                                              EdgeInsets.only(left: 10),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          prefixIcon: Icon(Icons.lock_outline),
-                                          suffixIcon: IconButton(
-                                            icon: Icon(
-                                              _obscureTextConfirm
-                                                  ? Icons.visibility
-                                                  : Icons.visibility_off,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                _obscureTextConfirm =
-                                                    !_obscureTextConfirm;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            if (_passwordMismatch)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0),
-                                    child: Text(
-                                      'Passwords do not match',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 14,
-                                      ),
-                                    ),
+                                    ],
                                   ),
-                                Center(
-                                  child: Container(
-                                      height: screenHeight / 20,
-                                      width: screenWidth / 5,
-                                      child: ElevatedButton(
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all<
-                                                    Color>(Colors.yellow),
-                                            elevation: MaterialStateProperty
-                                                .all<double>(5),
-                                            shape: MaterialStateProperty.all<
-                                                OutlinedBorder>(
-                                              RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 40,
+                              ),
+                              Text(
+                                "Student Information",
+                                style: TextStyle(
+                                    color: Colors.yellow,
+                                    fontSize: 25,
+                                    fontFamily: "SB"),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Wrap(
+                              spacing: spacing,
+                                          runSpacing: spacing,                              
+                                  children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "First Name",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['first_name'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Middle Name",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['middle_name'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Last Name",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['last_name'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Extension Name",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['extension_name'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Wrap(
+                              spacing: spacing,
+                              runSpacing: spacing,
+                              children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Age",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['age'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Gender",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['gender'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Birthdate",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['birthdate'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Email Address",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['email_Address'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: (userData['email_Address']?.length ?? 0) > 45 ? textFontSize4 : textFontSize3,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                        children: [
+                                          // if (phoneController.text.isNotEmpty)
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "Phone Number",
+                                              style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                              text: '*',
+                                              style: TextStyle(
+                                                color: Colors.red,                            ),
                                               ),
+                                            ]
+                                            )
+                                            
+                                          ),
+                                          
+                                        
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller: phoneController,
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText: '09********',
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your phone number';
+                                            }
+                                            // Ensure the number starts with '09' and has exactly 11 digits
+                                            if (!RegExp(r'^(09\d{9})$')
+                                                .hasMatch(value)) {
+                                              return 'Enter a valid phone number starting with 09 (e.g., 09xxxxxxxxx)';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                            LengthLimitingTextInputFormatter(11),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Indigenous People (IP)",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['indigenous_group'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Student Number",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['student_id'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "LRN",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['lrn'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                "Home Address",
+                                style: TextStyle(
+                                    color: Colors.yellow,
+                                    fontSize: 25,
+                                    fontFamily: "SB"),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Wrap(
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
+                                  Column(
+                                        children: [
+                                          // if (houseNumberController.text.isNotEmpty)
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "House Number",
+                                              style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                              text: '*',
+                                              style: TextStyle(
+                                                color: Colors.red,                            ),
+                                              ),
+                                            ]
+                                            )
+                                            
+                                          ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller: houseNumberController,
+                                          textCapitalization:
+                                              TextCapitalization.words,
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          inputFormatters: [
+                                            TextInputFormatter.withFunction(
+                                                (oldValue, newValue) {
+                                              // Capitalize the first letter of every word after a space
+                                              String newText = newValue.text
+                                                  .split(' ')
+                                                  .map((word) {
+                                                if (word.isNotEmpty) {
+                                                  return word[0].toUpperCase() +
+                                                      word
+                                                          .substring(1)
+                                                          .toLowerCase();
+                                                }
+                                                return ''; // Handle empty words
+                                              }).join(' '); // Join back the words with spaces
+                                              return newValue.copyWith(
+                                                  text: newText,
+                                                  selection: newValue.selection);
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                          // if (streetNameController.text.isNotEmpty)
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "Street Name",
+                                              style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                              text: '*',
+                                              style: TextStyle(
+                                                color: Colors.red,                            ),
+                                              ),
+                                            ]
+                                            )
+                                            
+                                          ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller: streetNameController,
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your street name';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          inputFormatters: [
+                                            TextInputFormatter.withFunction(
+                                                (oldValue, newValue) {
+                                              // Capitalize the first letter of every word after a space
+                                              String newText = newValue.text
+                                                  .split(' ')
+                                                  .map((word) {
+                                                if (word.isNotEmpty) {
+                                                  return word[0].toUpperCase() +
+                                                      word
+                                                          .substring(1)
+                                                          .toLowerCase();
+                                                }
+                                                return ''; // Handle empty words
+                                              }).join(' '); // Join back the words with spaces
+                                              return newValue.copyWith(
+                                                  text: newText,
+                                                  selection: newValue.selection);
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                          // if (subdivisionBarangayController.text.isNotEmpty)
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "Subdivision/Barangay",
+                                              style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                              text: '*',
+                                              style: TextStyle(
+                                                color: Colors.red,                            ),
+                                              ),
+                                            ]
+                                            )
+                                            
+                                          ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller:
+                                              subdivisionBarangayController,
+                                          textCapitalization:
+                                              TextCapitalization.words,
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your barangay';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          inputFormatters: [
+                                            TextInputFormatter.withFunction(
+                                                (oldValue, newValue) {
+                                              // Capitalize the first letter of every word after a space
+                                              String newText = newValue.text
+                                                  .split(' ')
+                                                  .map((word) {
+                                                if (word.isNotEmpty) {
+                                                  return word[0].toUpperCase() +
+                                                      word
+                                                          .substring(1)
+                                                          .toLowerCase();
+                                                }
+                                                return ''; // Handle empty words
+                                              }).join(' '); // Join back the words with spaces
+                                              return newValue.copyWith(
+                                                  text: newText,
+                                                  selection: newValue.selection);
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                          // if (cityMunicipalityController.text.isNotEmpty)
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "City/Municipality",
+                                              style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                              text: '*',
+                                              style: TextStyle(
+                                                color: Colors.red,                            ),
+                                              ),
+                                            ]
+                                            )
+                                            
+                                          ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller: cityMunicipalityController,
+                                          textCapitalization:
+                                              TextCapitalization.words,
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your municipality';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          keyboardType: TextInputType.text,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.allow(
+                                                RegExp(r'[a-zA-z\s]')),
+                                            TextInputFormatter.withFunction(
+                                                (oldValue, newValue) {
+                                              // Capitalize the first letter of every word after a space
+                                              String newText = newValue.text
+                                                  .split(' ')
+                                                  .map((word) {
+                                                if (word.isNotEmpty) {
+                                                  return word[0].toUpperCase() +
+                                                      word
+                                                          .substring(1)
+                                                          .toLowerCase();
+                                                }
+                                                return ''; // Handle empty words
+                                              }).join(' '); // Join back the words with spaces
+                                              return newValue.copyWith(
+                                                  text: newText);
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                          // if (provinceController.text.isNotEmpty)
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "Province",
+                                              style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                              text: '*',
+                                              style: TextStyle(
+                                                color: Colors.red,                            ),
+                                              ),
+                                            ]
+                                            )
+                                            
+                                          ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          textCapitalization:
+                                              TextCapitalization.words,
+                                          controller: provinceController,
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your province';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          keyboardType: TextInputType.text,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.allow(
+                                                RegExp(r'[a-zA-z\s]')),
+                                            TextInputFormatter.withFunction(
+                                                (oldValue, newValue) {
+                                              // Capitalize the first letter of every word after a space
+                                              String newText = newValue.text
+                                                  .split(' ')
+                                                  .map((word) {
+                                                if (word.isNotEmpty) {
+                                                  return word[0].toUpperCase() +
+                                                      word
+                                                          .substring(1)
+                                                          .toLowerCase();
+                                                }
+                                                return ''; // Handle empty words
+                                              }).join(' '); // Join back the words with spaces
+                                              return newValue.copyWith(
+                                                  text: newText);
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                          // if (countryController.text.isNotEmpty)
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "Country",
+                                              style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                              text: '*',
+                                              style: TextStyle(
+                                                color: Colors.red,                            ),
+                                              ),
+                                            ]
+                                            )
+                                            
+                                          ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller: countryController,
+                                          textCapitalization:
+                                              TextCapitalization.words,
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your country';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          keyboardType: TextInputType.text,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.allow(
+                                                RegExp(r'[a-zA-z\s]')),
+                                            TextInputFormatter.withFunction(
+                                                (oldValue, newValue) {
+                                              // Capitalize the first letter of every word after a space
+                                              String newText = newValue.text
+                                                  .split(' ')
+                                                  .map((word) {
+                                                if (word.isNotEmpty) {
+                                                  return word[0].toUpperCase() +
+                                                      word
+                                                          .substring(1)
+                                                          .toLowerCase();
+                                                }
+                                                return ''; // Handle empty words
+                                              }).join(' '); // Join back the words with spaces
+                                              return newValue.copyWith(
+                                                  text: newText);
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                "Parent Guardian Information",
+                                style: TextStyle(
+                                    color: Colors.yellow,
+                                    fontSize: 25,
+                                    fontFamily: "SB"),
+                              ),
+                              Wrap(
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Father's Name",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['fathersName'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Mother's Name",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['mothersName'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Guardian's Name",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['guardianName'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Relationship",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['relationshipGuardian'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                          // if (cellphoneNumController.text.isNotEmpty)
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "Phone Number",
+                                              style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                              text: '*',
+                                              style: TextStyle(
+                                                color: Colors.red,                            ),
+                                              ),
+                                            ]
+                                            )
+                                            
+                                          ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller: cellphoneNumController,
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText: '09********',
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                          ),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your phone number';
+                                            }
+                                            // Ensure the number starts with '09' and has exactly 11 digits
+                                            if (!RegExp(r'^(09\d{9})$')
+                                                .hasMatch(value)) {
+                                              return 'Enter a valid phone number starting with 09 (e.g., 09xxxxxxxxx)';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (text) {
+                                            setState(() {});
+                                          },
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                            LengthLimitingTextInputFormatter(11),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                "Senior High School(SHS)",
+                                style: TextStyle(
+                                    color: Colors.yellow,
+                                    fontSize: 25,
+                                    fontFamily: "SB"),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Wrap(
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Grade Level",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['grade_level'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Transferee",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['transferee'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Track",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['seniorHigh_Track'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Strand",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['seniorHigh_Strand'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: (userData['seniorHigh_Strand']?.length ?? 0) > 45 ? textFontSize2 : textFontSize1,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Semester",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['semester'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                "Junior High School(JHS)",
+                                style: TextStyle(
+                                    color: Colors.yellow,
+                                    fontSize: 25,
+                                    fontFamily: "SB"),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Wrap(
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "JHS Name",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['juniorHS'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: (userData['juniorHS']?.length ?? 0) > 45 ? textFontSize2 : textFontSize1,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "School Address",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          initialValue:
+                                              "${userData['schoolAdd'] ?? 'N/A'}",
+                                          enabled: false,
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                            fontFamily: "R",
+                                            fontSize: (userData['schoolAdd']?.length ?? 0) > 45 ? textFontSize2 : textFontSize1,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.grey[300],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                "Change Password",
+                                style: TextStyle(
+                                    color: Colors.yellow,
+                                    fontSize: 25,
+                                    fontFamily: "SB"),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Wrap(
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "New Password",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller: _newPasswordController,
+                                          obscureText: _obscureTextNew,
+                                          validator: (value) {
+                                            if (value != null &&
+                                                value.isNotEmpty &&
+                                                value !=
+                                                    _confirmPasswordController
+                                                        .text) {
+                                              return 'Passwords do not match';
+                                            }
+                                            return null;
+                                          },
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText: 'Enter new password',
+                                            contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), 
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            prefixIcon: Icon(Icons.lock_outline),
+                                            suffixIcon: IconButton(
+                                              icon: Icon(
+                                                _obscureTextNew
+                                                    ? Icons.visibility
+                                                    : Icons.visibility_off,
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _obscureTextNew =
+                                                      !_obscureTextNew;
+                                                });
+                                              },
                                             ),
                                           ),
-                                          onPressed: _updateUserData,
-                                          child: Text(
-                                            'Save',
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 18),
-                                          ))),
-                                )
-                          ]),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Confirm Password",
+                                        style: TextStyle(
+                                          fontFamily: "M",
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(height: 13),
+                                      Container(
+                                        width: fieldWidth,
+                                        child: TextFormField(
+                                          controller: _confirmPasswordController,
+                                          obscureText: _obscureTextConfirm,
+                                          validator: (value) {
+                                            if (value != null &&
+                                                value.isNotEmpty &&
+                                                value !=
+                                                    _newPasswordController.text) {
+                                              return 'Passwords do not match';
+                                            }
+                                            return null;
+                                          },
+                                          enabled: true,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: "R",
+                                            fontSize: 13,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText: 'Confirm New Password',
+                                            contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), 
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            disabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide:
+                                                  BorderSide(color: Colors.white),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            prefixIcon: Icon(Icons.lock_outline),
+                                            suffixIcon: IconButton(
+                                              icon: Icon(
+                                                _obscureTextConfirm
+                                                    ? Icons.visibility
+                                                    : Icons.visibility_off,
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _obscureTextConfirm =
+                                                      !_obscureTextConfirm;
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              if (_passwordMismatch)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Text(
+                                        'Passwords do not match',
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  Center(
+                                    child: Container(
+                                        height: isMobiles ? 30 : 40,
+                                        width: isMobiles ? 100 : 150,
+                                        child: ElevatedButton(
+                                            style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all<
+                                                      Color>(Colors.yellow),
+                                              elevation: MaterialStateProperty
+                                                  .all<double>(5),
+                                              shape: MaterialStateProperty.all<
+                                                  OutlinedBorder>(
+                                                RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                            ),
+                                            onPressed: _updateUserData,
+                                            child: Text(
+                                              'Save',
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: isMobiles ? 14 : 18,),
+                                            ))),
+                                  )
+                            ]),
+                      ),
                     ),
-                  ),
-                ));
+                  )
+              );
+        });
+        
           default:
             return Text(
               pageTitle,
