@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -40,50 +41,90 @@ Future<String> generateStudentID() async {
 }
 
 Future<void> approveStudent(String studentDocId) async {
-  final studentDoc = await FirebaseFirestore.instance
-      .collection('users')
-      .doc(studentDocId)
-      .get();
-  final studentData = studentDoc.data() as Map<String, dynamic>;
-  final email = studentData['email_Address'] as String? ?? '';
-
-  if (email.isEmpty) {
-    print('Error: No email address provided for student ID: $studentDocId');
-    return;
-  }
-
-  final studentId = await generateStudentID();
-  final curriculum = await getCurrentCurriculum();
-
   try {
-    final userCredential =
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: email,
-      password: 'ilovePBMA_123',
-    );
-
-    final uid = userCredential.user!.uid;
-    print('User created with ID: $uid');
-
-    await FirebaseFirestore.instance
+    final studentDoc = await FirebaseFirestore.instance
         .collection('users')
         .doc(studentDocId)
-        .update({
-      'student_id': studentId,
-      'enrollment_status': 'approved',
-      'accountType': 'student',
-      'uid': uid,
-      'Status': 'active',
-      'passwordChanged': false,
-      'school_year': curriculum,  // Add the curriculum here
-    });
+        .get();
+    final studentData = studentDoc.data() as Map<String, dynamic>;
+    final email = studentData['email_Address'] as String? ?? '';
 
-    print('Student approved and Firebase Auth user created successfully.');
+    if (email.isEmpty) {
+      print('Error: No email address provided for student ID: $studentDocId');
+      return;
+    }
 
-    // Send email using EmailJS
-    await sendEnrollmentEmail(email);
+    final studentId = await generateStudentID();
+    final curriculum = await getCurrentCurriculum();
+
+    // Get the current Firebase options
+    final options = Firebase.app().options;
+    
+    // Create a unique name for the temporary app
+    final tempAppName = 'tempApp-${DateTime.now().millisecondsSinceEpoch}';
+
+    // Initialize the temporary app with explicit options
+    final tempApp = await Firebase.initializeApp(
+      name: tempAppName,
+      options: FirebaseOptions(
+        apiKey: options.apiKey,
+        appId: options.appId,
+        messagingSenderId: options.messagingSenderId,
+        projectId: options.projectId,
+        authDomain: options.authDomain,
+        storageBucket: options.storageBucket,
+      ),
+    );
+
+    try {
+      // Create auth instance from temporary app
+      final tempAuth = FirebaseAuth.instanceFor(app: tempApp);
+      
+      // Create student account
+      final userCredential = await tempAuth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: 'ilovePBMA_123',
+      );
+
+      final uid = userCredential.user?.uid;
+      if (uid == null) {
+        throw Exception('Failed to create user: No UID generated');
+      }
+
+      // Update Firestore document
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(studentDocId)
+          .update({
+        'student_id': studentId,
+        'enrollment_status': 'approved',
+        'accountType': 'student',
+        'uid': uid,
+        'Status': 'active',
+        'passwordChanged': false,
+        'school_year': curriculum,
+      });
+
+      // Clean up
+      await tempAuth.signOut();
+      
+      print('Student approved and Firebase Auth user created successfully.');
+      
+      // Send email using EmailJS
+      await sendEnrollmentEmail(email.trim());
+      
+    } finally {
+      // Ensure cleanup happens
+      try {
+        await tempApp.delete();
+      } catch (deleteError) {
+        print('Error deleting temporary app: $deleteError');
+      }
+    }
+    
   } catch (e) {
     print('Failed to create user or update document: $e');
+    // You might want to show an error message to the user here
   }
 }
 
