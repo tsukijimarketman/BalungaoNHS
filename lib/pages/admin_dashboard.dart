@@ -28,7 +28,10 @@ import 'package:pbma_portal/student_utils/Student_Utils.dart';
 import 'package:pbma_portal/Admin Dashboard Sorting/Dashboard Sorting.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:pbma_portal/widgets/hover_extensions.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class AdminDashboard extends StatefulWidget {
   @override
@@ -86,6 +89,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'HE': 'Home Economics (HE)',
     'IA': 'Industrial Arts (IA)',
   };
+  String? _selectedTrack; // For filtering by Track
+String? _selectedGrade; // For filtering by Grade Level
+String? _selectedTransferee; // For filtering by Transferee
+
 
   //BuildDashboardContent
   Stream<QuerySnapshot> _getEnrolledStudentsCount() {
@@ -218,6 +225,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } else if (_gradeLevelIconState == 2) {
       query = query.where('grade_level', isEqualTo: '12');
     }
+    
 
     // Add additional filters for transferee status
     if (_transfereeIconState == 1) {
@@ -1670,20 +1678,39 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
                 // Add Spacer or Expanded to ensure Search stays on the right
                 Spacer(),
                 // Search Student field stays on the right
-                OutlinedButton(
-                    onPressed: () {
+  OutlinedButton(
+  onPressed: () {
+    // Fetch the filtered students from the StreamBuilder
+    final displayedStudents = _getFilteredStudents();
 
-                    },
-                    child: Text('Download to PDF',
-                        style: TextStyle(color: Colors.black)),
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: Colors.black),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
+    // Process the filtered students and pass them to the PDF function
+    displayedStudents.listen((snapshot) {
+      final filteredStudents = snapshot.docs.map((student) {
+        final data = student.data() as Map<String, dynamic>;
+        final fullName = '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}'.trim();
+        return {
+          'student_id': data['student_id'] ?? '',
+          'full_name': fullName, // Add the full name
+          'seniorHigh_Track': data['seniorHigh_Track'] ?? '',
+          'seniorHigh_Strand': data['seniorHigh_Strand'] ?? '',
+          'grade_level': data['grade_level'] ?? '',
+          'transferee': data['transferee'] ?? '',
+        };
+      }).toList();
+
+      _downloadPDF(filteredStudents);
+    });
+  },
+  child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
+  style: OutlinedButton.styleFrom(
+    backgroundColor: Colors.white,
+    side: BorderSide(color: Colors.black),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+),
+
                 SizedBox(
                   width: 
                   20,
@@ -1927,6 +1954,139 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
       ),
     );
   }
+  Future<void> _downloadPDF(List<Map<String, dynamic>> students) async {
+  final pdf = pw.Document();
+
+  pdf.addPage(
+  pw.Page(
+    pageFormat: PdfPageFormat.a4.landscape, // Set the page orientation to landscape
+    build: (pw.Context context) {
+      return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'Student Report',
+            style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 16),
+          pw.Table(
+            border: pw.TableBorder.all(),
+            columnWidths: {
+              0: pw.FlexColumnWidth(1),
+              1: pw.FlexColumnWidth(2.5),
+              2: pw.FlexColumnWidth(2),
+              3: pw.FlexColumnWidth(2),
+              4: pw.FlexColumnWidth(1),
+              5: pw.FlexColumnWidth(1),
+            },
+            children: [
+              // Table Header
+              pw.TableRow(
+                decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Student ID', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Full Name', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Track', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Strand', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Grade Level', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text('Transferee', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                ],
+              ),
+              // Table Data
+              ...students.map((student) {
+                final isEvenRow = students.indexOf(student) % 2 == 0;
+                return pw.TableRow(
+                  decoration: pw.BoxDecoration(
+                    color: isEvenRow ? PdfColors.white : PdfColors.grey100,
+                  ),
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['student_id'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['full_name'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['seniorHigh_Track'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['seniorHigh_Strand'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['grade_level'] ?? ''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text(student['transferee'] ?? ''),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ],
+          ),
+          pw.SizedBox(height: 40), // Add space before the principal section
+          pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.Text(
+                  'Urbano Delos Angeles IV',
+                  style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+                ),
+                pw.Container(
+                  width: 150,
+                  child: pw.Divider(thickness: 1),
+                ),
+                pw.Text(
+                  'SCHOOL PRINCIPAL',
+                  style: pw.TextStyle(fontSize: 12, fontStyle: pw.FontStyle.italic),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    },
+  ),
+);
+
+
+
+  // Save and share the file
+  final pdfBytes = await pdf.save();
+
+  await Printing.sharePdf(bytes: pdfBytes, filename: 'filtered_students_report.pdf');
+}
+
+
+Future<List<Map<String, dynamic>>> _fetchStudentData() async {
+  final snapshot = await FirebaseFirestore.instance.collection('users').get();
+  return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+}
 
   Widget _buildInstructorWithAdviserDrawer(DocumentSnapshot doc) {
     return Container(

@@ -68,6 +68,7 @@ dependencies:
   dartx: ^1.2.0
   printing: ^5.13.4
   pdf: ^3.11.1
+  path_provider: ^2.1.5
 
   
   
