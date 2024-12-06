@@ -193,7 +193,7 @@ class _ContactUsMobileState extends State<ContactUsMobile> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        "Dedicated to shaping the minds of tomorrow by providing high-quality education, a supportive community, and opportunities for every student to thrive.",
+                        "Dedicateds to shaping the minds of tomorrow by providing high-quality education, a supportive community, and opportunities for every student to thrive.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: screenWidth / 30,
