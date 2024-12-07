@@ -1740,7 +1740,7 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
                 ),
                 // Add Spacer or Expanded to ensure Search stays on the right
                 Spacer(),
-                // Search Student field stays on the right
+   if (_selectedSchoolYear != "All") 
   OutlinedButton(
   onPressed: () {
     // Fetch the filtered students from the StreamBuilder
@@ -3923,13 +3923,6 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                                                   color: Colors.green),
                                               onPressed: () {
                                                 updateEnrollmentStatus(student.id);
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: Icon(Iconsax.close_circle_copy,
-                                                  color: Colors.red),
-                                              onPressed: () {
-                                                (context, student.id);
                                               },
                                             ),
                                           ],

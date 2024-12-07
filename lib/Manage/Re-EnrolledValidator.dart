@@ -261,6 +261,8 @@ void initState() {
                                       widget.studentData['guardianName'] ?? ''),
                                   _buildDetailRow(Icons.group, 'Guardian Relationship',
                                       widget.studentData['relationshipGuardian'] ?? ''),
+                                 _buildDetailRow(Icons.phone, 'Contact Number Guardian',
+                                      widget.studentData['cellphone_number'] ?? ''),
                                   _buildDetailRow(Icons.school, 'Junior High School',
                                       widget.studentData['juniorHS'] ?? ''),
                                   _buildDetailRow(Icons.location_city, 'JHS Address',
