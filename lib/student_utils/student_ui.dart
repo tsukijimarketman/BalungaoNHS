@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'dart:html' as html;
 import 'dart:typed_data';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -376,7 +377,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
         _imageGetterFromExampleState(),
         _loadSubjects(),
         _fetchEnrollmentStatus(),
-      ]);
+        _checkEnrollmentStatus(),
+        _fetchSavedSectionData()      
+        ]);
     } catch (e) {
       print('Error initializing data: $e');
     } finally {
@@ -724,6 +727,82 @@ class _ScreensExampleState extends State<_ScreensExample> {
   // Case 1
 
   // Case 2
+  // Add this new method to fetch saved data
+  Future<void> _checkEnrollmentStatus() async {
+  try {
+    // Get the active configuration
+    QuerySnapshot activeConfig = await FirebaseFirestore.instance
+        .collection('configurations')
+        .where('isActive', isEqualTo: true)
+        .limit(1)
+        .get();
+
+    if (activeConfig.docs.isNotEmpty) {
+      String configId = activeConfig.docs.first.id;
+      
+      // Get the user's current enrollment data
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        // Cast the data to Map<String, dynamic>
+        final userData = userDoc.data() as Map<String, dynamic>;
+
+        // Check if the user needs to re-enroll
+        if (userData['enrollment_status'] == 're-enrolled') {
+          // Show re-enrollment UI
+          setState(() {
+            _isFinalized = false;
+            _selectedSection = null;
+            _subjects.clear();
+          });
+        }
+      }
+    }
+  } catch (e) {
+    print('Error checking enrollment status: $e');
+  }
+}
+
+Future<void> _fetchSavedSectionData() async {
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: user.uid)
+        .limit(1)
+        .get();
+
+    if (userDoc.docs.isNotEmpty) {
+      final userDocId = userDoc.docs.first.id;
+      
+      // Get the sections subcollection document
+      final sectionDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userDocId)
+          .collection('sections')
+          .doc(userDocId)
+          .get();
+
+      if (sectionDoc.exists) {
+        final data = sectionDoc.data();
+        setState(() {
+          _selectedSection = data?['selectedSection'];
+          _subjects = List<Map<String, dynamic>>.from(data?['subjects'] ?? []);
+          _isFinalized = data?['isFinalized'] ?? false;
+        });
+      }
+    }
+  } catch (e) {
+    print('Error fetching saved section data: $e');
+  }
+}
+
   Future<void> _saveandfinalization() async {
     if (_selectedSection != null) {
       try {
@@ -932,6 +1011,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
         if (userDoc.docs.isNotEmpty) {
           final userDocId = userDoc.docs.first.id;
 
+            final Timestamp finalizationTime = Timestamp.now();
+
           // Set the data in the sections subcollection inside this user's document
           await FirebaseFirestore.instance
               .collection('users')
@@ -942,6 +1023,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             'selectedSection': _selectedSection,
             'subjects': _subjects,
             'isFinalized': true,
+            'finalizationTimestamp': finalizationTime, // Add timestamp
           });
 
           setState(() {
@@ -1539,7 +1621,26 @@ class _ScreensExampleState extends State<_ScreensExample> {
   );
 
           case 2:
-             return EnrollmentStatusWidget(
+             return _isLoading 
+    ? Container(
+      color: Color.fromARGB(255, 1, 93, 168),
+      child: Center(
+            child: DefaultTextStyle(
+              style: TextStyle(
+                fontSize: 18.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              child: AnimatedTextKit(
+                animatedTexts: [
+                  WavyAnimatedText('LOADING...'),
+                ],
+                isRepeatingAnimation: true,
+              ),
+            ),
+          ),
+    )
+    : EnrollmentStatusWidget(
         enrollmentStatus: _enrollmentStatus,
         studentId: _studentId,
         fullName: _fullName,
@@ -1558,6 +1659,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
         },
         onLoadSubjects: _loadSubjects,
         onFinalize: _saveandfinalization,
+        FinalizedData: _fetchSavedSectionData,
+        checkEnrollmentStatus: _checkEnrollmentStatus, // Add this line
       );
           case 3:
             double screenWidth = MediaQuery.of(context).size.width;

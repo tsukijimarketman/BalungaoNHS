@@ -901,10 +901,50 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     
     await batch.commit();
 
+    // Get all students
+    QuerySnapshot studentDocs = await FirebaseFirestore.instance
+        .collection('users')
+        .where('accountType', isEqualTo: 'student')
+        .get();
+
+    // Create a new batch for student updates
+    WriteBatch studentBatch = FirebaseFirestore.instance.batch();
+
+    // Update each student's enrollment status and reset their data
+    for (var studentDoc in studentDocs.docs) {
+      // Update main document status
+      studentBatch.update(studentDoc.reference, {
+        'enrollment_status': 're-enrolled',
+        'section': FieldValue.delete(), // Remove the section field if it exists
+      });
+
+      try {
+        // Reset the sections subcollection for each student
+        DocumentReference sectionRef = studentDoc.reference
+            .collection('sections')
+            .doc(studentDoc.id);
+            
+        // Check if document exists
+        DocumentSnapshot sectionDoc = await sectionRef.get();
+        
+        if (sectionDoc.exists) {
+          await sectionRef.update({
+            'isFinalized': false,
+            'selectedSection': FieldValue.delete(),
+            'subjects': FieldValue.delete(),
+          });
+        }
+      } catch (e) {
+        print('Error resetting sections for student ${studentDoc.id}: $e');
+      }
+    }
+
+    // Commit student updates
+    await studentBatch.commit();
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Configuration activated successfully')),
+      SnackBar(content: Text('Configuration activated and student enrollments reset successfully')),
     );
-        await _updateEnrollmentStatusForStudents();
 
   } catch (error) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -912,7 +952,6 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     );
   }
 }
-
   // Method to save data to Firebase
   void _saveConfiguration() {
   // Create a new document with a timestamp-based ID
@@ -954,33 +993,57 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
 
 // Function to update enrollment status for all students
   Future<void> _updateEnrollmentStatusForStudents() async {
-    try {
-      // Query to get all documents with accountType = "student"
-      QuerySnapshot studentDocs = await FirebaseFirestore.instance
-          .collection(
-              'users') // replace 'users' with the actual name of your users collection
-          .where('accountType', isEqualTo: 'student')
-          .get();
+  try {
+    // Query to get all student documents
+    QuerySnapshot studentDocs = await FirebaseFirestore.instance
+        .collection('users')
+        .where('accountType', isEqualTo: 'student')
+        .get();
 
-      // Batch update to change enrollment_status for each student document
-      WriteBatch batch = FirebaseFirestore.instance.batch();
+    // Create a batch for the main documents update
+    WriteBatch mainBatch = FirebaseFirestore.instance.batch();
 
-      for (QueryDocumentSnapshot doc in studentDocs.docs) {
-        batch.update(doc.reference, {'enrollment_status': 're-enrolled'});
+    // Update each student's enrollment status
+    for (QueryDocumentSnapshot doc in studentDocs.docs) {
+      mainBatch.update(doc.reference, {
+        'enrollment_status': 're-enrolled',
+        'section': FieldValue.delete(), // Remove the section field from main document
+      });
+
+      try {
+        // Get the sections subcollection document for each student
+        DocumentReference sectionRef = doc.reference
+            .collection('sections')
+            .doc(doc.id);
+
+        // Check if the document exists
+        DocumentSnapshot sectionDoc = await sectionRef.get();
+        
+        if (sectionDoc.exists) {
+          // Reset the section document
+          await sectionRef.update({
+            'isFinalized': false,
+            'selectedSection': FieldValue.delete(),
+            'subjects': FieldValue.delete(),
+          });
+        }
+      } catch (e) {
+        print('Error resetting sections for student ${doc.id}: $e');
       }
-
-      // Commit the batch update
-      await batch.commit();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Enrollment status updated for all students.')),
-      );
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update enrollment status: $error')),
-      );
     }
+
+    // Commit the main batch update
+    await mainBatch.commit();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Enrollment status and sections reset for all students.')),
+    );
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to update enrollment status: $error')),
+    );
   }
+}
 
   // Configuration
 
