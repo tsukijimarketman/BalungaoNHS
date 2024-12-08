@@ -6,7 +6,7 @@ import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app
 class TEBS extends StatelessWidget {
   const TEBS({super.key});
 
-  static const strandLabels = ['ABM', 'HUMMS', 'STEM', 'ICT', 'HE'];
+  static const strandLabels = ['ABM', 'HUMMS', 'STEM', 'ICT', 'HE', 'IA'];
 
   static const strandMapping = {
     "Accountancy, Business, and Management (ABM)": 0,
@@ -14,6 +14,7 @@ class TEBS extends StatelessWidget {
     "Science, Technology, Engineering and Mathematics (STEM)": 2,
     "Information and Communication Technology (ICT)": 3,
     "Home Economics (HE)": 4,
+    "Industrial Arts (IA)": 5,
   };
 
   Stream<Map<int, int>> fetchStrandData() {
