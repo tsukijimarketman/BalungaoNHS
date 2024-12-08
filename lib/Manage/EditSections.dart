@@ -59,19 +59,26 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('accountType', isEqualTo: 'instructor')
+        .where('adviser', isEqualTo: 'yes')  // Only fetch instructors who are advisers
         .get();
 
     setState(() {
-      advisersDropdownItems = querySnapshot.docs.map((doc) {
+    advisersDropdownItems = [
+      DropdownMenuItem<String>(
+        value: 'N/A',
+        child: Text('N/A'),
+      ),
+      ...querySnapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         String adviserName = '${data['first_name']} ${data['last_name']}';
         return DropdownMenuItem<String>(
           value: adviserName,
           child: Text(adviserName),
         );
-      }).toList();
-    });
-  }
+      }).toList(),
+    ];
+  });
+}
 
   // Update the section in Firestore
   Future<void> _updateSection() async {

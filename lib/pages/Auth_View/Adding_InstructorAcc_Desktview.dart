@@ -29,6 +29,9 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+   final _subjectNameFocusNode = FocusNode();
+  final _subjectCodeFocusNode = FocusNode();
+
   String _adviserStatus = '--';
   String? _selectedSection;
   List<String> _sections = [];
@@ -37,12 +40,21 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
   bool _isSubjectNameSelected = false; // Track whether a suggestion was selected
   bool _isSubjectCodeSelected = false; // Track whether a suggestion was selected for subject code
   String? _emailError;
+  bool _isPasswordVisible = false; // Add this new state variable
+  Map<String, String> _subjectPairs = {}; // Stores valid subject name-code pairs
 
   @override
   void initState() {
     super.initState();
     _fetchSections();
     _fetchSubjects();
+  }
+
+   @override
+  void dispose() {
+    _subjectNameFocusNode.dispose();
+    _subjectCodeFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchSections() async {
@@ -61,36 +73,46 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
     }
   }
 
-  Future<void> _fetchSubjects() async {
-    try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('subjects').get();
-      setState(() {
-        _subjectNameSuggestions = snapshot.docs
-            .map((doc) => doc['subject_name'].toString()) // Keep camel case
-            .toList();
-        _subjectCodeSuggestions = snapshot.docs
-            .map((doc) => doc['subject_code'].toString()) // Keep camel case
-            .toList();
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching subjects: $e')),
-      );
-    }
+ Future<void> _fetchSubjects() async {
+  try {
+    final snapshot = await FirebaseFirestore.instance.collection('subjects').get();
+    setState(() {
+      _subjectNameSuggestions = snapshot.docs
+          .map((doc) => doc['subject_name'].toString())
+          .toList();
+      _subjectCodeSuggestions = snapshot.docs
+          .map((doc) => doc['subject_code'].toString())
+          .toList();
+      
+      // Store valid subject pairs
+      _subjectPairs.clear();
+      for (var doc in snapshot.docs) {
+        _subjectPairs[doc['subject_name'].toString()] = doc['subject_code'].toString();
+      }
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching subjects: $e')),
+    );
   }
+}
 
   List<String> _filterSuggestions(String query, List<String> suggestions) {
-    // Convert query to lowercase for case-insensitive matching
-    String queryLower = query.toLowerCase();
-
-    return suggestions
-        .where((suggestion) => suggestion
-            .toLowerCase()
-            .contains(queryLower)) // Case-insensitive comparison
-        .toSet() // Remove duplicates
-        .toList();
-  }
+  if (query.isEmpty) return [];
+  
+  String queryLower = query.toLowerCase();
+  return suggestions
+      .where((suggestion) => suggestion.toLowerCase().contains(queryLower))
+      .toList()
+    ..sort((a, b) {
+      // Prioritize suggestions that start with the query
+      bool aStarts = a.toLowerCase().startsWith(queryLower);
+      bool bStarts = b.toLowerCase().startsWith(queryLower);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return a.compareTo(b);
+    });
+}
 
   Future<String?> _emailValidator(String? value) async {
   if (value == null || value.isEmpty) {
@@ -142,100 +164,113 @@ Future<bool> _isEmailInUse(String email) async {
 
   void _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
+      final subjectName = _subjectNameController.text;
+    final subjectCode = _subjectCodeController.text;
+    
+    if (!_subjectPairs.containsKey(subjectName) || _subjectPairs[subjectName] != subjectCode) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid subject name and code combination. Please select a valid pair.')),
+      );
+      return;
+    }
+    
       if (_adviserStatus == '--') {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Please select a valid adviser status (Yes or No).')),
+          const SnackBar(content: Text('Please select a valid adviser status (Yes or No).')),
         );
         return;
       }
 
-      final firstName = _firstNameController.text;
-      final middleName = _middleNameController.text;
-      final lastName = _lastNameController.text;
-      final subjectName = _subjectNameController.text;
-      final subjectCode = _subjectCodeController.text;
-      final email = _emailController.text;
-      final password = _passwordController.text;
-
-      String handledSectionValue =
-          _adviserStatus == 'yes' ? _selectedSection ?? 'N/A' : 'N/A';
-
       try {
-      // Get the current Firebase options
-      final options = Firebase.app().options;
-      
-      // Create a unique name for the temporary app
-      final tempAppName = 'tempApp-${DateTime.now().millisecondsSinceEpoch}';
-
-      // Initialize the temporary app with explicit options
-      final tempApp = await Firebase.initializeApp(
-        name: tempAppName,
-        options: FirebaseOptions(
-          apiKey: options.apiKey,
-          appId: options.appId,
-          messagingSenderId: options.messagingSenderId,
-          projectId: options.projectId,
-          authDomain: options.authDomain,
-          storageBucket: options.storageBucket,
-        ),
-      );
-
-      try {
-        // Create auth instance from temporary app
-        final tempAuth = FirebaseAuth.instanceFor(app: tempApp);
-        
-        // Create instructor account
-        final userCredential = await tempAuth.createUserWithEmailAndPassword(
-          email: email.trim(),
-          password: password,
+        // Show loading indicator
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const Center(child: CircularProgressIndicator());
+          },
         );
 
-        final uid = userCredential.user?.uid;
-        if (uid == null) {
-          throw Exception('Failed to create user: No UID generated');
-        }
+        final firstName = _firstNameController.text;
+        final middleName = _middleNameController.text;
+        final lastName = _lastNameController.text;
+        final subjectName = _subjectNameController.text;
+        final subjectCode = _subjectCodeController.text;
+        final email = _emailController.text;
+        final password = _passwordController.text;
 
-        // Add instructor data to Firestore
-        await FirebaseFirestore.instance.collection('users').doc(uid).set({
-          'first_name': firstName,
-          'middle_name': middleName,
-          'last_name': lastName,
-          'subject_Name': subjectName,
-          'subject_Code': subjectCode,
-          'email_Address': email,
-          'accountType': 'instructor',
-          'Status': 'active',
-          'adviser': _adviserStatus,
-          'handled_section': handledSectionValue,
-          'uid': uid,
-        });
+        String handledSectionValue =
+            _adviserStatus == 'yes' ? _selectedSection ?? 'N/A' : 'N/A';
 
-        // Clean up - sign out from temporary auth
-        await tempAuth.signOut();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Instructor account added successfully!')),
+        // Get the current Firebase options
+        final options = Firebase.app().options;
+        final tempAppName = 'tempApp-${DateTime.now().millisecondsSinceEpoch}';
+        final tempApp = await Firebase.initializeApp(
+          name: tempAppName,
+          options: FirebaseOptions(
+            apiKey: options.apiKey,
+            appId: options.appId,
+            messagingSenderId: options.messagingSenderId,
+            projectId: options.projectId,
+            authDomain: options.authDomain,
+            storageBucket: options.storageBucket,
+          ),
         );
-        widget.closeAddInstructors();
-        
-      } finally {
-        // Ensure temporary app is deleted
+
         try {
+          final tempAuth = FirebaseAuth.instanceFor(app: tempApp);
+          final userCredential = await tempAuth.createUserWithEmailAndPassword(
+            email: email.trim(),
+            password: password,
+          );
+
+          final uid = userCredential.user?.uid;
+          if (uid == null) {
+            throw Exception('Failed to create user: No UID generated');
+          }
+
+          await FirebaseFirestore.instance.collection('users').doc(uid).set({
+            'first_name': firstName,
+            'middle_name': middleName,
+            'last_name': lastName,
+            'subject_Name': subjectName,
+            'subject_Code': subjectCode,
+            'email_Address': email,
+            'accountType': 'instructor',
+            'Status': 'active',
+            'adviser': _adviserStatus,
+            'handled_section': handledSectionValue,
+            'uid': uid,
+          });
+
+          await tempAuth.signOut();
+
+          // Close loading indicator
+          Navigator.pop(context);
+
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Instructor account added successfully!')),
+          );
+
+          // Close the add instructor dialog
+          if (mounted) {
+            widget.closeAddInstructors();
+          }
+        } finally {
           await tempApp.delete();
-        } catch (deleteError) {
-          print('Error deleting temporary app: $deleteError');
         }
+      } catch (e) {
+        // Close loading indicator
+        Navigator.pop(context);
+        
+        print('Error adding instructor: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create instructor account: ${e.toString()}')),
+        );
       }
-    } catch (e) {
-      print('Error adding instructor: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create instructor account: ${e.toString()}')),
-      );
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -440,6 +475,33 @@ Future<bool> _isEmailInUse(String email) async {
     TextEditingController controller, String labelText, String errorMessage,
     [TextInputType? keyboardType, bool obscureText = false]
   ) {
+    if (labelText == 'Password') {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: labelText,
+            border: OutlineInputBorder(),
+            // Add suffix icon inside the password field
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+            ),
+          ),
+          keyboardType: keyboardType,
+          obscureText: !_isPasswordVisible, // Toggle visibility based on state
+          validator: (value) => value?.isEmpty ?? true ? errorMessage : null,
+        ),
+      );
+    }
     return Column(
       children: [
         TextFormField(
@@ -458,49 +520,70 @@ Future<bool> _isEmailInUse(String email) async {
   }
 
   Widget _buildSuggestionField(
-      TextEditingController controller,
-      String labelText,
-      List<String> suggestions,
-      bool isSubjectSelected,
-      Function(String) onSuggestionTap) {
-    return Column(
-      children: [
-        TextFormField(
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: labelText,
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) {
-            setState(() {
-              // Reset selection flag only when editing
-              isSubjectSelected = false;
-            });
-          },
-        ),
-        // Show suggestions only if the controller text is not empty and no suggestion has been selected
-        if (controller.text.isNotEmpty && !isSubjectSelected)
-          Container(
-            height: 150,
-            child: ListView(
-              children: _filterSuggestions(controller.text, suggestions)
-                  .map((suggestion) {
-                return ListTile(
-                  title: Text(suggestion),
-                  onTap: () {
-                    onSuggestionTap(
-                        suggestion); // Trigger the callback for subject selection
-                    setState(() {
-                      isSubjectSelected =
-                          true; // Mark as selected after tapping
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-        SizedBox(height: 8),
-      ],
-    );
+    TextEditingController controller,
+    String labelText,
+    List<String> suggestions,
+    bool isSubjectSelected,
+    Function(String) onSuggestionTap) {
+  bool isValid = true;
+  if (labelText == 'Subject Name') {
+    isValid = _subjectNameController.text.isEmpty || 
+              _subjectPairs.containsKey(_subjectNameController.text);
+  } else if (labelText == 'Subject Code') {
+    isValid = _subjectCodeController.text.isEmpty || 
+              _subjectPairs.values.contains(_subjectCodeController.text);
   }
+
+  // Add state variable to track focus
+  final focusNode = FocusNode();
+  bool showSuggestions = false;
+
+  return StatefulBuilder(
+    builder: (context, setState) {
+      return Column(
+        children: [
+          TextFormField(
+            controller: controller,
+            focusNode: focusNode,
+            decoration: InputDecoration(
+              labelText: labelText,
+              border: OutlineInputBorder(),
+              errorText: !isValid ? 'Invalid $labelText' : null,
+            ),
+            onChanged: (value) {
+              setState(() {
+                isSubjectSelected = false;
+                showSuggestions = true;
+              });
+            },
+            onTap: () {
+              setState(() {
+                showSuggestions = true;
+              });
+            },
+          ),
+          if (showSuggestions) // Changed condition to use showSuggestions
+            Container(
+              height: 150,
+              child: ListView(
+                children: _filterSuggestions(controller.text, suggestions)
+                    .map((suggestion) {
+                  return ListTile(
+                    title: Text(suggestion),
+                    onTap: () {
+                      onSuggestionTap(suggestion);
+                      setState(() {
+                        showSuggestions = false;
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+          SizedBox(height: 8),
+        ],
+      );
+    }
+  );
+}
 }

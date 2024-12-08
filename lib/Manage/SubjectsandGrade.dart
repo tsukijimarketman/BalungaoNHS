@@ -294,7 +294,7 @@ Future<void> _fetchUserData() async {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '$_accountType',
+                          'TEACHER',
                           style: TextStyle(
                             color: Colors.black, // Black color for the text
                             fontSize: 16, // Smaller font size for the label
