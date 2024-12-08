@@ -2142,7 +2142,7 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
   // Save and share the file
   final pdfBytes = await pdf.save();
 
-  await Printing.sharePdf(bytes: pdfBytes, filename: 'filtered_students_report.pdf');
+  await Printing.sharePdf(bytes: pdfBytes, filename: 'students_report.pdf');
 }
 
 
