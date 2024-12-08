@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -162,12 +163,41 @@ Future<bool> _isEmailInUse(String email) async {
           _adviserStatus == 'yes' ? _selectedSection ?? 'N/A' : 'N/A';
 
       try {
-        UserCredential userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email,
+      // Get the current Firebase options
+      final options = Firebase.app().options;
+      
+      // Create a unique name for the temporary app
+      final tempAppName = 'tempApp-${DateTime.now().millisecondsSinceEpoch}';
+
+      // Initialize the temporary app with explicit options
+      final tempApp = await Firebase.initializeApp(
+        name: tempAppName,
+        options: FirebaseOptions(
+          apiKey: options.apiKey,
+          appId: options.appId,
+          messagingSenderId: options.messagingSenderId,
+          projectId: options.projectId,
+          authDomain: options.authDomain,
+          storageBucket: options.storageBucket,
+        ),
+      );
+
+      try {
+        // Create auth instance from temporary app
+        final tempAuth = FirebaseAuth.instanceFor(app: tempApp);
+        
+        // Create instructor account
+        final userCredential = await tempAuth.createUserWithEmailAndPassword(
+          email: email.trim(),
           password: password,
         );
-        String uid = userCredential.user?.uid ?? '';
+
+        final uid = userCredential.user?.uid;
+        if (uid == null) {
+          throw Exception('Failed to create user: No UID generated');
+        }
+
+        // Add instructor data to Firestore
         await FirebaseFirestore.instance.collection('users').doc(uid).set({
           'first_name': firstName,
           'middle_name': middleName,
@@ -182,15 +212,30 @@ Future<bool> _isEmailInUse(String email) async {
           'uid': uid,
         });
 
+        // Clean up - sign out from temporary auth
+        await tempAuth.signOut();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Instructor account added successfully!')),
         );
         widget.closeAddInstructors();
-      } catch (e) {
-              print('Error adding instructor: $e');
+        
+      } finally {
+        // Ensure temporary app is deleted
+        try {
+          await tempApp.delete();
+        } catch (deleteError) {
+          print('Error deleting temporary app: $deleteError');
+        }
       }
+    } catch (e) {
+      print('Error adding instructor: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create instructor account: ${e.toString()}')),
+      );
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -314,9 +359,6 @@ Future<bool> _isEmailInUse(String email) async {
                                     _selectedSection = value;
                                   });
                                 },
-                                validator: (value) => value == null
-                                    ? 'Please select a section'
-                                    : null,
                               ),
                             SizedBox(height: 8),
                             TextFormField(

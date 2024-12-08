@@ -420,108 +420,113 @@ Future<void> _fetchUserData() async {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      Table(
-                        border: TableBorder.all(),
-                        children: [
-                          // Header Row
-                          TableRow(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[
-                                  300], // Light gray background for header
-                            ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          child: Table(
+                            border: TableBorder.all(),
                             children: [
-                              TableCell(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Subject Code', // Header for Subject Code
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                              // Header Row
+                              TableRow(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[
+                                      300], // Light gray background for header
+                                ),
+                                children: [
+                                  TableCell(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Subject Code', // Header for Subject Code
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              TableCell(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Subject Name', // Header for Subject Name
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                  TableCell(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Subject Name', // Header for Subject Name
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              TableCell(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Grade', // Header for Grade
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                  TableCell(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Grade', // Header for Grade
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
-
-                          // Data Rows
-                          ...List.generate(subjects.length, (index) {
-                            return TableRow(
-                              children: [
-                                TableCell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(subjects[index]
-                                            ['subject_code'] ??
-                                        'No Code'), // Display subject code
-                                  ),
-                                ),
-                                TableCell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(subjects[index]
-                                            ['subject_name'] ??
-                                        'No Subject'), // Display subject name
-                                  ),
-                                ),
-                                TableCell(
-                                  child: isEditing[index]
-                                      ? CupertinoTextField(
-                                        keyboardType: TextInputType.number,
-                                          placeholder: subjects[index]
-                                                  ['grade'] ??
-                                              'Enter Grade',
-                                          onChanged: (value) {
-                                            setState(() {
-                                              subjects[index]['grade'] =
-                                                  value; // Update grade in subjects list
-                                            });
-                                          },
-                                        )
-                                      : GestureDetector(
-                                          onTap: () => toggleEdit(index),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              subjects[index]['grade'] ??
-                                                  'No Grade',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.black87,
+                          
+                              // Data Rows
+                              ...List.generate(subjects.length, (index) {
+                                return TableRow(
+                                  children: [
+                                    TableCell(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(subjects[index]
+                                                ['subject_code'] ??
+                                            'No Code'), // Display subject code
+                                      ),
+                                    ),
+                                    TableCell(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(subjects[index]
+                                                ['subject_name'] ??
+                                            'No Subject'), // Display subject name
+                                      ),
+                                    ),
+                                    TableCell(
+                                      child: isEditing[index]
+                                          ? CupertinoTextField(
+                                            keyboardType: TextInputType.number,
+                                              placeholder: subjects[index]
+                                                      ['grade'] ??
+                                                  'Enter Grade',
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  subjects[index]['grade'] =
+                                                      value; // Update grade in subjects list
+                                                });
+                                              },
+                                            )
+                                          : GestureDetector(
+                                              onTap: () => toggleEdit(index),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  subjects[index]['grade'] ??
+                                                      'No Grade',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                ),
-                              ],
-                            );
-                          }),
-                        ],
+                                    ),
+                                  ],
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
                       ),
                       SizedBox(height: 16),
                       Row(
