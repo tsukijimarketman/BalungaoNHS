@@ -304,6 +304,8 @@ class _StudentDetailsState extends State<StudentDetails> {
                               _buildEditableRow(Icons.location_city,
                                   'JHS Address:', _jhsAddressController,
                                   isCapitalized: true),
+                              _buildDetailRow(Icons.phone, 'Guardian Contact Number:',
+                                  widget.studentData['cellphone_number'] ?? ''),
                               _buildDetailRow(Icons.tag, 'Student Number:',
                                   widget.studentData['student_id'] ?? ''),
                               _buildDetailRow(Icons.email, 'Email Address:',

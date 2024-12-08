@@ -76,14 +76,28 @@ class _SignInDesktopState extends State<SignInDesktop> {
 
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
+    double cardWidth = screenWidth * 0.4;  // 40% of screen width
+  double cardHeight = screenHeight * 0.85; // 85% of screen height
+  double inputWidth = cardWidth * 0.85;    // 85% of card width
+  
+
     return Stack(
       children: [
       Center(
         child: Container(
-          width: screenWidth / 2,
-          height: screenHeight / 1.2,
+          width: cardWidth,
+          height: cardHeight,
+          constraints: BoxConstraints(
+            minWidth: 400,  // Minimum width for very small screens
+            maxWidth: 800,  // Maximum width for very large screens
+            minHeight: 600, // Minimum height
+            maxHeight: 900, // Maximum height
+          ),
           child: Card(
                       child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+
                         children: [
                           Container(
                             alignment: Alignment.topRight,
@@ -91,38 +105,40 @@ class _SignInDesktopState extends State<SignInDesktop> {
                                 onPressed: widget.closeSignInCardCallback,
                                 icon: Icon(Icons.close_outlined)),
                           ),
+                          Flexible(
+                  flex: 2,
+                  child: Image.asset(
+                    'assets/PBMA.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                
+                SizedBox(height: cardHeight * 0.02),
+                      // ... existing code ...
+
+// Welcome text
+Padding(
+  padding: EdgeInsets.symmetric(
+    horizontal: cardWidth * 0.075, // Reduced from 0.1 to 0.075 for better scaling
+  ),
+  child: Container(
+    width: inputWidth,
+    child: Text(
+      'Welcome Back!',
+      style: TextStyle(
+        fontSize: cardWidth * 0.045, // Slightly reduced for better proportion
+        fontWeight: FontWeight.bold,
+      ),
+      textAlign: TextAlign.left,
+    ),
+  ),
+),
+
+// ... rest of the code ...
+                SizedBox(height: cardHeight * 0.02),
                           Container(
-                            alignment: Alignment.topLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 80),
-                              child: Image.asset(
-                                'assets/PBMA.png',
-                                width: screenWidth / 7,
-                                height: screenHeight / 3,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            alignment: Alignment.topLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 80.0),
-                              child: Text(
-                                'Welcome Back!',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            height: screenHeight / 13,
-                            width: screenWidth / 2.57,
+                            width: inputWidth,
+                  height: cardHeight * 0.08,
                             child: CupertinoTextField(
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8.0),
@@ -135,12 +151,10 @@ class _SignInDesktopState extends State<SignInDesktop> {
                               placeholder: 'Email',
                             ),
                           ),
-                          SizedBox(
-                            height: 10,
-                          ),
+                                SizedBox(height: cardHeight * 0.02),
                           Container(
-                            height: screenHeight / 13,
-                            width: screenWidth / 2.57,
+                             width: inputWidth,
+                  height: cardHeight * 0.08,
                             child: CupertinoTextField(
                               controller: _passwordController,
                               placeholder: 'Password',
@@ -171,41 +185,47 @@ class _SignInDesktopState extends State<SignInDesktop> {
                               ),
                             ),
                           ),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: screenWidth / 20,
-                              ),
-                              Checkbox(
-                                activeColor: Colors.blueAccent,
-                                checkColor: Colors.white,
-                                value: _rememberMe,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _rememberMe = value ?? false;
-                                  });
-                                },
-                              ),
-                              Container(
-                                width: screenWidth / 10,
-                                child: Text('Remember Me'),
-                              ),
-                              SizedBox(
-                                width: screenWidth / 5.5,
-                              ),
-                              Container(
-                                  width: screenWidth / 10,
-                                  child: TextButton(
-                                      onPressed: toggleForgotPass,
-                                      child: Text('Forgot Password?'))),
-                            ],
+                           Container(
+                  width: inputWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _rememberMe,
+                            onChanged: (value) {
+                              setState(() {
+                                _rememberMe = value ?? false;
+                              });
+                            },
                           ),
-                          SizedBox(
-                            height: 10,
+                          Text(
+                            'Remember Me',
+                            style: TextStyle(
+                              fontSize: cardWidth * 0.03,
+                            ),
                           ),
+                        ],
+                      ),
+                      TextButton(
+                        onPressed: toggleForgotPass,
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            fontSize: cardWidth * 0.03,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: cardHeight * 0.02),
+
                           Container(
-                            height: screenHeight / 20,
-                            width: screenWidth / 2.57,
+                            width: inputWidth,
+                  height: cardHeight * 0.06,
                             child: ElevatedButton(
                                 style: ButtonStyle(
                                   backgroundColor:
@@ -226,12 +246,15 @@ class _SignInDesktopState extends State<SignInDesktop> {
                                 child: Text(
                                   'Sign In',
                                   style: TextStyle(
-                                      fontSize: 20,
+                        fontSize: cardWidth * 0.04,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white),
                                 )),
                           ),
+                                          SizedBox(height: cardHeight * 0.02),
+
                         ],
+                        
                       ),
                     ),
         ),

@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class EnrollmentStatusWidget extends StatelessWidget {
   final String? enrollmentStatus;
@@ -12,9 +14,11 @@ class EnrollmentStatusWidget extends StatelessWidget {
   final List<Map<String, dynamic>> subjects;
   final bool isFinalized;
   final String? selectedSection;
+  final VoidCallback? FinalizedData;
   final Function(String?)? onSectionChanged;
   final VoidCallback? onLoadSubjects;
   final VoidCallback? onFinalize;
+  final VoidCallback? checkEnrollmentStatus; // Add this line
 
   const EnrollmentStatusWidget({
     Key? key,
@@ -32,6 +36,8 @@ class EnrollmentStatusWidget extends StatelessWidget {
     this.onSectionChanged,
     this.onLoadSubjects,
     this.onFinalize,
+    this.checkEnrollmentStatus, // Add this line
+    this.FinalizedData,
   }) : super(key: key);
 
   @override
@@ -44,7 +50,9 @@ class EnrollmentStatusWidget extends StatelessWidget {
 
     // Define styles and dimensions based on device type
     final double padding = isMobile ? 10 : (isTablet ? 20 : 30);
-    final double imageSize = isMobile ? screenWidth / 3 : (isTablet ? screenWidth / 4 : screenWidth / 5);
+    final double imageSize = isMobile
+        ? screenWidth / 3
+        : (isTablet ? screenWidth / 4 : screenWidth / 5);
     final double textFontSize = isMobile ? 14 : (isTablet ? 18 : 22);
     final double titleFontSize = isMobile ? 20 : (isTablet ? 20 : 24);
 
@@ -56,7 +64,8 @@ class EnrollmentStatusWidget extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(padding),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align content to the left
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // Align content to the left
               children: [
                 // Title Text
                 Text(
@@ -73,10 +82,162 @@ class EnrollmentStatusWidget extends StatelessWidget {
                 else if (enrollmentStatus == 'reEnrollSubmitted')
                   _buildReEnrollSubmittedContent(imageSize, textFontSize)
                 else if (enrollmentStatus == 'approved')
-                  _buildApprovedContent(context, textFontSize),
+                  if (isFinalized)
+                    _buildFinalizedContent(context, textFontSize)
+                  else
+                    _buildApprovedContent(context, textFontSize),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFinalizedContent(BuildContext context, double textFontSize) {
+    return Column(
+      children: [
+        StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .where('student_id', isEqualTo: studentId)
+              .limit(1)
+              .snapshots()
+              .asyncMap((snapshot) async {
+            if (snapshot.docs.isNotEmpty) {
+              String docId = snapshot.docs.first.id;
+              return await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(docId)
+                  .collection('sections')
+                  .doc(docId)
+                  .get();
+            }
+            throw Exception('User not found');
+          }),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              final data = snapshot.data!.data() as Map<String, dynamic>?;
+
+              if (data != null && data['finalizationTimestamp'] != null) {
+                final Timestamp timestamp =
+                    data['finalizationTimestamp'] as Timestamp;
+                final DateTime dateTime = timestamp.toDate();
+                final String formattedDate =
+                    DateFormat('MMMM dd, yyyy hh:mm a').format(dateTime);
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(8.0),
+                  margin: const EdgeInsets.only(bottom: 16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Finalized on: $formattedDate',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+            }
+            return const SizedBox(); // Return empty widget if no data
+          },
+        ),
+
+        _buildStudentDataRow('Student ID no:', studentId, textFontSize),
+        _buildStudentDataRow('Student Full Name:', fullName, textFontSize),
+        _buildStudentDataRow('Strand:', strand, textFontSize),
+        _buildStudentDataRow('Track:', track, textFontSize),
+        _buildStudentDataRow('Grade Level:', gradeLevel, textFontSize),
+        _buildStudentDataRow('Semester:', semester, textFontSize),
+
+        // Show selected section as text
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Container(
+            width: 300,
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              'Section: ${selectedSection}',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: textFontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+
+        // Show finalized subjects table
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Table(
+            border: TableBorder.all(color: Colors.white.withOpacity(0.3)),
+            columnWidths: const {
+              0: FlexColumnWidth(2),
+              1: FlexColumnWidth(4),
+              2: FlexColumnWidth(2),
+            },
+            children: [
+              TableRow(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                ),
+                children: [
+                  _buildHeaderCell('Subject Code'),
+                  _buildHeaderCell('Subject Name'),
+                  _buildHeaderCell('Category'),
+                ],
+              ),
+              ...subjects
+                  .map((subject) => TableRow(
+                        children: [
+                          _buildCell(subject['subject_code'] ?? ''),
+                          _buildCell(subject['subject_name'] ?? ''),
+                          _buildCell(subject['category'] ?? ''),
+                        ],
+                      ))
+                  .toList(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String text) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCell(String text) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
         ),
       ),
     );
@@ -100,7 +261,9 @@ class EnrollmentStatusWidget extends StatelessWidget {
             style: TextStyle(fontSize: textFontSize, color: Colors.white),
             children: const [
               TextSpan(text: 'Your enrollment is '),
-              TextSpan(text: 'currently under review', style: TextStyle(color: Colors.yellow)),
+              TextSpan(
+                  text: 'currently under review',
+                  style: TextStyle(color: Colors.yellow)),
               TextSpan(
                 text:
                     '. Please be patient as the admin processes your application.\n If you have any questions or need further assistance, feel free to reach out to the admin office.\n Thank you for your understanding!',
@@ -128,8 +291,13 @@ class EnrollmentStatusWidget extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onLoadSubjects,
               style: ElevatedButton.styleFrom(
-                foregroundColor: const Color.fromARGB(255, 1, 93, 168),
+                foregroundColor: Color.fromARGB(255, 1, 93, 168),
                 backgroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                minimumSize: Size(80, 20),
               ),
               child: const Text('Load Section'),
             ),
@@ -141,7 +309,8 @@ class EnrollmentStatusWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStudentDataRow(String label, String? value, double textFontSize) {
+  Widget _buildStudentDataRow(
+      String label, String? value, double textFontSize) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -234,15 +403,18 @@ class EnrollmentStatusWidget extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(subject['subject_code'], style: const TextStyle(color: Colors.white)),
+          child: Text(subject['subject_code'],
+              style: const TextStyle(color: Colors.white)),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(subject['subject_name'], style: const TextStyle(color: Colors.white)),
+          child: Text(subject['subject_name'],
+              style: const TextStyle(color: Colors.white)),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(subject['category'] ?? 'N/A', style: const TextStyle(color: Colors.white)),
+          child: Text(subject['category'] ?? 'N/A',
+              style: const TextStyle(color: Colors.white)),
         ),
       ],
     );
@@ -253,7 +425,8 @@ class EnrollmentStatusWidget extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.all(8.0),
-          child: Text('No subjects available', style: TextStyle(color: Colors.red, fontStyle: FontStyle.italic)),
+          child: Text('No subjects available',
+              style: TextStyle(color: Colors.red, fontStyle: FontStyle.italic)),
         ),
         SizedBox(),
         SizedBox(),
@@ -265,8 +438,13 @@ class EnrollmentStatusWidget extends StatelessWidget {
     return ElevatedButton(
       onPressed: isFinalized ? null : onFinalize,
       style: ElevatedButton.styleFrom(
-        foregroundColor: const Color.fromARGB(255, 1, 93, 168),
+        foregroundColor: Color.fromARGB(255, 1, 93, 168),
         backgroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        minimumSize: Size(80, 20),
       ),
       child: const Text('Finalize'),
     );

@@ -16,10 +16,12 @@ class ParentInformationState extends State<ParentInformation> with AutomaticKeep
   final FocusNode mothersNameFocusNode = FocusNode();
   final FocusNode guardianNameFocusNode = FocusNode();
   final FocusNode guardianFocusNode = FocusNode();
+  final FocusNode phoneNumberFocusNode = FocusNode();
 
   final TextEditingController _fathersName = TextEditingController();
   final TextEditingController _mothersName = TextEditingController();
   final TextEditingController _guardianName = TextEditingController();
+  final TextEditingController _phoneNumber = TextEditingController();
   final TextEditingController _relationshipGuardian = TextEditingController();
   
   void resetForm() {
@@ -27,6 +29,7 @@ class ParentInformationState extends State<ParentInformation> with AutomaticKeep
     _mothersName.clear();
     _guardianName.clear();
     _relationshipGuardian.clear();
+    _phoneNumber.clear();
   }
 
   @override
@@ -36,11 +39,13 @@ class ParentInformationState extends State<ParentInformation> with AutomaticKeep
     _mothersName.addListener(_notifyParent);
     _guardianName.addListener(_notifyParent);
     _relationshipGuardian.addListener(_notifyParent);
+    _phoneNumber.addListener(_notifyParent);
 
     fathersNameFocusNode.addListener(_onFocusChange);
     mothersNameFocusNode.addListener(_onFocusChange);
     guardianNameFocusNode.addListener(_onFocusChange);
     guardianFocusNode.addListener(_onFocusChange);
+    phoneNumberFocusNode.addListener(_onFocusChange);
   }
 
   @override
@@ -53,6 +58,8 @@ class ParentInformationState extends State<ParentInformation> with AutomaticKeep
         guardianNameFocusNode.dispose();
         _relationshipGuardian.dispose();
         guardianFocusNode.dispose();
+        _phoneNumber.dispose();
+        phoneNumberFocusNode.dispose();
         super.dispose();
     }
 
@@ -73,6 +80,7 @@ class ParentInformationState extends State<ParentInformation> with AutomaticKeep
       'mothersName': _mothersName.text,
       'guardianName': _guardianName.text,
       'relationshipGuardian': _relationshipGuardian.text,
+      'cellphone_number': _phoneNumber.text
     };
   }
 
@@ -363,7 +371,72 @@ class ParentInformationState extends State<ParentInformation> with AutomaticKeep
             ],
           ),
         ),
+              Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Flexible(
+                child: Container(
+                  width: 300,
+                  child: TextFormField(
+                    controller: _phoneNumber,
+                    focusNode: phoneNumberFocusNode,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      hintText: '09********',
+                      labelText: null,
+                      label: RichText(text: TextSpan(
+                        text: 'Guardian Phone Number',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 101, 100, 100),
+                          fontSize: 16,
+                        ),
+                        children: [
+                          if (phoneNumberFocusNode.hasFocus || _phoneNumber.text.isNotEmpty)
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,                             ),
+                            ),
+                        ],
+                      ),
+                    ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your phone number';
+                      }
+                      // Ensure the number starts with '09' and has exactly 11 digits
+                      if (!RegExp(r'^(09\d{9})$').hasMatch(value)) {
+                        return 'Enter a valid phone number starting with 09 (e.g., 09xxxxxxxxx)';
+                      }
+                      return null;
+                    },
+                    onChanged: (text) {
+                      setState(() {});
+                    },
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, 
+                    LengthLimitingTextInputFormatter(11), ],
+                  ),
+                ),
+              ),
       ],
+          )
+              )
+      ]
     );
   }
 }
