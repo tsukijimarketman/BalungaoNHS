@@ -62,109 +62,108 @@ class _ForgotPassDesktopviewState extends State<ForgotPassDesktopview> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
+        double cardWidth = screenWidth * 0.4;  // 40% of screen width
+  double cardHeight = screenHeight * 0.85; // 85% of screen height
+  double inputWidth = cardWidth * 0.85;    // 85% of card width
+  
     return Center(
-      child: Container(
-        width: screenWidth / 2,
-        height: screenHeight / 1.2,
-        decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
-      ),
-        child: Column(
-                    children: [
-                      Container(
-                        alignment: Alignment.topRight,
-                        child: IconButton(onPressed: widget.closeforgotpassCallback, 
-                        icon: Icon(Icons.close_outlined)),
-                      ),
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 80),
-                          child: Image.asset(
-                            'assets/PBMA.png',
-                            width: screenWidth / 7,
-                            height: screenHeight / 3,
-                          ),
+       child: Container(
+        width: cardWidth,
+        height: cardHeight,
+        constraints: BoxConstraints(
+          minWidth: 400,
+          maxWidth: 800,
+          minHeight: 600,
+          maxHeight: 900,
+        ),
+        child: Card(
+          child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.topRight,
+                          child: IconButton(onPressed: widget.closeforgotpassCallback, 
+                          icon: Icon(Icons.close_outlined)),
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 80.0),
-                          child: Text(
-                            'Password Recovery',
-                            style: TextStyle(
-                              fontSize: 24,
+                        Flexible(
+                flex: 2,
+                child: Image.asset(
+                  'assets/PBMA.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+
+              SizedBox(height: cardHeight * 0.02),
+                          Container(
+                width: inputWidth,
+                padding: EdgeInsets.symmetric(horizontal: cardWidth * 0.075),
+                child: Text(
+                  'Password Recovery',
+                  style: TextStyle(
+                    fontSize: cardWidth * 0.045,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: cardHeight * 0.02),
+                         Container(
+                width: inputWidth,
+                padding: EdgeInsets.symmetric(horizontal: cardWidth * 0.075),
+                child: Text(
+                  'Please enter the Email Address you provided on the Enrollment Form',
+                  style: TextStyle(
+                    fontSize: cardWidth * 0.03,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: cardHeight * 0.04),
+                        Container(
+                         width: inputWidth,
+                height: cardHeight * 0.08,
+                          child: CupertinoTextField(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                color: Colors.grey.shade300),
+                            controller: _emailController,
+                            prefix: Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: Icon(Icons.email_outlined),
                             ),
+                            placeholder: 'Email',
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                       Container(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 80.0),
-                          child: Text(
-                            'Please the Email Address you Provided on Enrollment Form',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        height: screenHeight / 13,
-                        width: screenWidth / 2.57,
-                        child: CupertinoTextField(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.0),
-                              color: Colors.grey.shade300),
-                          controller: _emailController,
-                          prefix: Padding(
-                            padding: const EdgeInsets.only(left: 10.0),
-                            child: Icon(Icons.email_outlined),
-                          ),
-                          placeholder: 'Email',
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        height: screenHeight / 20,
-                        width: screenWidth / 2.57,
-                        child: ElevatedButton(
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.deepPurpleAccent),
-                              elevation: MaterialStateProperty.all<double>(5),
-                              shape: MaterialStateProperty.all<OutlinedBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                      
+              SizedBox(height: cardHeight * 0.04),
+                        Container(
+                           width: inputWidth,
+                height: cardHeight * 0.06,
+                          child: ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(
+                                    Colors.deepPurpleAccent),
+                                elevation: MaterialStateProperty.all<double>(5),
+                                shape: MaterialStateProperty.all<OutlinedBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                               ),
-                            ),
-                            onPressed: passwordReset,
-                            child: Text(
-                              'Reset Password',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            )),
-                      ),
-                      
-                    ],
-                  ),
+                              onPressed: passwordReset,
+                              child: Text(
+                                'Reset Password',
+                                style: TextStyle(
+                      fontSize: cardWidth * 0.04,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              )),
+                        ),
+                                                                  SizedBox(height: cardHeight * 0.02),
+
+                      ],
+                    ),
+        ),
       ),
     );
   }

@@ -77,21 +77,34 @@ class _SignInMobileState extends State<SignInMobile> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    // Calculate responsive dimensions
-    double cardWidth = screenWidth < 600 
-        ? screenWidth * 0.9  // 90% of screen width for mobile
-        : screenWidth * 0.7; // 70% of screen width for larger devices
-    
-    double cardHeight = screenHeight < 800 
-        ? screenHeight * 0.8  // 80% of screen height for shorter screens
-        : screenHeight * 0.7; // 70% of screen height for taller screens
-    
-    double logoSize = screenWidth < 600 
-        ? screenWidth * 0.3   // Smaller logo for mobile
-        : screenWidth * 0.2;  // Larger logo for desktop
-    
-    double inputFieldHeight = screenHeight * 0.06; // 6% of screen height
-    double inputFieldWidth = cardWidth * 0.85;     // 85% of card width
+    // More refined responsive calculations
+  double cardWidth = screenWidth < 600 
+      ? screenWidth * 0.95  // Mobile
+      : screenWidth < 900   
+          ? screenWidth * 0.8  // Tablet
+          : screenWidth * 0.6; // Desktop
+  
+  double cardHeight = screenHeight < 800 
+      ? screenHeight * 0.85  // Shorter screens
+      : screenHeight * 0.75; // Taller screens
+  
+  // Adjusted logo size with maximum constraints
+  double logoSize = screenWidth < 600 
+      ? screenWidth * 0.25  // Mobile
+      : screenWidth < 900   
+          ? screenWidth * 0.15  // Tablet
+          : screenWidth * 0.12;  // Desktop
+  
+  // Add maximum size constraint for logo
+  logoSize = logoSize.clamp(50.0, 120.0); // Prevents logo from getting too large
+  
+  // Adjusted input field dimensions
+  double inputFieldHeight = (screenHeight * 0.06).clamp(45.0, 60.0); // Min 45px, Max 60px
+  double inputFieldWidth = cardWidth * 0.9;  // Slightly wider fields
+
+  // Adjusted font sizes
+  double titleFontSize = (screenWidth * 0.035).clamp(16.0, 24.0);
+  double buttonFontSize = (screenWidth * 0.025).clamp(14.0, 18.0);
 
 
     return Stack(
@@ -100,6 +113,10 @@ class _SignInMobileState extends State<SignInMobile> {
           child: Container(
             width: cardWidth,
             height: cardHeight,
+            constraints: BoxConstraints(
+            maxWidth: 800, // Maximum card width
+            maxHeight: 900, // Maximum card height
+          ),
             child: Card(
               child: SingleChildScrollView(
                 physics: BouncingScrollPhysics(),
@@ -132,7 +149,7 @@ class _SignInMobileState extends State<SignInMobile> {
                         child: Text(
                           'Welcome Back!',
                           style: TextStyle(
-                            fontSize: screenWidth * 0.035,
+                fontSize: titleFontSize,
                           ),
                         ),
                       ),
@@ -233,7 +250,7 @@ class _SignInMobileState extends State<SignInMobile> {
                             child: Text(
                               'Sign In',
                               style: TextStyle(
-                                  fontSize: 14,
+                fontSize: buttonFontSize,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white),
                             )),
@@ -252,12 +269,12 @@ class _SignInMobileState extends State<SignInMobile> {
             child: AnimatedSwitcher(
               duration: Duration(milliseconds: 550),
               child: _showForgotPass
-                  ? ForgotPassDesktopview(
+                  ? ForgotPassMobileview(
                       key: ValueKey('forgotPassView'),
                       closeforgotpassCallback: toggleForgotPass,
                     )
                   : _showChangePassword
-                      ? ChangePasswordDesktop(
+                      ? ChangePasswordMobile(
                           key: ValueKey('changePasswordScreen'),
                           email: _emailController.text.trim(),
                         )
@@ -381,11 +398,6 @@ class _SignInMobileState extends State<SignInMobile> {
                   MaterialPageRoute(builder: (context) => StudentUI()),
                 );
               }
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => StudentUI()),
-              );
             }
           } else {
             _showDialog('Login Failed', 'Account type is not recognized.');

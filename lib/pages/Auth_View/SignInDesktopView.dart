@@ -392,11 +392,6 @@ Padding(
               MaterialPageRoute(builder: (context) => StudentUI()),
             );
           }
-          } else{
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => StudentUI()),
-            );
           }
         } else {
           _showDialog('Login Failed', 'Account type is not recognized.');
