@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -78,7 +79,21 @@ class EnrollmentStatusWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 20), // Add spacing below the title
                 if (enrollmentStatus == null)
-                  const CircularProgressIndicator()
+                   Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        )
                 else if (enrollmentStatus == 'reEnrollSubmitted')
                   _buildReEnrollSubmittedContent(imageSize, textFontSize)
                 else if (enrollmentStatus == 'approved')

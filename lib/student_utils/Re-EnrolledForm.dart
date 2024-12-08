@@ -20,7 +20,13 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
   Future<void> _updateEnrollment() async {
     if (_gradeLevels.text.isEmpty || _selectedsemesters.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill in all fields')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Please fill in all fields'),
+          ],
+        )),
       );
       // Sign out the user if they try to submit without filling all fields
       await FirebaseAuth.instance.signOut();
@@ -63,7 +69,13 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
 
     // Show a success message
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Enrollment updated successfully!')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Enrollment updated successfully!'),
+        ],
+      )),
     );
 
     Navigator.pushReplacement(
@@ -73,7 +85,13 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
   } catch (e) {
     // Handle any errors
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to update enrollment: $e')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to update enrollment: $e'),
+        ],
+      )),
     );
   }
 }

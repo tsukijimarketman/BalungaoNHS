@@ -310,7 +310,13 @@ Future<void> _openFile(String url) async {
 
 void _showUnsupportedFileType() {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('Unsupported file type')),
+    SnackBar(content: Row(
+      children: [
+        Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+        Text('Unsupported file type'),
+      ],
+    )),
   );
 }
 

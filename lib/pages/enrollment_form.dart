@@ -147,7 +147,13 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
             imageUrl = await imageRef.getDownloadURL();
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to Upload Image: $e')),
+              SnackBar(content: Row(
+                children: [
+                  Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                  Text('Failed to Upload Image: $e'),
+                ],
+              )),
             );
             return;
           }
@@ -163,7 +169,13 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
             fileUrls.add(downloadUrl);
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to Upload File ${file.name}: $e')),
+              SnackBar(content: Row(
+                children: [
+                  Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                  Text('Failed to Upload File ${file.name}: $e'),
+                ],
+              )),
             );
           }
         }
@@ -199,7 +211,13 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                   onPressed: () {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Data Saved Successfully')),
+                      SnackBar(content: Row(
+                        children: [
+                          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                          Text('Data Saved Successfully'),
+                        ],
+                      )),
                     );
                     _resetForm();
                   },
@@ -210,7 +228,13 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
         );
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to Save Data: $error')),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Failed to Save Data: $error'),
+            ],
+          )),
         );
       } finally {
         setState(() {

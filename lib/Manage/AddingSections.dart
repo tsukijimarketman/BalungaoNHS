@@ -53,7 +53,13 @@ class _AddingSectionsState extends State<AddingSections> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching instructors: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error fetching instructors: $e'),
+          ],
+        )),
       );
     }
   }
@@ -74,7 +80,13 @@ class _AddingSectionsState extends State<AddingSections> {
     // Basic validation before saving
     if (_selectedAdviser == null || _selectedSemester == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Please fill all fields'),
+          ],
+        )),
       );
       return;
     }
@@ -84,7 +96,13 @@ class _AddingSectionsState extends State<AddingSections> {
       capacity = int.parse(_sectionCapacity.text);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a valid number for capacity')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Please enter a valid number for capacity'),
+          ],
+        )),
       );
       return;
     }
@@ -101,7 +119,13 @@ class _AddingSectionsState extends State<AddingSections> {
 
       // Show a success message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Subject added successfully!')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Subject added successfully!'),
+          ],
+        )),
       );
 
       widget.closeAddSections();
@@ -116,7 +140,13 @@ class _AddingSectionsState extends State<AddingSections> {
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error adding subject: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error adding subject: $e'),
+          ],
+        )),
       );
     }
   }

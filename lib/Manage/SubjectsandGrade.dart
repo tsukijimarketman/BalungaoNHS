@@ -24,6 +24,10 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
   String _lastName = '';
   List<Map<String, dynamic>> subjects = [];
   List<bool> isEditing = [];
+    bool _hovering = false;
+      bool _isLoading = true;
+
+
 
   // Toggle the edit mode of a specific grade
   void toggleEdit(int index) {
@@ -85,21 +89,29 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
       }, SetOptions(merge: true)); // Merge to update existing grades if the document already exists
 
       // Optionally, show a success message
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Grades submitted successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Grades submitted successfully!'),
+        ],
+      )));
     } else {
       print('No section found for section name: $sectionName and adviser: $_firstName $_lastName');
     }
   } catch (e) {
     print('Error submitting grades: $e');
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error submitting grades: $e')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Row(
+      children: [
+        Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+        Text('Error submitting grades: $e'),
+      ],
+    )));
   } finally {
     setState(() {}); // Update the UI if needed
   }
 }
-
-
-
-
 
 
   @override
@@ -148,6 +160,9 @@ Future<void> _fetchUserData() async {
 
   Future<void> _fetchStudentSectionAndSubjects(Map<String, dynamic> userData) async {
   try {
+    setState(() {
+        _isLoading = true; // Set loading to true when fetching starts
+      });
     print('First Name: $_firstName, Last Name: $_lastName');
     String sectionName = userData['section'] ?? '';
     String seniorHighStrand = userData['seniorHigh_Strand'] ?? '';
@@ -226,14 +241,27 @@ Future<void> _fetchUserData() async {
       }
 
       // Initialize editing states
-      isEditing = List<bool>.filled(subjects.length, false);
+            isEditing = List<bool>.filled(subjects.length, false);
 
-      setState(() {});
+      setState(() {
+                _isLoading = false; // Set loading to false when done
+
+      });
     } else {
       print('No section found for section name: $sectionName and adviser: $_firstName $_lastName');
+      setState(() {
+        subjects = [];
+        isEditing = [];
+        _isLoading = false;
+      });
     }
   } catch (e) {
     print('Error fetching student section and subjects: $e');
+    setState(() {
+      _isLoading = false;
+      subjects = []; // Initialize as empty list on error
+      isEditing = []; // Initialize as empty list on error
+    });
   }
 }
 
@@ -317,279 +345,346 @@ Future<void> _fetchUserData() async {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
+      body: Column(
+        children: [
+            // Breadcrumb Container (unchanged)
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Student Details & Grading',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Row(
+                  children: [
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      onEnter: (_) {
+                        setState(() {
+                          _hovering = true;
+                        });
+                      },
+                      onExit: (_) {
+                        setState(() {
+                          _hovering = false;
+                        });
+                      },
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context); // Go back to the previous page (Student List)
+                        },
+                        child: Text(
+                          'Student List',
+                          style: TextStyle(
+                            color: _hovering ? Colors.blue : Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      ' / ',
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      'Student Details & Grading',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '${widget.studentData['accountType']?.toUpperCase()}',
+                                      style: TextStyle(
+                                          fontSize: 24, fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 16),
+                                    GestureDetector(
+                                      onTap: () {},
+                                      child: widget.studentData['image_url'] != null
+                                          ? CircleAvatar(
+                                              radius: 100,
+                                              backgroundImage: NetworkImage(
+                                                  widget.studentData['image_url']),
+                                            )
+                                          : CircleAvatar(
+                                              radius: 100,
+                                              backgroundImage: NetworkImage(
+                                                  'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png'),
+                                            ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    Text(
+                                      '${widget.studentData['first_name']} ${widget.studentData['middle_name']} ${widget.studentData['last_name']} ${widget.studentData['extension_name']}',
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                    Text(widget.studentData['email_Address'] ?? ''),
+                                  ],
+                                ),
+                              ),
                               Text(
-                                '${widget.studentData['accountType']?.toUpperCase()}',
+                                'Student Details',
                                 style: TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(height: 16),
-                              GestureDetector(
-                                onTap: () {},
-                                child: widget.studentData['image_url'] != null
-                                    ? CircleAvatar(
-                                        radius: 100,
-                                        backgroundImage: NetworkImage(
-                                            widget.studentData['image_url']),
-                                      )
-                                    : CircleAvatar(
-                                        radius: 100,
-                                        backgroundImage: NetworkImage(
-                                            'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png'),
-                                      ),
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                '${widget.studentData['first_name']} ${widget.studentData['middle_name']} ${widget.studentData['last_name']} ${widget.studentData['extension_name']}',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              Text(widget.studentData['email_Address'] ?? ''),
+                              _buildDetailRow(Icons.tag, 'Student Number',
+                                  widget.studentData['student_id'] ?? ''),
+                              _buildDetailRow(Icons.email, 'Email Address',
+                                  widget.studentData['email_Address'] ?? ''),
+                              _buildDetailRow(
+                                  Icons.location_on, 'Address', combinedAddress),
+                              _buildDetailRow(Icons.phone, 'Contact Number',
+                                  widget.studentData['phone_number'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Birthday',
+                                  widget.studentData['birthdate'] ?? ''),
+                              _buildDetailRow(
+                                  Icons.cake, 'Age', widget.studentData['age'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Gender',
+                                  widget.studentData['gender'] ?? ''),
+                              _buildDetailRow(Icons.grade, 'Grade',
+                                  widget.studentData['grade_level'] ?? ''),
+                              _buildDetailRow(Icons.track_changes, 'Track',
+                                  widget.studentData['seniorHigh_Track'] ?? ''),
+                              _buildDetailRow(Icons.track_changes, 'Strand',
+                                  widget.studentData['seniorHigh_Strand'] ?? ''),
+                              _buildDetailRow(
+                                  Icons.track_changes,
+                                  'Belonging to Indigenous People (IP) Group',
+                                  widget.studentData['indigenous_group'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Father`s Name',
+                                  widget.studentData['fathersName'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Mother`s Name',
+                                  widget.studentData['mothersName'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Guardian`s Name',
+                                  widget.studentData['guardianName'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Relationship to Guardian',
+                                  widget.studentData['relationshipGuardian'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Junior High School',
+                                  widget.studentData['juniorHS'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Address of JHS',
+                                  widget.studentData['schoolAdd'] ?? ''),
+                              _buildDetailRow(Icons.cake, 'Transferee',
+                                  widget.studentData['transferee'] ?? ''),
                             ],
                           ),
                         ),
-                        Text(
-                          'Student Details',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 16),
-                        _buildDetailRow(Icons.tag, 'Student Number',
-                            widget.studentData['student_id'] ?? ''),
-                        _buildDetailRow(Icons.email, 'Email Address',
-                            widget.studentData['email_Address'] ?? ''),
-                        _buildDetailRow(
-                            Icons.location_on, 'Address', combinedAddress),
-                        _buildDetailRow(Icons.phone, 'Contact Number',
-                            widget.studentData['phone_number'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Birthday',
-                            widget.studentData['birthdate'] ?? ''),
-                        _buildDetailRow(
-                            Icons.cake, 'Age', widget.studentData['age'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Gender',
-                            widget.studentData['gender'] ?? ''),
-                        _buildDetailRow(Icons.grade, 'Grade',
-                            widget.studentData['grade_level'] ?? ''),
-                        _buildDetailRow(Icons.track_changes, 'Track',
-                            widget.studentData['seniorHigh_Track'] ?? ''),
-                        _buildDetailRow(Icons.track_changes, 'Strand',
-                            widget.studentData['seniorHigh_Strand'] ?? ''),
-                        _buildDetailRow(
-                            Icons.track_changes,
-                            'Belonging to Indigenous People (IP) Group',
-                            widget.studentData['indigenous_group'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Father`s Name',
-                            widget.studentData['fathersName'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Mother`s Name',
-                            widget.studentData['mothersName'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Guardian`s Name',
-                            widget.studentData['guardianName'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Relationship to Guardian',
-                            widget.studentData['relationshipGuardian'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Junior High School',
-                            widget.studentData['juniorHS'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Address of JHS',
-                            widget.studentData['schoolAdd'] ?? ''),
-                        _buildDetailRow(Icons.cake, 'Transferee',
-                            widget.studentData['transferee'] ?? ''),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          physics: BouncingScrollPhysics(),
-                          child: Table(
-                            border: TableBorder.all(),
-                            children: [
-                              // Header Row
-                              TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[
-                                      300], // Light gray background for header
-                                ),
-                                children: [
-                                  TableCell(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        'Subject Code', // Header for Subject Code
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  TableCell(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        'Subject Name', // Header for Subject Name
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  TableCell(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        'Grade', // Header for Grade
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                          
-                              // Data Rows
-                              ...List.generate(subjects.length, (index) {
-                                return TableRow(
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                physics: BouncingScrollPhysics(),
+                                child: Table(
+                                  border: TableBorder.all(),
                                   children: [
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(subjects[index]
-                                                ['subject_code'] ??
-                                            'No Code'), // Display subject code
+                                    // Header Row
+                                    TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[
+                                            300], // Light gray background for header
                                       ),
-                                    ),
-                                    TableCell(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(subjects[index]
-                                                ['subject_name'] ??
-                                            'No Subject'), // Display subject name
-                                      ),
-                                    ),
-                                    TableCell(
-                                      child: isEditing[index]
-                                          ? CupertinoTextField(
-                                            keyboardType: TextInputType.number,
-                                              placeholder: subjects[index]
-                                                      ['grade'] ??
-                                                  'Enter Grade',
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  subjects[index]['grade'] =
-                                                      value; // Update grade in subjects list
-                                                });
-                                              },
-                                            )
-                                          : GestureDetector(
-                                              onTap: () => toggleEdit(index),
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(8.0),
-                                                child: Text(
-                                                  subjects[index]['grade'] ??
-                                                      'No Grade',
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.black87,
-                                                  ),
-                                                ),
+                                      children: [
+                                        TableCell(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Subject Code', // Header for Subject Code
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
                                               ),
                                             ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Subject Name', // Header for Subject Name
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Grade', // Header for Grade
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
+                                
+                                    // Data Rows
+                                    ...List.generate(subjects.length, (index) {
+                                      return TableRow(
+                                        children: [
+                                          TableCell(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Text(subjects[index]
+                                                      ['subject_code'] ??
+                                                  'No Code'), // Display subject code
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Text(subjects[index]
+                                                      ['subject_name'] ??
+                                                  'No Subject'), // Display subject name
+                                            ),
+                                          ),
+                                          TableCell(
+                                            child: isEditing[index]
+                                                ? CupertinoTextField(
+                                                  keyboardType: TextInputType.number,
+                                                    placeholder: subjects[index]
+                                                            ['grade'] ??
+                                                        'Enter Grade',
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        subjects[index]['grade'] =
+                                                            value; // Update grade in subjects list
+                                                      });
+                                                    },
+                                                  )
+                                                : GestureDetector(
+                                                    onTap: () => toggleEdit(index),
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(8.0),
+                                                      child: Text(
+                                                        subjects[index]['grade'] ??
+                                                            'No Grade',
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors.black87,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                          ),
+                                        ],
+                                      );
+                                    }),
                                   ],
-                                );
-                              }),
-                            ],
-                          ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: 30,
+                                  width: 150,
+                                  child: ElevatedButton(
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.blue),
+                                        elevation:
+                                            MaterialStateProperty.all<double>(5),
+                                        shape:
+                                            MaterialStateProperty.all<OutlinedBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                      ),
+                                  onPressed: () {
+                                    setState(() {
+                                      // Toggle all fields to edit mode
+                                      for (int i = 0; i < isEditing.length; i++) {
+                                        isEditing[i] = true;
+                                      }
+                                    });
+                                  },
+                                  child: Text('Edit', style: TextStyle(color: Colors.white),),
+                                ),
+                                ),
+                                Container(
+                                  height: 30,
+                                  width: 150,
+                                  child: ElevatedButton(
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.green.shade500),
+                                        elevation:
+                                            MaterialStateProperty.all<double>(5),
+                                        shape:
+                                            MaterialStateProperty.all<OutlinedBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                      ),
+                                  onPressed: submitGrades,
+                                  child: Text('Submit', style: TextStyle(color: Colors.white),),
+                                ),
+                                )
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            height: 30,
-                            width: 150,
-                            child: ElevatedButton(
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.blue),
-                                  elevation:
-                                      MaterialStateProperty.all<double>(5),
-                                  shape:
-                                      MaterialStateProperty.all<OutlinedBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                            onPressed: () {
-                              setState(() {
-                                // Toggle all fields to edit mode
-                                for (int i = 0; i < isEditing.length; i++) {
-                                  isEditing[i] = true;
-                                }
-                              });
-                            },
-                            child: Text('Edit', style: TextStyle(color: Colors.white),),
-                          ),
-                          ),
-                          Container(
-                            height: 30,
-                            width: 150,
-                            child: ElevatedButton(
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.green.shade500),
-                                  elevation:
-                                      MaterialStateProperty.all<double>(5),
-                                  shape:
-                                      MaterialStateProperty.all<OutlinedBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                            onPressed: submitGrades,
-                            child: Text('Submit', style: TextStyle(color: Colors.white),),
-                          ),
-                          )
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

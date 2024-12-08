@@ -92,7 +92,13 @@ class _EditInstructorState extends State<EditInstructor> {
     } catch (e) {
       // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching sections: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error fetching sections: $e'),
+          ],
+        )),
       );
     }
   }
@@ -116,7 +122,13 @@ class _EditInstructorState extends State<EditInstructor> {
     });
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error fetching subjects: $e')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Error fetching subjects: $e'),
+        ],
+      )),
     );
   }
 }
@@ -147,7 +159,13 @@ Future<void> _saveChanges() async {
       _subjectCode.text.isEmpty ||
       _adviserStatus == '--') {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please fill all fields and select adviser status')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Please fill all fields and select adviser status'),
+        ],
+      )),
     );
     return;
   }
@@ -191,13 +209,25 @@ Future<void> _saveChanges() async {
     await batch.commit();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Instructor updated successfully')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Instructor updated successfully'),
+        ],
+      )),
     );
 
     widget.closeEditInstructors();
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to update instructor: $e')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to update instructor: $e'),
+        ],
+      )),
     );
   }
 }

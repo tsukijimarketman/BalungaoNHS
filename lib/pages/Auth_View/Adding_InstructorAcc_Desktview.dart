@@ -68,7 +68,13 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching sections: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error fetching sections: $e'),
+          ],
+        )),
       );
     }
   }
@@ -92,7 +98,13 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
     });
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error fetching subjects: $e')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Error fetching subjects: $e'),
+        ],
+      )),
     );
   }
 }
@@ -169,14 +181,26 @@ Future<bool> _isEmailInUse(String email) async {
     
     if (!_subjectPairs.containsKey(subjectName) || _subjectPairs[subjectName] != subjectCode) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid subject name and code combination. Please select a valid pair.')),
+         SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Invalid subject name and code combination. Please select a valid pair.'),
+          ],
+        )),
       );
       return;
     }
     
       if (_adviserStatus == '--') {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a valid adviser status (Yes or No).')),
+           SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Please select a valid adviser status (Yes or No).'),
+            ],
+          )),
         );
         return;
       }
@@ -250,7 +274,13 @@ Future<bool> _isEmailInUse(String email) async {
 
           // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Instructor account added successfully!')),
+             SnackBar(content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                Text('Instructor account added successfully!'),
+              ],
+            )),
           );
 
           // Close the add instructor dialog
@@ -266,7 +296,13 @@ Future<bool> _isEmailInUse(String email) async {
         
         print('Error adding instructor: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create instructor account: ${e.toString()}')),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Failed to create instructor account: ${e.toString()}'),
+            ],
+          )),
         );
       }
     }

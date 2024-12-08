@@ -60,7 +60,13 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
   Future<void> _updateSubject() async {
     if (_selectedCategory == '--' || _subjectName.text.isEmpty || _subjectCode.text.isEmpty || _selectedCategory == '--' || _selectedSemester == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Please fill all fields'),
+          ],
+        )),
       );
       return;
     }
@@ -76,14 +82,26 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Subject updated successfully!')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Subject updated successfully!'),
+          ],
+        )),
       );
 
       widget.closeEditSubjects();
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating subject: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error updating subject: $e'),
+          ],
+        )),
       );
     }
   }

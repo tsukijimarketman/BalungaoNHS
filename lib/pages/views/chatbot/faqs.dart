@@ -46,7 +46,13 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
 
     if (question.isEmpty || answer.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Both fields are required')),
+         SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Both fields are required'),
+          ],
+        )),
       );
       return;
     }
@@ -67,12 +73,24 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
       _fetchFAQs();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(editingFAQId == null ? 'FAQ created successfully' : 'FAQ updated successfully')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text(editingFAQId == null ? 'FAQ created successfully' : 'FAQ updated successfully'),
+          ],
+        )),
       );
     } catch (e) {
       print('Error saving FAQ: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save FAQ: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to save FAQ: $e'),
+          ],
+        )),
       );
     }
   }
@@ -84,12 +102,24 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
         faqList.removeWhere((faq) => faq['id'] == faqId);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('FAQ deleted successfully')),
+         SnackBar(content: Row(
+           children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+             Text('FAQ deleted successfully'),
+           ],
+         )),
       );
     } catch (e) {
       print('Error deleting FAQ: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete FAQ')),
+         SnackBar(content: Row(
+           children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+             Text('Failed to delete FAQ'),
+           ],
+         )),
       );
     }
   }

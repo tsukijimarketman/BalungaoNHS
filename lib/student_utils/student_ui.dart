@@ -438,7 +438,13 @@ class _ScreensExampleState extends State<_ScreensExample> {
             // Add a ScaffoldMessenger to show the error more prominently
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Passwords do not match'),
+                content: Row(
+                  children: [
+                    Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                    Text('Passwords do not match'),
+                  ],
+                ),
                 backgroundColor: Colors.red,
               ),
             );
@@ -546,7 +552,13 @@ class _ScreensExampleState extends State<_ScreensExample> {
       } catch (e) {
         print("Error updating: $e");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error updating: $e")),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text("Error updating: $e"),
+            ],
+          )),
         );
       }
     }
@@ -812,12 +824,24 @@ Future<void> _fetchSavedSectionData() async {
       } catch (e) {
         print('Error saving and loading subjects: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving and loading subjects: $e')),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Error saving and loading subjects: $e'),
+            ],
+          )),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a section first.')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Please select a section first.'),
+          ],
+        )),
       );
     }
   }
@@ -860,37 +884,73 @@ Future<void> _fetchSavedSectionData() async {
               // No need to increment capacityCount anymore
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Section saved successfully!')),
+                SnackBar(content: Row(
+                  children: [
+                    Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                    Text('Section saved successfully!'),
+                  ],
+                )),
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Section document not found.')),
+                SnackBar(content: Row(
+                  children: [
+                    Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                    Text('Section document not found.'),
+                  ],
+                )),
               );
             }
           } else {
             print('No document found for the current user.');
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('User document not found.')),
+              SnackBar(content: Row(
+                children: [
+                  Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                  Text('User document not found.'),
+                ],
+              )),
             );
           }
         } else {
           print('No user is logged in.');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                    'No user is logged in. Please log in to save the section.')),
+                content: Row(
+                  children: [
+                    Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                    Text(
+                        'No user is logged in. Please log in to save the section.'),
+                  ],
+                )),
           );
         }
       } catch (e) {
         print('Error saving section: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving section: $e')),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Error saving section: $e'),
+            ],
+          )),
         );
       }
     } else {
       // Show an error message if no section is selected
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a section before saving.')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Please select a section before saving.'),
+          ],
+        )),
       );
     }
   }
@@ -936,23 +996,47 @@ Future<void> _fetchSavedSectionData() async {
 
           // Show a success message
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Subjects loaded successfully!')),
+            SnackBar(content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                Text('Subjects loaded successfully!'),
+              ],
+            )),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No matching section found.')),
+            SnackBar(content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                Text('No matching section found.'),
+              ],
+            )),
           );
         }
       } catch (e) {
         print('Error loading subjects: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading subjects: $e')),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Error loading subjects: $e'),
+            ],
+          )),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Please select a section before loading subjects.')),
+            content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                Text('Please select a section before loading subjects.'),
+              ],
+            )),
       );
     }
   }
@@ -988,12 +1072,24 @@ Future<void> _fetchSavedSectionData() async {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: User not found.')),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Error: User not found.'),
+            ],
+          )),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching subjects: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error fetching subjects: $e'),
+          ],
+        )),
       );
     }
   }
@@ -1032,25 +1128,49 @@ Future<void> _fetchSavedSectionData() async {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text('Section and subjects finalized successfully!')),
+                content: Row(
+                  children: [
+                    Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                    Text('Section and subjects finalized successfully!'),
+                  ],
+                )),
           );
 
           // Fetch subjects again to update the table view with the saved data
           _fetchSubjects();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: User not found.')),
+            SnackBar(content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                Text('Error: User not found.'),
+              ],
+            )),
           );
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error finalizing selection: $e')),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Error finalizing selection: $e'),
+            ],
+          )),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Please select a section and load subjects first.')),
+            content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                Text('Please select a section and load subjects first.'),
+              ],
+            )),
       );
     }
   }
@@ -1108,28 +1228,58 @@ Future<void> _fetchSavedSectionData() async {
             if (_sections.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                    content: Text('No sections available for your semester.')),
+                    content: Row(
+                      children: [
+                        Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                        Text('No sections available for your semester.'),
+                      ],
+                    )),
               );
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Strand abbreviation not found.')),
+              SnackBar(content: Row(
+                children: [
+                  Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                  Text('Strand abbreviation not found.'),
+                ],
+              )),
             );
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User document not found.')),
+            SnackBar(content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                Text('User document not found.'),
+              ],
+            )),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No user is logged in.')),
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('No user is logged in.'),
+            ],
+          )),
         );
       }
     } catch (e) {
       print('Error fetching sections: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching sections: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error fetching sections: $e'),
+          ],
+        )),
       );
     }
   }
@@ -1326,9 +1476,27 @@ Future<void> _fetchSavedSectionData() async {
       padding: EdgeInsets.all(16.0),
       color: Color.fromARGB(255, 1, 93, 168),
       child: Center(
-        child: Text(
-          'No grades found.',
-          style: TextStyle(color: Colors.white),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Image.asset(
+            'assets/PBMA.png',
+            width: screenWidth / 2.5,
+            height: screenHeight / 2.5,
+          ),
+        ),
+        SizedBox(height: 10,),
+            Text(
+              'No grades found.',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 30,
+                ),
+            ),
+          ],
         ),
       ),
     );
@@ -1693,12 +1861,22 @@ Future<void> _fetchSavedSectionData() async {
             
             if (_isLoading) {
               return Container(
-                color: Color.fromARGB(255, 1, 93, 168),
+                color: const Color.fromARGB(255, 1, 93, 168),
                 child: Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white, // Optional: customize the color
-                  ),
-                ),
+                          child: DefaultTextStyle(
+                            style: TextStyle(
+                fontSize: 18.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                            ),
+                            child: AnimatedTextKit(
+                animatedTexts: [
+                  WavyAnimatedText('LOADING...'),
+                ],
+                isRepeatingAnimation: true,
+                            ),
+                          ),
+                        ),
               );
             }
             return LayoutBuilder(

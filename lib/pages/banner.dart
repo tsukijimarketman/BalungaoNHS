@@ -44,7 +44,13 @@ class _BannerImage extends State<BannerImage> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load banners: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to load banners: $e'),
+          ],
+        )),
       );
     }
   }
@@ -72,11 +78,23 @@ class _BannerImage extends State<BannerImage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Banner created successfully!')),
+       SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Banner created successfully!'),
+        ],
+      )),
     );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to save banner: $e')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to save banner: $e'),
+        ],
+      )),
     );
   }
 }
@@ -95,11 +113,23 @@ class _BannerImage extends State<BannerImage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Image selected successfully!')),
+       SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Image selected successfully!'),
+          ],
+        )),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No image selected')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('No image selected'),
+          ],
+        )),
       );
     }
   }
@@ -108,7 +138,13 @@ class _BannerImage extends State<BannerImage> {
  Future<void> uploadImage() async {
   if (selectedImageBytes == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('No image selected to upload')),
+       SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('No image selected to upload'),
+        ],
+      )),
     );
     return;
   }
@@ -124,11 +160,23 @@ class _BannerImage extends State<BannerImage> {
     await _saveBannerToFirestore(downloadUrl, true);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Image uploaded successfully!')),
+     SnackBar(content: Row(
+       children: [
+        Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+         Text('Image uploaded successfully!'),
+       ],
+     )),
     );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to upload image: $e')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to upload image: $e'),
+        ],
+      )),
     );
   }
 }
@@ -171,11 +219,23 @@ class _BannerImage extends State<BannerImage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Banner updated successfully!')),
+       SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Banner updated successfully!'),
+        ],
+      )),
     );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to update banner: $e')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to update banner: $e'),
+        ],
+      )),
     );
   }
 }
@@ -368,11 +428,23 @@ class _BannerImage extends State<BannerImage> {
                                     });
 
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Banner deleted successfully!')),
+                                       SnackBar(content: Row(
+                                        children: [
+                                          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                                          Text('Banner deleted successfully!'),
+                                        ],
+                                      )),
                                     );
                                   } catch (e) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Failed to delete banner: $e')),
+                                      SnackBar(content: Row(
+                                        children: [
+                                          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                                          Text('Failed to delete banner: $e'),
+                                        ],
+                                      )),
                                     );
                                   }
                                 },

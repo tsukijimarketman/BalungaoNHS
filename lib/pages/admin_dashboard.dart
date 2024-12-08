@@ -180,7 +180,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
           // Handle the case where the document doesn't exist
           print('Document with student_id $studentId not found.');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Student with ID $studentId not found')),
+            SnackBar(content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                Text('Student with ID $studentId not found'),
+              ],
+            )),
           );
         }
       }
@@ -190,7 +196,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
       // Optional: Show a confirmation message if some updates were successful
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected students moved to drop list')));
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('Selected students moved to drop list'),
+            ],
+          )));
 
       // Clear the selected students list after updating Firestore
       setState(() {
@@ -198,7 +210,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
       });
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('No students selected')));
+          .showSnackBar(SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+              Text('No students selected'),
+            ],
+          )));
     }
   }
 
@@ -414,11 +432,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
           .doc(studentId)
           .delete();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Student deleted successfully')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Student deleted successfully'),
+          ],
+        )),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete student: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to delete student: $e'),
+          ],
+        )),
       );
     }
   }
@@ -456,11 +486,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
           .doc(subjectId)
           .delete();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Subject deleted successfully')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Subject deleted successfully'),
+          ],
+        )),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting subject: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error deleting subject: $e'),
+          ],
+        )),
       );
     }
   }
@@ -532,11 +574,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Instructor status updated to inactive')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Instructor status updated to inactive'),
+          ],
+        )),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update status: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to update status: $e'),
+          ],
+        )),
       );
     }
   }
@@ -551,11 +605,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Instructor status updated to inactive')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Instructor status updated to inactive'),
+          ],
+        )),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update status: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to update status: $e'),
+          ],
+        )),
       );
     }
   }
@@ -734,11 +800,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
           .doc(sectionId)
           .delete();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Section deleted successfully')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Section deleted successfully'),
+          ],
+        )),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting section: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error deleting section: $e'),
+          ],
+        )),
       );
     }
   }
@@ -871,11 +949,23 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
           .doc(configId)
           .delete();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Configuration deleted successfully')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Configuration deleted successfully'),
+          ],
+        )),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete configuration: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to delete configuration: $e'),
+          ],
+        )),
       );
     }
   }
@@ -943,12 +1033,24 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     await studentBatch.commit();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Configuration activated and student enrollments reset successfully')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Configuration activated and student enrollments reset successfully'),
+        ],
+      )),
     );
 
   } catch (error) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to activate configuration: $error')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to activate configuration: $error'),
+        ],
+      )),
     );
   }
 }
@@ -981,12 +1083,24 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     await batch.commit();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Configuration saved successfully!')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Configuration saved successfully!'),
+        ],
+      )),
     );
 
     }).catchError((error) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to save configuration: $error')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to save configuration: $error'),
+        ],
+      )),
     );
   });
 }
@@ -1036,11 +1150,23 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     await mainBatch.commit();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Enrollment status and sections reset for all students.')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Enrollment status and sections reset for all students.'),
+        ],
+      )),
     );
   } catch (error) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to update enrollment status: $error')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to update enrollment status: $error'),
+        ],
+      )),
     );
   }
 }
@@ -1095,9 +1221,9 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
   //Disabling Drawer
   bool _isItemDisabled(String item) {
     if (_accountType == 'INSTRUCTOR') {
-      return item != 'Strand Teacher';
+      return item != 'Subject Teacher';
     } else if (_accountType == 'ADMIN') {
-      return item == 'Strand Teacher';
+      return item == 'Subject Teacher';
     }
     return false;
   }
@@ -1106,7 +1232,7 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     bool isDisabled = _isItemDisabled(drawerItem);
 
     if (_accountType == 'INSTRUCTOR') {
-      if (drawerItem != 'Strand Teacher') {
+      if (drawerItem != 'Subject Teacher') {
         return SizedBox.shrink(); // Hide other drawer items
       }
     }
@@ -1168,7 +1294,7 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     if (_accountType == 'INSTRUCTOR') {
       setState(() {
         _selectedDrawerItem =
-            'Strand Teacher'; // Always set to Strand Teacher for instructors
+            'Subject Teacher'; // Always set to Strand Teacher for instructors
       });
     } else if (_accountType == 'ADMIN') {
       String? savedItem = prefs.getString('adminDrawerItem');
@@ -1292,7 +1418,7 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
         return _buildDashboardContent();
       case 'Students':
         return _buildStudentsContent();
-      case 'Strand Teacher':
+      case 'Subject Teacher':
         return _buildStrandTeacherContent();
       case 'Manage Newcomers':
         return _buildNewcomersContent();
@@ -1324,7 +1450,21 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
   //method para sa Adviser and Not Adviser
   Widget _buildStrandTeacherContent() {
     if (_isInstructorLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
     }
 
     if (_currentInstructorDoc == null) {
@@ -1522,7 +1662,21 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
                 stream: _getEnrolledStudentsCount(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                   }
 
                   final students = snapshot.data!.docs;
@@ -1808,7 +1962,21 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
                 stream: _getFilteredStudents(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                   }
 
                   final students = snapshot.data!.docs.where((student) {
@@ -2160,7 +2328,7 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Strand Teacher',
+              'Subject Teacher',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
@@ -2203,7 +2371,21 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                 stream: _getFilteredInstructorStudents(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                   }
 
                   final students = snapshot.data!.docs.where((student) {
@@ -2335,7 +2517,21 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                 stream: _getStudentsWithSubject(subjectName),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                   }
 
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -2477,7 +2673,21 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                 stream: _getNewcomersStudents(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                   }
 
                   final students = snapshot.data!.docs.where((student) {
@@ -2837,7 +3047,20 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return Center(
-                                    child: CircularProgressIndicator());
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                               }
 
                               if (!snapshot.hasData ||
@@ -3183,7 +3406,20 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return Center(
-                                    child: CircularProgressIndicator());
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                               }
 
                               if (!snapshot.hasData ||
@@ -3476,7 +3712,13 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                                   _showActivateConfirmationDialog(context, _selectedConfigId!);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Please select a configuration to activate')),
+                                    SnackBar(content: Row(
+                                      children: [
+                                        Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                                        Text('Please select a configuration to activate'),
+                                      ],
+                                    )),
                                   );
                                 }
                               },
@@ -3775,7 +4017,21 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                 stream: _getReEnrolledStudents(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                   }
 
                   final students = snapshot.data!.docs.where((student) {
@@ -4078,7 +4334,20 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return Center(
-                                    child: CircularProgressIndicator());
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                               }
 
                               if (!snapshot.hasData ||
@@ -4370,7 +4639,21 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                 stream: _getFilteredDropStudents(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
                   }
 
                   final students = snapshot.data!.docs.where((student) {
@@ -4689,7 +4972,7 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
               _buildDrawerItem('Reports', Iconsax.data_copy, 'Reports'),
             ] else if (_accountType == 'INSTRUCTOR') ...[
               _buildDrawerItem(
-                  'Strand Teacher', Iconsax.teacher, 'Strand Teacher'),
+                  'Subject Teacher', Iconsax.teacher, 'Subject Teacher'),
             ],
             ListTile(
               leading: Icon(Iconsax.logout),

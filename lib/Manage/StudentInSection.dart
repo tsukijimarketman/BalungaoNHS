@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -104,7 +105,21 @@ class _StudentInSectionState extends State<StudentInSection> {
         future: _fetchStudentsInSection(), // Call the new method
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        );
           }
 
           if (snapshot.hasError) {
