@@ -1896,18 +1896,15 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
                 Spacer(),
    if (_selectedSchoolYear != "All") 
   OutlinedButton(
-  onPressed: () {
-    // Fetch the filtered students from the StreamBuilder
-    final displayedStudents = _getFilteredStudents();
-
-    // Process the filtered students and pass them to the PDF function
-    displayedStudents.listen((snapshot) {
+    onPressed: () async {
+      // Fetch the filtered students once when the button is pressed
+      final snapshot = await _getFilteredStudents().first;
       final filteredStudents = snapshot.docs.map((student) {
         final data = student.data() as Map<String, dynamic>;
         final fullName = '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}'.trim();
         return {
           'student_id': data['student_id'] ?? '',
-          'full_name': fullName, // Add the full name
+          'full_name': fullName,
           'seniorHigh_Track': data['seniorHigh_Track'] ?? '',
           'seniorHigh_Strand': data['seniorHigh_Strand'] ?? '',
           'grade_level': data['grade_level'] ?? '',
@@ -1915,18 +1912,18 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
         };
       }).toList();
 
-      _downloadPDF(filteredStudents);
-    });
-  },
-  child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
-  style: OutlinedButton.styleFrom(
-    backgroundColor: Colors.white,
-    side: BorderSide(color: Colors.black),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
+      // Call the PDF download function
+      await _downloadPDF(filteredStudents);
+    },
+    child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
+    style: OutlinedButton.styleFrom(
+      backgroundColor: Colors.white,
+      side: BorderSide(color: Colors.black),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
     ),
   ),
-),
 
                 SizedBox(
                   width: 
@@ -2186,6 +2183,8 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     );
   }
   Future<void> _downloadPDF(List<Map<String, dynamic>> students) async {
+      print("Download PDF function called"); // Debugging line
+
   final pdf = pw.Document();
 
   pdf.addPage(
