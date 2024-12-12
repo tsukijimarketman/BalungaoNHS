@@ -3158,6 +3158,7 @@ if (_selectedSubject == "All" && (_expandedStudents[studentId] ?? false))
     );
   }
 
+Map<String, bool> _selectedSubjectStudents = {}; // Store selected students' states
   Widget _buildGradePrintnonadviser() {
   return Container(
     color: Colors.grey[300],
@@ -3177,32 +3178,184 @@ if (_selectedSubject == "All" && (_expandedStudents[studentId] ?? false))
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               OutlinedButton(
-                onPressed: () async {
-                  final snapshot = await _getFilteredStudents().first;
-                  final filteredStudents = snapshot.docs.map((student) {
-                    final data = student.data() as Map<String, dynamic>;
-                    final fullName = '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}'.trim();
-                    return {
-                      'student_id': data['student_id'] ?? '',
-                      'full_name': fullName,
-                      'seniorHigh_Track': data['seniorHigh_Track'] ?? '',
-                      'seniorHigh_Strand': data['seniorHigh_Strand'] ?? '',
-                      'grade_level': data['grade_level'] ?? '',
-                      'transferee': data['transferee'] ?? '',
-                    };
-                  }).toList();
+  onPressed: () async {
+    final snapshotData = await _getStudentsWithSubjectnonadviser(
+            instructorSubjectName, instructorSubjectCode)
+        .first;
 
-                  await _downloadPDF(filteredStudents);
-                },
-                child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  side: BorderSide(color: Colors.black),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+    if (snapshotData != null && snapshotData.isNotEmpty) {
+      // Check if there are selected students
+      final selectedStudents = _selectedSubjectStudents.entries
+          .where((entry) => entry.value) // Only include selected
+          .map((entry) => entry.key)
+          .toSet();
+
+      // If no students are selected, use all students
+      final studentsToInclude = selectedStudents.isEmpty
+          ? snapshotData
+          : snapshotData.where((student) =>
+              selectedStudents.contains(student['student_id'])).toList();
+
+      if (studentsToInclude.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No students found to generate the PDF')),
+        );
+        return;
+      }
+
+      // Create a PDF document
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4.landscape,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'Student Grades \n$instructorSubjectName',
+                  style: pw.TextStyle(
+                      fontSize: 24, fontWeight: pw.FontWeight.bold),
                 ),
-              ),
+                pw.SizedBox(height: 20),
+                pw.Table(
+                  border: pw.TableBorder.all(),
+                  columnWidths: {
+                    0: pw.FlexColumnWidth(2),
+                    1: pw.FlexColumnWidth(2),
+                    2: pw.FlexColumnWidth(2),
+                    3: pw.FlexColumnWidth(2),
+                    4: pw.FlexColumnWidth(2),
+                    5: pw.FlexColumnWidth(3),
+                    6: pw.FlexColumnWidth(2),
+                    7: pw.FlexColumnWidth(1),
+                  },
+                  children: [
+                    pw.TableRow(
+                      decoration:
+                          pw.BoxDecoration(color: PdfColors.grey300),
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Student ID',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('First Name',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Last Name',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Middle Name',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Section',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Subject Name',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Subject Code',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(4),
+                          child: pw.Text('Grade',
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    ...studentsToInclude.map((student) {
+                      return pw.TableRow(
+                        children: [
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(student['student_id'] ?? ''),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(student['first_name'] ?? ''),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(student['last_name'] ?? ''),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(student['middle_name'] ?? ''),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(student['section'] ?? ''),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(student['subject_Name'] ?? ''),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(student['subject_Code'] ?? ''),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(student['Grade'] ?? ''),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      final pdfBytes = await pdf.save();
+      await Printing.sharePdf(
+          bytes: pdfBytes, filename: 'students_report_grade.pdf');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('PDF downloaded')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No students found to generate the PDF')),
+      );
+    }
+  },
+  child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
+  style: OutlinedButton.styleFrom(
+    backgroundColor: Colors.white,
+    side: BorderSide(color: Colors.black),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+),
+
+            
               Container(
                 width: 300,
                 child: TextField(
@@ -3312,12 +3465,35 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
   return Row(
     children: [
       SizedBox(width: 8),
-      Checkbox(
-        value: _selectedStudents[student['student_id']] ?? false,
-        onChanged: (bool? value) {
-          setState(() {
-            _selectedStudents[student['student_id']] = value!;
-          });
+      StatefulBuilder(
+        builder: (context, setState) {
+          bool isLoading = false;
+
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Checkbox(
+                value: _selectedSubjectStudents[student['student_id']] ?? false,
+                onChanged: (bool? value) async {
+                  setState(() => isLoading = true);
+                  try {
+                    await Future.delayed(Duration(milliseconds: 500)); // Simulate processing
+                    setState(() {
+                      _selectedSubjectStudents[student['student_id']] = value!;
+                    });
+                  } finally {
+                    setState(() => isLoading = false);
+                  }
+                },
+              ),
+              if (isLoading)
+                Positioned.fill(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                ),
+            ],
+          );
         },
       ),
       Expanded(child: Text(student['student_id'] ?? '')),
