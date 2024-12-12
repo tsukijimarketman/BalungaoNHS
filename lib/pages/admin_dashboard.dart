@@ -93,6 +93,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
   String? _selectedGrade; // For filtering by Grade Level
   String? _selectedTransferee; // For filtering by Transferee
 
+    String _selectedSubMenu = 'subjects'; // Default value
+      String _selectedSubject = "All";  // Add this line
+      Map<String, bool> _expandedStudents = {};
+      String instructorSubjectName = '';
+  String instructorSubjectCode = '';
+
+
+
 
   //BuildDashboardContent
   Stream<QuerySnapshot> _getEnrolledStudentsCount() {
@@ -1217,7 +1225,232 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
     });
   }
   //Filtering
+ Stream<List<Map<String, dynamic>>> _getStudentsWithSubjectnonadviser(String subjectName, String subjectCode) {
+  return FirebaseFirestore.instance
+      .collection('users')
+      .where('accountType', isEqualTo: 'student')
+      .where('enrollment_status', isEqualTo: 'approved')
+      .snapshots()
+      .asyncMap((snapshot) async {
+    List<Map<String, dynamic>> matchingStudents = [];
 
+    for (var studentDoc in snapshot.docs) {
+      var studentData = studentDoc.data() as Map<String, dynamic>;
+      final studentFullName = '${studentData['first_name']} ${studentData['last_name']}'.trim();
+      final strand = studentData['seniorHigh_Strand'] ?? '';
+      final semester = studentData['semester'] ?? '';
+      final studentId = studentData['student_id'] ?? '';
+      
+      print('Checking student: $studentFullName (ID: $studentId)');
+      print('Strand: $strand, Semester: $semester');
+      print('Looking for Subject: $subjectName, Code: $subjectCode');
+      
+      try {
+        final gradesDoc = await FirebaseFirestore.instance
+            .collection(semester)
+            .doc(strand)
+            .get();
+        
+        if (gradesDoc.exists) {
+          final gradesData = gradesDoc.data() as Map<String, dynamic>;
+          
+          // Print all available student names in the grades document
+          print('Available student names in grades: ${gradesData.keys.toList()}');
+          
+          // Check if the student's full name exists in the grades document
+          if (gradesData.containsKey(studentFullName)) {
+            final studentGradesData = gradesData[studentFullName] as Map<String, dynamic>;
+            
+            if (studentGradesData.containsKey('grades')) {
+              final gradesList = studentGradesData['grades'] as List;
+              
+              // Print all grades for debugging
+              print('Grades list for $studentFullName:');
+              gradesList.forEach((grade) {
+                print('Subject: ${grade['subject_name']}, Code: ${grade['subject_code']}, Student ID: ${grade['student_id']}');
+              });
+              
+              // Find the specific subject that matches both subject name and code
+              // AND has the correct student ID
+              final matchingGrade = gradesList.firstWhere(
+                (gradeData) => 
+                  gradeData['subject_name'] == subjectName && 
+                  gradeData['subject_code'] == subjectCode &&
+                  gradeData['student_id'] == studentId,
+                orElse: () => null,
+              );
+              
+              if (matchingGrade != null) {
+                print('Found matching grade for $studentFullName');
+                matchingStudents.add({
+                  ...studentData,
+                  'student_id': studentId,
+                  'first_name': studentData['first_name'] ?? '',
+                  'last_name': studentData['last_name'] ?? '',
+                  'middle_name': studentData['middle_name'] ?? '',
+                  'section': studentData['section'] ?? '',
+                  'subject_Name': matchingGrade['subject_name'] ?? '',
+                  'subject_Code': matchingGrade['subject_code'] ?? '',
+                  'Grade': matchingGrade['grade'] ?? '',
+                });
+              } else {
+                print('No matching grade found for $studentFullName');
+              }
+            }
+          } else {
+            print('Student $studentFullName not found in grades document');
+          }
+        } else {
+          print('No grades document found for semester: $semester, strand: $strand');
+        }
+      } catch (e) {
+        print('Error fetching grades for student $studentFullName: $e');
+        continue;
+      }
+    }
+
+    print('Total matching students found: ${matchingStudents.length}');
+    return matchingStudents;
+  });
+}
+
+  Future<void> _loadInstructorSubject() async {
+    // Get the current user's subject information from Firestore
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+        
+    setState(() {
+      instructorSubjectName = userDoc.data()?['subject_Name'] ?? '';
+      instructorSubjectCode = userDoc.data()?['subject_Code'] ?? '';
+    });
+  }
+  
+
+ Stream<List<Map<String, dynamic>>> _getFilteredStudentGrade() async* {
+  try {
+    print('Starting _getFilteredStudentGrade stream');
+
+    // Get current instructor info
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    final userData = userDoc.data()!;
+    final instructorFullName = '${userData['first_name']} ${userData['last_name']}';
+    print('Instructor: $instructorFullName');
+
+    // Get sections where instructor is adviser
+    final sectionsSnapshot = await FirebaseFirestore.instance
+        .collection('sections')
+        .where('section_adviser', isEqualTo: instructorFullName)
+        .get();
+
+    final sectionNames = sectionsSnapshot.docs.map((doc) => doc['section_name']).toList();
+    print('Found sections: $sectionNames');
+
+    if (sectionNames.isEmpty) {
+      print('No sections found');
+      yield [];
+      return;
+    }
+
+    // Stream of students in those sections
+    final studentsStream = FirebaseFirestore.instance
+        .collection('users')
+        .where('enrollment_status', isEqualTo: 'approved')
+        .where('accountType', isEqualTo: 'student')
+        .where('section', whereIn: sectionNames)
+        .snapshots();
+
+    await for (final studentsSnapshot in studentsStream) {
+      List<Map<String, dynamic>> studentsWithGrades = [];
+      print('Found ${studentsSnapshot.docs.length} students');
+
+      for (final studentDoc in studentsSnapshot.docs) {
+        final studentData = studentDoc.data();
+        final studentFullName = '${studentData['first_name']} ${studentData['last_name']}';
+        print('Checking grades for student: $studentFullName');
+       
+        final strand = studentData['seniorHigh_Strand'] ?? '';
+        final semester = studentData['semester']; // Default to 1st Semester if not specified
+        
+        // Construct collection name based on grade level and semester
+        final collectionName = semester;
+        
+        print('Checking grades for student: $studentFullName in $collectionName/$strand');
+        
+        try {
+          // Get the document that contains all grades using dynamic collection and document names
+          final gradesDoc = await FirebaseFirestore.instance
+              .collection(collectionName)
+              .doc(strand)
+              .get();
+
+
+          if (gradesDoc.exists) {
+            final gradesData = gradesDoc.data();
+            // Check if this student has grades using their full name as the key
+            if (gradesData != null && gradesData[studentFullName] != null) {
+              final studentGradeData = gradesData[studentFullName];
+              print('Found grade data for $studentFullName: $studentGradeData');
+              
+              // Get the grades array
+              final List<dynamic> gradesArray = studentGradeData['grades'] ?? [];
+              
+              // Create an entry for each grade in the array
+              for (var gradeEntry in gradesArray) {
+                studentsWithGrades.add({
+                  ...studentData,
+                  'student_id': studentData['student_id'] ?? '',
+                  'first_name': studentData['first_name'] ?? '',
+                  'last_name': studentData['last_name'] ?? '',
+                  'middle_name': studentData['middle_name'] ?? '',
+                  'section': studentData['section'] ?? '',
+                  'subject_Name': gradeEntry['subject_name'] ?? '',
+                  'subject_Code': gradeEntry['subject_code'] ?? '',
+                  'Grade': gradeEntry['grade']?.toString() ?? '', // Convert grade to string
+                });
+                print('Added grade entry: ${gradeEntry['subject_name']} - ${gradeEntry['grade']}');
+              }
+              
+              print('Added all grades for student: $studentFullName');
+            } else {
+              print('No grade data found for student $studentFullName');
+            }
+          } else {
+            print('Grades document does not exist');
+          }
+        } catch (e) {
+          print('Error fetching grades for student $studentFullName: $e');
+        }
+      }
+
+      print('Yielding ${studentsWithGrades.length} students with grades');
+      yield studentsWithGrades;
+    }
+  } catch (e) {
+    print('Error in _getFilteredStudentGrade: $e');
+    yield [];
+  }
+}
+
+Stream<List<String>> _getUniqueSubjects() {
+  return _getFilteredStudentGrade().map((students) {
+    // Extract all subject names and create a set to get unique values
+    Set<String> uniqueSubjects = {};
+    for (var student in students) {
+      if (student['subject_Name'] != null && student['subject_Name'].toString().isNotEmpty) {
+        uniqueSubjects.add(student['subject_Name']);
+      }
+    }
+    // Convert set to sorted list
+    List<String> sortedSubjects = uniqueSubjects.toList()..sort();
+    return sortedSubjects;
+  });
+} 
   //Disabling Drawer
   bool _isItemDisabled(String item) {
     if (_accountType == 'INSTRUCTOR') {
@@ -1395,6 +1628,8 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
   @override
   void initState() {
     super.initState();
+        _loadInstructorSubject();
+
     _fetchUserData().then((_) {
       _loadSelectedDrawerItem(); // Load drawer item after fetching user data
     });
@@ -1448,37 +1683,54 @@ Future<void> _showSaveConfirmationDialog(BuildContext context) {
   }
 
   //method para sa Adviser and Not Adviser
-  Widget _buildStrandTeacherContent() {
-    if (_isInstructorLoading) {
-      return Center(
-          child: DefaultTextStyle(
-            style: TextStyle(
-              fontSize: 18.0,
-              color: Colors.blue,
-              fontWeight: FontWeight.bold,
-            ),
-            child: AnimatedTextKit(
-              animatedTexts: [
-                WavyAnimatedText('LOADING...'),
-              ],
-              isRepeatingAnimation: true,
-            ),
-          ),
-        );
-    }
-
-    if (_currentInstructorDoc == null) {
-      return Center(child: Text('No instructor data found'));
-    }
-
-    final adviserStatus = _currentInstructorDoc!.get('adviser');
-
-    if (adviserStatus == 'yes') {
-      return _buildInstructorWithAdviserDrawer(_currentInstructorDoc!);
-    } else {
-      return _buildInstructorWithoutAdviserDrawer(_currentInstructorDoc!);
-    }
+ Widget _buildStrandTeacherContent() {
+  if (_isInstructorLoading) {
+    return Center(
+      child: DefaultTextStyle(
+        style: TextStyle(
+          fontSize: 18.0,
+          color: Colors.blue,
+          fontWeight: FontWeight.bold,
+        ),
+        child: AnimatedTextKit(
+          animatedTexts: [
+            WavyAnimatedText('LOADING...'),
+          ],
+          isRepeatingAnimation: true,
+        ),
+      ),
+    );
   }
+
+  if (_currentInstructorDoc == null) {
+    return Center(child: Text('No instructor data found'));
+  }
+
+  // Add submenu at the top
+  return 
+      Expanded(
+        child: _buildSubMenuContent(),
+      );
+}
+
+Widget _buildSubMenuContent() {
+  switch (_selectedSubMenu) {
+    case 'subjects':
+      final adviserStatus = _currentInstructorDoc!.get('adviser');
+      return adviserStatus == 'yes' 
+          ? _buildInstructorWithAdviserDrawer(_currentInstructorDoc!)
+          : _buildInstructorWithoutAdviserDrawer(_currentInstructorDoc!);
+    
+    case 'grades':
+        final adviserStatus = _currentInstructorDoc!.get('adviser');
+      return adviserStatus == 'yes'
+            ? _buildGradePrintadviser()
+            : _buildGradePrintnonadviser();
+    
+    default:
+      return Center(child: Text('Select a menu item'));
+  }
+}
 
   Widget _buildDashboardContent() {
     return Container(
@@ -2471,6 +2723,288 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
     );
   }
 
+  Widget _buildGradePrintadviser() {
+    
+    return Container(
+      color: Colors.grey[300],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Students',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+          // Row with Drop button (on the left) and Search Student (fixed on the right)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child:StreamBuilder<List<String>>(
+  stream: _getUniqueSubjects(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return CircularProgressIndicator();
+
+          final subjects = ["All", ...snapshot.data!];
+
+    
+    return DropdownButton<String>(
+        value: _selectedSubject, // You'll need to add this variable to your state
+        items: subjects.map((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedSubject = newValue!;
+          });
+        },
+      );
+    },
+  ),
+),
+                // Add Spacer or Expanded to ensure Search stays on the right
+                Spacer(),
+  OutlinedButton(
+    onPressed: () async {
+      // Fetch the filtered students once when the button is pressed
+      final snapshot = await _getFilteredStudents().first;
+      final filteredStudents = snapshot.docs.map((student) {
+        final data = student.data() as Map<String, dynamic>;
+        final fullName = '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}'.trim();
+        return {
+          'student_id': data['student_id'] ?? '',
+          'full_name': fullName,
+          'seniorHigh_Track': data['seniorHigh_Track'] ?? '',
+          'seniorHigh_Strand': data['seniorHigh_Strand'] ?? '',
+          'grade_level': data['grade_level'] ?? '',
+          'transferee': data['transferee'] ?? '',
+        };
+      }).toList();
+
+      // Call the PDF download function
+      await _downloadPDF(filteredStudents);
+    },
+    child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
+    style: OutlinedButton.styleFrom(
+      backgroundColor: Colors.white,
+      side: BorderSide(color: Colors.black),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+  ),
+
+                SizedBox(
+                  width: 
+                  20,
+                ),
+                Container(
+                  width: 300,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search Student',
+                      prefixIcon: Icon(Iconsax.search_normal_1_copy),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+  child: Container(
+    margin: EdgeInsets.symmetric(horizontal: 16.0),
+    padding: EdgeInsets.all(8.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: Colors.blue, width: 2.0),
+    ),
+    child: StreamBuilder<List<Map<String, dynamic>>>(
+      stream: _getFilteredStudentGrade(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Text('No students found'),
+          );
+        }
+
+            final allStudents = snapshot.data!;
+
+          final searchQuery = _searchController.text.toLowerCase();
+    var searchFilteredStudents = allStudents.where((student) {
+      final studentId = student['student_id']?.toString().toLowerCase() ?? '';
+      final firstName = student['first_name']?.toString().toLowerCase() ?? '';
+      final lastName = student['last_name']?.toString().toLowerCase() ?? '';
+      final middleName = student['middle_name']?.toString().toLowerCase() ?? '';
+      final section = student['section']?.toString().toLowerCase() ?? '';
+      final subjectName = student['subject_Name']?.toString().toLowerCase() ?? '';
+      final subjectCode = student['subject_Code']?.toString().toLowerCase() ?? '';
+      
+      final fullName = '$firstName $middleName $lastName';
+
+      return studentId.contains(searchQuery) ||
+          fullName.contains(searchQuery) ||
+          section.contains(searchQuery) ||
+          subjectName.contains(searchQuery) ||
+          subjectCode.contains(searchQuery);
+    }).toList();
+
+         final List<Map<String, dynamic>> filteredStudents;
+    if (_selectedSubject == "All") {
+      filteredStudents = searchFilteredStudents;
+    } else {
+      filteredStudents = searchFilteredStudents.where((student) => 
+        student['subject_Name'] == _selectedSubject
+      ).toList();
+    }
+
+    // Group students by student ID
+    Map<String, List<Map<String, dynamic>>> groupedStudents = {};
+    for (var student in filteredStudents) {
+      String studentId = student['student_id'];
+      if (!groupedStudents.containsKey(studentId)) {
+        groupedStudents[studentId] = [];
+      }
+      groupedStudents[studentId]!.add(student);
+    }
+        
+        return Column(
+          children: [
+            // Header Row
+            Row(
+          children: [
+            SizedBox(width: 32),
+            Expanded(child: Text('Student ID')),
+            Expanded(child: Text('First Name')),
+            Expanded(child: Text('Last Name')),
+            Expanded(child: Text('Middle Name')),
+            Expanded(child: Text('Section')),
+            if (_selectedSubject == "All") ...[
+              Expanded(child: Text('Subjects')),
+              Expanded(child: Text('Subject Code')),
+              Expanded(child: Text('Grade')),
+            ] else ...[
+              Expanded(child: Text('Subject Name')),
+              Expanded(child: Text('Subject Code')),
+              Expanded(child: Text('Grade')),
+            ],
+          ],
+        ),
+        Divider(),
+            
+
+                      // Scrollable rows for student data
+                     Expanded(
+          child: ListView.builder(
+            itemCount: groupedStudents.length,
+            itemBuilder: (context, index) {
+              String studentId = groupedStudents.keys.elementAt(index);
+              List<Map<String, dynamic>> studentGrades = groupedStudents[studentId]!;
+              var firstRecord = studentGrades.first;
+
+              return Column(
+                children: [
+                  // Main student row
+                  // Main student row
+Row(
+  children: [
+    SizedBox(width: 8),
+    SizedBox(
+      width: 40, // Fixed width for checkbox area
+      child: Checkbox(
+        value: _selectedStudents[studentId] ?? false,
+        onChanged: (bool? value) {
+          setState(() {
+            _selectedStudents[studentId] = value!;
+          });
+        },
+      ),
+    ),
+    Expanded(flex: 2, child: Text(firstRecord['student_id'] ?? '')),
+    Expanded(flex: 2, child: Text(firstRecord['first_name'] ?? '')),
+    Expanded(flex: 2, child: Text(firstRecord['last_name'] ?? '')),
+    Expanded(flex: 2, child: Text(firstRecord['middle_name'] ?? '')),
+    Expanded(flex: 2, child: Text(firstRecord['section'] ?? '')),
+    if (_selectedSubject == "All") ...[
+      Expanded(flex: 2, child: Text(firstRecord['subject_Name'] ?? '')),
+      Expanded(flex: 2, child: Text(firstRecord['subject_Code'] ?? '')),
+      Expanded(flex: 2, child: Text(firstRecord['Grade'] ?? '')),
+      SizedBox(
+        width: 48, // Fixed width for icon button
+        child: IconButton(
+          icon: Icon(_expandedStudents[studentId] == true 
+            ? Icons.keyboard_arrow_up 
+            : Icons.keyboard_arrow_down),
+          onPressed: () {
+            setState(() {
+              _expandedStudents[studentId] = !(_expandedStudents[studentId] ?? false);
+            });
+          },
+        ),
+      ),
+    ] else ...[
+      Expanded(flex: 2, child: Text(firstRecord['subject_Name'] ?? '')),
+      Expanded(flex: 2, child: Text(firstRecord['subject_Code'] ?? '')),
+      Expanded(flex: 2, child: Text(firstRecord['Grade'] ?? '')),
+    ],
+  ],
+),
+// Expandable subject rows
+if (_selectedSubject == "All" && (_expandedStudents[studentId] ?? false))
+  ...studentGrades.skip(1).map((grade) => Row( // skip(1) to skip the first subject
+    children: [
+      SizedBox(width: 8),
+      SizedBox(width: 40), // Same width as checkbox area
+      Expanded(flex: 2, child: SizedBox()), // Student ID
+      Expanded(flex: 2, child: SizedBox()), // First Name
+      Expanded(flex: 2, child: SizedBox()), // Last Name
+      Expanded(flex: 2, child: SizedBox()), // Middle Name
+      Expanded(flex: 2, child: SizedBox()), // Section
+      Expanded(flex: 2, child: Text(grade['subject_Name'] ?? '')),
+      Expanded(flex: 2, child: Text(grade['subject_Code'] ?? '')),
+      Expanded(flex: 2, child: Text(grade['Grade'] ?? '')),
+      SizedBox(width: 48), // Same width as icon button
+    ],
+  )).toList(),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  },
+),
+  )
+          )
+        ]
+      )
+    );
+  }
+
   // Widget for instructors without adviser status
   Widget _buildInstructorWithoutAdviserDrawer(DocumentSnapshot doc) {
     final subjectName = doc['subject_Name'];
@@ -2623,6 +3157,180 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
       ),
     );
   }
+
+  Widget _buildGradePrintnonadviser() {
+  return Container(
+    color: Colors.grey[300],
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Students',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              OutlinedButton(
+                onPressed: () async {
+                  final snapshot = await _getFilteredStudents().first;
+                  final filteredStudents = snapshot.docs.map((student) {
+                    final data = student.data() as Map<String, dynamic>;
+                    final fullName = '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}'.trim();
+                    return {
+                      'student_id': data['student_id'] ?? '',
+                      'full_name': fullName,
+                      'seniorHigh_Track': data['seniorHigh_Track'] ?? '',
+                      'seniorHigh_Strand': data['seniorHigh_Strand'] ?? '',
+                      'grade_level': data['grade_level'] ?? '',
+                      'transferee': data['transferee'] ?? '',
+                    };
+                  }).toList();
+
+                  await _downloadPDF(filteredStudents);
+                },
+                child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: BorderSide(color: Colors.black),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              Container(
+                width: 300,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search Student',
+                    prefixIcon: Icon(Iconsax.search_normal_1_copy),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.blue, width: 2.0),
+            ),
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _getStudentsWithSubjectnonadviser(
+                instructorSubjectName, 
+                instructorSubjectCode,
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('No students found'));
+                }
+
+                final allStudents = snapshot.data!;
+                final searchQuery = _searchController.text.toLowerCase();
+
+                var searchFilteredStudents = allStudents.where((student) {
+                  final studentId = student['student_id']?.toString().toLowerCase() ?? '';
+                  final firstName = student['first_name']?.toString().toLowerCase() ?? '';
+                  final lastName = student['last_name']?.toString().toLowerCase() ?? '';
+                  final middleName = student['middle_name']?.toString().toLowerCase() ?? '';
+                  final section = student['section']?.toString().toLowerCase() ?? '';
+                  final subjectName = student['subject_Name']?.toString().toLowerCase() ?? '';
+                  final subjectCode = student['subject_Code']?.toString().toLowerCase() ?? '';
+                  
+                  final fullName = '$firstName $middleName $lastName';
+
+                  return studentId.contains(searchQuery) ||
+                      fullName.contains(searchQuery) ||
+                      section.contains(searchQuery) ||
+                      subjectName.contains(searchQuery) ||
+                      subjectCode.contains(searchQuery);
+                }).toList();
+                
+                return Column(
+                  children: [
+                    _buildHeaderRow(),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: searchFilteredStudents.length,
+                        itemBuilder: (context, index) {
+                          final student = searchFilteredStudents[index];
+                          return _buildStudentRow(student);
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        )
+      ],
+    ),
+  );
+}
+
+Widget _buildHeaderRow() {
+  return Column(
+    children: [
+      Row(
+        children: [
+          SizedBox(width: 32),
+          Expanded(child: Text('Student ID')),
+          Expanded(child: Text('First Name')),
+          Expanded(child: Text('Last Name')),
+          Expanded(child: Text('Middle Name')),
+          Expanded(child: Text('Section')),
+          Expanded(child: Text('Subject Name')),
+          Expanded(child: Text('Subject Code')),
+          Expanded(child: Text('Grade')),
+        ],
+      ),
+      Divider(),
+    ],
+  );
+}
+
+Widget _buildStudentRow(Map<String, dynamic> student) {
+  return Row(
+    children: [
+      SizedBox(width: 8),
+      Checkbox(
+        value: _selectedStudents[student['student_id']] ?? false,
+        onChanged: (bool? value) {
+          setState(() {
+            _selectedStudents[student['student_id']] = value!;
+          });
+        },
+      ),
+      Expanded(child: Text(student['student_id'] ?? '')),
+      Expanded(child: Text(student['first_name'] ?? '')),
+      Expanded(child: Text(student['last_name'] ?? '')),
+      Expanded(child: Text(student['middle_name'] ?? '')),
+      Expanded(child: Text(student['section'] ?? '')),
+      Expanded(child: Text(student['subject_Name'] ?? '')),
+      Expanded(child: Text(student['subject_Code'] ?? '')),
+      Expanded(child: Text(student['Grade'] ?? '')),
+    ],
+  );
+}
 
   Widget _buildNewcomersContent() {
     return Container(
@@ -4969,10 +5677,41 @@ Future<List<Map<String, dynamic>>> _fetchStudentData() async {
                   'News and Updates'),
               _buildDrawerItem('FAQS', Iconsax.message_2_copy, 'FAQS'),
               _buildDrawerItem('Reports', Iconsax.data_copy, 'Reports'),
-            ] else if (_accountType == 'INSTRUCTOR') ...[
-              _buildDrawerItem(
-                  'Subject Teacher', Iconsax.teacher, 'Subject Teacher'),
-            ],
+            ], // In your drawer ListView, replace the Subject Teacher drawer item with this:
+
+if (_accountType == 'INSTRUCTOR') ...[
+  ExpansionTile(
+    leading: Icon(Iconsax.teacher, color: Colors.black),
+    title: Text('Subject Teacher', 
+      style: TextStyle(color: Colors.black)
+    ),
+    children: [
+      ListTile(
+        contentPadding: EdgeInsets.only(left: 72.0),
+        title: Text('Grading Students'),
+        onTap: () {
+          setState(() {
+            _selectedDrawerItem = 'Subject Teacher';
+            _selectedSubMenu = 'subjects';
+          });
+          Navigator.pop(context); // Close drawer
+        },
+      ),
+      ListTile(
+        contentPadding: EdgeInsets.only(left: 72.0),
+        title: Text('Print Grades'),
+        onTap: () {
+          setState(() {
+            _selectedDrawerItem = 'Subject Teacher';
+            _selectedSubMenu = 'grades';
+          });
+          Navigator.pop(context); // Close drawer
+        },
+      ),
+      // Add more submenu items as needed
+    ],
+  ),
+],
             ListTile(
               leading: Icon(Iconsax.logout),
               title: Text('Log out'),
