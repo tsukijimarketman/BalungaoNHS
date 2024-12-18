@@ -132,15 +132,53 @@ class _ChangePasswordMobileState extends State<ChangePasswordMobile> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
+   // Exactly match SignInMobileView calculations
+  double cardWidth = screenWidth < 600 
+      ? screenWidth * 0.95  // Mobile
+      : screenWidth < 900   
+          ? screenWidth * 0.8  // Tablet
+          : screenWidth * 0.6; // Desktop
+  
+  double cardHeight = screenHeight < 800 
+      ? screenHeight * 0.85  // Shorter screens
+      : screenHeight * 0.75; // Taller screens
+
+  // Other calculations remain the same
+  double logoSize = screenWidth < 600 
+      ? screenWidth * 0.25
+      : screenWidth < 900   
+          ? screenWidth * 0.15
+          : screenWidth * 0.12;
+  
+  logoSize = logoSize.clamp(50.0, 120.0);
+  
+  double inputFieldHeight = (screenHeight * 0.06).clamp(45.0, 60.0);
+  double inputFieldWidth = cardWidth * 0.9;
+
+  double titleFontSize = (screenWidth * 0.035).clamp(16.0, 24.0);
+  double subtitleFontSize = (screenWidth * 0.025).clamp(14.0, 18.0);
+  double buttonFontSize = (screenWidth * 0.025).clamp(14.0, 18.0);
+
     return Center(
-      child: Container(
-        width: screenWidth / 1.2,
-        height: screenHeight / 1.2,
-        child: AnimatedSwitcher(
-          duration: Duration(milliseconds: 550),
-          child: Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-            child: Card(
+      child:  AnimatedSwitcher(
+        duration: Duration(milliseconds: 550),
+        child: Container(
+      width: cardWidth,
+      height: cardHeight,
+      constraints: BoxConstraints(
+        maxWidth: 800,
+        maxHeight: 900,
+      ),
+        child:  Card(
+                    elevation: 5,  // Added to match SignInMobileView
+shape: RoundedRectangleBorder(  // Added to match SignInMobileView
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.all(screenWidth * 0.03),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -149,39 +187,32 @@ class _ChangePasswordMobileState extends State<ChangePasswordMobile> {
                     alignment: Alignment.center,
                     child: Image.asset(
                       'assets/PBMA.png',
-                      width: screenWidth / 2,
-                      height: screenHeight / 2.5,
+                      width: logoSize,
+                      height: logoSize,
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  SizedBox(height: screenHeight * 0.02),
                   Container(
+                    width: inputFieldWidth,
                     alignment: Alignment.centerLeft,
-                    child: Padding(
-                       padding: const EdgeInsets.only(left: 52.0),
-                      child: Text(
-                        'Change Password',
-                        style: TextStyle(fontSize: 24),
-                      ),
+                    child: Text(
+                      'Change Password',
+                      style: TextStyle(fontSize: titleFontSize),
                     ),
                   ),
                   Container(
+                    width: inputFieldWidth,
                     alignment: Alignment.centerLeft,
-                    child: Padding(
-                       padding: const EdgeInsets.only(left: 52.0),
-                      child: Text(
-                        'Before you proceed please kindly change your password',
-                        style: TextStyle(fontSize: 18),
-                      ),
+                    child: Text(
+                      'Before you proceed please kindly change your password',
+                      style: TextStyle(fontSize: subtitleFontSize),
                     ),
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                 SizedBox(height: screenHeight * 0.02),
                   Container(
-                     height: screenHeight / 14,
-                      width: screenWidth / 1.44,
+                    height: inputFieldHeight,
+                    width: inputFieldWidth,
                     child: CupertinoTextField(
                       controller: _newPasswordController,
                       placeholder: 'Password',
@@ -212,10 +243,10 @@ class _ChangePasswordMobileState extends State<ChangePasswordMobile> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                                  SizedBox(height: screenHeight * 0.02),
                   Container(
-                     height: screenHeight / 14,
-                      width: screenWidth / 1.44,
+                    height: inputFieldHeight,
+                    width: inputFieldWidth,
                     child: CupertinoTextField(
                       controller: _confirmPasswordController,
                       placeholder: 'Password',
@@ -246,10 +277,10 @@ class _ChangePasswordMobileState extends State<ChangePasswordMobile> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                    SizedBox(height: screenHeight * 0.02),
                   Container(
-                     height: screenHeight / 14,
-                      width: screenWidth / 1.44,
+                    height: inputFieldHeight,
+                    width: inputFieldWidth,
                     child: ElevatedButton(
                       style: ButtonStyle(
                                     backgroundColor:
@@ -267,14 +298,14 @@ class _ChangePasswordMobileState extends State<ChangePasswordMobile> {
                       onPressed: _changePassword,
                       child: Text('Change Password',
                                   style: TextStyle(
-                                      fontSize: 20,
+                          fontSize: buttonFontSize,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white),),
                     ),
                   ),
                   if (_passwordMismatch)
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(screenWidth * 0.02),
                       child: Text(
                         'Passwords do not match',
                         style: TextStyle(color: Colors.red),
@@ -286,6 +317,7 @@ class _ChangePasswordMobileState extends State<ChangePasswordMobile> {
           ),
         ),
       ),
+    )
     );
   }
 }

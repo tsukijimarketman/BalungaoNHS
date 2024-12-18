@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41,7 +42,13 @@ class _Case0State extends State<Case0> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load banners: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to load banners: $e'),
+          ],
+        )),
       );
     }
   }
@@ -65,7 +72,13 @@ class _Case0State extends State<Case0> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load news: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to load news: $e'),
+          ],
+        )),
       );
     }
   }
@@ -100,7 +113,13 @@ class _Case0State extends State<Case0> {
     }).toList();
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to fetch FAQs: $e')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to fetch FAQs: $e'),
+        ],
+      )),
     );
     return [];
   }
@@ -113,7 +132,21 @@ class _Case0State extends State<Case0> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 1, 93, 168),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+          child: DefaultTextStyle(
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            child: AnimatedTextKit(
+              animatedTexts: [
+                WavyAnimatedText('LOADING...'),
+              ],
+              isRepeatingAnimation: true,
+            ),
+          ),
+        )
           : SingleChildScrollView(
               child: Column(
                 children: [

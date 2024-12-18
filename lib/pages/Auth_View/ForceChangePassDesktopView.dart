@@ -78,9 +78,7 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
 
         final document = querySnapshot.docs.first;
       final documentId = document.id;
-      final firstName = document['first_name'] as String;
-      final middleName = document['middle_name'] as String;
-      final lastName = document['last_name'] as String;
+
 
         await FirebaseFirestore.instance
             .collection('users')
@@ -132,10 +130,21 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+
+    double cardWidth = screenWidth * 0.4;  // 40% of screen width
+    double cardHeight = screenHeight * 0.85; // 85% of screen height
+    double inputWidth = cardWidth * 0.85;    // 85% of card width
+
     return Center(
       child: Container(
-        width: screenWidth / 2,
-        height: screenHeight / 1.2,
+        width: cardWidth,
+        height: cardHeight,
+        constraints: BoxConstraints(
+          minWidth: 400,  // Minimum width for very small screens
+          maxWidth: 800,  // Maximum width for very large screens
+          minHeight: 600, // Minimum height
+          maxHeight: 900, // Maximum height
+        ),
         child: AnimatedSwitcher(
           duration: Duration(milliseconds: 550),
           child: Container(
@@ -145,43 +154,54 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      'assets/PBMA.png',
-                      width: screenWidth / 7,
-                      height: screenHeight / 3,
+                                                  SizedBox(height: cardHeight * 0.02),
+
+                   Flexible(
+                flex: 2,
+                child: Image.asset(
+                  'assets/PBMA.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+                                SizedBox(height: cardHeight * 0.02),
+
+                  Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: cardWidth * 0.075,
+                ),
+                child: Container(
+                  width: inputWidth,
+                  child: Text(
+                    'Change Password',
+                    style: TextStyle(
+                      fontSize: cardWidth * 0.045,
+                      fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.left,
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                       padding: const EdgeInsets.only(left: 80.0),
-                      child: Text(
-                        'Change Password',
-                        style: TextStyle(fontSize: 24),
-                      ),
+                ),
+              ),
+                   Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: cardWidth * 0.075,
+                ),
+                child: Container(
+                  width: inputWidth,
+                  child: Text(
+                    'Before you proceed please kindly change your password',
+                    style: TextStyle(
+                      fontSize: cardWidth * 0.03,
                     ),
+                    textAlign: TextAlign.left,
                   ),
+                ),
+              ),
+
+              SizedBox(height: cardHeight * 0.04),
+
                   Container(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                       padding: const EdgeInsets.only(left: 80.0),
-                      child: Text(
-                        'Before you proceed please kindly change your password',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    height: screenHeight / 13,
-                    width: screenWidth / 2.57,
+                width: inputWidth,
+                height: cardHeight * 0.08,
                     child: CupertinoTextField(
                       controller: _newPasswordController,
                       placeholder: 'Password',
@@ -212,10 +232,11 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Container(
-                    height: screenHeight / 13,
-                    width: screenWidth / 2.57,
+                           SizedBox(height: cardHeight * 0.02),
+
+                        Container(
+                width: inputWidth,
+                height: cardHeight * 0.08,
                     child: CupertinoTextField(
                       controller: _confirmPasswordController,
                       placeholder: 'Confirm Password',
@@ -246,10 +267,10 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
-                  Container(
-                    height: screenHeight / 20,
-                            width: screenWidth / 2.57,
+                         SizedBox(height: cardHeight * 0.04),
+    Container(
+                width: inputWidth,
+                height: cardHeight * 0.06,
                     child: ElevatedButton(
                       style: ButtonStyle(
                                     backgroundColor:
@@ -267,19 +288,22 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                       onPressed: _changePassword,
                       child: Text('Change Password',
                                   style: TextStyle(
-                                      fontSize: 20,
+                      fontSize: cardWidth * 0.04,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white),),
                     ),
                   ),
                   if (_passwordMismatch)
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.symmetric(vertical: cardHeight * 0.02),
                       child: Text(
                         'Passwords do not match',
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(color: Colors.red,                       fontSize: cardWidth * 0.03,
+),
                       ),
                     ),
+                                                    SizedBox(height: cardHeight * 0.02),
+
                 ],
               ),
             ),

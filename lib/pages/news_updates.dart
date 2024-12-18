@@ -53,7 +53,13 @@ class _NewsUpdatesState extends State<NewsUpdates> {
 
     if (title.isEmpty || description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Both fields are required')),
+         SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Both fields are required'),
+          ],
+        )),
       );
       return;
     }
@@ -76,12 +82,24 @@ class _NewsUpdatesState extends State<NewsUpdates> {
       _fetchNews();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('News created successfully')),
+       SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('News created successfully'),
+          ],
+        )),
       );
     } catch (e) {
       print('Error saving news: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to create news')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to create news'),
+          ],
+        )),
       );
     }
   }
@@ -105,7 +123,13 @@ class _NewsUpdatesState extends State<NewsUpdates> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Status updated to $newStatus')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Status updated to $newStatus'),
+          ],
+        )),
       );
     } catch (e) {
       print('Error updating status: $e');
@@ -128,7 +152,13 @@ Future<void> _updateNews() async {
 
   if (title.isEmpty || description.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Both fields are required')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Both fields are required'),
+        ],
+      )),
     );
     return;
   }
@@ -149,12 +179,24 @@ Future<void> _updateNews() async {
     _fetchNews(); // Refresh the list
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('News updated successfully')),
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('News updated successfully'),
+        ],
+      )),
     );
   } catch (e) {
     print('Error updating news: $e');
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to update news')),
+    SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to update news'),
+        ],
+      )),
     );
   }
 }
@@ -170,12 +212,24 @@ Future<void> _deleteNews(String newsId) async {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('News deleted successfully')),
+   SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('News deleted successfully'),
+        ],
+      )),
     );
   } catch (e) {
     print('Error deleting news: $e');
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to delete news')),
+     SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+          Text('Failed to delete news'),
+        ],
+      )),
     );
   }
 }

@@ -41,7 +41,13 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
     // Basic validation before saving
     if (_selectedCategory == '--' || _subjectName.text.isEmpty || _subjectCode.text.isEmpty || _selectedCategory == '--' || _selectedSemester == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Please fill all fields'),
+          ],
+        )),
       );
       return;
     }
@@ -59,7 +65,13 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
 
       // Show a success message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Subject added successfully!')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Subject added successfully!'),
+          ],
+        )),
       );
 
       widget.closeAddSubjects();
@@ -75,7 +87,13 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error adding subject: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error adding subject: $e'),
+          ],
+        )),
       );
     }
   }

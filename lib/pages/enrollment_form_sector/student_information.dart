@@ -224,11 +224,23 @@ class StudentInformationState extends State<StudentInformation>
       widget.onImageUrlChanged(imageUrl); 
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Image Uploaded Successfully')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Image Uploaded Successfully'),
+          ],
+        )),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to Upload Image: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Failed to Upload Image: $e'),
+          ],
+        )),
       );
     }
   }

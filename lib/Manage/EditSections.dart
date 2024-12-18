@@ -59,25 +59,38 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
         .where('accountType', isEqualTo: 'instructor')
+        .where('adviser', isEqualTo: 'yes')  // Only fetch instructors who are advisers
         .get();
 
     setState(() {
-      advisersDropdownItems = querySnapshot.docs.map((doc) {
+    advisersDropdownItems = [
+      DropdownMenuItem<String>(
+        value: 'N/A',
+        child: Text('N/A'),
+      ),
+      ...querySnapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         String adviserName = '${data['first_name']} ${data['last_name']}';
         return DropdownMenuItem<String>(
           value: adviserName,
           child: Text(adviserName),
         );
-      }).toList();
-    });
-  }
+      }).toList(),
+    ];
+  });
+}
 
   // Update the section in Firestore
   Future<void> _updateSection() async {
     if (_selectedAdviser == null || _selectedSemester == '--' || _sectionCapacity.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Please fill all fields'),
+          ],
+        )),
       );
       return;
     }
@@ -93,7 +106,13 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     // Validate capacity
     if (newCapacity < currentCapacityCount) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Capacity cannot be less than current enrolled count of $currentCapacityCount')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Capacity cannot be less than current enrolled count of $currentCapacityCount'),
+          ],
+        )),
       );
       return;
     }
@@ -107,14 +126,26 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Section updated successfully!')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Section updated successfully!'),
+          ],
+        )),
       );
 
       widget.closeEditSections();
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating section: $e')),
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+            Text('Error updating section: $e'),
+          ],
+        )),
       );
     }
   }
