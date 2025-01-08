@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/pages/models/infos.dart';
+import 'package:balungao_nhs/pages/models/infos.dart';
 
 class InfoCard extends StatefulWidget {
   final Info info;

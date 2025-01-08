@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/widgets/hover_extensions.dart';
-import 'package:pbma_portal/widgets/text_reveal.dart';
-import 'package:pbma_portal/TermsAndConditions/TAC_Web_View.dart';
+import 'package:balungao_nhs/widgets/hover_extensions.dart';
+import 'package:balungao_nhs/widgets/text_reveal.dart';
+import 'package:balungao_nhs/TermsAndConditions/TAC_Web_View.dart';
 
 class FirstSection extends StatefulWidget {
   final Function onGetStartedPressed;

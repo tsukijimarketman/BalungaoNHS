@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pbma_portal/widgets/scroll_offset.dart';
-import 'package:pbma_portal/widgets/text_reveal.dart';
+import 'package:balungao_nhs/widgets/scroll_offset.dart';
+import 'package:balungao_nhs/widgets/text_reveal.dart';
 
 class MissionAndVision extends StatefulWidget {
   const MissionAndVision({super.key});

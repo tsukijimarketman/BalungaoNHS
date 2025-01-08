@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_colors.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/widgets/indicator.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_colors.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/widgets/indicator.dart';
 
 class DistributionAge extends StatefulWidget {
   const DistributionAge({super.key});

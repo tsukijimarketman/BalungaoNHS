@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/pages/models/infos.dart';
-import 'package:pbma_portal/pages/views/sections/mobile/mission_vision_mobile.dart';
-import 'package:pbma_portal/widgets/info_card%20mobile.dart';
-import 'package:pbma_portal/widgets/info_card.dart';
-import 'package:pbma_portal/pages/views/sections/desktop/mission_vision.dart';
+import 'package:balungao_nhs/pages/models/infos.dart';
+import 'package:balungao_nhs/pages/views/sections/mobile/mission_vision_mobile.dart';
+import 'package:balungao_nhs/widgets/info_card%20mobile.dart';
+import 'package:balungao_nhs/widgets/info_card.dart';
+import 'package:balungao_nhs/pages/views/sections/desktop/mission_vision.dart';
 
 class SecondSectionMobile extends StatelessWidget {
   const SecondSectionMobile({super.key});

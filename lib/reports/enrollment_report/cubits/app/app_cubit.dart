@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:equatable/equatable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:pbma_portal/reports/enrollment_report/urls.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/app_utils.dart';
+import 'package:balungao_nhs/reports/enrollment_report/urls.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/app_utils.dart';
 
 part 'app_state.dart';
 

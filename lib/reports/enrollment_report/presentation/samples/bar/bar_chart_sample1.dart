@@ -4,8 +4,8 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_colors.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/extensions/color_extensions.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_colors.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/extensions/color_extensions.dart';
 
 class BarChartSample1 extends StatefulWidget {
   BarChartSample1({super.key});

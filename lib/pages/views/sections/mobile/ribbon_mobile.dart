@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/widgets/hover_extensions.dart';
+import 'package:balungao_nhs/widgets/hover_extensions.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class RibbonMobile extends StatefulWidget {

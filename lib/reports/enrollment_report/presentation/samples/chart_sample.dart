@@ -1,7 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
-import 'package:pbma_portal/reports/enrollment_report/urls.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/app_helper.dart';
+import 'package:balungao_nhs/reports/enrollment_report/urls.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/app_helper.dart';
 
 abstract class ChartSample {
   final int number;

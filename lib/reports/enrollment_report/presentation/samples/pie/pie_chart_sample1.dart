@@ -2,9 +2,9 @@
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/widgets/indicator.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_colors.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/extensions/color_extensions.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/widgets/indicator.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_colors.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/extensions/color_extensions.dart';
 
 class PieChartSample1 extends StatefulWidget {
   const PieChartSample1({super.key});

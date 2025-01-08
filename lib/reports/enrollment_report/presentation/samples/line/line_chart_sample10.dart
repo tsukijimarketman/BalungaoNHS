@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_colors.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/extensions/color_extensions.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_colors.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/extensions/color_extensions.dart';
 import 'package:flutter/material.dart';
 
 class LineChartSample10 extends StatefulWidget {

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_assets.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_assets.dart';
 
 class FlChartBanner extends StatelessWidget {
   const FlChartBanner({super.key});

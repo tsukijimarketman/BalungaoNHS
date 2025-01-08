@@ -1,6 +1,6 @@
 
 
-import 'package:pbma_portal/reports/enrollment_report/util/app_helper.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/app_helper.dart';
 
 class AppAssets {
   static String getChartIcon(ChartType type) {

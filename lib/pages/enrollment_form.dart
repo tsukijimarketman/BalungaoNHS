@@ -8,15 +8,15 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/launcher.dart';
-import 'package:pbma_portal/pages/Auth_View/SignInDesktopView.dart';
-import 'package:pbma_portal/pages/dashboard.dart';
-import 'package:pbma_portal/pages/enrollment_form_sector/home_address.dart';
-import 'package:pbma_portal/pages/enrollment_form_sector/junior_high_school.dart';
-import 'package:pbma_portal/pages/enrollment_form_sector/parent_information.dart';
-import 'package:pbma_portal/pages/enrollment_form_sector/senior_high_school.dart';
-import 'package:pbma_portal/pages/enrollment_form_sector/student_information.dart';
-import 'package:pbma_portal/pages/enrollment_form_sector/uploading_files.dart';
+import 'package:balungao_nhs/launcher.dart';
+import 'package:balungao_nhs/pages/Auth_View/SignInDesktopView.dart';
+import 'package:balungao_nhs/pages/dashboard.dart';
+import 'package:balungao_nhs/pages/enrollment_form_sector/home_address.dart';
+import 'package:balungao_nhs/pages/enrollment_form_sector/junior_high_school.dart';
+import 'package:balungao_nhs/pages/enrollment_form_sector/parent_information.dart';
+import 'package:balungao_nhs/pages/enrollment_form_sector/senior_high_school.dart';
+import 'package:balungao_nhs/pages/enrollment_form_sector/student_information.dart';
+import 'package:balungao_nhs/pages/enrollment_form_sector/uploading_files.dart';
 
 class EnrollmentForm extends StatefulWidget {
   @override

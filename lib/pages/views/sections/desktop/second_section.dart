@@ -2,13 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pbma_portal/pages/models/infos.dart';
-import 'package:pbma_portal/pages/views/sections/desktop/footer.dart';
-import 'package:pbma_portal/widgets/hover_extensions.dart';
-import 'package:pbma_portal/widgets/info_card.dart';
-import 'package:pbma_portal/pages/views/sections/desktop/mission_vision.dart';
-import 'package:pbma_portal/widgets/scroll_offset.dart';
-import 'package:pbma_portal/widgets/text_reveal.dart';
+import 'package:balungao_nhs/pages/models/infos.dart';
+import 'package:balungao_nhs/pages/views/sections/desktop/footer.dart';
+import 'package:balungao_nhs/widgets/hover_extensions.dart';
+import 'package:balungao_nhs/widgets/info_card.dart';
+import 'package:balungao_nhs/pages/views/sections/desktop/mission_vision.dart';
+import 'package:balungao_nhs/widgets/scroll_offset.dart';
+import 'package:balungao_nhs/widgets/text_reveal.dart';
 
 class SecondSection extends StatefulWidget {
   const SecondSection({super.key});

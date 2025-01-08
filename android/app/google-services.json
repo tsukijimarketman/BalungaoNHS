@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1040305288347",
+    "project_id": "balungaonhs-29b22",
+    "storage_bucket": "balungaonhs-29b22.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040305288347:android:73aece1902fa2c66a4423e",
+        "android_client_info": {
+          "package_name": "com.example.pbma_portal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOxkOf8XzdcVKGr4c0nahcYC0V1kgh86s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

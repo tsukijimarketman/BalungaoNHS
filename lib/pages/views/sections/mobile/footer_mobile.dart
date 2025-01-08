@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/pages/views/sections/desktop/contact_us.dart';
-import 'package:pbma_portal/pages/views/sections/desktop/ribbon.dart';
-import 'package:pbma_portal/pages/views/sections/mobile/contact_us_mobile.dart';
-import 'package:pbma_portal/pages/views/sections/mobile/ribbon_mobile.dart';
+import 'package:balungao_nhs/pages/views/sections/desktop/contact_us.dart';
+import 'package:balungao_nhs/pages/views/sections/desktop/ribbon.dart';
+import 'package:balungao_nhs/pages/views/sections/mobile/contact_us_mobile.dart';
+import 'package:balungao_nhs/pages/views/sections/mobile/ribbon_mobile.dart';
 
 class FooterMobile extends StatefulWidget {
   const FooterMobile({super.key});

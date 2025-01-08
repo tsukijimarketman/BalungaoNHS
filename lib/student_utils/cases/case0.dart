@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:pbma_portal/pages/views/chatbot/chatbot.dart';
+import 'package:balungao_nhs/pages/views/chatbot/chatbot.dart';
 
 class Case0 extends StatefulWidget {
   const Case0({super.key});

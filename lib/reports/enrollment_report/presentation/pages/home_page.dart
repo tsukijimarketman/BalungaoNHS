@@ -2,11 +2,11 @@
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/menu/app_menu.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_dimens.dart';
-import 'package:pbma_portal/reports/enrollment_report/urls.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/app_helper.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/app_utils.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/menu/app_menu.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_dimens.dart';
+import 'package:balungao_nhs/reports/enrollment_report/urls.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/app_helper.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/app_utils.dart';
 
 
 import 'chart_samples_page.dart';

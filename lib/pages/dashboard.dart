@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/pages/views/sections/desktop/desktop_view.dart';
-import 'package:pbma_portal/pages/views/sections/mobile/mobile_view.dart'; 
+import 'package:balungao_nhs/pages/views/sections/desktop/desktop_view.dart';
+import 'package:balungao_nhs/pages/views/sections/mobile/mobile_view.dart'; 
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});

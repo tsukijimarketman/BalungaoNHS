@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pbma_portal/launcher.dart';
-import 'package:pbma_portal/student_utils/student_ui.dart';
+import 'package:balungao_nhs/launcher.dart';
+import 'package:balungao_nhs/student_utils/student_ui.dart';
 
 class ReEnrollForm extends StatefulWidget {
   const ReEnrollForm({super.key});

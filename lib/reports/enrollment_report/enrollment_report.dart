@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pbma_portal/reports/enrollment_report/distribution_age.dart';
-import 'package:pbma_portal/reports/enrollment_report/distribution_gender.dart';
-import 'package:pbma_portal/reports/enrollment_report/total_enrollments_by_strand.dart';
+import 'package:balungao_nhs/reports/enrollment_report/distribution_age.dart';
+import 'package:balungao_nhs/reports/enrollment_report/distribution_gender.dart';
+import 'package:balungao_nhs/reports/enrollment_report/total_enrollments_by_strand.dart';
 
 class EnrollmentReport extends StatefulWidget {
   const EnrollmentReport({super.key});

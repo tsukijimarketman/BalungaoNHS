@@ -1,10 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_dimens.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/samples/chart_samples.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/widgets/chart_holder.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/app_helper.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_dimens.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/samples/chart_samples.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/widgets/chart_holder.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/app_helper.dart';
 
 
 class ChartSamplesPage extends StatelessWidget {

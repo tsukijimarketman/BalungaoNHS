@@ -1,5 +1,5 @@
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_assets.dart';
-import 'package:pbma_portal/reports/enrollment_report/urls.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_assets.dart';
+import 'package:balungao_nhs/reports/enrollment_report/urls.dart';
 
 enum ChartType { line, bar, pie, scatter, radar }
 

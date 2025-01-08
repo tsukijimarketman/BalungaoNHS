@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_colors.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_dimens.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/samples/chart_sample.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/app_utils.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_colors.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_dimens.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/samples/chart_sample.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/app_utils.dart';
 
 class ChartHolder extends StatelessWidget {
   final ChartSample chartSample;

@@ -1,8 +1,8 @@
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_colors.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/widgets/legend_widget.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_colors.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/widgets/legend_widget.dart';
 
 class BarChartSample6 extends StatelessWidget {
  BarChartSample6({super.key});

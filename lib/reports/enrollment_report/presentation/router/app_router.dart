@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/pages/home_page.dart';
-import 'package:pbma_portal/reports/enrollment_report/presentation/resources/app_colors.dart';
-import 'package:pbma_portal/reports/enrollment_report/util/app_helper.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/pages/home_page.dart';
+import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/app_colors.dart';
+import 'package:balungao_nhs/reports/enrollment_report/util/app_helper.dart';
 
 final appRouterConfig = GoRouter(
   routes: [
