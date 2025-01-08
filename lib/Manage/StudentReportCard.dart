@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:printing/printing.dart';
 
 class StudentReportCards extends StatefulWidget {
   final Map<String, dynamic> studentData;
@@ -458,9 +461,8 @@ void initState() {
                                     ),
                                   ),
                                 ),
-                                onPressed: () {
-                                  
-                                },
+                                onPressed: _generatePDF,
+
                                 child: Text(
                                   'Download to PDF',
                                   style: TextStyle(color: Colors.white),
@@ -499,5 +501,68 @@ Widget _buildDetailRow(IconData icon, String title, String value) {
         ],
       ),
     );
+  }
+  void _generatePDF() async {
+  final pdf = pw.Document();
+  
+  pdf.addPage(
+    pw.Page(
+      pageFormat: PdfPageFormat.a4.landscape,
+      build: (context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'Student Report Card',
+              style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 10),
+            pw.Text(
+              '${widget.studentData['first_name']} ${widget.studentData['last_name']}',
+              style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.normal),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Table.fromTextArray(
+              headers: ['Subject Code', 'Subject Name', 'Grade'],
+              data: subjects.map((grade) {
+                return [
+                  grade['subject_code'] ?? '',
+                  grade['subject_name'] ?? '',
+                  grade['grade'] ?? '',
+                ];
+              }).toList(),
+            ),
+            pw.SizedBox(height: 40), // Add space before the principal section
+              pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Text(
+                      'Urbano Delos Angeles IV',
+                      style: pw.TextStyle(
+                          fontSize: 14, fontWeight: pw.FontWeight.bold),
+                    ),
+                    pw.Container(
+                      width: 150,
+                      child: pw.Divider(thickness: 1),
+                    ),
+                    pw.Text(
+                      'SCHOOL PRINCIPAL',
+                      style: pw.TextStyle(
+                          fontSize: 12, fontStyle: pw.FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    ),
+  );
+
+  final pdfBytes = await pdf.save();
+      await Printing.sharePdf(
+          bytes: pdfBytes, filename: 'report_grade.pdf');
   }
 }
