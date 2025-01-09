@@ -481,14 +481,14 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                         },
                       ),
                       SizedBox(height: 30),
-                       if (selectededucLevel == 'Junior High School') ...[
+                       if (selectededucLevel == 'junior') ...[
                        JuniorHighSchoolEnrollment(
                           key: _juniorHSinforKey,
                           spacing: 50.0, 
                           onDataChanged: _updateStudentData),
                        SizedBox(height: 30),
                      ],
-                     if (selectededucLevel == 'Senior High School') ...[  // Add square brackets for consistency
+                     if (selectededucLevel == 'senior') ...[  // Add square brackets for consistency
                        JuniorHighSchool(
                          key: _juniorHSKey,
                          onDataChanged: _updateStudentData,
