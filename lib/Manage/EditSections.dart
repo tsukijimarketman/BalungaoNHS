@@ -27,7 +27,8 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
   final TextEditingController _sectionAdviser = TextEditingController();
   final TextEditingController _sectionCapacity = TextEditingController();
   String? _selectedSemester = '--';
-  String? _selectedAdviser;
+  String? _selectedAdviser = 'N/A';
+  String? _selectedEducationLevel = '--';
   List<DropdownMenuItem<String>> advisersDropdownItems = [];
 
   final CollectionReference sectionsCollection =
@@ -45,14 +46,16 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
     DocumentSnapshot sectionDoc = await sectionsCollection.doc(widget.sectionId).get();
 
     if (sectionDoc.exists) {
-      Map<String, dynamic>? data = sectionDoc.data() as Map<String, dynamic>?;
+  Map<String, dynamic>? data = sectionDoc.data() as Map<String, dynamic>?;
 
-      setState(() {
-        _selectedAdviser = data?['section_adviser'] ?? '';
-        _selectedSemester = data?['semester'] ?? '--';
-        _sectionCapacity.text = data?['section_capacity'].toString() ?? '';
-      });
-    }
+  setState(() {
+    _selectedAdviser = data?['section_adviser'] ?? 'N/A'; // Default to 'N/A' if unmatched
+    _selectedSemester = data?['semester'] ?? '--';
+    _sectionCapacity.text = data?['section_capacity'].toString() ?? '';
+    _selectedEducationLevel = data?['education_level'] ?? '--';
+  });
+}
+
   }
 
   Future<void> _fetchAdvisers() async {
@@ -62,27 +65,36 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
         .where('adviser', isEqualTo: 'yes')  // Only fetch instructors who are advisers
         .get();
 
-    setState(() {
-    advisersDropdownItems = [
-      DropdownMenuItem<String>(
-        value: 'N/A',
-        child: Text('N/A'),
-      ),
-      ...querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        String adviserName = '${data['first_name']} ${data['last_name']}';
-        return DropdownMenuItem<String>(
-          value: adviserName,
-          child: Text(adviserName),
-        );
-      }).toList(),
-    ];
-  });
+   setState(() {
+  advisersDropdownItems = [
+    DropdownMenuItem<String>(
+      value: 'N/A',
+      child: Text('N/A'),
+    ),
+    ...querySnapshot.docs.map((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      String adviserName = '${data['first_name']} ${data['last_name']}';
+      return DropdownMenuItem<String>(
+        value: adviserName,
+        child: Text(adviserName),
+      );
+    }).toList(),
+  ];
+
+  // Ensure selected adviser is valid
+  if (!advisersDropdownItems.any((item) => item.value == _selectedAdviser)) {
+    _selectedAdviser = 'N/A';
+  }
+});
+
 }
 
   // Update the section in Firestore
   Future<void> _updateSection() async {
-    if (_selectedAdviser == null || _selectedSemester == '--' || _sectionCapacity.text.isEmpty) {
+    if (_selectedAdviser == null || 
+     _selectedSemester == '--' ||
+     _sectionCapacity.text.isEmpty ||
+     _selectedEducationLevel == '--') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
@@ -122,6 +134,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
         'section_adviser': _selectedAdviser,
         'semester': _selectedSemester,
         'section_capacity': newCapacity,
+        'education_level': _selectedEducationLevel,
         'updated_at': Timestamp.now(),
       });
 
@@ -198,6 +211,25 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 16),
+       DropdownButtonFormField<String>(
+      value: _selectedEducationLevel,
+      decoration: InputDecoration(
+        labelText: 'Education Level',
+        border: OutlineInputBorder(),
+      ),
+      items: ['--', 'Junior High School', 'Senior High School']
+          .map((level) => DropdownMenuItem<String>(
+                value: level,
+                child: Text(level),
+              ))
+          .toList(),
+      onChanged: (val) {
+        setState(() {
+          _selectedEducationLevel = val;
+        });
+      },
+    ),
+    SizedBox(height: 16),
                       // Section Adviser
                       DropdownButtonFormField<String>(
                         value: _selectedAdviser,

@@ -42,6 +42,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
   String? _emailError;
   bool _isPasswordVisible = false; // Add this new state variable
   Map<String, String> _subjectPairs = {}; // Stores valid subject name-code pairs
+  String? _selectedEducationLevel = '--';
 
   @override
   void initState() {
@@ -253,19 +254,26 @@ Future<bool> _isEmailInUse(String email) async {
             throw Exception('Failed to create user: No UID generated');
           }
 
-          await FirebaseFirestore.instance.collection('users').doc(uid).set({
-            'first_name': firstName,
-            'middle_name': middleName,
-            'last_name': lastName,
-            'subject_Name': subjectName,
-            'subject_Code': subjectCode,
-            'email_Address': email,
-            'accountType': 'instructor',
-            'Status': 'active',
-            'adviser': _adviserStatus,
-            'handled_section': handledSectionValue,
-            'uid': uid,
-          });
+          try {
+  await FirebaseFirestore.instance.collection('users').doc(uid).set({
+    'first_name': firstName,
+    'middle_name': middleName,
+    'last_name': lastName,
+    'subject_Name': subjectName,
+    'subject_Code': subjectCode,
+    'email_Address': email,
+    'accountType': 'instructor',
+    'Status': 'active',
+    'adviser': _adviserStatus,
+    'handled_section': handledSectionValue,
+    'education_level': _selectedEducationLevel, // Save educational level
+    'uid': uid,
+  });
+} catch (e) {
+  print('Error saving to Firestore: $e');
+  // Handle the error
+}
+
 
           await tempAuth.signOut();
 
@@ -353,6 +361,28 @@ Future<bool> _isEmailInUse(String email) async {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            // New Dropdown for Educational Level
+                            DropdownButtonFormField<String>(
+      value: _selectedEducationLevel,
+      decoration: InputDecoration(
+        labelText: 'Education Level',
+        border: OutlineInputBorder(),
+      ),
+      items: ['--', 'Junior High School', 'Senior High School']
+          .map((level) => DropdownMenuItem<String>(
+                value: level,
+                child: Text(level),
+              ))
+          .toList(),
+      onChanged: (val) {
+        setState(() {
+          _selectedEducationLevel = val;
+        });
+      },
+    ),
+                            SizedBox(height: 8),
+
+                            // First Name Field
                             _buildTextField(_firstNameController, 'First Name',
                                 'Please enter a first name'),
                             _buildTextField(_middleNameController,

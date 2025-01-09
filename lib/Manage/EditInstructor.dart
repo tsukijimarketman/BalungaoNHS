@@ -25,15 +25,15 @@ class _EditInstructorState extends State<EditInstructor> {
   final TextEditingController _subjectCode = TextEditingController();
   final FocusNode _subjectNameFocusNode = FocusNode();
   final FocusNode _subjectCodeFocusNode = FocusNode();
+
   String _adviserStatus = '--'; // Default value for adviser status
   String? _selectedSection; // To store the selected section
+  String? _selectedEducationLevel = '--'; // New dropdown for educational level
   List<String> _sections = []; // To store section names
   List<String> _subjectNameSuggestions = [];
   List<String> _subjectCodeSuggestions = [];
-  bool _isSubjectNameSelected =
-      false; // Track whether a suggestion was selected
-  bool _isSubjectCodeSelected =
-      false; // Track whether a suggestion was selected for subject code
+  bool _isSubjectNameSelected = false;
+  bool _isSubjectCodeSelected = false;
 
   Map<String, String> _subjectPairs = {}; // Stores valid subject name-code pairs
 
@@ -45,7 +45,6 @@ class _EditInstructorState extends State<EditInstructor> {
     _fetchSubjects();
   }
 
-  // Load the existing data for the instructor from Firestore
   Future<void> _loadInstructorData() async {
     if (widget.instructorId == null) return; // Ensure instructorId is not null
 
@@ -60,13 +59,12 @@ class _EditInstructorState extends State<EditInstructor> {
         setState(() {
           _subjectName.text = doc.data()?['subject_Name'] ?? '';
           _subjectCode.text = doc.data()?['subject_Code'] ?? '';
-          _adviserStatus =
-              doc.data()?['adviserStatus'] ?? '--'; // Load adviser status
-
+          _adviserStatus = doc.data()?['adviserStatus'] ?? '--';
+          _selectedEducationLevel = doc.data()?['education_level'] ?? null;
           String? handledSection = doc.data()?['handled_section'];
           _selectedSection = _sections.contains(handledSection)
               ? handledSection
-              : null; // Validate section
+              : null;
         });
       } else {
         print('No document found for instructor ID: ${widget.instructorId}');
@@ -82,170 +80,94 @@ class _EditInstructorState extends State<EditInstructor> {
           await FirebaseFirestore.instance.collection('sections').get();
       final sections = snapshot.docs
           .map((doc) => doc['section_name'] as String)
-          .toList(); // Assuming each section document has a 'section_name' field
+          .toList();
       setState(() {
-        _sections = sections; // Update sections list
+        _sections = sections;
         if (_selectedSection != null && !_sections.contains(_selectedSection)) {
           _selectedSection = null; // Reset if it doesn't exist
         }
       });
     } catch (e) {
-      // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Error fetching sections: $e'),
-          ],
-        )),
+        SnackBar(content: Text('Error fetching sections: $e')),
       );
     }
   }
 
   Future<void> _fetchSubjects() async {
-  try {
-    final snapshot = await FirebaseFirestore.instance.collection('subjects').get();
-    setState(() {
-      _subjectNameSuggestions = snapshot.docs
-          .map((doc) => doc['subject_name'].toString())
-          .toList();
-      _subjectCodeSuggestions = snapshot.docs
-          .map((doc) => doc['subject_code'].toString())
-          .toList();
-      
-      // Store valid subject pairs
-      _subjectPairs.clear();
-      for (var doc in snapshot.docs) {
-        _subjectPairs[doc['subject_name'].toString()] = doc['subject_code'].toString();
-      }
-    });
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Error fetching subjects: $e'),
-        ],
-      )),
-    );
-  }
-}
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('subjects').get();
+      setState(() {
+        _subjectNameSuggestions = snapshot.docs
+            .map((doc) => doc['subject_name'].toString())
+            .toList();
+        _subjectCodeSuggestions = snapshot.docs
+            .map((doc) => doc['subject_code'].toString())
+            .toList();
 
- List<String> _filterSuggestions(String query, List<String> suggestions) {
-  if (query.isEmpty) return [];
-  
-  String queryLower = query.toLowerCase();
-  return suggestions
-      .where((suggestion) => suggestion.toLowerCase().contains(queryLower))
-      .toList()
-    ..sort((a, b) {
-      // Prioritize suggestions that start with the query
-      bool aStarts = a.toLowerCase().startsWith(queryLower);
-      bool bStarts = b.toLowerCase().startsWith(queryLower);
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-      return a.compareTo(b);
-    });
-}
-
-
-  // Save the updated data to Firestore
- // ... existing code ...
-
-Future<void> _saveChanges() async {
-  if (_subjectName.text.isEmpty ||
-      _subjectCode.text.isEmpty ||
-      _adviserStatus == '--') {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Please fill all fields and select adviser status'),
-        ],
-      )),
-    );
-    return;
+        _subjectPairs.clear();
+        for (var doc in snapshot.docs) {
+          _subjectPairs[doc['subject_name'].toString()] =
+              doc['subject_code'].toString();
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching subjects: $e')),
+      );
+    }
   }
 
-  try {
-    final batch = FirebaseFirestore.instance.batch();
-    final userDocRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.instructorId);
-    
-    // Update the user document
-    if (_adviserStatus == 'yes') {
-      batch.update(userDocRef, {
-        'subject_Name': _subjectName.text,
-        'subject_Code': _subjectCode.text,
-        'adviser': _adviserStatus,
-        'handled_section': _selectedSection,
-      });
-    } else {
-      batch.update(userDocRef, {
-        'subject_Name': _subjectName.text,
-        'subject_Code': _subjectCode.text,
-        'adviser': _adviserStatus,
-        'handled_section': null,
-      });
+  List<String> _filterSuggestions(String query, List<String> suggestions) {
+    if (query.isEmpty) return [];
 
-      // Query sections where this instructor is the adviser
-      QuerySnapshot sectionsQuery = await FirebaseFirestore.instance
-          .collection('sections')
-          .where('section_adviser', isEqualTo: '${await getUserFullName()}')
-          .get();
+    String queryLower = query.toLowerCase();
+    return suggestions
+        .where((suggestion) => suggestion.toLowerCase().contains(queryLower))
+        .toList()
+      ..sort((a, b) {
+        bool aStarts = a.toLowerCase().startsWith(queryLower);
+        bool bStarts = b.toLowerCase().startsWith(queryLower);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return a.compareTo(b);
+      });
+  }
 
-      // Update each section to set adviser to 'N/A'
-      for (var doc in sectionsQuery.docs) {
-        batch.update(doc.reference, {
-          'section_adviser': 'N/A'
-        });
-      }
+  Future<void> _saveChanges() async {
+    if (_subjectName.text.isEmpty ||
+        _subjectCode.text.isEmpty ||
+        _adviserStatus == '--') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all fields and select adviser status')),
+      );
+      return;
     }
 
-    await batch.commit();
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.instructorId)
+          .update({
+        'subject_Name': _subjectName.text,
+        'subject_Code': _subjectCode.text,
+        'adviserStatus': _adviserStatus,
+        'handled_section': _selectedSection,
+        'education_level': _selectedEducationLevel,
+      });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Instructor updated successfully'),
-        ],
-      )),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Instructor updated successfully')),
+      );
 
-    widget.closeEditInstructors();
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Failed to update instructor: $e'),
-        ],
-      )),
-    );
+      widget.closeEditInstructors();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update instructor: $e')),
+      );
+    }
   }
-}
-
-// Add this helper method to get the instructor's full name
-Future<String> getUserFullName() async {
-  final doc = await FirebaseFirestore.instance
-      .collection('users')
-      .doc(widget.instructorId)
-      .get();
-  
-  if (doc.exists) {
-    final data = doc.data() as Map<String, dynamic>;
-    return '${data['first_name']} ${data['last_name']}';
-  }
-  return '';
-}
-
 
   @override
   void dispose() {
@@ -277,7 +199,6 @@ Future<String> getUserFullName() async {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Back button
                       Align(
                         alignment: Alignment.topRight,
                         child: TextButton(
@@ -290,7 +211,6 @@ Future<String> getUserFullName() async {
                         ),
                       ),
                       SizedBox(height: 8),
-                      // Form title
                       Text(
                         'Edit Teacher',
                         style: TextStyle(
@@ -302,7 +222,7 @@ Future<String> getUserFullName() async {
                         'Subject Name',
                         _subjectNameSuggestions,
                         _isSubjectNameSelected,
-                        _subjectNameFocusNode, // Pass the FocusNode here
+                        _subjectNameFocusNode,
                         (suggestion) {
                           setState(() {
                             _subjectName.text = suggestion;
@@ -310,13 +230,13 @@ Future<String> getUserFullName() async {
                           });
                         },
                       ),
-
+                      SizedBox(height: 16),
                       _buildSuggestionField(
                         _subjectCode,
                         'Subject Code',
                         _subjectCodeSuggestions,
                         _isSubjectCodeSelected,
-                        _subjectCodeFocusNode, // Pass the FocusNode here
+                        _subjectCodeFocusNode,
                         (suggestion) {
                           setState(() {
                             _subjectCode.text = suggestion;
@@ -324,9 +244,7 @@ Future<String> getUserFullName() async {
                           });
                         },
                       ),
-
                       SizedBox(height: 16),
-                      // Adviser Status Dropdown
                       DropdownButtonFormField<String>(
                         value: _adviserStatus,
                         decoration: InputDecoration(
@@ -343,12 +261,6 @@ Future<String> getUserFullName() async {
                             _adviserStatus = value ?? '--';
                           });
                         },
-                        validator: (value) {
-                          if (value == '--') {
-                            return 'Please select teacher status';
-                          }
-                          return null;
-                        },
                       ),
                       if (_adviserStatus == 'yes') ...[
                         DropdownButtonFormField<String>(
@@ -363,39 +275,46 @@ Future<String> getUserFullName() async {
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
-                              _selectedSection =
-                                  value; // Update selected section
+                              _selectedSection = value;
                             });
                           },
-                          validator: (value) =>
-                              value == null ? 'Please select a section' : null,
                         ),
                       ],
+                      SizedBox(height: 16),
+                     DropdownButtonFormField<String>(
+      value: _selectedEducationLevel,
+      decoration: InputDecoration(
+        labelText: 'Education Level',
+        border: OutlineInputBorder(),
+      ),
+      items: ['--', 'Junior High School', 'Senior High School']
+          .map((level) => DropdownMenuItem<String>(
+                value: level,
+                child: Text(level),
+              ))
+          .toList(),
+      onChanged: (val) {
+        setState(() {
+          _selectedEducationLevel = val;
+        });
+      },
+    ),
                       SizedBox(height: 24),
-                      // Save Changes button
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: widget.screenWidth * 1,
-                          height: widget.screenHeight * 0.06,
-                          child: ElevatedButton(
-                            onPressed: _saveChanges,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              elevation: 5, // Elevation level for shadow depth
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 15), // Padding
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                        child: ElevatedButton(
+                          onPressed: _saveChanges,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Text(
-                              'Save Changes',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                            ),
+                          ),
+                          child: Text(
+                            'Save Changes',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ),
@@ -416,75 +335,61 @@ Future<String> getUserFullName() async {
     List<String> suggestions,
     bool isSubjectSelected,
     FocusNode focusNode,
-    Function(String) onSuggestionTap) {
-  bool isValid = true;
-  if (labelText == 'Subject Name') {
-    isValid = _subjectName.text.isEmpty || 
-              _subjectPairs.containsKey(_subjectName.text);
-  } else if (labelText == 'Subject Code') {
-    isValid = _subjectCode.text.isEmpty || 
-              _subjectPairs.values.contains(_subjectCode.text);
-  }
+    Function(String) onSuggestionTap,
+  ) {
+    bool isValid = true;
+    if (labelText == 'Subject Name') {
+      isValid = _subjectName.text.isEmpty ||
+          _subjectPairs.containsKey(_subjectName.text);
+    } else if (labelText == 'Subject Code') {
+      isValid = _subjectCode.text.isEmpty ||
+          _subjectPairs.values.contains(_subjectCode.text);
+    }
 
-  return Column(
-    children: [
-      TextFormField(
-        controller: controller,
-        focusNode: focusNode,
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: OutlineInputBorder(),
-          errorText: !isValid ? 'Invalid $labelText' : null,
+    return Column(
+      children: [
+        TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: labelText,
+            border: OutlineInputBorder(),
+            errorText: !isValid ? 'Invalid $labelText' : null,
+          ),
+          onChanged: (value) {
+            setState(() {
+              if (labelText == 'Subject Name') {
+                _isSubjectNameSelected = false;
+              } else {
+                _isSubjectCodeSelected = false;
+              }
+            });
+          },
         ),
-        onChanged: (value) {
-          setState(() {
-            if (labelText == 'Subject Name') {
-              _isSubjectNameSelected = false;
-            } else {
-              _isSubjectCodeSelected = false;
-            }
-          });
-        },
-        onTap: () {
-          setState(() {
-            // Reset selection state when field is tapped
-            if (labelText == 'Subject Name') {
-              _isSubjectNameSelected = false;
-            } else {
-              _isSubjectCodeSelected = false;
-            }
-          });
-        },
-      ),
-      if (focusNode.hasFocus && !isSubjectSelected) // Show suggestions when focused and not selected
-        Container(
-          height: 150,
-          child: ListView(
-            children: _filterSuggestions(controller.text, suggestions)
-                .map((suggestion) {
-              return ListTile(
-                title: Text(suggestion),
-                onTap: () {
-                  onSuggestionTap(suggestion);
-                  setState(() {
-                    if (labelText == 'Subject Name') {
-                      _isSubjectNameSelected = true;
-                      // Auto-fill subject code if available
-                      if (_subjectPairs.containsKey(suggestion)) {
-                        _subjectCode.text = _subjectPairs[suggestion]!;
+        if (focusNode.hasFocus && !isSubjectSelected)
+          Container(
+            height: 150,
+            child: ListView(
+              children: _filterSuggestions(controller.text, suggestions)
+                  .map((suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                  onTap: () {
+                                        onSuggestionTap(suggestion);
+                    setState(() {
+                      if (labelText == 'Subject Name') {
+                        _isSubjectNameSelected = true;
+                      } else {
                         _isSubjectCodeSelected = true;
                       }
-                    } else {
-                      _isSubjectCodeSelected = true;
-                    }
-                  });
-                },
-              );
-            }).toList(),
+                    });
+                  },
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      SizedBox(height: 8),
-    ],
-  );
+      ],
+    );
+  }
 }
-}
+
