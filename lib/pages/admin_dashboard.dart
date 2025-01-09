@@ -51,6 +51,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int _transfereeIconState = 0;
   int _trackIconState = 0;
   String _selectedStrand = 'ALL';
+  String selectedLevel = 'Junior High School'; // Default value
+  String? _selectedGrade; // For storing selected grade level
 
   String? selectedSubjectId;
   String? selectedInstructorId;
@@ -91,7 +93,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'IA': 'Industrial Arts (IA)',
   };
   String? _selectedTrack; // For filtering by Track
-  String? _selectedGrade; // For filtering by Grade Level
+  String? _selectedGrades; // For filtering by Grade Level
   String? _selectedTransferee; // For filtering by Transferee
 
   String _selectedSubMenu = 'subjects'; // Default value
@@ -102,37 +104,37 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   //BuildDashboardContent
   Stream<QuerySnapshot> _getEnrolledStudentsCount() {
-    Query query = FirebaseFirestore.instance
-        .collection('users')
-        .where('Status', isEqualTo: 'active')
-        .where('enrollment_status',
-            isEqualTo: 'approved'); // Always filter by 'approved'
-
-    // Map icon states to Firestore values
-    String? trackValue;
-    if (_trackIconState == 1) {
-      trackValue = 'Academic Track'; // Replace with actual Firestore value
-    } else if (_trackIconState == 2) {
-      trackValue =
-          'Technical-Vocational-Livelihood (TVL)'; // Replace with actual Firestore value
-    }
-    if (trackValue != null) {
-      query = query.where('seniorHigh_Track', isEqualTo: trackValue);
-    }
-
-    // Map grade level states
-    String? gradeLevelValue;
+ Query query = FirebaseFirestore.instance
+     .collection('users')
+     .where('Status', isEqualTo: 'active')
+     .where('educ_level', isEqualTo: selectedLevel) // Use the selectedLevel variable
+     .where('enrollment_status', isEqualTo: 'approved');
+  // Add any additional filters based on the selected level
+ if (selectedLevel == 'Senior High School') {
+   if (_trackIconState == 1) {
+     query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
+   } else if (_trackIconState == 2) {
+     query = query.where('seniorHigh_Track', isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
+   }
+    if (_selectedStrand != 'ALL') {
+     String? strandValue = strandMapping[_selectedStrand];
+     if (strandValue != null) {
+       query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
+     }
+   }
     if (_gradeLevelIconState == 1) {
-      gradeLevelValue = '11'; // Replace with actual Firestore value
-    } else if (_gradeLevelIconState == 2) {
-      gradeLevelValue = '12'; // Replace with actual Firestore value
-    }
-    if (gradeLevelValue != null) {
-      query = query.where('grade_level', isEqualTo: gradeLevelValue);
-    }
+     query = query.where('grade_level', isEqualTo: '11');
+   } else if (_gradeLevelIconState == 2) {
+     query = query.where('grade_level', isEqualTo: '12');
+   }
+ } else if (selectedLevel == 'Junior High School') {
+   // Add filters specific to Junior High School
+   if (_selectedGrade != 'All') {
+     query = query.where('grade_level', isEqualTo: _selectedGrade);
+   }
+ }
 
-    // Map transferee states
-    String? transfereeValue;
+ String? transfereeValue;
     if (_transfereeIconState == 1) {
       transfereeValue = 'yes'; // Replace with actual Firestore value
     } else if (_transfereeIconState == 2) {
@@ -142,17 +144,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       query = query.where('transferee', isEqualTo: transfereeValue);
     }
 
-    // Add strand filter only if it's not 'ALL'
-    if (_selectedStrand != 'ALL') {
-      String? strandValue = strandMapping[_selectedStrand];
-
-      if (strandValue != null) {
-        print("Applying strand filter: $strandValue");
-        query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
-      }
-    }
-
-    return query.snapshots();
+  return query.snapshots();
   }
   //BuildDashBoardContent
 
@@ -231,44 +223,44 @@ class _AdminDashboardState extends State<AdminDashboard> {
     Query query = FirebaseFirestore.instance
         .collection('users')
         .where('accountType', isEqualTo: 'student')
+        .where('educ_level', isEqualTo: selectedLevel)
         .where('Status', isEqualTo: 'active'); // Filter for active students
-
-    if (_selectedSchoolYear != "All") {
-      query = query.where('school_year', isEqualTo: _selectedSchoolYear);
-    }
-
-    if (_trackIconState == 1) {
-      query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
-    } else if (_trackIconState == 2) {
-      query = query.where('seniorHigh_Track',
-          isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
-    }
-
-    // Add additional filters for grade level
-    if (_gradeLevelIconState == 1) {
-      query = query.where('grade_level', isEqualTo: '11');
-    } else if (_gradeLevelIconState == 2) {
-      query = query.where('grade_level', isEqualTo: '12');
-    }
-
-    // Add additional filters for transferee status
-    if (_transfereeIconState == 1) {
-      query = query.where('transferee', isEqualTo: 'yes');
-    } else if (_transfereeIconState == 2) {
-      query = query.where('transferee', isEqualTo: 'no');
-    }
-
-    // Add additional filters for selected strand
+    
+     if (selectedLevel == 'Senior High School') {
+   if (_trackIconState == 1) {
+     query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
+   } else if (_trackIconState == 2) {
+     query = query.where('seniorHigh_Track', isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
+   }
     if (_selectedStrand != 'ALL') {
-      String? strandValue = strandMapping[_selectedStrand];
+     String? strandValue = strandMapping[_selectedStrand];
+     if (strandValue != null) {
+       query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
+     }
+   }
+    if (_gradeLevelIconState == 1) {
+     query = query.where('grade_level', isEqualTo: '11');
+   } else if (_gradeLevelIconState == 2) {
+     query = query.where('grade_level', isEqualTo: '12');
+   }
+ } else if (selectedLevel == 'Junior High School') {
+   // Add filters specific to Junior High School
+   if (_selectedGrade != 'All') {
+     query = query.where('grade_level', isEqualTo: _selectedGrade);
+   }
+ }
 
-      if (strandValue != null) {
-        print("Applying strand filter: $strandValue");
-        query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
-      }
+ String? transfereeValue;
+    if (_transfereeIconState == 1) {
+      transfereeValue = 'yes'; // Replace with actual Firestore value
+    } else if (_transfereeIconState == 2) {
+      transfereeValue = 'no'; // Replace with actual Firestore value
     }
-    // Return the query snapshots
-    return query.snapshots();
+    if (transfereeValue != null) {
+      query = query.where('transferee', isEqualTo: transfereeValue);
+    }
+
+  return query.snapshots();
   }
 
   bool get _isAnyStudentSelected {
@@ -360,8 +352,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   //BuildNewcomersContent
   Stream<QuerySnapshot> _getNewcomersStudents() {
-    return getNewcomersStudents(_trackIconState, _gradeLevelIconState,
-        _transfereeIconState, _selectedStrand);
+   return getNewcomersStudents(
+   selectedLevel,  // Add this as first parameter
+   _trackIconState,
+   _gradeLevelIconState,
+   _transfereeIconState,
+   _selectedStrand,
+    _selectedGrade ?? 'All', // Add this parameter
+
+ );
   }
 
   void _showDeleteConfirmationDialog(BuildContext context, String studentId) {
@@ -685,40 +684,44 @@ class _AdminDashboardState extends State<AdminDashboard> {
     Query query = FirebaseFirestore.instance
         .collection('users')
         .where('accountType', isEqualTo: 'student')
+        .where('educ_level', isEqualTo: selectedLevel) // Use the selectedLevel variable
         .where('Status', isEqualTo: 'inactive'); // Filter for active students
 
-    if (_trackIconState == 1) {
-      query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
-    } else if (_trackIconState == 2) {
-      query = query.where('seniorHigh_Track',
-          isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
-    }
-
-    // Add additional filters for grade level
-    if (_gradeLevelIconState == 1) {
-      query = query.where('grade_level', isEqualTo: '11');
-    } else if (_gradeLevelIconState == 2) {
-      query = query.where('grade_level', isEqualTo: '12');
-    }
-
-    // Add additional filters for transferee status
-    if (_transfereeIconState == 1) {
-      query = query.where('transferee', isEqualTo: 'yes');
-    } else if (_transfereeIconState == 2) {
-      query = query.where('transferee', isEqualTo: 'no');
-    }
-
-    // Add additional filters for selected strand
+    if (selectedLevel == 'Senior High School') {
+   if (_trackIconState == 1) {
+     query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
+   } else if (_trackIconState == 2) {
+     query = query.where('seniorHigh_Track', isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
+   }
     if (_selectedStrand != 'ALL') {
-      String? strandValue = strandMapping[_selectedStrand];
+     String? strandValue = strandMapping[_selectedStrand];
+     if (strandValue != null) {
+       query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
+     }
+   }
+    if (_gradeLevelIconState == 1) {
+     query = query.where('grade_level', isEqualTo: '11');
+   } else if (_gradeLevelIconState == 2) {
+     query = query.where('grade_level', isEqualTo: '12');
+   }
+ } else if (selectedLevel == 'Junior High School') {
+   // Add filters specific to Junior High School
+   if (_selectedGrade != 'All') {
+     query = query.where('grade_level', isEqualTo: _selectedGrade);
+   }
+ }
 
-      if (strandValue != null) {
-        print("Applying strand filter: $strandValue");
-        query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
-      }
+ String? transfereeValue;
+    if (_transfereeIconState == 1) {
+      transfereeValue = 'yes'; // Replace with actual Firestore value
+    } else if (_transfereeIconState == 2) {
+      transfereeValue = 'no'; // Replace with actual Firestore value
     }
-    // Return the query snapshots
-    return query.snapshots();
+    if (transfereeValue != null) {
+      query = query.where('transferee', isEqualTo: transfereeValue);
+    }
+
+  return query.snapshots();
   }
 
   Future<void> _setStudentStatusActive(String studentId) async {
@@ -1220,8 +1223,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   // Re-Enrolled Students
   Stream<QuerySnapshot> _getReEnrolledStudents() {
-    return getReEnrolledStudents(_trackIconState, _gradeLevelIconState,
-        _transfereeIconState, _selectedStrand);
+    return getReEnrolledStudents(
+      selectedLevel,  // Add this as first parameter
+   _trackIconState,
+   _gradeLevelIconState,
+   _transfereeIconState,
+   _selectedStrand,
+    _selectedGrade ?? 'All',);
   }
 
   Future<void> updateEnrollmentStatus(String studentId) async {
@@ -1944,6 +1952,33 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     );
                   },
                 ),
+                Padding(
+         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+         child: Row(
+           children: [
+             Text('Educational Level: '),
+             SizedBox(width: 10),
+             DropdownButton<String>(
+               value: selectedLevel,
+               items: ['Junior High School', 'Senior High School']
+                   .map((String value) {
+                 return DropdownMenuItem<String>(
+                   value: value,
+                   child: Text(value),
+                 );
+               }).toList(),
+               onChanged: (String? newValue) {
+                 setState(() {
+                   selectedLevel = newValue!;
+                   // Reset filters when changing educational level
+                   _trackIconState = 0;
+                   _selectedStrand = 'ALL';
+                 });
+               },
+             ),
+           ],
+         ),
+       ),
               ],
             ),
           ),
@@ -1987,6 +2022,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           Expanded(child: Text('First Name')),
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
+                           if (selectedLevel == 'Senior High School') ...[
+
                           Expanded(
                             child: Row(
                               children: [
@@ -2038,24 +2075,47 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               ],
                             ),
                           ),
+                           ],
                           Expanded(
                             child: Row(
-                              children: [
-                                Text('Grade Level'),
-                                GestureDetector(
-                                  onTap: _toggleGradeLevelIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
+ children: [
+   Text('Grade Level'),
+   if (selectedLevel == 'Senior High School') 
+     GestureDetector(
+       onTap: _toggleGradeLevelIcon,
+       child: Row(
+         children: [
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+             Icon(Iconsax.arrow_up_3_copy, size: 16),
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+             Icon(Iconsax.arrow_down_copy, size: 16),
+         ],
+       ),
+     )
+   else if (selectedLevel == 'Junior High School')
+     PopupMenuButton<String>(
+       icon: Icon(Icons.arrow_drop_down),
+       onSelected: (String value) {
+         setState(() {
+           _selectedGrade = value;
+         });
+       },
+       itemBuilder: (BuildContext context) {
+         return [
+           'All',
+           '7',
+           '8',
+           '9',
+           '10'
+         ].map((String grade) {
+           return PopupMenuItem<String>(
+             value: grade,
+             child: Text('Grade $grade'),
+           );
+         }).toList();
+       },
+     ),
+ ],
                             ),
                           ),
                           Expanded(
@@ -2139,6 +2199,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
+          
           // Row with Drop button (on the left) and Search Student (fixed on the right)
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -2189,6 +2250,33 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           );
                         },
                       )),
+                       Padding(
+         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+         child: Row(
+           children: [
+             Text('Educational Level: '),
+             SizedBox(width: 10),
+             DropdownButton<String>(
+               value: selectedLevel,
+               items: ['Junior High School', 'Senior High School']
+                   .map((String value) {
+                 return DropdownMenuItem<String>(
+                   value: value,
+                   child: Text(value),
+                 );
+               }).toList(),
+               onChanged: (String? newValue) {
+                 setState(() {
+                   selectedLevel = newValue!;
+                   // Reset filters when changing educational level
+                   _trackIconState = 0;
+                   _selectedStrand = 'ALL';
+                 });
+               },
+             ),
+           ],
+         ),
+       ),
                 // Add Spacer or Expanded to ensure Search stays on the right
                 Spacer(),
                 if (_selectedSchoolYear != "All")
@@ -2309,75 +2397,100 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           Expanded(child: Text('First Name')),
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
+                          if (selectedLevel == 'Senior High School') ...[
+                          
+                                                        Expanded(
+                                                          child: Row(
+                                                            children: [
+                                                              Text('Track'),
+                                                              GestureDetector(
+                                                                onTap: _toggleTrackIcon,
+                                                                child: Row(
+                                                                  children: [
+                                                                    if (_trackIconState == 0 ||
+                                                                        _trackIconState == 1)
+                                                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                                                    if (_trackIconState == 0 ||
+                                                                        _trackIconState == 2)
+                                                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Row(
+                                                            children: [
+                                                              Text('Strand'),
+                                                              PopupMenuButton<String>(
+                                                                icon: Icon(Icons.arrow_drop_down),
+                                                                onSelected: (String value) {
+                                                                  setState(() {
+                                                                    _selectedStrand = value;
+                                                                  });
+                                                                },
+                                                                itemBuilder: (BuildContext context) {
+                                                                  return [
+                                                                    'ALL',
+                                                                    'STEM',
+                                                                    'HUMSS',
+                                                                    'ABM',
+                                                                    'ICT',
+                                                                    'HE',
+                                                                    'IA'
+                                                                  ].map((String strand) {
+                                                                    return PopupMenuItem<String>(
+                                                                      value: strand,
+                                                                      child: Text(strand),
+                                                                    );
+                                                                  }).toList();
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
                           Expanded(
                             child: Row(
-                              children: [
-                                Text('Track'),
-                                GestureDetector(
-                                  onTap: _toggleTrackIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Strand'),
-                                PopupMenuButton<String>(
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  onSelected: (String value) {
-                                    setState(() {
-                                      _selectedStrand = value;
-                                    });
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return [
-                                      'ALL',
-                                      'STEM',
-                                      'HUMSS',
-                                      'ABM',
-                                      'ICT',
-                                      'HE',
-                                      'IA'
-                                    ].map((String strand) {
-                                      return PopupMenuItem<String>(
-                                        value: strand,
-                                        child: Text(strand),
-                                      );
-                                    }).toList();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Grade Level'),
-                                GestureDetector(
-                                  onTap: _toggleGradeLevelIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
+ children: [
+   Text('Grade Level'),
+   if (selectedLevel == 'Senior High School') 
+     GestureDetector(
+       onTap: _toggleGradeLevelIcon,
+       child: Row(
+         children: [
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+             Icon(Iconsax.arrow_up_3_copy, size: 16),
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+             Icon(Iconsax.arrow_down_copy, size: 16),
+         ],
+       ),
+     )
+   else if (selectedLevel == 'Junior High School')
+     PopupMenuButton<String>(
+       icon: Icon(Icons.arrow_drop_down),
+       onSelected: (String value) {
+         setState(() {
+           _selectedGrade = value;
+         });
+       },
+       itemBuilder: (BuildContext context) {
+         return [
+           'All',
+           '7',
+           '8',
+           '9',
+           '10'
+         ].map((String grade) {
+           return PopupMenuItem<String>(
+             value: grade,
+             child: Text('Grade $grade'),
+           );
+         }).toList();
+       },
+     ),
+ ],
                             ),
                           ),
                           Expanded(
@@ -4109,6 +4222,33 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
             ),
           ),
           Padding(
+         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+         child: Row(
+           children: [
+             Text('Educational Level: '),
+             SizedBox(width: 10),
+             DropdownButton<String>(
+               value: selectedLevel,
+               items: ['Junior High School', 'Senior High School']
+                   .map((String value) {
+                 return DropdownMenuItem<String>(
+                   value: value,
+                   child: Text(value),
+                 );
+               }).toList(),
+               onChanged: (String? newValue) {
+                 setState(() {
+                   selectedLevel = newValue!;
+                   // Reset filters when changing educational level
+                   _trackIconState = 0;
+                   _selectedStrand = 'ALL';
+                 });
+               },
+             ),
+           ],
+         ),
+       ),
+          Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -4140,7 +4280,15 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                 border: Border.all(color: Colors.blue, width: 2.0),
               ),
               child: StreamBuilder<QuerySnapshot>(
-                stream: _getNewcomersStudents(),
+                stream: getNewcomersStudents(
+               selectedLevel,
+               _trackIconState,
+               _gradeLevelIconState,
+               _transfereeIconState,
+               _selectedStrand,
+                _selectedGrade ?? 'All', // Add this parameter
+
+             ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -4190,77 +4338,103 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           Expanded(child: Text('First Name')),
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
+                          if (selectedLevel == 'Senior High School') ...[
+                          
+                                                        Expanded(
+                                                          child: Row(
+                                                            children: [
+                                                              Text('Track'),
+                                                              GestureDetector(
+                                                                onTap: _toggleTrackIcon,
+                                                                child: Row(
+                                                                  children: [
+                                                                    if (_trackIconState == 0 ||
+                                                                        _trackIconState == 1)
+                                                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                                                    if (_trackIconState == 0 ||
+                                                                        _trackIconState == 2)
+                                                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Row(
+                                                            children: [
+                                                              Text('Strand'),
+                                                              PopupMenuButton<String>(
+                                                                icon: Icon(Icons.arrow_drop_down),
+                                                                onSelected: (String value) {
+                                                                  setState(() {
+                                                                    _selectedStrand = value;
+                                                                  });
+                                                                },
+                                                                itemBuilder: (BuildContext context) {
+                                                                  return [
+                                                                    'ALL',
+                                                                    'STEM',
+                                                                    'HUMSS',
+                                                                    'ABM',
+                                                                    'ICT',
+                                                                    'HE',
+                                                                    'IA'
+                                                                  ].map((String strand) {
+                                                                    return PopupMenuItem<String>(
+                                                                      value: strand,
+                                                                      child: Text(strand),
+                                                                    );
+                                                                  }).toList();
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
                           Expanded(
                             child: Row(
-                              children: [
-                                Text('Track'),
-                                GestureDetector(
-                                  onTap: _toggleTrackIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
+ children: [
+   Text('Grade Level'),
+   if (selectedLevel == 'Senior High School') 
+     GestureDetector(
+       onTap: _toggleGradeLevelIcon,
+       child: Row(
+         children: [
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+             Icon(Iconsax.arrow_up_3_copy, size: 16),
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+             Icon(Iconsax.arrow_down_copy, size: 16),
+         ],
+       ),
+     )
+   else if (selectedLevel == 'Junior High School')
+     PopupMenuButton<String>(
+       icon: Icon(Icons.arrow_drop_down),
+       onSelected: (String value) {
+         setState(() {
+           _selectedGrade = value;
+         });
+       },
+       itemBuilder: (BuildContext context) {
+         return [
+           'All',
+           '7',
+           '8',
+           '9',
+           '10'
+         ].map((String grade) {
+           return PopupMenuItem<String>(
+             value: grade,
+             child: Text('Grade $grade'),
+           );
+         }).toList();
+       },
+     ),
+ ],
                             ),
                           ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Strand'),
-                                PopupMenuButton<String>(
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  onSelected: (String value) {
-                                    setState(() {
-                                      _selectedStrand = value;
-                                    });
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return [
-                                      'ALL',
-                                      'STEM',
-                                      'HUMSS',
-                                      'ABM',
-                                      'ICT',
-                                      'HE',
-                                      'IA'
-                                    ].map((String strand) {
-                                      return PopupMenuItem<String>(
-                                        value: strand,
-                                        child: Text(strand),
-                                      );
-                                    }).toList();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Grade Level'),
-                                GestureDetector(
-                                  onTap: _toggleGradeLevelIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+
                           Expanded(child: Text('')),
                         ],
                       ),
@@ -5489,6 +5663,33 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
             ),
           ),
           Padding(
+         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+         child: Row(
+           children: [
+             Text('Educational Level: '),
+             SizedBox(width: 10),
+             DropdownButton<String>(
+               value: selectedLevel,
+               items: ['Junior High School', 'Senior High School']
+                   .map((String value) {
+                 return DropdownMenuItem<String>(
+                   value: value,
+                   child: Text(value),
+                 );
+               }).toList(),
+               onChanged: (String? newValue) {
+                 setState(() {
+                   selectedLevel = newValue!;
+                   // Reset filters when changing educational level
+                   _trackIconState = 0;
+                   _selectedStrand = 'ALL';
+                 });
+               },
+             ),
+           ],
+         ),
+       ),
+          Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -5570,75 +5771,100 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           Expanded(child: Text('First Name')),
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
+                          if (selectedLevel == 'Senior High School') ...[
+                          
+                                                        Expanded(
+                                                          child: Row(
+                                                            children: [
+                                                              Text('Track'),
+                                                              GestureDetector(
+                                                                onTap: _toggleTrackIcon,
+                                                                child: Row(
+                                                                  children: [
+                                                                    if (_trackIconState == 0 ||
+                                                                        _trackIconState == 1)
+                                                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                                                    if (_trackIconState == 0 ||
+                                                                        _trackIconState == 2)
+                                                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Row(
+                                                            children: [
+                                                              Text('Strand'),
+                                                              PopupMenuButton<String>(
+                                                                icon: Icon(Icons.arrow_drop_down),
+                                                                onSelected: (String value) {
+                                                                  setState(() {
+                                                                    _selectedStrand = value;
+                                                                  });
+                                                                },
+                                                                itemBuilder: (BuildContext context) {
+                                                                  return [
+                                                                    'ALL',
+                                                                    'STEM',
+                                                                    'HUMSS',
+                                                                    'ABM',
+                                                                    'ICT',
+                                                                    'HE',
+                                                                    'IA'
+                                                                  ].map((String strand) {
+                                                                    return PopupMenuItem<String>(
+                                                                      value: strand,
+                                                                      child: Text(strand),
+                                                                    );
+                                                                  }).toList();
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
                           Expanded(
                             child: Row(
-                              children: [
-                                Text('Track'),
-                                GestureDetector(
-                                  onTap: _toggleTrackIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Strand'),
-                                PopupMenuButton<String>(
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  onSelected: (String value) {
-                                    setState(() {
-                                      _selectedStrand = value;
-                                    });
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return [
-                                      'ALL',
-                                      'STEM',
-                                      'HUMSS',
-                                      'ABM',
-                                      'ICT',
-                                      'HE',
-                                      'IA'
-                                    ].map((String strand) {
-                                      return PopupMenuItem<String>(
-                                        value: strand,
-                                        child: Text(strand),
-                                      );
-                                    }).toList();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Grade Level'),
-                                GestureDetector(
-                                  onTap: _toggleGradeLevelIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
+ children: [
+   Text('Grade Level'),
+   if (selectedLevel == 'Senior High School') 
+     GestureDetector(
+       onTap: _toggleGradeLevelIcon,
+       child: Row(
+         children: [
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+             Icon(Iconsax.arrow_up_3_copy, size: 16),
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+             Icon(Iconsax.arrow_down_copy, size: 16),
+         ],
+       ),
+     )
+   else if (selectedLevel == 'Junior High School')
+     PopupMenuButton<String>(
+       icon: Icon(Icons.arrow_drop_down),
+       onSelected: (String value) {
+         setState(() {
+           _selectedGrade = value;
+         });
+       },
+       itemBuilder: (BuildContext context) {
+         return [
+           'All',
+           '7',
+           '8',
+           '9',
+           '10'
+         ].map((String grade) {
+           return PopupMenuItem<String>(
+             value: grade,
+             child: Text('Grade $grade'),
+           );
+         }).toList();
+       },
+     ),
+ ],
                             ),
                           ),
                           Expanded(child: Text('')),
@@ -6121,6 +6347,33 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
             ),
           ),
           Padding(
+         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+         child: Row(
+           children: [
+             Text('Educational Level: '),
+             SizedBox(width: 10),
+             DropdownButton<String>(
+               value: selectedLevel,
+               items: ['Junior High School', 'Senior High School']
+                   .map((String value) {
+                 return DropdownMenuItem<String>(
+                   value: value,
+                   child: Text(value),
+                 );
+               }).toList(),
+               onChanged: (String? newValue) {
+                 setState(() {
+                   selectedLevel = newValue!;
+                   // Reset filters when changing educational level
+                   _trackIconState = 0;
+                   _selectedStrand = 'ALL';
+                 });
+               },
+             ),
+           ],
+         ),
+       ),
+          Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -6203,75 +6456,100 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           Expanded(child: Text('First Name')),
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
+                          if (selectedLevel == 'Senior High School') ...[
+                          
+                                                        Expanded(
+                                                          child: Row(
+                                                            children: [
+                                                              Text('Track'),
+                                                              GestureDetector(
+                                                                onTap: _toggleTrackIcon,
+                                                                child: Row(
+                                                                  children: [
+                                                                    if (_trackIconState == 0 ||
+                                                                        _trackIconState == 1)
+                                                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                                                    if (_trackIconState == 0 ||
+                                                                        _trackIconState == 2)
+                                                                      Icon(Iconsax.arrow_down_copy, size: 16),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Row(
+                                                            children: [
+                                                              Text('Strand'),
+                                                              PopupMenuButton<String>(
+                                                                icon: Icon(Icons.arrow_drop_down),
+                                                                onSelected: (String value) {
+                                                                  setState(() {
+                                                                    _selectedStrand = value;
+                                                                  });
+                                                                },
+                                                                itemBuilder: (BuildContext context) {
+                                                                  return [
+                                                                    'ALL',
+                                                                    'STEM',
+                                                                    'HUMSS',
+                                                                    'ABM',
+                                                                    'ICT',
+                                                                    'HE',
+                                                                    'IA'
+                                                                  ].map((String strand) {
+                                                                    return PopupMenuItem<String>(
+                                                                      value: strand,
+                                                                      child: Text(strand),
+                                                                    );
+                                                                  }).toList();
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
                           Expanded(
                             child: Row(
-                              children: [
-                                Text('Track'),
-                                GestureDetector(
-                                  onTap: _toggleTrackIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Strand'),
-                                PopupMenuButton<String>(
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  onSelected: (String value) {
-                                    setState(() {
-                                      _selectedStrand = value;
-                                    });
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return [
-                                      'ALL',
-                                      'STEM',
-                                      'HUMSS',
-                                      'ABM',
-                                      'ICT',
-                                      'HE',
-                                      'IA'
-                                    ].map((String strand) {
-                                      return PopupMenuItem<String>(
-                                        value: strand,
-                                        child: Text(strand),
-                                      );
-                                    }).toList();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Grade Level'),
-                                GestureDetector(
-                                  onTap: _toggleGradeLevelIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_gradeLevelIconState == 0 ||
-                                          _gradeLevelIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
-                                  ),
-                                ),
-                              ],
+ children: [
+   Text('Grade Level'),
+   if (selectedLevel == 'Senior High School') 
+     GestureDetector(
+       onTap: _toggleGradeLevelIcon,
+       child: Row(
+         children: [
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
+             Icon(Iconsax.arrow_up_3_copy, size: 16),
+           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
+             Icon(Iconsax.arrow_down_copy, size: 16),
+         ],
+       ),
+     )
+   else if (selectedLevel == 'Junior High School')
+     PopupMenuButton<String>(
+       icon: Icon(Icons.arrow_drop_down),
+       onSelected: (String value) {
+         setState(() {
+           _selectedGrade = value;
+         });
+       },
+       itemBuilder: (BuildContext context) {
+         return [
+           'All',
+           '7',
+           '8',
+           '9',
+           '10'
+         ].map((String grade) {
+           return PopupMenuItem<String>(
+             value: grade,
+             child: Text('Grade $grade'),
+           );
+         }).toList();
+       },
+     ),
+ ],
                             ),
                           ),
                           Expanded(child: Text('Date')),

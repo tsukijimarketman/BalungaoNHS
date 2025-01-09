@@ -428,11 +428,11 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                               value: '',
                               child: Text('---')),
                             DropdownMenuItem(
-                              value: 'junior',
+                              value: 'Junior High School',
                               child: Text('Junior High School Student'),
                             ),
                             DropdownMenuItem(
-                              value: 'senior',
+                              value: 'Senior High School',
                               child: Text('Senior High School Student'),
                             ),
                           ],
@@ -451,12 +451,12 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                         ),
                       ),
                       SizedBox(height: 30),
-                       if (selectededucLevel == 'junior') ...[
+                       if (selectededucLevel == 'Junior High School') ...[
                        JuniorHighSchoolEnrollment(
                            spacing: 50.0, onDataChanged: _updateStudentData),
                        SizedBox(height: 30),
                      ],
-                     if (selectededucLevel == 'senior') ...[  // Add square brackets for consistency
+                     if (selectededucLevel == 'Senior High School') ...[  // Add square brackets for consistency
                        JuniorHighSchool(
                          key: _juniorHSKey,
                          onDataChanged: _updateStudentData,
