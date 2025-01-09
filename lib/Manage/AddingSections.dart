@@ -21,6 +21,7 @@ class _AddingSectionsState extends State<AddingSections> {
   final TextEditingController _sectionCapacity = TextEditingController();
   String? _selectedSemester = '--' ;
   String? _selectedAdviser;
+  String? _selectedSchoolLevel;
 
   final CollectionReference subjectsCollection =
       FirebaseFirestore.instance.collection('sections');
@@ -71,148 +72,171 @@ class _AddingSectionsState extends State<AddingSections> {
     super.dispose();
   }
 
-  Future<void> _saveSubject() async {
-    // Validate the form before proceeding
-    if (!_formKey.currentState!.validate()) {
-      return; // If form is not valid, return early
-    }
-
-    // Basic validation before saving
-    if (_selectedAdviser == null || _selectedSemester == '--') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Please fill all fields'),
-          ],
-        )),
-      );
-      return;
-    }
-
-    int? capacity;
-    try {
-      capacity = int.parse(_sectionCapacity.text);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Please enter a valid number for capacity'),
-          ],
-        )),
-      );
-      return;
-    }
-
-    try {
-      // Create a document in Firestore without capacityCount
-      await subjectsCollection.add({
-        'section_name': _sectionName.text,
-        'section_adviser': _selectedAdviser,
-        'semester': _selectedSemester,
-        'section_capacity': capacity,
-        'created_at': Timestamp.now(),
-      });
-
-      // Show a success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Subject added successfully!'),
-          ],
-        )),
-      );
-
-      widget.closeAddSections();
-
-      // Clear the form after saving
-      _sectionName.clear();
-      _sectionCapacity.clear();
-      setState(() {
-        _selectedSemester = '--';
-        _selectedAdviser = null;
-      });
-
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Error adding subject: $e'),
-          ],
-        )),
-      );
-    }
+ Future<void> _saveSubject() async {
+  // Validate the form before proceeding
+  if (!_formKey.currentState!.validate()) {
+    return; // If form is not valid, return early
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.closeAddSections,
-      child: Stack(
+  // Basic validation before saving
+  if (_selectedAdviser == null || _selectedSemester == '--' || _selectedSchoolLevel == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Row(
         children: [
-          Center(
-            child: GestureDetector(
-              onTap: () {},
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 500),
-                width: widget.screenWidth / 2,
-                height: widget.screenHeight / 1.4,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey),
-                ),
-                padding: EdgeInsets.all(20),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey, // Form key for validation
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Back button
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: TextButton(
-                            onPressed: widget.closeAddSections,
-                            style: TextButton.styleFrom(
-                              side: BorderSide(color: Colors.red),
-                            ),
-                            child: Text('Back', style: TextStyle(color: Colors.red)),
+          Image.asset('PBMA.png', scale: 40),
+          SizedBox(width: 10),
+          Text('Please fill all fields'),
+        ],
+      )),
+    );
+    return;
+  }
+
+  int? capacity;
+  try {
+    capacity = int.parse(_sectionCapacity.text);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+          SizedBox(width: 10),
+          Text('Please enter a valid number for capacity'),
+        ],
+      )),
+    );
+    return;
+  }
+
+  try {
+    // Save the section with the school level
+    await subjectsCollection.add({
+      'education_level': _selectedSchoolLevel, // Add school level to Firestore
+      'section_name': _sectionName.text,
+      'section_adviser': _selectedAdviser,
+      'semester': _selectedSemester,
+      'section_capacity': capacity,
+      'created_at': Timestamp.now(),
+    });
+
+    // Show a success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+          SizedBox(width: 10),
+          Text('Section added successfully!'),
+        ],
+      )),
+    );
+
+    widget.closeAddSections();
+
+    // Clear the form after saving
+    _sectionName.clear();
+    _sectionCapacity.clear();
+    setState(() {
+      _selectedSemester = '--';
+      _selectedAdviser = null;
+      _selectedSchoolLevel = null;
+    });
+
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+          SizedBox(width: 10),
+          Text('Error adding section: $e'),
+        ],
+      )),
+    );
+  }
+}
+  @override
+Widget build(BuildContext context) {
+  return GestureDetector(
+    onTap: widget.closeAddSections,
+    child: Stack(
+      children: [
+        Center(
+          child: GestureDetector(
+            onTap: () {},
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 500),
+              width: widget.screenWidth / 2,
+              height: widget.screenHeight / 1.4,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey),
+              ),
+              padding: EdgeInsets.all(20),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: TextButton(
+                          onPressed: widget.closeAddSections,
+                          style: TextButton.styleFrom(
+                            side: BorderSide(color: Colors.red),
                           ),
+                          child: Text('Back', style: TextStyle(color: Colors.red)),
                         ),
-                        SizedBox(height: 8),
-                        // Form title
-                        Text(
-                          'Add New Section',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Add New Section',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 16),
+                      // School Level Dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedSchoolLevel,
+                        decoration: InputDecoration(
+                          labelText: 'Educational Level',
+                          border: OutlineInputBorder(),
                         ),
-                        SizedBox(height: 16),
-                        // Section Name
-                        TextFormField(
-                          controller: _sectionName,
-                          decoration: InputDecoration(
-                            labelText: 'Section Name',
-                            border: OutlineInputBorder(),
-                            hintText: 'Enter Section Name (e.g. 11-STEM-A)',
-                          ),
-                          validator: (value) {
-                            final regExp = RegExp(r'^(11|12)-(STEM|HUMSS|ABM|ICT|HE|IA)-');
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a section name';
-                            } else if (!regExp.hasMatch(value)) {
-                              return 'Invalid format. Use: Grade Level-Strand-Section';
-                            }
-                            return null;
-                          },
+                        items: [
+                          'Junior High School',
+                          'Senior High School',
+                        ].map((level) => DropdownMenuItem<String>(
+                              value: level,
+                              child: Text(level),
+                            ))
+                            .toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedSchoolLevel = val;
+                          });
+                        },
+                        validator: (value) =>
+                            value == null ? 'Please select a school level' : null,
+                      ),
+                      SizedBox(height: 16),
+                      // Section Name
+                      TextFormField(
+                        controller: _sectionName,
+                        decoration: InputDecoration(
+                          labelText: 'Section Name',
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter Section Name (e.g. 11-STEM-A)',
                         ),
-                        SizedBox(height: 16),
+                        validator: (value) {
+                          final regExp = RegExp(r'^(11|12)-(STEM|HUMSS|ABM|ICT|HE|IA)-');
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a section name';
+                          } else if (!regExp.hasMatch(value)) {
+                            return 'Invalid format. Use: Grade Level-Strand-Section';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
                         // Section Adviser Dropdown
                         DropdownButtonFormField<String>(
                           value: _selectedAdviser,

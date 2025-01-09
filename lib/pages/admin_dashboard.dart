@@ -1715,7 +1715,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         return _buildManageSubjects();
       case 'Manage Teachers':
         return _buildManageTeachersContent();
-        case 'Manage Student Report Cards':
+      case 'Manage Student Report Cards':
         return _buildManageStudentReportCardsContent();
       case 'Configuration':
         return _buildConfigurationContent();
