@@ -412,48 +412,80 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                         onDataChanged: _updateStudentData,
                       ),
                       SizedBox(height: 30),
-                      Container(
-                        width: screenWidth / 5,
-                        child: DropdownButtonFormField<String>(
-                          value: selectededucLevel,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          double containerWidth = constraints.maxWidth > 600
+                              ? constraints.maxWidth / 4.2
+                              : constraints.maxWidth * 0.9;
+
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              width: containerWidth,
+                              child: DropdownButtonFormField<String>(
+                                value: selectededucLevel,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Colors.blue, // Set the border color to blue
+                                      width: 1.0, // Thickness of the border
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Colors.blue, // Blue color when the field is not focused
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Colors.blue, // A slightly brighter blue when focused
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: '',
+                                    child: Text('---'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'junior',
+                                    child: Text('Junior High School Student'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'senior',
+                                    child: Text('Senior High School Student'),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectededucLevel = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select your Educational Level';
+                                  }
+                                  return null;
+                                },
+                                hint: Text('Select your educational level'),
+                              ),
                             ),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: '',
-                              child: Text('---')),
-                            DropdownMenuItem(
-                              value: 'junior',
-                              child: Text('Junior High School Student'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'senior',
-                              child: Text('Senior High School Student'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              selectededucLevel = value;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select your Educational Level';
-                            }
-                            return null;
-                          },
-                          hint: Text('Select your educational level'),
-                        ),
+                          );
+                        },
                       ),
                       SizedBox(height: 30),
                        if (selectededucLevel == 'junior') ...[
                        JuniorHighSchoolEnrollment(
-                           spacing: 50.0, onDataChanged: _updateStudentData),
+                          key: _juniorHSinforKey,
+                          spacing: 50.0, 
+                          onDataChanged: _updateStudentData),
                        SizedBox(height: 30),
                      ],
                      if (selectededucLevel == 'senior') ...[  // Add square brackets for consistency
