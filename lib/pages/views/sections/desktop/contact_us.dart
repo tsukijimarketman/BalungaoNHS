@@ -82,7 +82,7 @@ class _ContactUsState extends State<ContactUs> {
     double screenWidth = MediaQuery.of(context).size.width;
     return Container(
         height: screenWidth/3.28,
-        color: Color.fromARGB(255, 1, 93, 168),
+        color: Color(0xFF03b97c),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 80),
           child: Row(
@@ -117,7 +117,7 @@ class _ContactUsState extends State<ContactUs> {
                                 shape: BoxShape.circle,
                               ),
                               child: Image.asset(
-                                "assets/PBMA.png",
+                                "assets/balungaonhs.png",
                                 width: screenWidth/35,
                               height: screenWidth/35,
                                 fit: BoxFit.cover,
@@ -162,7 +162,7 @@ class _ContactUsState extends State<ContactUs> {
                                     ),
                                     child: Icon(
                                       Icons.alternate_email,
-                                      color: Color.fromARGB(255, 1, 93, 168),
+                                      color: Color(0xFF03b97c),
                                       size: screenWidth/40,
                                     ),
                                   ).moveUpOnHover.showCursorOnHover,
@@ -182,7 +182,7 @@ class _ContactUsState extends State<ContactUs> {
                                     ),
                                     child: Icon(
                                       Icons.call,
-                                      color: Color.fromARGB(255, 1, 93, 168),
+                                      color: Color(0xFF03b97c),
                                       size: screenWidth/45,
                                     ),
                                   ).moveUpOnHover.showCursorOnHover,
@@ -203,32 +203,12 @@ class _ContactUsState extends State<ContactUs> {
                                     ),
                                     child: Icon(
                                       Icons.location_on_outlined,
-                                      color: Color.fromARGB(255, 1, 93, 168),
+                                      color: Color(0xFF03b97c),
                                       size: screenWidth/40,
                                     ),
                                   ).moveUpOnHover.showCursorOnHover,
                                 ),
-                                SizedBox(width: 6),
-                                GestureDetector(
-                                  onTap: () {
-                                    _TESDAURL(
-                                        "https://tesdatrainingcourses.com/prime-brilliant-minds-academy.html");
-                                  },
-                                  child: Container(
-                                    width: screenWidth/35,
-                              height: screenWidth/35,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.white, width: 4),
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Image.asset(
-                                      "assets/tesda.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ).moveUpOnHover.showCursorOnHover,
-                                ),
+                                
                               ],
                             ),
                           ],

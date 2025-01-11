@@ -24,8 +24,8 @@ class _FirstSectionState extends State<FirstSection>
   late Animation<double> _descriptionController;
   late Animation<double> _buttonController;
 
-  Color _textColor5 = Colors.white;
-  Color _textColor6 = Color(0xFF03b97c);
+  Color _textColor5 = Color(0xFF002f24);
+  Color _textColor6 = Colors.white;
 
   @override
   void initState() {
@@ -89,7 +89,7 @@ class _FirstSectionState extends State<FirstSection>
           width: screenWidth,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/primecampus.jpg"),
+              image: AssetImage("assets/manghi.jpg"),
               fit: BoxFit.cover,
             ),
           ),
@@ -103,7 +103,7 @@ class _FirstSectionState extends State<FirstSection>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color.fromARGB(73, 3, 185, 124),
+                Colors.transparent,
                 Color(0xFF03b97c),
               ],
               stops: [0.5, 1.0],
@@ -121,7 +121,7 @@ class _FirstSectionState extends State<FirstSection>
               width: screenWidth,
             ),
             SizedBox(
-              height: screenHeight / 6,
+              height: screenHeight / 7,
             ),
             Container(
               width: 1000,
@@ -135,11 +135,11 @@ class _FirstSectionState extends State<FirstSection>
                       textOpacityAnimation: _textOpacityAnimation,
                       textRevealAnimation: _textRevealAnimation,
                       child: Text(
-                        "Prime Brilliant Minds Academy",
+                        "Mangaldan National High School",
                         style: TextStyle(
                             fontFamily: "B",
                             fontSize: screenHeight / 15,
-                            color: Colors.white),
+                            color: Color(0xFF002f24)),
                       )),
                   SizedBox(
                     height: 20,
@@ -147,29 +147,15 @@ class _FirstSectionState extends State<FirstSection>
                   FadeTransition(
                     opacity: _descriptionController,
                     child: Text(
-                      "TESDA Accredited Training and Assessment Center",
+                      "If you can make it here, you can make it anywhere",
                       style: TextStyle(
                           fontFamily: "SB",
                           fontSize: screenHeight / 27,
-                          color: Colors.white),
+                          color: Color(0xFF002f24)),
                     ),
                   ),
                   SizedBox(
                     height: 10,
-                  ),
-                  SizeTransition(
-                    sizeFactor: _descriptionController,
-                    axis: Axis.horizontal,
-                    axisAlignment: -1.0,
-                    child: Text(
-                      "Be a Dreamer, Achieve Greater, and be a PRIMER",
-                      textAlign: TextAlign.justify,
-                      style: TextStyle(
-                        fontFamily: "L",
-                        fontSize: screenHeight / 30,
-                        color: Colors.white,
-                      ),
-                    ),
                   ),
                   SizedBox(
                     height: 30,
@@ -177,21 +163,21 @@ class _FirstSectionState extends State<FirstSection>
                   MouseRegion(
                     onEnter: (_) {
                       setState(() {
-                        _textColor5 = Colors.yellow;
-                        _textColor6 = Colors.black;
+                        _textColor5 = Color(0xFF03b97c);
+                        _textColor6 = Colors.white;
                       });
-                    },
+                    },  
                     onExit: (_) {
                       setState(() {
-                        _textColor5 = Colors.white;
-                        _textColor6 = Color.fromARGB(255, 1, 93, 168);
+                        _textColor5 = Color(0xFF002f24);
+                        _textColor6 = Colors.white;
                       });
                     },
                     child: FadeTransition(
                       opacity: _buttonController,
                       child: Container(
-                        height: 50,
-                        width: 210,
+                        height: 60,
+                        width: 230,
                         child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
@@ -207,7 +193,7 @@ class _FirstSectionState extends State<FirstSection>
                             style: TextStyle(
                                 color: _textColor6,
                                 fontFamily: "B",
-                                fontSize: 20),
+                                fontSize: 25),
                           )),
                         ),
                       ).moveUpOnHover,

@@ -12,28 +12,19 @@ class Info {
 
 List<Info> infos = [
   Info(
-      title: "Professionalism",
-      description:
-          "Professionalism at Prime Brilliant Minds Academy involves demonstrating responsibility, integrity, and dedication in every task. Preparing our students to uphold these values.",
+      title: "Mastery",
+      description: "We strive for excellence in academics, skills, and character, ensuring every student reaches their full potential through continuous learning and improvement.",
       iconData: Icons.work_history_sharp),
   Info(
-      title: "Respect",
-      description:
-          "At Prime Brilliant Minds Academy, Respect is a cornerstone of our culture. We prioritize valuing oneself, others, and our community, fostering empathy, understanding, and cooperation.",
+      title: "Nurturing",
+      description: "We provide a caring and inclusive environment that fosters respect, empathy, and personal growth for all members of our school community.",
       iconData: Icons.diversity_3_outlined),
   Info(
-      title: "Integrity",
-      description:
-          "Integrity at Prime Brilliant Minds Academy means being honest, ethical, and accountable. We encourage our students to uphold strong moral principles in all their actions.",
+      title: "Honor",
+      description: "We uphold integrity, accountability, and ethical behavior, inspiring students to lead with honesty and dignity in all endeavors",
       iconData: Icons.verified_user),
   Info(
-      title: "Modesty",
-      description:
-          "Modesty is about humility and self-awareness. At Prime Brilliant Minds Academy, we teach students to value modesty, recognizing their strengths while remaining grounded.",
+      title: "Service",
+      description: "We instill the value of service to others, encouraging students to contribute positively to society and be proactive in building better communities",
       iconData: Icons.self_improvement),
-  Info(
-      title: "Excellence",
-      description:
-          "Excellence is striving for the highest quality in all endeavors. At Prime Brilliant Minds Academy, we encourage our students to pursue excellence in their academic and personal lives.",
-      iconData: Icons.star),
 ];

@@ -11,7 +11,7 @@ class Ribbon extends StatefulWidget {
 
 class _RibbonState extends State<Ribbon> {
   Color _textColor5 = Colors.white;
-  Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
+  Color _textColor6 = Color(0xFF002f24);
 
   void _launchEmail(String email) async {
     if (await canLaunchUrlString(email)) {
@@ -24,7 +24,7 @@ class _RibbonState extends State<Ribbon> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color.fromARGB(255, 0, 30, 54),
+      color: Color(0xFF002f24),
       padding: EdgeInsets.symmetric(horizontal: 80, vertical: 40),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,8 +53,8 @@ class _RibbonState extends State<Ribbon> {
             },
             onExit: (_) {
               setState(() {
-                _textColor5 = Colors.white;
-                _textColor6 = Color.fromARGB(255, 1, 93, 168);
+                _textColor5 = Color(0xFFa1f9d0);
+                _textColor6 = Color(0xFF002f24);
               });
             },
             child: Container(

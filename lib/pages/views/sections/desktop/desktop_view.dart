@@ -112,10 +112,10 @@ class _DesktopViewState extends State<DesktopView>
     }
   }
 
-  Color _textColor1 = Colors.white;
-  Color _textColor2 = Colors.white;
-  Color _textColor3 = Colors.white;
-  Color _textColor5 = Colors.white;
+  Color _textColor1 = Color(0xFF002f24);
+  Color _textColor2 = Color(0xFF002f24);
+  Color _textColor3 = Color(0xFF002f24);
+  Color _textColor5 = Color(0xFF002f24);
   Color _textColor6 = Color(0xFF03b97c);
 
   bool _showSignInCard = false;
@@ -201,9 +201,9 @@ class _DesktopViewState extends State<DesktopView>
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  "BNHS",
+                                  "MNHS",
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Color(0xFF002f24),
                                     fontFamily: "B",
                                     fontSize: screenWidth / 50,
                                     fontWeight: FontWeight.bold,
@@ -215,12 +215,12 @@ class _DesktopViewState extends State<DesktopView>
                             MouseRegion(
                               onEnter: (_) {
                                 setState(() {
-                                  _textColor1 = Colors.yellow;
+                                  _textColor2 = Color(0xFF002f24);
                                 });
                               },
                               onExit: (_) {
                                 setState(() {
-                                  _textColor1 = Colors.white;
+                                  _textColor1 = Color(0xFF002f24);
                                 });
                               },
                               child: GestureDetector(
@@ -239,12 +239,12 @@ class _DesktopViewState extends State<DesktopView>
                             MouseRegion(
                               onEnter: (_) {
                                 setState(() {
-                                  _textColor2 = Colors.yellow;
+                                  _textColor2 = Color(0xFF002f24);
                                 });
                               },
                               onExit: (_) {
                                 setState(() {
-                                  _textColor2 = Colors.white;
+                                  _textColor2 = Color(0xFF002f24);
                                 });
                               },
                               child: GestureDetector(
@@ -263,12 +263,12 @@ class _DesktopViewState extends State<DesktopView>
                             MouseRegion(
                               onEnter: (_) {
                                 setState(() {
-                                  _textColor3 = Colors.yellow;
+                                  _textColor2 = Color(0xFF002f24);
                                 });
                               },
                               onExit: (_) {
                                 setState(() {
-                                  _textColor3 = Colors.white;
+                                  _textColor3 = Color(0xFF002f24);
                                 });
                               },
                               child: GestureDetector(
@@ -292,7 +292,7 @@ class _DesktopViewState extends State<DesktopView>
                               child: TextButton(
                                 style: ButtonStyle(
                                   backgroundColor:
-                                      MaterialStateProperty.all(Colors.yellow),
+                                      MaterialStateProperty.all(Color(0xFF002f24)),
                                   shape: MaterialStateProperty.all(
                                     RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -305,7 +305,7 @@ class _DesktopViewState extends State<DesktopView>
                                   style: TextStyle(
                                     fontFamily: "B",
                                     fontSize: 14,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),
@@ -317,7 +317,7 @@ class _DesktopViewState extends State<DesktopView>
                               child: TextButton(
                                 style: ButtonStyle(
                                   backgroundColor:
-                                      MaterialStateProperty.all(Colors.white),
+                                      MaterialStateProperty.all(Color(0xFF002f24)),
                                   shape: MaterialStateProperty.all(
                                     RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -330,7 +330,7 @@ class _DesktopViewState extends State<DesktopView>
                                   style: TextStyle(
                                     fontFamily: "B",
                                     fontSize: 14,
-                                    color: Color(0xFF03b97c),
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),
