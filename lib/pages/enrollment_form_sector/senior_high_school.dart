@@ -17,8 +17,7 @@ class SeniorHighSchool extends StatefulWidget {
 
 class SeniorHighSchoolState extends State<SeniorHighSchool>
     with AutomaticKeepAliveClientMixin {
-  final FocusNode _gradeLevelFocusNode = FocusNode();
-  final TextEditingController _gradeLevel = TextEditingController();
+  String _selectedGradeLevel = '';
   String _selectedTrack = '';
   String _selectedStrand = '';
   String _selectedTransferee = '';
@@ -26,7 +25,7 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
 
   void resetFields() {
     setState(() {
-      _gradeLevel.clear();
+      _selectedGradeLevel = '';
       _selectedTrack = '';
       _selectedStrand = '';
       _selectedTransferee = '';
@@ -37,18 +36,10 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
   @override
   void initState() {
     super.initState();
-    _gradeLevel.addListener(_notifyParent);
-    _gradeLevelFocusNode.addListener(_onFocusChange);
-  }
-
-  void _onFocusChange() {
-    setState(() {});
   }
 
   @override
   void dispose() {
-    _gradeLevel.dispose();
-    _gradeLevelFocusNode.dispose();
     super.dispose();
   }
 
@@ -61,11 +52,11 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
 
   Map<String, dynamic> getFormData() {
     return {
-      'grade_level': _gradeLevel.text,
+      'grade_level': _selectedGradeLevel,
       'seniorHigh_Track': _selectedTrack,
       'seniorHigh_Strand': _selectedStrand,
       'transferee': _selectedTransferee,
-      'semester': 'Grade ${_gradeLevel.text} - $_selectedSemester',
+      'semester': 'Grade $_selectedGradeLevel - $_selectedSemester',
     };
   }
 
@@ -102,26 +93,12 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
             children: [
               Container(
                 width: fieldWidth,
-                child: TextFormField(
-                  controller: _gradeLevel,
-                  focusNode: _gradeLevelFocusNode,
+                child: DropdownButtonFormField<String>(
+                  value: _selectedGradeLevel.isEmpty ? null : _selectedGradeLevel,
                   decoration: InputDecoration(
-                    label: RichText(
-                      text: TextSpan(
-                        text: 'Grade Level',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 101, 100, 100),
-                          fontSize: 16,
-                        ),
-                        children: [
-                          if (_gradeLevelFocusNode.hasFocus ||
-                              _gradeLevel.text.isNotEmpty)
-                            TextSpan(
-                              text: '*',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                        ],
-                      ),
+                    labelText: 'Grade Level',
+                    labelStyle: TextStyle(
+                      color: Color.fromARGB(255, 101, 100, 100),
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -136,17 +113,18 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
                       borderSide: BorderSide(color: Colors.blue, width: 1.0),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your grade level';
-                    }
-                    return null;
+                  items: ['11', '12']
+                      .map((String value) => DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGradeLevel = value!;
+                      _notifyParent();
+                    });
                   },
-                  onChanged: (text) {
-                    setState(() {});
-                  },
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
               ),
               Container(
