@@ -167,7 +167,7 @@ class _SecondSectionState extends State<SecondSection>
           gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color.fromARGB(255, 1, 93, 168), Colors.white],
+        colors: [Color(0xFF03b97c), Colors.white],
         stops: [0.1, 1],
       )),
       child: Column(

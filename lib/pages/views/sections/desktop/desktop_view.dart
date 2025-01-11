@@ -103,7 +103,7 @@ class _DesktopViewState extends State<DesktopView>
   void _scrollListener() {
     if (_scrollController.position.pixels > 0) {
       setState(() {
-        _appBarColor = const Color.fromARGB(255, 26, 117, 192);
+        _appBarColor = const Color(0xFF03b97c);
       });
     } else {
       setState(() {
@@ -116,7 +116,7 @@ class _DesktopViewState extends State<DesktopView>
   Color _textColor2 = Colors.white;
   Color _textColor3 = Colors.white;
   Color _textColor5 = Colors.white;
-  Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
+  Color _textColor6 = Color(0xFF03b97c);
 
   bool _showSignInCard = false;
   bool _TAC = false;
@@ -193,7 +193,7 @@ class _DesktopViewState extends State<DesktopView>
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(50),
                                     child: Image.asset(
-                                      "assets/pbma.jpg",
+                                      "assets/balungaonhs.png",
                                       height: screenWidth / 20,
                                       width: screenWidth / 20,
                                     ),
@@ -201,7 +201,7 @@ class _DesktopViewState extends State<DesktopView>
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  "PBMA",
+                                  "BNHS",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontFamily: "B",
@@ -330,7 +330,7 @@ class _DesktopViewState extends State<DesktopView>
                                   style: TextStyle(
                                     fontFamily: "B",
                                     fontSize: 14,
-                                    color: Color.fromARGB(255, 1, 93, 168),
+                                    color: Color(0xFF03b97c),
                                   ),
                                 ),
                               ),

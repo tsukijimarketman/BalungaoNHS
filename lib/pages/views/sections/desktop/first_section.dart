@@ -25,7 +25,7 @@ class _FirstSectionState extends State<FirstSection>
   late Animation<double> _buttonController;
 
   Color _textColor5 = Colors.white;
-  Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
+  Color _textColor6 = Color(0xFF03b97c);
 
   @override
   void initState() {
@@ -103,8 +103,8 @@ class _FirstSectionState extends State<FirstSection>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color.fromARGB(87, 1, 93, 168),
-                Color.fromARGB(255, 1, 93, 168),
+                Color.fromARGB(73, 3, 185, 124),
+                Color(0xFF03b97c),
               ],
               stops: [0.5, 1.0],
             ),

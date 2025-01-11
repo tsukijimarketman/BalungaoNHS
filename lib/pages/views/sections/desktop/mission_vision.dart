@@ -126,7 +126,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                   const EdgeInsets.only(bottom: 20, right: 40),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: const Color.fromARGB(255, 0, 30, 54),
+                                color: const Color.fromARGB(255, 0, 83, 56),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
@@ -155,7 +155,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                         textOpacityAnimation:
                                             _SHSOpacityAnimation,
                                         child: Text(
-                                          "SENIOR HIGH SCHOOL",
+                                          "HIGH SCHOOL",
                                           style: TextStyle(
                                             fontFamily: "R",
                                             fontSize: screenWidth / 50,
@@ -186,7 +186,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                                           const BoxDecoration(
                                                         image: DecorationImage(
                                                           image: AssetImage(
-                                                            "assets/principal.jpg",
+                                                            "assets/placeholder.png",
                                                           ),
                                                           fit: BoxFit.cover,
                                                         ),
@@ -232,7 +232,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                                           const BoxDecoration(
                                                         image: DecorationImage(
                                                           image: AssetImage(
-                                                            "assets/schooladmin.jpg",
+                                                            "assets/placeholder.png",
                                                           ),
                                                           fit: BoxFit.cover,
                                                         ),
@@ -297,7 +297,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                     child: Column(
                                       children: [
                                         Text(
-                                          "Urbano R. Delos Angeles IV,",
+                                          "Lorem Ipsum Dolor,",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -324,7 +324,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                     child: Column(
                                       children: [
                                         Text(
-                                          "Vannity Kaye S. Tan",
+                                          "Lorem Ipsum Dolor",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -367,7 +367,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "PBMA'S VISION",
+                          "BNHS VISION",
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 30, 54),
                             fontFamily: "B",
@@ -375,7 +375,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "To become a premier learner-centered institution upholding excellence in education, inquiry, and training attuned with the needs of dynamic society towards the betterment of the quality of life.",
+                          "Lorem ipsum dolor sit amet. Et illum dignissimos est exercitationem nulla id nihil dolores ut harum repellendus ea corrupti sunt qui recusandae sint. Sit consectetur Quis et sunt quasi vel voluptas tempora. Cum vero veniam ut porro eius id illo molestiae qui veritatis laudantium.",
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 30, 54),
                             fontFamily: "M",
@@ -390,7 +390,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "PBMA'S MISION",
+                          "BNHS MISION",
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 30, 54),
                             fontFamily: "B",
@@ -398,7 +398,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "Achieving excellence by committing ourselves to be holistic, who devote in the pursuit of wisdom which flows from research, innovation and transformation while upholding principles of a morally upright individual.",
+                          "Lorem ipsum dolor sit amet. Et illum dignissimos est exercitationem nulla id nihil dolores ut harum repellendus ea corrupti sunt qui recusandae sint. Sit consectetur Quis et sunt quasi vel voluptas tempora. Cum vero veniam ut porro eius id illo molestiae qui veritatis laudantium.",
                           style: TextStyle(
                             color: Color.fromARGB(255, 0, 30, 54),
                             fontFamily: "M",
