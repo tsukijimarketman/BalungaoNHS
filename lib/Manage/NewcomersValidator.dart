@@ -25,7 +25,11 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
       widget.studentData['country'] ?? '',
     ].where((s) => s.isNotEmpty).join(', ');
 
-    List<String> fileUrls = List<String>.from(widget.studentData['file_urls'] ?? []);
+    List<String> fileUrls =
+        List<String>.from(widget.studentData['file_urls'] ?? []);
+
+    String educLevel = widget.studentData['educ_level'] ??
+        ''; // Get the education level (e.g., "Senior High School" or "Junior High School")
 
     return Scaffold(
       body: Column(
@@ -33,7 +37,8 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
           // Breadcrumb Container (unchanged)
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -61,7 +66,8 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
                       },
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.pop(context); // Go back to the previous page (Student List)
+                          Navigator.pop(
+                              context); // Go back to the previous page (Student List)
                         },
                         child: Text(
                           'Student List',
@@ -122,10 +128,18 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
                                   widget.studentData['gender'] ?? ''),
                               _buildDetailRow(Icons.grade, 'Grade',
                                   widget.studentData['grade_level'] ?? ''),
-                              _buildDetailRow(Icons.track_changes, 'Track',
-                                  widget.studentData['seniorHigh_Track'] ?? ''),
-                              _buildDetailRow(Icons.book, 'Strand',
-                                  widget.studentData['seniorHigh_Strand'] ?? ''),
+                              if (educLevel == 'Senior High School') ...[
+                                _buildDetailRow(
+                                    Icons.track_changes,
+                                    'Track',
+                                    widget.studentData['seniorHigh_Track'] ??
+                                        ''),
+                                _buildDetailRow(
+                                    Icons.book,
+                                    'Strand',
+                                    widget.studentData['seniorHigh_Strand'] ??
+                                        ''),
+                              ],
                               _buildDetailRow(Icons.groups, 'Indigenous Group',
                                   widget.studentData['indigenous_group'] ?? ''),
                               _buildDetailRow(Icons.person, 'Father’s Name',
@@ -134,15 +148,28 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
                                   widget.studentData['mothersName'] ?? ''),
                               _buildDetailRow(Icons.person, 'Guardian’s Name',
                                   widget.studentData['guardianName'] ?? ''),
-                              _buildDetailRow(Icons.group, 'Guardian Relationship',
-                                  widget.studentData['relationshipGuardian'] ?? ''),
-                              _buildDetailRow(Icons.phone, 'Guardian Contact Number',
+                              _buildDetailRow(
+                                  Icons.group,
+                                  'Guardian Relationship',
+                                  widget.studentData['relationshipGuardian'] ??
+                                      ''),
+                              _buildDetailRow(
+                                  Icons.phone,
+                                  'Guardian Contact Number',
                                   widget.studentData['cellphone_number'] ?? ''),
-                              _buildDetailRow(Icons.school, 'Junior High School',
-                                  widget.studentData['juniorHS'] ?? ''),
-                              _buildDetailRow(Icons.location_city, 'JHS Address',
-                                  widget.studentData['schoolAdd'] ?? ''),
-                              _buildDetailRow(Icons.transfer_within_a_station, 'Transferee',
+                              if (educLevel == 'Senior High School') ...[
+                                _buildDetailRow(
+                                    Icons.school,
+                                    'Junior High School',
+                                    widget.studentData['juniorHS'] ?? ''),
+                                _buildDetailRow(
+                                    Icons.location_city,
+                                    'JHS Address',
+                                    widget.studentData['schoolAdd'] ?? ''),
+                              ],
+                              _buildDetailRow(
+                                  Icons.transfer_within_a_station,
+                                  'Transferee',
                                   widget.studentData['transferee'] ?? ''),
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
@@ -151,7 +178,9 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
                                   children: [
                                     Text(
                                       'Attached Files:',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(height: 10),
                                     for (var fileUrl in fileUrls)
@@ -162,21 +191,32 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
                                         child: Container(
                                           width: 200,
                                           height: 40,
-                                          margin: const EdgeInsets.symmetric(vertical: 4.0),
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 4.0),
                                           padding: const EdgeInsets.all(10.0),
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(8.0),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
                                             color: Colors.grey[300],
                                           ),
                                           child: Row(
                                             children: [
-                                              Icon(Icons.file_present, size: 12,),
+                                              Icon(
+                                                Icons.file_present,
+                                                size: 12,
+                                              ),
                                               SizedBox(width: 10),
                                               Expanded(
                                                 child: Text(
-                                                  Uri.decodeComponent(fileUrl.split('%2F').last.split('?').first),
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: TextStyle(fontSize: 12),
+                                                  Uri.decodeComponent(fileUrl
+                                                      .split('%2F')
+                                                      .last
+                                                      .split('?')
+                                                      .first),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style:
+                                                      TextStyle(fontSize: 12),
                                                 ),
                                               ),
                                             ],
@@ -213,8 +253,11 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
                               },
                               child: CircleAvatar(
                                 radius: 100,
-                                backgroundImage: widget.studentData['image_url'] != null
-                                    ? NetworkImage(widget.studentData['image_url'])
+                                backgroundImage: widget
+                                            .studentData['image_url'] !=
+                                        null
+                                    ? NetworkImage(
+                                        widget.studentData['image_url'])
                                     : NetworkImage(
                                         'https://cdn4.iconfinder.com/data/icons/linecon/512/photo-512.png'),
                               ),
@@ -259,65 +302,63 @@ class _NewcomersvalidatorState extends State<Newcomersvalidator> {
     );
   }
 
-Future<void> _openFile(String url) async {
-  final uri = Uri.parse(url);
-  final path = uri.path;
-  final extension = path.substring(path.lastIndexOf('.')).toLowerCase();
+  Future<void> _openFile(String url) async {
+    final uri = Uri.parse(url);
+    final path = uri.path;
+    final extension = path.substring(path.lastIndexOf('.')).toLowerCase();
 
-  print("File URL: $url");
-  print("File Extension: $extension");
+    print("File URL: $url");
+    print("File Extension: $extension");
 
-  if (extension == '.jpg' || extension == '.jpeg' || extension == '.png') {
-    print("Opening image file...");
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        content: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Image.network(url),
+    if (extension == '.jpg' || extension == '.jpeg' || extension == '.png') {
+      print("Opening image file...");
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Image.network(url),
+          ),
         ),
-      ),
-    );
-  } else if (extension == '.pdf') {
-    print("Opening PDF file...");
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      _showUnsupportedFileType();
-    }
-  } else if (extension == '.docx' || extension == '.doc') {
-    try {
-      print("Attempting to open DOC/DOCX file...");
-      final result = await OpenFile.open(url);
-      if (result.type != ResultType.done) {
-        throw Exception("open_file failed");
-      }
-    } catch (e) {
-      print("Open file failed: $e");
+      );
+    } else if (extension == '.pdf') {
+      print("Opening PDF file...");
       if (await canLaunch(url)) {
         await launch(url);
       } else {
         _showUnsupportedFileType();
       }
+    } else if (extension == '.docx' || extension == '.doc') {
+      try {
+        print("Attempting to open DOC/DOCX file...");
+        final result = await OpenFile.open(url);
+        if (result.type != ResultType.done) {
+          throw Exception("open_file failed");
+        }
+      } catch (e) {
+        print("Open file failed: $e");
+        if (await canLaunch(url)) {
+          await launch(url);
+        } else {
+          _showUnsupportedFileType();
+        }
+      }
+    } else {
+      print("Unsupported file type encountered.");
+      _showUnsupportedFileType();
     }
-  } else {
-    print("Unsupported file type encountered.");
-    _showUnsupportedFileType();
   }
-}
 
-
-
-void _showUnsupportedFileType() {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Row(
-      children: [
-        Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-        Text('Unsupported file type'),
-      ],
-    )),
-  );
-}
-
+  void _showUnsupportedFileType() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+          SizedBox(width: 10),
+          Text('Unsupported file type'),
+        ],
+      )),
+    );
+  }
 }

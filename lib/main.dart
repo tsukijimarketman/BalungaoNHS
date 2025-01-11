@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher_web/url_launcher_web.dart'; 
 import 'dart:async';  // Required for runZonedGuarded
 import 'package:supabase_flutter/supabase_flutter.dart';
-
+ 
 Future<void> main() async {
   // Use runZonedGuarded at the top level
   runZonedGuarded(() async {

@@ -25,17 +25,20 @@ class _EditInstructorState extends State<EditInstructor> {
   final TextEditingController _subjectCode = TextEditingController();
   final FocusNode _subjectNameFocusNode = FocusNode();
   final FocusNode _subjectCodeFocusNode = FocusNode();
+
   String _adviserStatus = '--'; // Default value for adviser status
   String? _selectedSection; // To store the selected section
+  String? _selectedEducationLevel = '--'; // New dropdown for educational level
   List<String> _sections = []; // To store section names
   List<String> _subjectNameSuggestions = [];
   List<String> _subjectCodeSuggestions = [];
-  bool _isSubjectNameSelected =
-      false; // Track whether a suggestion was selected
-  bool _isSubjectCodeSelected =
-      false; // Track whether a suggestion was selected for subject code
+  bool _isSubjectNameSelected = false;
+  bool _isSubjectCodeSelected = false;
+  bool _isLoading = false; // Add a loading state
 
-  Map<String, String> _subjectPairs = {}; // Stores valid subject name-code pairs
+
+  Map<String, String> _subjectPairs =
+      {}; // Stores valid subject name-code pairs
 
   @override
   void initState() {
@@ -45,7 +48,6 @@ class _EditInstructorState extends State<EditInstructor> {
     _fetchSubjects();
   }
 
-  // Load the existing data for the instructor from Firestore
   Future<void> _loadInstructorData() async {
     if (widget.instructorId == null) return; // Ensure instructorId is not null
 
@@ -60,13 +62,11 @@ class _EditInstructorState extends State<EditInstructor> {
         setState(() {
           _subjectName.text = doc.data()?['subject_Name'] ?? '';
           _subjectCode.text = doc.data()?['subject_Code'] ?? '';
-          _adviserStatus =
-              doc.data()?['adviserStatus'] ?? '--'; // Load adviser status
-
+          _adviserStatus = doc.data()?['adviserStatus'] ?? '--';
+          _selectedEducationLevel = doc.data()?['educ_level'] ?? null;
           String? handledSection = doc.data()?['handled_section'];
-          _selectedSection = _sections.contains(handledSection)
-              ? handledSection
-              : null; // Validate section
+          _selectedSection =
+              _sections.contains(handledSection) ? handledSection : null;
         });
       } else {
         print('No document found for instructor ID: ${widget.instructorId}');
@@ -78,174 +78,129 @@ class _EditInstructorState extends State<EditInstructor> {
 
   Future<void> _fetchSections() async {
     try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('sections').get();
-      final sections = snapshot.docs
-          .map((doc) => doc['section_name'] as String)
-          .toList(); // Assuming each section document has a 'section_name' field
+      final snapshot = await FirebaseFirestore.instance
+          .collection('sections')
+          .where('educ_level', isEqualTo: _selectedEducationLevel)
+          .get();
+      final sections =
+          snapshot.docs.map((doc) => doc['section_name'] as String).toList();
       setState(() {
-        _sections = sections; // Update sections list
+        _sections = sections;
         if (_selectedSection != null && !_sections.contains(_selectedSection)) {
           _selectedSection = null; // Reset if it doesn't exist
         }
       });
     } catch (e) {
-      // Handle errors
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Error fetching sections: $e'),
-          ],
-        )),
+        SnackBar(content: Text('Error fetching sections: $e')),
       );
     }
   }
 
   Future<void> _fetchSubjects() async {
-  try {
-    final snapshot = await FirebaseFirestore.instance.collection('subjects').get();
     setState(() {
-      _subjectNameSuggestions = snapshot.docs
-          .map((doc) => doc['subject_name'].toString())
-          .toList();
-      _subjectCodeSuggestions = snapshot.docs
-          .map((doc) => doc['subject_code'].toString())
-          .toList();
-      
-      // Store valid subject pairs
-      _subjectPairs.clear();
-      for (var doc in snapshot.docs) {
-        _subjectPairs[doc['subject_name'].toString()] = doc['subject_code'].toString();
-      }
-    });
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Error fetching subjects: $e'),
-        ],
-      )),
-    );
+    _isLoading = true; // Start loading
+  });
+    try{
+    // Check if the selected education level is Junior High School
+    if (_selectedEducationLevel == 'Junior High School') {
+      // If Junior High School is selected, we fetch only subject_name
+      final snapshot = await FirebaseFirestore.instance
+          .collection('subjects')
+          .where('educ_level', isEqualTo: _selectedEducationLevel)
+          .get();
+
+      setState(() {
+        _subjectNameSuggestions =
+            snapshot.docs.map((doc) => doc['subject_name'].toString()).toList();
+        _subjectCodeSuggestions.clear(); // Clear subject codes for JHS
+        _subjectPairs.clear(); // No subject pairs for JHS
+      });
+    } else if (_selectedEducationLevel == 'Senior High School') {
+      // If Senior High School is selected, fetch both subject_name and subject_code
+      final snapshot = await FirebaseFirestore.instance
+          .collection('subjects')
+          .where('educ_level', isEqualTo: _selectedEducationLevel)
+          .get();
+
+      setState(() {
+        _subjectNameSuggestions =
+            snapshot.docs.map((doc) => doc['subject_name'].toString()).toList();
+        _subjectCodeSuggestions =
+            snapshot.docs.map((doc) => doc['subject_code'].toString()).toList();
+
+        // Store valid subject pairs for Senior High School
+        _subjectPairs.clear();
+        for (var doc in snapshot.docs) {
+          _subjectPairs[doc['subject_name'].toString()] =
+              doc['subject_code'].toString();
+        }
+      });
+    }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching subjects: $e')),
+      );
+    }
   }
-}
 
- List<String> _filterSuggestions(String query, List<String> suggestions) {
-  if (query.isEmpty) return [];
-  
-  String queryLower = query.toLowerCase();
-  return suggestions
-      .where((suggestion) => suggestion.toLowerCase().contains(queryLower))
-      .toList()
-    ..sort((a, b) {
-      // Prioritize suggestions that start with the query
-      bool aStarts = a.toLowerCase().startsWith(queryLower);
-      bool bStarts = b.toLowerCase().startsWith(queryLower);
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-      return a.compareTo(b);
-    });
-}
+  List<String> _filterSuggestions(String query, List<String> suggestions) {
+    if (query.isEmpty) return [];
 
+    String queryLower = query.toLowerCase();
+    return suggestions
+        .where((suggestion) => suggestion.toLowerCase().contains(queryLower))
+        .toList()
+      ..sort((a, b) {
+        bool aStarts = a.toLowerCase().startsWith(queryLower);
+        bool bStarts = b.toLowerCase().startsWith(queryLower);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return a.compareTo(b);
+      });
+  }
 
-  // Save the updated data to Firestore
- // ... existing code ...
-
-Future<void> _saveChanges() async {
-  if (_subjectName.text.isEmpty ||
-      _subjectCode.text.isEmpty ||
-      _adviserStatus == '--') {
+  Future<void> _saveChanges() async {
+    if (_subjectName.text.isEmpty || _adviserStatus == '--') {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Please fill all fields and select adviser status'),
-        ],
-      )),
+      SnackBar(content: Text('Please fill all fields and select adviser status')),
     );
     return;
   }
 
-  try {
-    final batch = FirebaseFirestore.instance.batch();
-    final userDocRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.instructorId);
-    
-    // Update the user document
-    if (_adviserStatus == 'yes') {
-      batch.update(userDocRef, {
-        'subject_Name': _subjectName.text,
-        'subject_Code': _subjectCode.text,
-        'adviser': _adviserStatus,
-        'handled_section': _selectedSection,
-      });
-    } else {
-      batch.update(userDocRef, {
-        'subject_Name': _subjectName.text,
-        'subject_Code': _subjectCode.text,
-        'adviser': _adviserStatus,
-        'handled_section': null,
-      });
-
-      // Query sections where this instructor is the adviser
-      QuerySnapshot sectionsQuery = await FirebaseFirestore.instance
-          .collection('sections')
-          .where('section_adviser', isEqualTo: '${await getUserFullName()}')
-          .get();
-
-      // Update each section to set adviser to 'N/A'
-      for (var doc in sectionsQuery.docs) {
-        batch.update(doc.reference, {
-          'section_adviser': 'N/A'
-        });
-      }
+  // If education level is Senior High School, both subject name and subject code should be validated
+  if (_selectedEducationLevel == 'Senior High School') {
+    if (_subjectCode.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in the Subject Code for Senior High School')),
+      );
+      return;
     }
-
-    await batch.commit();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Instructor updated successfully'),
-        ],
-      )),
-    );
-
-    widget.closeEditInstructors();
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Failed to update instructor: $e'),
-        ],
-      )),
-    );
   }
-}
 
-// Add this helper method to get the instructor's full name
-Future<String> getUserFullName() async {
-  final doc = await FirebaseFirestore.instance
-      .collection('users')
-      .doc(widget.instructorId)
-      .get();
-  
-  if (doc.exists) {
-    final data = doc.data() as Map<String, dynamic>;
-    return '${data['first_name']} ${data['last_name']}';
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.instructorId)
+          .update({
+        'subject_Name': _subjectName.text,
+        'subject_Code': _subjectCode.text,
+        'adviserStatus': _adviserStatus,
+        'handled_section': _selectedSection,
+        'education_level': _selectedEducationLevel,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Instructor updated successfully')),
+      );
+
+      widget.closeEditInstructors();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update instructor: $e')),
+      );
+    }
   }
-  return '';
-}
-
 
   @override
   void dispose() {
@@ -277,7 +232,6 @@ Future<String> getUserFullName() async {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Back button
                       Align(
                         alignment: Alignment.topRight,
                         child: TextButton(
@@ -290,112 +244,167 @@ Future<String> getUserFullName() async {
                         ),
                       ),
                       SizedBox(height: 8),
-                      // Form title
                       Text(
                         'Edit Teacher',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 16),
-                      _buildSuggestionField(
-                        _subjectName,
-                        'Subject Name',
-                        _subjectNameSuggestions,
-                        _isSubjectNameSelected,
-                        _subjectNameFocusNode, // Pass the FocusNode here
-                        (suggestion) {
-                          setState(() {
-                            _subjectName.text = suggestion;
-                            _isSubjectNameSelected = true;
-                          });
-                        },
-                      ),
-
-                      _buildSuggestionField(
-                        _subjectCode,
-                        'Subject Code',
-                        _subjectCodeSuggestions,
-                        _isSubjectCodeSelected,
-                        _subjectCodeFocusNode, // Pass the FocusNode here
-                        (suggestion) {
-                          setState(() {
-                            _subjectCode.text = suggestion;
-                            _isSubjectCodeSelected = true;
-                          });
-                        },
-                      ),
-
-                      SizedBox(height: 16),
-                      // Adviser Status Dropdown
                       DropdownButtonFormField<String>(
-                        value: _adviserStatus,
+                        value: _selectedEducationLevel,
                         decoration: InputDecoration(
-                          labelText: 'Adviser Status',
+                          labelText: 'Education Level',
                           border: OutlineInputBorder(),
                         ),
-                        items: [
-                          DropdownMenuItem(value: '--', child: Text('--')),
-                          DropdownMenuItem(value: 'yes', child: Text('Yes')),
-                          DropdownMenuItem(value: 'no', child: Text('No')),
-                        ],
-                        onChanged: (value) {
+                        items:
+                            ['--', 'Junior High School', 'Senior High School']
+                                .map((level) => DropdownMenuItem<String>(
+                                      value: level,
+                                      child: Text(level),
+                                    ))
+                                .toList(),
+                        onChanged: (val) {
                           setState(() {
-                            _adviserStatus = value ?? '--';
+                            _selectedEducationLevel = val ?? '--';
                           });
-                        },
-                        validator: (value) {
-                          if (value == '--') {
-                            return 'Please select teacher status';
-                          }
-                          return null;
+                          _fetchSubjects();
                         },
                       ),
-                      if (_adviserStatus == 'yes') ...[
-                        DropdownButtonFormField<String>(
-                          value: _selectedSection,
-                          decoration:
-                              InputDecoration(labelText: 'Select Section'),
-                          items: _sections.map((section) {
-                            return DropdownMenuItem(
-                              value: section,
-                              child: Text(section),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
+                      SizedBox(height: 16),
+                      if (_selectedEducationLevel == 'Junior High School') ...[
+                        _buildSuggestionField(
+                          _subjectName,
+                          'Subject Name',
+                          _subjectNameSuggestions,
+                          _isSubjectNameSelected,
+                          _subjectNameFocusNode,
+                          (suggestion) {
                             setState(() {
-                              _selectedSection =
-                                  value; // Update selected section
+                              _subjectName.text = suggestion;
+                              _isSubjectNameSelected = true;
                             });
                           },
-                          validator: (value) =>
-                              value == null ? 'Please select a section' : null,
                         ),
+                        SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _adviserStatus,
+                          decoration: InputDecoration(
+                            labelText: 'Adviser Status',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem(value: '--', child: Text('--')),
+                            DropdownMenuItem(value: 'yes', child: Text('Yes')),
+                            DropdownMenuItem(value: 'no', child: Text('No')),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _adviserStatus = value ?? '--';
+                            });
+                            _fetchSections();
+                          },
+                        ),
+                        if (_adviserStatus == 'yes') ...[
+                          DropdownButtonFormField<String>(
+                            value: _selectedSection,
+                            decoration:
+                                InputDecoration(labelText: 'Select Section'),
+                            items: _sections.map((section) {
+                              return DropdownMenuItem(
+                                value: section,
+                                child: Text(section),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedSection = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ] else if (_selectedEducationLevel ==
+                          'Senior High School') ...[
+                        _buildSuggestionField(
+                          _subjectName,
+                          'Subject Name',
+                          _subjectNameSuggestions,
+                          _isSubjectNameSelected,
+                          _subjectNameFocusNode,
+                          (suggestion) {
+                            setState(() {
+                              _subjectName.text = suggestion;
+                              _isSubjectNameSelected = true;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        _buildSuggestionField(
+                          _subjectCode,
+                          'Subject Code',
+                          _subjectCodeSuggestions,
+                          _isSubjectCodeSelected,
+                          _subjectCodeFocusNode,
+                          (suggestion) {
+                            setState(() {
+                              _subjectCode.text = suggestion;
+                              _isSubjectCodeSelected = true;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _adviserStatus,
+                          decoration: InputDecoration(
+                            labelText: 'Adviser Status',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem(value: '--', child: Text('--')),
+                            DropdownMenuItem(value: 'yes', child: Text('Yes')),
+                            DropdownMenuItem(value: 'no', child: Text('No')),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _adviserStatus = value ?? '--';
+                            });
+                            _fetchSections();
+                          },
+                        ),
+                        if (_adviserStatus == 'yes') ...[
+                          DropdownButtonFormField<String>(
+                            value: _selectedSection,
+                            decoration:
+                                InputDecoration(labelText: 'Select Section'),
+                            items: _sections.map((section) {
+                              return DropdownMenuItem(
+                                value: section,
+                                child: Text(section),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedSection = value;
+                              });
+                            },
+                          ),
+                        ],
                       ],
                       SizedBox(height: 24),
-                      // Save Changes button
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Container(
-                          width: widget.screenWidth * 1,
-                          height: widget.screenHeight * 0.06,
-                          child: ElevatedButton(
-                            onPressed: _saveChanges,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              elevation: 5, // Elevation level for shadow depth
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 15), // Padding
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                        child: ElevatedButton(
+                          onPressed: _saveChanges,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Text(
-                              'Save Changes',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                            ),
+                          ),
+                          child: Text(
+                            'Save Changes',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ),
@@ -416,75 +425,80 @@ Future<String> getUserFullName() async {
     List<String> suggestions,
     bool isSubjectSelected,
     FocusNode focusNode,
-    Function(String) onSuggestionTap) {
+    Function(String) onSuggestionTap,
+  ) {
   bool isValid = true;
-  if (labelText == 'Subject Name') {
-    isValid = _subjectName.text.isEmpty || 
-              _subjectPairs.containsKey(_subjectName.text);
-  } else if (labelText == 'Subject Code') {
-    isValid = _subjectCode.text.isEmpty || 
-              _subjectPairs.values.contains(_subjectCode.text);
+
+  // Skip validation if loading
+  if (_isLoading) {
+    isValid = true; // Skip validation while loading
+  } else {
+    // Validate Subject Name
+    if (labelText == 'Subject Name') {
+      if (_selectedEducationLevel == 'Junior High School') {
+        // Validate only subject name for Junior High School
+        isValid = controller.text.isEmpty ||
+            _subjectNameSuggestions.contains(controller.text);
+      } else if (_selectedEducationLevel == 'Senior High School') {
+        // Validate subject name for Senior High School
+        isValid = controller.text.isEmpty ||
+            _subjectPairs.containsKey(controller.text); // Check if it's a valid subject
+      }
+    } else if (labelText == 'Subject Code') {
+      // Validate subject code for Senior High School
+      if (_selectedEducationLevel == 'Senior High School') {
+        isValid = controller.text.isEmpty ||
+            _subjectCodeSuggestions.contains(controller.text);
+      } else {
+        isValid = true; // No validation for Subject Code if JHS is selected
+      }
+    }
   }
 
-  return Column(
-    children: [
-      TextFormField(
-        controller: controller,
-        focusNode: focusNode,
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: OutlineInputBorder(),
-          errorText: !isValid ? 'Invalid $labelText' : null,
+
+    return Column(
+      children: [
+        TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: labelText,
+            border: OutlineInputBorder(),
+            errorText: !isValid ? 'Invalid $labelText' : null,
+          ),
+          onChanged: (value) {
+            setState(() {
+              if (labelText == 'Subject Name') {
+                _isSubjectNameSelected = false;
+              } else {
+                _isSubjectCodeSelected = false;
+              }
+            });
+          },
         ),
-        onChanged: (value) {
-          setState(() {
-            if (labelText == 'Subject Name') {
-              _isSubjectNameSelected = false;
-            } else {
-              _isSubjectCodeSelected = false;
-            }
-          });
-        },
-        onTap: () {
-          setState(() {
-            // Reset selection state when field is tapped
-            if (labelText == 'Subject Name') {
-              _isSubjectNameSelected = false;
-            } else {
-              _isSubjectCodeSelected = false;
-            }
-          });
-        },
-      ),
-      if (focusNode.hasFocus && !isSubjectSelected) // Show suggestions when focused and not selected
-        Container(
-          height: 150,
-          child: ListView(
-            children: _filterSuggestions(controller.text, suggestions)
-                .map((suggestion) {
-              return ListTile(
-                title: Text(suggestion),
-                onTap: () {
-                  onSuggestionTap(suggestion);
-                  setState(() {
-                    if (labelText == 'Subject Name') {
-                      _isSubjectNameSelected = true;
-                      // Auto-fill subject code if available
-                      if (_subjectPairs.containsKey(suggestion)) {
-                        _subjectCode.text = _subjectPairs[suggestion]!;
+        if (focusNode.hasFocus && !isSubjectSelected)
+          Container(
+            height: 150,
+            child: ListView(
+              children: _filterSuggestions(controller.text, suggestions)
+                  .map((suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                  onTap: () {
+                    onSuggestionTap(suggestion);
+                    setState(() {
+                      if (labelText == 'Subject Name') {
+                        _isSubjectNameSelected = true;
+                      } else {
                         _isSubjectCodeSelected = true;
                       }
-                    } else {
-                      _isSubjectCodeSelected = true;
-                    }
-                  });
-                },
-              );
-            }).toList(),
+                    });
+                  },
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      SizedBox(height: 8),
-    ],
-  );
-}
+      ],
+    );
+  }
 }

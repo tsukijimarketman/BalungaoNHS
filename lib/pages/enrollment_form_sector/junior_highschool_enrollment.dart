@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class JuniorHighSchoolEnrollment extends StatefulWidget {
   final Function(Map<String, dynamic>) onDataChanged;
   final double spacing;
-  
+
   JuniorHighSchoolEnrollment({
     required this.spacing,
     required this.onDataChanged,
@@ -12,39 +11,32 @@ class JuniorHighSchoolEnrollment extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<JuniorHighSchoolEnrollment> createState() => JuniorHighSchoolEnrollmentState();
+  State<JuniorHighSchoolEnrollment> createState() =>
+      JuniorHighSchoolEnrollmentState();
 }
 
-class JuniorHighSchoolEnrollmentState extends State<JuniorHighSchoolEnrollment>  with AutomaticKeepAliveClientMixin  {
-  final FocusNode _gradeLevelFocusNode = FocusNode();
-  final TextEditingController _gradeLevel = TextEditingController();
-  String _selectedTransferee = '';
+class JuniorHighSchoolEnrollmentState extends State<JuniorHighSchoolEnrollment>
+    with AutomaticKeepAliveClientMixin {
+  String? _selectedGradeLevel; // Change to nullable
+  String? _selectedTransferee; // Change to nullable
 
   void resetFields() {
     setState(() {
-      _gradeLevel.clear();
-      _selectedTransferee = '';
+      _selectedGradeLevel = null; // Reset to null
+      _selectedTransferee = null; // Reset to null
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _gradeLevel.addListener(_notifyParent);
-    _gradeLevelFocusNode.addListener(_onFocusChange);
   }
 
-  void _onFocusChange() {
-    setState(() {});
-  }
-
-      @override
-    bool get wantKeepAlive => true;
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void dispose() {
-    _gradeLevel.dispose();
-    _gradeLevelFocusNode.dispose();
     super.dispose();
   }
 
@@ -54,7 +46,7 @@ class JuniorHighSchoolEnrollmentState extends State<JuniorHighSchoolEnrollment> 
 
   Map<String, dynamic> getFormData() {
     return {
-      'grade_level': _gradeLevel.text,
+      'grade_level': _selectedGradeLevel,
       'transferee': _selectedTransferee,
     };
   }
@@ -91,26 +83,13 @@ class JuniorHighSchoolEnrollmentState extends State<JuniorHighSchoolEnrollment> 
             children: [
               Container(
                 width: fieldWidth,
-                child: TextFormField(
-                  controller: _gradeLevel,
-                  focusNode: _gradeLevelFocusNode,
+                child: DropdownButtonFormField<String>(
+                  value: _selectedGradeLevel, // Allow null
                   decoration: InputDecoration(
-                    label: RichText(
-                      text: TextSpan(
-                        text: 'Grade Level',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 101, 100, 100),
-                          fontSize: 16,
-                        ),
-                        children: [
-                          if (_gradeLevelFocusNode.hasFocus ||
-                              _gradeLevel.text.isNotEmpty)
-                            TextSpan(
-                              text: '*',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                        ],
-                      ),
+                    labelText: 'Grade Level',
+                    labelStyle: TextStyle(
+                      color: Color.fromARGB(255, 101, 100, 100),
+                      fontSize: 16,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -125,24 +104,30 @@ class JuniorHighSchoolEnrollmentState extends State<JuniorHighSchoolEnrollment> 
                       borderSide: BorderSide(color: Colors.blue, width: 1.0),
                     ),
                   ),
+                  items: ['7', '8', '9', '10']
+                      .map((String value) => DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGradeLevel = value;
+                      _notifyParent();
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your grade level';
+                      return 'Please select your grade level';
                     }
                     return null;
                   },
-                  onChanged: (text) {
-                    setState(() {});
-                  },
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
               ),
               Container(
                 width: fieldWidth,
                 child: DropdownButtonFormField<String>(
-                  value:
-                      _selectedTransferee.isEmpty ? null : _selectedTransferee,
+                  value: _selectedTransferee, // Allow null
                   decoration: InputDecoration(
                     labelText: 'Are you a transferee?',
                     labelStyle:
@@ -168,7 +153,7 @@ class JuniorHighSchoolEnrollmentState extends State<JuniorHighSchoolEnrollment> 
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      _selectedTransferee = value!;
+                      _selectedTransferee = value;
                       _notifyParent();
                     });
                   },
