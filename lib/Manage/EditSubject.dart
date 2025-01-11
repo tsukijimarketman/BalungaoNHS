@@ -22,6 +22,8 @@ class EditSubjectsForm extends StatefulWidget {
 class _EditSubjectsFormState extends State<EditSubjectsForm> {
   final TextEditingController _subjectName = TextEditingController();
   final TextEditingController _subjectCode = TextEditingController();
+  final TextEditingController _gradeLevel = TextEditingController();
+  final TextEditingController _quarter = TextEditingController();
   String? _selectedCategory = '--';
   String? _selectedSemester = '--';
   String? _selectedCourse = '--';
@@ -47,42 +49,66 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
         _subjectCode.text = data?['subject_code'] ?? '';
         _selectedCategory = data?['category'] ?? '--';
         _selectedSemester = data?['semester'] ?? '--';
-        _selectedEducationLevel = data?['education_level'] ?? '--';
+        _gradeLevel.text = data?['grade_level'] ?? '--';
+        _quarter.text = data?['quarter'] ?? '--';
+        _selectedEducationLevel = data?['educ_level'] ?? '--';
       });
     }
   }
 
   Future<void> _updateSubject() async {
-    if (_selectedCategory == '--' ||
-        _subjectName.text.isEmpty ||
-        _subjectCode.text.isEmpty ||
-        _selectedCourse == '--' ||
-        _selectedSemester == '--' ||
-        _selectedEducationLevel == '--') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
+    if (_selectedEducationLevel == 'Junior High School') {
+      if (_subjectName.text.isEmpty || _gradeLevel.text.isEmpty || _quarter.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
               SizedBox(width: 10),
               Text('Please fill all fields'),
             ],
-          ),
-        ),
-      );
-      return;
-    }
+          )),
+        );
+        return;
+      }
+    } else {
+      if (_subjectName.text.isEmpty || _subjectCode.text.isEmpty || _selectedCategory == '--' || 
+          _selectedSemester == '--' || _selectedCourse == '--') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+              SizedBox(width: 10),
+              Text('Please fill all fields'),
+            ],
+          )),
+        );
+        return;
+      }
+    } 
 
     try {
-      await subjectsCollection.doc(widget.subjectId).update({
-        'strandcourse': _selectedCourse,
-        'subject_name': _subjectName.text,
-        'subject_code': _subjectCode.text,
-        'category': _selectedCategory,
-        'semester': _selectedSemester,
-        'education_level': _selectedEducationLevel,
-        'updated_at': Timestamp.now(),
-      });
+  final Map<String, dynamic> subjectData = {
+    'updated_at': Timestamp.now(),
+  };
+
+  // Conditional data based on education level
+  if (_selectedEducationLevel == 'Junior High School') {
+    subjectData.addAll({
+      'subject_name': _subjectName.text,
+      'grade_level': _gradeLevel.text,
+      'quarter': _quarter.text,
+    });
+  } else {
+    subjectData.addAll({
+      'strandcourse': _selectedCourse,
+      'subject_name': _subjectName.text,
+      'subject_code': _subjectCode.text,
+      'category': _selectedCategory,
+      'semester': _selectedSemester,
+    });
+  }
+
+  await subjectsCollection.doc(widget.subjectId).update(subjectData);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -176,122 +202,145 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
         });
       },
     ),
-    SizedBox(height: 16),
-    DropdownButtonFormField<String>(
-      value: _selectedCourse,
-      decoration: InputDecoration(
-        labelText: 'Strand/Course',
-        border: OutlineInputBorder(),
-      ),
-      items: [
-        '--',
-        'ABM',
-        'STEM',
-        'HUMSS',
-        'ICT',
-        'HE',
-        'IA'
-      ].map((strandcourse) {
-        return DropdownMenuItem<String>(
-          value: strandcourse,
-          child: Text(strandcourse),
-        );
-      }).toList(),
-      onChanged: (val) {
-        setState(() {
-          _selectedCourse = val;
-        });
-      },
-    ),
-    SizedBox(height: 16),
-    TextFormField(
-      controller: _subjectName,
-      decoration: InputDecoration(
-        labelText: 'Subject Name',
-        border: OutlineInputBorder(),
-        hintText: 'Enter subject name',
-      ),
-    ),
-    SizedBox(height: 16),
-    TextFormField(
-      controller: _subjectCode,
-      decoration: InputDecoration(
-        labelText: 'Subject Code',
-        border: OutlineInputBorder(),
-        hintText: 'Enter subject code',
-      ),
-    ),
-    SizedBox(height: 16),
-    DropdownButtonFormField<String>(
-      value: _selectedCategory,
-      decoration: InputDecoration(
-        labelText: 'Category',
-        border: OutlineInputBorder(),
-      ),
-      items: ['--', 'Core', 'Applied', 'Specialized']
-          .map((category) => DropdownMenuItem<String>(
-                value: category,
-                child: Text(category),
-              ))
-          .toList(),
-      onChanged: (val) {
-        setState(() {
-          _selectedCategory = val;
-        });
-      },
-    ),
-    SizedBox(height: 16),
-    DropdownButtonFormField<String>(
-      value: _selectedSemester,
-      decoration: InputDecoration(
-        labelText: 'Semester',
-        border: OutlineInputBorder(),
-      ),
-      items: [
-        '--',
-        'Grade 11 - 1st Semester',
-        'Grade 11 - 2nd Semester',
-        'Grade 12 - 1st Semester',
-        'Grade 12 - 2nd Semester'
-      ].map((semester) => DropdownMenuItem<String>(
-            value: semester,
-            child: Text(semester),
-          ))
-          .toList(),
-      onChanged: (val) {
-        setState(() {
-          _selectedSemester = val;
-        });
-      },
-    ),
-    SizedBox(height: 24),
-    Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        width: widget.screenWidth,
-        height: widget.screenHeight * 0.06,
-        child: ElevatedButton(
-          onPressed: _updateSubject,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            elevation: 5,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: Text(
-            'Save Changes',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
-    ),
-  ],
-),
+                          SizedBox(height: 16),
+
+   if (_selectedEducationLevel == 'Junior High School') ...[
+                        TextFormField(
+                          controller: _subjectName,
+                          decoration: InputDecoration(
+                            labelText: 'Subject Name',
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter subject name',
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _gradeLevel,
+                          decoration: InputDecoration(
+                            labelText: 'Grade Level',
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter grade level (e.g., 7, 8, 9, 10)',
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _quarter,
+                          decoration: InputDecoration(
+                            labelText: 'Quarter',
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter quarter (1st, 2nd, 3rd, 4th)',
+                          ),
+                        ),
+                      ] else if (_selectedEducationLevel == 'Senior High School') ...[
+                        DropdownButtonFormField<String>(
+                          value: _selectedCourse,
+                          decoration: InputDecoration(
+                            labelText: 'Course',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: ['--', 'ABM', 'STEM', 'HUMSS', 'ICT', 'HE', 'IA']
+                              .map((strandcourse) => DropdownMenuItem<String>(
+                                    value: strandcourse,
+                                    child: Text(strandcourse),
+                                  ))
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedCourse = val;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _subjectName,
+                          decoration: InputDecoration(
+                            labelText: 'Subject Name',
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter subject name',
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _subjectCode,
+                          decoration: InputDecoration(
+                            labelText: 'Subject Code',
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter subject code',
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _selectedCategory,
+                          decoration: InputDecoration(
+                            labelText: 'Category',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: ['--', 'Core', 'Applied', 'Specialized']
+                              .map((category) => DropdownMenuItem<String>(
+                                    value: category,
+                                    child: Text(category),
+                                  ))
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedCategory = val;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _selectedSemester,
+                          decoration: InputDecoration(
+                            labelText: 'Semester',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: [
+                            '--',
+                            'Grade 11 - 1st Semester',
+                            'Grade 11 - 2nd Semester',
+                            'Grade 12 - 1st Semester',
+                            'Grade 12 - 2nd Semester'
+                          ].map((semester) => DropdownMenuItem<String>(
+                                value: semester,
+                                child: Text(semester),
+                              ))
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedSemester = val;
+                            });
+                          },
+                        ),
+                      ],
+
+                      SizedBox(height: 24),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          width: widget.screenWidth * 1,
+                          height: widget.screenHeight * 0.06,
+                          child: ElevatedButton(
+                            onPressed: _updateSubject,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              elevation: 5,
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: Text(
+                              'Save Changes',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

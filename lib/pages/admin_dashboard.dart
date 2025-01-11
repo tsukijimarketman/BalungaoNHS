@@ -1,5 +1,8 @@
+// ignore_for_file: unnecessary_null_comparison, unused_local_variable
 import 'dart:ui';
 
+import 'package:balungao_nhs/Manage/JHSStudentDetails.dart';
+import 'package:balungao_nhs/Manage/JHSStudentInSection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +17,7 @@ import 'package:balungao_nhs/Manage/EditSections.dart';
 import 'package:balungao_nhs/Manage/EditSubject.dart';
 import 'package:balungao_nhs/Manage/NewcomersValidator.dart';
 import 'package:balungao_nhs/Manage/Re-EnrolledValidator.dart';
-import 'package:balungao_nhs/Manage/StudentInSection.dart';
+import 'package:balungao_nhs/Manage/SHSStudentInSection.dart';
 import 'package:balungao_nhs/Manage/StudentReportCard.dart';
 import 'package:balungao_nhs/Manage/SubjectsandGrade.dart';
 import 'package:balungao_nhs/launcher.dart';
@@ -22,13 +25,11 @@ import 'package:balungao_nhs/pages/Auth_View/Adding_InstructorAcc_Desktview.dart
 import 'package:balungao_nhs/pages/banner.dart';
 import 'package:balungao_nhs/pages/news_updates.dart';
 import 'package:balungao_nhs/pages/student_details.dart';
-import 'package:balungao_nhs/pages/views/sections/desktop/contact_us.dart';
 import 'package:balungao_nhs/reports/enrollment_report/enrollment_report.dart';
 import 'package:balungao_nhs/pages/views/chatbot/faqs.dart';
 import 'package:balungao_nhs/student_utils/Student_Utils.dart';
 import 'package:balungao_nhs/Admin Dashboard Sorting/Dashboard Sorting.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:balungao_nhs/widgets/hover_extensions.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,6 +54,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   String _selectedStrand = 'ALL';
   String selectedLevel = 'Junior High School'; // Default value
   String? _selectedGrade; // For storing selected grade level
+  String selectedJHSGrade = "All";
 
   String? selectedSubjectId;
   String? selectedInstructorId;
@@ -92,9 +94,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'HE': 'Home Economics (HE)',
     'IA': 'Industrial Arts (IA)',
   };
-  String? _selectedTrack; // For filtering by Track
-  String? _selectedGrades; // For filtering by Grade Level
-  String? _selectedTransferee; // For filtering by Transferee
 
   String _selectedSubMenu = 'subjects'; // Default value
   String _selectedSubject = "All"; // Add this line
@@ -104,37 +103,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   //BuildDashboardContent
   Stream<QuerySnapshot> _getEnrolledStudentsCount() {
- Query query = FirebaseFirestore.instance
-     .collection('users')
-     .where('Status', isEqualTo: 'active')
-     .where('educ_level', isEqualTo: selectedLevel) // Use the selectedLevel variable
-     .where('enrollment_status', isEqualTo: 'approved');
-  // Add any additional filters based on the selected level
- if (selectedLevel == 'Senior High School') {
-   if (_trackIconState == 1) {
-     query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
-   } else if (_trackIconState == 2) {
-     query = query.where('seniorHigh_Track', isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
-   }
-    if (_selectedStrand != 'ALL') {
-     String? strandValue = strandMapping[_selectedStrand];
-     if (strandValue != null) {
-       query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
-     }
-   }
-    if (_gradeLevelIconState == 1) {
-     query = query.where('grade_level', isEqualTo: '11');
-   } else if (_gradeLevelIconState == 2) {
-     query = query.where('grade_level', isEqualTo: '12');
-   }
- } else if (selectedLevel == 'Junior High School') {
-   // Add filters specific to Junior High School
-   if (_selectedGrade != 'All') {
-     query = query.where('grade_level', isEqualTo: _selectedGrade);
-   }
- }
+    Query query = FirebaseFirestore.instance
+        .collection('users')
+        .where('Status', isEqualTo: 'active')
+        .where('educ_level',
+            isEqualTo: selectedLevel) // Use the selectedLevel variable
+        .where('enrollment_status', isEqualTo: 'approved');
+    // Add any additional filters based on the selected level
+    if (selectedLevel == 'Senior High School') {
+      if (_trackIconState == 1) {
+        query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
+      } else if (_trackIconState == 2) {
+        query = query.where('seniorHigh_Track',
+            isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
+      }
+      if (_selectedStrand != 'ALL') {
+        String? strandValue = strandMapping[_selectedStrand];
+        if (strandValue != null) {
+          query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
+        }
+      }
+      if (_gradeLevelIconState == 1) {
+        query = query.where('grade_level', isEqualTo: '11');
+      } else if (_gradeLevelIconState == 2) {
+        query = query.where('grade_level', isEqualTo: '12');
+      }
+    } else if (selectedLevel == 'Junior High School') {
+      // Add filters specific to Junior High School
+      if (_selectedGrade != 'All') {
+        query = query.where('grade_level', isEqualTo: _selectedGrade);
+      }
+    }
 
- String? transfereeValue;
+    String? transfereeValue;
     if (_transfereeIconState == 1) {
       transfereeValue = 'yes'; // Replace with actual Firestore value
     } else if (_transfereeIconState == 2) {
@@ -144,7 +145,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       query = query.where('transferee', isEqualTo: transfereeValue);
     }
 
-  return query.snapshots();
+    return query.snapshots();
   }
   //BuildDashBoardContent
 
@@ -225,32 +226,33 @@ class _AdminDashboardState extends State<AdminDashboard> {
         .where('accountType', isEqualTo: 'student')
         .where('educ_level', isEqualTo: selectedLevel)
         .where('Status', isEqualTo: 'active'); // Filter for active students
-    
-     if (selectedLevel == 'Senior High School') {
-   if (_trackIconState == 1) {
-     query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
-   } else if (_trackIconState == 2) {
-     query = query.where('seniorHigh_Track', isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
-   }
-    if (_selectedStrand != 'ALL') {
-     String? strandValue = strandMapping[_selectedStrand];
-     if (strandValue != null) {
-       query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
-     }
-   }
-    if (_gradeLevelIconState == 1) {
-     query = query.where('grade_level', isEqualTo: '11');
-   } else if (_gradeLevelIconState == 2) {
-     query = query.where('grade_level', isEqualTo: '12');
-   }
- } else if (selectedLevel == 'Junior High School') {
-   // Add filters specific to Junior High School
-   if (_selectedGrade != 'All') {
-     query = query.where('grade_level', isEqualTo: _selectedGrade);
-   }
- }
 
- String? transfereeValue;
+    if (selectedLevel == 'Senior High School') {
+      if (_trackIconState == 1) {
+        query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
+      } else if (_trackIconState == 2) {
+        query = query.where('seniorHigh_Track',
+            isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
+      }
+      if (_selectedStrand != 'ALL') {
+        String? strandValue = strandMapping[_selectedStrand];
+        if (strandValue != null) {
+          query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
+        }
+      }
+      if (_gradeLevelIconState == 1) {
+        query = query.where('grade_level', isEqualTo: '11');
+      } else if (_gradeLevelIconState == 2) {
+        query = query.where('grade_level', isEqualTo: '12');
+      }
+    } else if (selectedLevel == 'Junior High School') {
+      // Add filters specific to Junior High School
+      if (_selectedGrade != 'All') {
+        query = query.where('grade_level', isEqualTo: _selectedGrade);
+      }
+    }
+
+    String? transfereeValue;
     if (_transfereeIconState == 1) {
       transfereeValue = 'yes'; // Replace with actual Firestore value
     } else if (_transfereeIconState == 2) {
@@ -260,7 +262,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       query = query.where('transferee', isEqualTo: transfereeValue);
     }
 
-  return query.snapshots();
+    return query.snapshots();
   }
 
   bool get _isAnyStudentSelected {
@@ -314,7 +316,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   //BuildStudentsContent
 
   //BuildStrandInstructorContent
-  Stream<QuerySnapshot<Map<String, dynamic>>>_getFilteredInstructorStudents() async* {
+  Stream<QuerySnapshot<Map<String, dynamic>>>
+      _getFilteredInstructorStudents() async* {
     final userDoc = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -352,15 +355,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   //BuildNewcomersContent
   Stream<QuerySnapshot> _getNewcomersStudents() {
-   return getNewcomersStudents(
-   selectedLevel,  // Add this as first parameter
-   _trackIconState,
-   _gradeLevelIconState,
-   _transfereeIconState,
-   _selectedStrand,
-    _selectedGrade ?? 'All', // Add this parameter
-
- );
+    return getNewcomersStudents(
+      selectedLevel, // Add this as first parameter
+      _trackIconState,
+      _gradeLevelIconState,
+      _transfereeIconState,
+      _selectedStrand,
+      _selectedGrade ?? 'All', // Add this parameter
+    );
   }
 
   void _showDeleteConfirmationDialog(BuildContext context, String studentId) {
@@ -684,34 +686,36 @@ class _AdminDashboardState extends State<AdminDashboard> {
     Query query = FirebaseFirestore.instance
         .collection('users')
         .where('accountType', isEqualTo: 'student')
-        .where('educ_level', isEqualTo: selectedLevel) // Use the selectedLevel variable
+        .where('educ_level',
+            isEqualTo: selectedLevel) // Use the selectedLevel variable
         .where('Status', isEqualTo: 'inactive'); // Filter for active students
 
     if (selectedLevel == 'Senior High School') {
-   if (_trackIconState == 1) {
-     query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
-   } else if (_trackIconState == 2) {
-     query = query.where('seniorHigh_Track', isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
-   }
-    if (_selectedStrand != 'ALL') {
-     String? strandValue = strandMapping[_selectedStrand];
-     if (strandValue != null) {
-       query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
-     }
-   }
-    if (_gradeLevelIconState == 1) {
-     query = query.where('grade_level', isEqualTo: '11');
-   } else if (_gradeLevelIconState == 2) {
-     query = query.where('grade_level', isEqualTo: '12');
-   }
- } else if (selectedLevel == 'Junior High School') {
-   // Add filters specific to Junior High School
-   if (_selectedGrade != 'All') {
-     query = query.where('grade_level', isEqualTo: _selectedGrade);
-   }
- }
+      if (_trackIconState == 1) {
+        query = query.where('seniorHigh_Track', isEqualTo: 'Academic Track');
+      } else if (_trackIconState == 2) {
+        query = query.where('seniorHigh_Track',
+            isEqualTo: 'Technical-Vocational-Livelihood (TVL)');
+      }
+      if (_selectedStrand != 'ALL') {
+        String? strandValue = strandMapping[_selectedStrand];
+        if (strandValue != null) {
+          query = query.where('seniorHigh_Strand', isEqualTo: strandValue);
+        }
+      }
+      if (_gradeLevelIconState == 1) {
+        query = query.where('grade_level', isEqualTo: '11');
+      } else if (_gradeLevelIconState == 2) {
+        query = query.where('grade_level', isEqualTo: '12');
+      }
+    } else if (selectedLevel == 'Junior High School') {
+      // Add filters specific to Junior High School
+      if (_selectedGrade != 'All') {
+        query = query.where('grade_level', isEqualTo: _selectedGrade);
+      }
+    }
 
- String? transfereeValue;
+    String? transfereeValue;
     if (_transfereeIconState == 1) {
       transfereeValue = 'yes'; // Replace with actual Firestore value
     } else if (_transfereeIconState == 2) {
@@ -721,7 +725,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       query = query.where('transferee', isEqualTo: transfereeValue);
     }
 
-  return query.snapshots();
+    return query.snapshots();
   }
 
   Future<void> _setStudentStatusActive(String studentId) async {
@@ -871,16 +875,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
   //BuildManageSections
 
-  // Configuration
+    //JHS Configuration
 
-  Future<void> _showDeleteeConfirmationDialog(
+  Future<void> _showJHSDeleteeConfirmationDialog(
       BuildContext context, String configId) {
     return showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text('Delete Configuration'),
-          content: Text('Are you sure you want to delete this configuration?'),
+          title: Text('Delete JHS Configuration'),
+          content: Text('Are you sure you want to delete this JHS configuration?'),
           actions: [
             CupertinoDialogAction(
               child: Text(
@@ -899,7 +903,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               onPressed: () {
                 Navigator.pop(context);
-                _deleteConfiguration(configId);
+                _JHSdeleteConfiguration(configId);
               },
             ),
           ],
@@ -908,18 +912,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Future<void> _showActivateConfirmationDialog(
+  Future<void> _showJHSActivateConfirmationDialog(
       BuildContext context, String configId) {
     return showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text('Activate Configuration'),
+          title: Text('Activate JHS Configuration'),
           content: Column(
             children: [
-              Text('Are you sure you want to activate this configuration?'),
+              Text('Are you sure you want to activate this JHS configuration?'),
               Text(
-                'Please note that activating this will require the student to reenroll.',
+                'Please note that activating this will require the JHS student to reenroll.',
                 style: TextStyle(color: Colors.red),
               )
             ],
@@ -941,7 +945,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               onPressed: () {
                 Navigator.pop(context);
-                _activateConfiguration(configId);
+                _JHSactivateConfiguration(configId);
               },
             ),
           ],
@@ -950,13 +954,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Future<void> _showSaveConfirmationDialog(BuildContext context) {
+  Future<void> _showJHSSaveConfirmationDialog(BuildContext context) {
     return showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text('Save Configuration'),
-          content: Text('Are you sure you want to save this configuration?'),
+          title: Text('Save JHS Configuration'),
+          content: Text('Are you sure you want to save this JHS configuration?'),
           actions: [
             CupertinoDialogAction(
               child: Text(
@@ -974,7 +978,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               onPressed: () {
                 Navigator.pop(context);
-                _saveConfiguration();
+                _JHSsaveConfiguration();
               },
             ),
           ],
@@ -983,10 +987,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  void _deleteConfiguration(String configId) async {
+  void _JHSdeleteConfiguration(String configId) async {
     try {
       await FirebaseFirestore.instance
-          .collection('configurations')
+          .collection('jhs configurations')
           .doc(configId)
           .delete();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -995,7 +999,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Image.asset('PBMA.png', scale: 40),
             SizedBox(width: 10),
-            Text('Configuration deleted successfully'),
+            Text('JHS Configuration deleted successfully'),
           ],
         )),
       );
@@ -1006,19 +1010,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Image.asset('PBMA.png', scale: 40),
             SizedBox(width: 10),
-            Text('Failed to delete configuration: $e'),
+            Text('Failed to delete JHS configuration: $e'),
           ],
         )),
       );
     }
   }
 
-  Future<void> _activateConfiguration(String configId) async {
+  Future<void> _JHSactivateConfiguration(String configId) async {
     try {
       // First, set all configurations to inactive
       final batch = FirebaseFirestore.instance.batch();
       final configs = await FirebaseFirestore.instance
-          .collection('configurations')
+          .collection('jhs configurations')
           .where('isActive', isEqualTo: true)
           .get();
 
@@ -1028,7 +1032,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
       // Set the selected configuration as active
       batch.update(
-          FirebaseFirestore.instance.collection('configurations').doc(configId),
+          FirebaseFirestore.instance.collection('jhs configurations').doc(configId),
           {'isActive': true});
 
       await batch.commit();
@@ -1037,6 +1041,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       QuerySnapshot studentDocs = await FirebaseFirestore.instance
           .collection('users')
           .where('accountType', isEqualTo: 'student')
+                    .where('educ_level', isEqualTo: 'Junior High School')
           .get();
 
       // Create a new batch for student updates
@@ -1081,7 +1086,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Image.asset('PBMA.png', scale: 40),
             SizedBox(width: 10),
             Text(
-                'Configuration activated and student enrollments reset successfully'),
+                'JHS Configuration activated and student enrollments reset successfully'),
           ],
         )),
       );
@@ -1092,7 +1097,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Image.asset('PBMA.png', scale: 40),
             SizedBox(width: 10),
-            Text('Failed to activate configuration: $error'),
+            Text('Failed to activate jhs configuration: $error'),
           ],
         )),
       );
@@ -1100,22 +1105,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   // Method to save data to Firebase
-  void _saveConfiguration() {
+  void _JHSsaveConfiguration() {
     // Create a new document with a timestamp-based ID
     String docId = DateTime.now().millisecondsSinceEpoch.toString();
 
     FirebaseFirestore.instance
-        .collection('configurations')
+        .collection('jhs configurations')
         .doc(docId) // Using timestamp as document ID
         .set({
       'school_year': _curriculum,
       'semester': _selectedSemester,
+      'educ_level': 'Junior High School',
       'timestamp': FieldValue.serverTimestamp(), // Add timestamp for tracking
       'isActive': false, // Flag to identify the current active configuration
     }).then((_) async {
       // Set all other configurations as inactive
       QuerySnapshot prevConfigs = await FirebaseFirestore.instance
-          .collection('configurations')
+          .collection('jhs configurations')
           .where('isActive', isEqualTo: true)
           .where(FieldPath.documentId, isNotEqualTo: docId)
           .get();
@@ -1133,7 +1139,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Image.asset('PBMA.png', scale: 40),
             SizedBox(width: 10),
-            Text('Configuration saved successfully!'),
+            Text('JHS Configuration saved successfully!'),
           ],
         )),
       );
@@ -1144,7 +1150,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Image.asset('PBMA.png', scale: 40),
             SizedBox(width: 10),
-            Text('Failed to save configuration: $error'),
+            Text('Failed to save jhs configuration: $error'),
           ],
         )),
       );
@@ -1152,12 +1158,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
 // Function to update enrollment status for all students
-  Future<void> _updateEnrollmentStatusForStudents() async {
+  Future<void> _updateEnrollmentStatusForJHSStudents() async {
     try {
       // Query to get all student documents
       QuerySnapshot studentDocs = await FirebaseFirestore.instance
           .collection('users')
           .where('accountType', isEqualTo: 'student')
+                    .where('educ_level', isEqualTo: 'Junior High School')
+
           .get();
 
       // Create a batch for the main documents update
@@ -1219,17 +1227,372 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-  // Configuration
+  //JHS Configuration
+
+  //SHS Configuration
+
+  Future<void> _showSHSDeleteeConfirmationDialog(
+      BuildContext context, String configId) {
+    return showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('Delete SHS Configuration'),
+          content: Text('Are you sure you want to delete this SHS configuration?'),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                _SHSdeleteConfiguration(configId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showSHSActivateConfirmationDialog(
+      BuildContext context, String configId) {
+    return showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('Activate SHS Configuration'),
+          content: Column(
+            children: [
+              Text('Are you sure you want to activate this SHS configuration?'),
+              Text(
+                'Please note that activating this will require the student to reenroll.',
+                style: TextStyle(color: Colors.red),
+              )
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text(
+                'Activate',
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                _SHSactivateConfiguration(configId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showSHSSaveConfirmationDialog(BuildContext context) {
+    return showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('Save SHS Configuration'),
+          content: Text('Are you sure you want to save this SHS configuration?'),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text(
+                'Save',
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                _SHSsaveConfiguration();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _SHSdeleteConfiguration(String configId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('shs configurations')
+          .doc(configId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('SHS Configuration deleted successfully'),
+          ],
+        )),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Failed to delete configuration: $e'),
+          ],
+        )),
+      );
+    }
+  }
+
+  Future<void> _SHSactivateConfiguration(String configId) async {
+    try {
+      // First, set all configurations to inactive
+      final batch = FirebaseFirestore.instance.batch();
+      final configs = await FirebaseFirestore.instance
+          .collection('shs configurations')
+          .where('isActive', isEqualTo: true)
+          .get();
+
+      for (var doc in configs.docs) {
+        batch.update(doc.reference, {'isActive': false});
+      }
+
+      // Set the selected configuration as active
+      batch.update(
+          FirebaseFirestore.instance.collection('shs configurations').doc(configId),
+          {'isActive': true});
+
+      await batch.commit();
+
+      // Get all students
+      QuerySnapshot studentDocs = await FirebaseFirestore.instance
+          .collection('users')
+          .where('accountType', isEqualTo: 'student')
+          .where('educ_level', isEqualTo: 'Senior High School')
+          .get();
+
+      // Create a new batch for student updates
+      WriteBatch studentBatch = FirebaseFirestore.instance.batch();
+
+      // Update each student's enrollment status and reset their data
+      for (var studentDoc in studentDocs.docs) {
+        // Update main document status
+        studentBatch.update(studentDoc.reference, {
+          'enrollment_status': 're-enrolled',
+          'section':
+              FieldValue.delete(), // Remove the section field if it exists
+        });
+
+        try {
+          // Reset the sections subcollection for each student
+          DocumentReference sectionRef =
+              studentDoc.reference.collection('sections').doc(studentDoc.id);
+
+          // Check if document exists
+          DocumentSnapshot sectionDoc = await sectionRef.get();
+
+          if (sectionDoc.exists) {
+            await sectionRef.update({
+              'isFinalized': false,
+              'selectedSection': FieldValue.delete(),
+              'subjects': FieldValue.delete(),
+            });
+          }
+        } catch (e) {
+          print('Error resetting sections for student ${studentDoc.id}: $e');
+        }
+      }
+
+      // Commit student updates
+      await studentBatch.commit();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text(
+                'SHS Configuration activated and student enrollments reset successfully'),
+          ],
+        )),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Failed to activate configuration: $error'),
+          ],
+        )),
+      );
+    }
+  }
+
+  // Method to save data to Firebase
+  void _SHSsaveConfiguration() {
+    // Create a new document with a timestamp-based ID
+    String docId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    FirebaseFirestore.instance
+        .collection('shs configurations')
+        .doc(docId) // Using timestamp as document ID
+        .set({
+      'school_year': _curriculum,
+      'semester': _selectedSemester,
+      'timestamp': FieldValue.serverTimestamp(), // Add timestamp for tracking
+      'educ_level': 'Senior High School',
+      'isActive': false, // Flag to identify the current active configuration
+    }).then((_) async {
+      // Set all other configurations as inactive
+      QuerySnapshot prevConfigs = await FirebaseFirestore.instance
+          .collection('shs configurations')
+          .where('isActive', isEqualTo: true)
+          .where(FieldPath.documentId, isNotEqualTo: docId)
+          .get();
+
+      // Create a batch to update all previous configurations
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      for (var doc in prevConfigs.docs) {
+        batch.update(doc.reference, {'isActive': false});
+      }
+      await batch.commit();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('SHS Configuration saved successfully!'),
+          ],
+        )),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Failed to save configuration: $error'),
+          ],
+        )),
+      );
+    });
+  }
+
+// Function to update enrollment status for all students
+  Future<void> _updateEnrollmentStatusForSHSStudents() async {
+    try {
+      // Query to get all student documents
+      QuerySnapshot studentDocs = await FirebaseFirestore.instance
+          .collection('users')
+          .where('accountType', isEqualTo: 'student')
+                    .where('educ_level', isEqualTo: 'Senior High School')
+
+          .get();
+
+      // Create a batch for the main documents update
+      WriteBatch mainBatch = FirebaseFirestore.instance.batch();
+
+      // Update each student's enrollment status
+      for (QueryDocumentSnapshot doc in studentDocs.docs) {
+        mainBatch.update(doc.reference, {
+          'enrollment_status': 're-enrolled',
+          'section': FieldValue
+              .delete(), // Remove the section field from main document
+        });
+
+        try {
+          // Get the sections subcollection document for each student
+          DocumentReference sectionRef =
+              doc.reference.collection('sections').doc(doc.id);
+
+          // Check if the document exists
+          DocumentSnapshot sectionDoc = await sectionRef.get();
+
+          if (sectionDoc.exists) {
+            // Reset the section document
+            await sectionRef.update({
+              'isFinalized': false,
+              'selectedSection': FieldValue.delete(),
+              'subjects': FieldValue.delete(),
+            });
+          }
+        } catch (e) {
+          print('Error resetting sections for student ${doc.id}: $e');
+        }
+      }
+
+      // Commit the main batch update
+      await mainBatch.commit();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Enrollment status and sections reset for shs students.'),
+          ],
+        )),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Failed to update enrollment status: $error'),
+          ],
+        )),
+      );
+    }
+  }
+
+  //SHS Configuration
 
   // Re-Enrolled Students
   Stream<QuerySnapshot> _getReEnrolledStudents() {
     return getReEnrolledStudents(
-      selectedLevel,  // Add this as first parameter
-   _trackIconState,
-   _gradeLevelIconState,
-   _transfereeIconState,
-   _selectedStrand,
-    _selectedGrade ?? 'All',);
+      selectedLevel, // Add this as first parameter
+      _trackIconState,
+      _gradeLevelIconState,
+      _transfereeIconState,
+      _selectedStrand,
+      _selectedGrade ?? 'All',
+    );
   }
 
   Future<void> updateEnrollmentStatus(String studentId) async {
@@ -1446,8 +1809,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             final gradesData = gradesDoc.data();
             if (gradesData != null && gradesData[studentFullName] != null) {
               final studentGradeData = gradesData[studentFullName];
-              print(
-                  'Found grade data for $studentFullName: $studentGradeData');
+              print('Found grade data for $studentFullName: $studentGradeData');
 
               final List<dynamic> gradesArray =
                   studentGradeData['grades'] ?? [];
@@ -1488,7 +1850,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-    Future<List<String>> _getUniqueSubjects() async {
+  Future<List<String>> _getUniqueSubjects() async {
     final students = await _getFilteredStudentGrade();
     // Extract all subject names and create a set to get unique values
     Set<String> uniqueSubjects = {};
@@ -1712,15 +2074,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 'Manage Re-Enrolled Students':
         return _buildReEnrolledStudentContent();
       case 'Manage Subjects':
-        return _buildManageSubjects();
+        if (_selectedSubMenu == 'junior') {
+          return _buildJuniorManageSubjects();
+        } else {
+          return _buildManageSubjects();
+        }
       case 'Manage Teachers':
-        return _buildManageTeachersContent();
+        if (_selectedSubMenu == 'junior') {
+          return _buildJuniorManageTeachers();
+        } else {
+          return _buildManageTeachersContent();
+        }
       case 'Manage Student Report Cards':
         return _buildManageStudentReportCardsContent();
       case 'Configuration':
-        return _buildConfigurationContent();
+        if (_selectedSubMenu == 'junior') {
+          return _buildJuniorConfiguration();
+        } else {
+          return _buildConfigurationContent();
+        }
       case 'Manage Sections':
-        return _buildManageSections();
+        if (_selectedSubMenu == 'junior') {
+          return _buildJuniorManageSections();
+        } else {
+          return _buildManageSections();
+        }
       case 'Dropped Student':
         return _buildDropStudent();
       case 'Banner':
@@ -1953,32 +2331,32 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   },
                 ),
                 Padding(
-         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-         child: Row(
-           children: [
-             Text('Educational Level: '),
-             SizedBox(width: 10),
-             DropdownButton<String>(
-               value: selectedLevel,
-               items: ['Junior High School', 'Senior High School']
-                   .map((String value) {
-                 return DropdownMenuItem<String>(
-                   value: value,
-                   child: Text(value),
-                 );
-               }).toList(),
-               onChanged: (String? newValue) {
-                 setState(() {
-                   selectedLevel = newValue!;
-                   // Reset filters when changing educational level
-                   _trackIconState = 0;
-                   _selectedStrand = 'ALL';
-                 });
-               },
-             ),
-           ],
-         ),
-       ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Text('Educational Level: '),
+                      SizedBox(width: 10),
+                      DropdownButton<String>(
+                        value: selectedLevel,
+                        items: ['Junior High School', 'Senior High School']
+                            .map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedLevel = newValue!;
+                            // Reset filters when changing educational level
+                            _trackIconState = 0;
+                            _selectedStrand = 'ALL';
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -2022,100 +2400,100 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           Expanded(child: Text('First Name')),
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
-                           if (selectedLevel == 'Senior High School') ...[
-
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Text('Track'),
-                                GestureDetector(
-                                  onTap: _toggleTrackIcon,
-                                  child: Row(
-                                    children: [
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 1)
-                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                      if (_trackIconState == 0 ||
-                                          _trackIconState == 2)
-                                        Icon(Iconsax.arrow_down_copy, size: 16),
-                                    ],
+                          if (selectedLevel == 'Senior High School') ...[
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap: _toggleTrackIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           Expanded(
                             child: Row(
                               children: [
-                                Text('Strand'),
-                                PopupMenuButton<String>(
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  onSelected: (String value) {
-                                    setState(() {
-                                      _selectedStrand = value;
-                                    });
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return [
-                                      'ALL',
-                                      'STEM',
-                                      'HUMSS',
-                                      'ABM',
-                                      'ICT',
-                                      'HE',
-                                      'IA'
-                                    ].map((String strand) {
-                                      return PopupMenuItem<String>(
-                                        value: strand,
-                                        child: Text(strand),
-                                      );
-                                    }).toList();
-                                  },
-                                ),
+                                Text('Grade Level'),
+                                if (selectedLevel == 'Senior High School')
+                                  GestureDetector(
+                                    onTap: _toggleGradeLevelIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  )
+                                else if (selectedLevel == 'Junior High School')
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedGrade = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return ['All', '7', '8', '9', '10']
+                                          .map((String grade) {
+                                        return PopupMenuItem<String>(
+                                          value: grade,
+                                          child: Text('Grade $grade'),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
                               ],
-                            ),
-                          ),
-                           ],
-                          Expanded(
-                            child: Row(
- children: [
-   Text('Grade Level'),
-   if (selectedLevel == 'Senior High School') 
-     GestureDetector(
-       onTap: _toggleGradeLevelIcon,
-       child: Row(
-         children: [
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
-             Icon(Iconsax.arrow_up_3_copy, size: 16),
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
-             Icon(Iconsax.arrow_down_copy, size: 16),
-         ],
-       ),
-     )
-   else if (selectedLevel == 'Junior High School')
-     PopupMenuButton<String>(
-       icon: Icon(Icons.arrow_drop_down),
-       onSelected: (String value) {
-         setState(() {
-           _selectedGrade = value;
-         });
-       },
-       itemBuilder: (BuildContext context) {
-         return [
-           'All',
-           '7',
-           '8',
-           '9',
-           '10'
-         ].map((String grade) {
-           return PopupMenuItem<String>(
-             value: grade,
-             child: Text('Grade $grade'),
-           );
-         }).toList();
-       },
-     ),
- ],
                             ),
                           ),
                           Expanded(
@@ -2199,7 +2577,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
-          
+
           // Row with Drop button (on the left) and Search Student (fixed on the right)
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -2250,33 +2628,33 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           );
                         },
                       )),
-                       Padding(
-         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-         child: Row(
-           children: [
-             Text('Educational Level: '),
-             SizedBox(width: 10),
-             DropdownButton<String>(
-               value: selectedLevel,
-               items: ['Junior High School', 'Senior High School']
-                   .map((String value) {
-                 return DropdownMenuItem<String>(
-                   value: value,
-                   child: Text(value),
-                 );
-               }).toList(),
-               onChanged: (String? newValue) {
-                 setState(() {
-                   selectedLevel = newValue!;
-                   // Reset filters when changing educational level
-                   _trackIconState = 0;
-                   _selectedStrand = 'ALL';
-                 });
-               },
-             ),
-           ],
-         ),
-       ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Text('Educational Level: '),
+                      SizedBox(width: 10),
+                      DropdownButton<String>(
+                        value: selectedLevel,
+                        items: ['Junior High School', 'Senior High School']
+                            .map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedLevel = newValue!;
+                            // Reset filters when changing educational level
+                            _trackIconState = 0;
+                            _selectedStrand = 'ALL';
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 // Add Spacer or Expanded to ensure Search stays on the right
                 Spacer(),
                 if (_selectedSchoolYear != "All")
@@ -2398,99 +2776,99 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
                           if (selectedLevel == 'Senior High School') ...[
-                          
-                                                        Expanded(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('Track'),
-                                                              GestureDetector(
-                                                                onTap: _toggleTrackIcon,
-                                                                child: Row(
-                                                                  children: [
-                                                                    if (_trackIconState == 0 ||
-                                                                        _trackIconState == 1)
-                                                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                                                    if (_trackIconState == 0 ||
-                                                                        _trackIconState == 2)
-                                                                      Icon(Iconsax.arrow_down_copy, size: 16),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('Strand'),
-                                                              PopupMenuButton<String>(
-                                                                icon: Icon(Icons.arrow_drop_down),
-                                                                onSelected: (String value) {
-                                                                  setState(() {
-                                                                    _selectedStrand = value;
-                                                                  });
-                                                                },
-                                                                itemBuilder: (BuildContext context) {
-                                                                  return [
-                                                                    'ALL',
-                                                                    'STEM',
-                                                                    'HUMSS',
-                                                                    'ABM',
-                                                                    'ICT',
-                                                                    'HE',
-                                                                    'IA'
-                                                                  ].map((String strand) {
-                                                                    return PopupMenuItem<String>(
-                                                                      value: strand,
-                                                                      child: Text(strand),
-                                                                    );
-                                                                  }).toList();
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap: _toggleTrackIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           Expanded(
                             child: Row(
- children: [
-   Text('Grade Level'),
-   if (selectedLevel == 'Senior High School') 
-     GestureDetector(
-       onTap: _toggleGradeLevelIcon,
-       child: Row(
-         children: [
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
-             Icon(Iconsax.arrow_up_3_copy, size: 16),
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
-             Icon(Iconsax.arrow_down_copy, size: 16),
-         ],
-       ),
-     )
-   else if (selectedLevel == 'Junior High School')
-     PopupMenuButton<String>(
-       icon: Icon(Icons.arrow_drop_down),
-       onSelected: (String value) {
-         setState(() {
-           _selectedGrade = value;
-         });
-       },
-       itemBuilder: (BuildContext context) {
-         return [
-           'All',
-           '7',
-           '8',
-           '9',
-           '10'
-         ].map((String grade) {
-           return PopupMenuItem<String>(
-             value: grade,
-             child: Text('Grade $grade'),
-           );
-         }).toList();
-       },
-     ),
- ],
+                              children: [
+                                Text('Grade Level'),
+                                if (selectedLevel == 'Senior High School')
+                                  GestureDetector(
+                                    onTap: _toggleGradeLevelIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  )
+                                else if (selectedLevel == 'Junior High School')
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedGrade = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return ['All', '7', '8', '9', '10']
+                                          .map((String grade) {
+                                        return PopupMenuItem<String>(
+                                          value: grade,
+                                          child: Text('Grade $grade'),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
                           Expanded(
@@ -2529,15 +2907,30 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 onTap: () {
                                   final studentDocId =
                                       student.id; // Get the document ID here
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => StudentDetails(
-                                        studentData: data,
-                                        studentDocId: studentDocId,
+                                  if (selectedLevel == 'Senior High School') {
+                                    // Navigate to StudentDetails for Senior High School
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => StudentDetails(
+                                          studentData: data,
+                                          studentDocId: studentDocId,
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  } else if (selectedLevel ==
+                                      'Junior High School') {
+                                    // Navigate to a different page for Junior High School
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => JHSStudentDetails(
+                                          studentData: data,
+                                          studentDocId: studentDocId,
+                                        ),
+                                      ),
+                                    );
+                                  }
                                 },
                                 child: MouseRegion(
                                   cursor: SystemMouseCursors.click,
@@ -2764,35 +3157,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                  Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: StreamBuilder<List<String>>(
-                        stream: _getSchoolYears(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData)
-                            return CircularProgressIndicator();
+                Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: StreamBuilder<List<String>>(
+                      stream: _getSchoolYears(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData)
+                          return CircularProgressIndicator();
 
-                          return DropdownButton<String>(
-                            value: _selectedSchoolYear,
-                            items: snapshot.data!.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedSchoolYear = newValue!;
-                              });
-                            },
-                          );
-                        },
-                      )),
+                        return DropdownButton<String>(
+                          value: _selectedSchoolYear,
+                          items: snapshot.data!.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _selectedSchoolYear = newValue!;
+                            });
+                          },
+                        );
+                      },
+                    )),
                 // Add Spacer or Expanded to ensure Search stays on the right
                 Spacer(),
                 SizedBox(
@@ -3218,7 +3611,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: Colors.grey),
                   ),
-                  child:  FutureBuilder<List<String>>(
+                  child: FutureBuilder<List<String>>(
                     future: _getUniqueSubjects(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return CircularProgressIndicator();
@@ -3245,184 +3638,220 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ),
                 // Add Spacer or Expanded to ensure Search stays on the right
                 Spacer(),
-                 OutlinedButton(
-  onPressed: () async {
-    try {
-      // Create a PDF document
-      final pdf = pw.Document();
+                OutlinedButton(
+                  onPressed: () async {
+                    try {
+                      // Create a PDF document
+                      final pdf = pw.Document();
 
-      // stream builder ito ng adviser
-      final snapshotData = await _getFilteredStudentGrade();
+                      // stream builder ito ng adviser
+                      final snapshotData = await _getFilteredStudentGrade();
 
-      // Check if snapshotData is empty
-      if (snapshotData.isEmpty) {
-        print('No student data found for PDF generation.');
-        return; // Exit if there's no data
-      }
+                      // Check if snapshotData is empty
+                      if (snapshotData.isEmpty) {
+                        print('No student data found for PDF generation.');
+                        return; // Exit if there's no data
+                      }
 
-      // Log the selected subject
-      print('Selected Subject: $_selectedSubject');
+                      // Log the selected subject
+                      print('Selected Subject: $_selectedSubject');
 
-      // Filter the snapshotData based on the selected subject
-      final filteredData = _selectedSubject == "All"
-          ? snapshotData
-          : snapshotData.where((student) {
-              // Check if the student has grades for the selected subject
-              final hasSubject = student['subject_Name'] == _selectedSubject;
-              print('Checking student: ${student['first_name']} ${student['last_name']} for subject: $_selectedSubject - Result: $hasSubject');
-              return hasSubject;
-            }).toList();
+                      // Filter the snapshotData based on the selected subject
+                      final filteredData = _selectedSubject == "All"
+                          ? snapshotData
+                          : snapshotData.where((student) {
+                              // Check if the student has grades for the selected subject
+                              final hasSubject =
+                                  student['subject_Name'] == _selectedSubject;
+                              print(
+                                  'Checking student: ${student['first_name']} ${student['last_name']} for subject: $_selectedSubject - Result: $hasSubject');
+                              return hasSubject;
+                            }).toList();
 
-      // Check if filteredData is empty
-      if (filteredData.isEmpty) {
-        print('No data found for the selected subject: $_selectedSubject');
-        return; // Exit if there's no data for the selected subject
-      }
+                      // Check if filteredData is empty
+                      if (filteredData.isEmpty) {
+                        print(
+                            'No data found for the selected subject: $_selectedSubject');
+                        return; // Exit if there's no data for the selected subject
+                      }
 
-      // Log the filtered data
-      print('Filtered Data: $filteredData');
+                      // Log the filtered data
+                      print('Filtered Data: $filteredData');
 
-      // Add content to the PDF
-pdf.addPage(
-  pw.MultiPage(
-    pageFormat: PdfPageFormat.a4.landscape,
-    build: (pw.Context context) {
-      // Section Header
-      final section = filteredData.isNotEmpty
-          ? filteredData[0]['section'] ?? 'No section available'
-          : 'No section available';
+                      // Add content to the PDF
+                      pdf.addPage(
+                        pw.MultiPage(
+                          pageFormat: PdfPageFormat.a4.landscape,
+                          build: (pw.Context context) {
+                            // Section Header
+                            final section = filteredData.isNotEmpty
+                                ? filteredData[0]['section'] ??
+                                    'No section available'
+                                : 'No section available';
 
-      return [
-        pw.Text(
-          'Section: $section',
-          style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.normal),
-        ),
-        pw.SizedBox(height: 20),
+                            return [
+                              pw.Text(
+                                'Section: $section',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.normal),
+                              ),
+                              pw.SizedBox(height: 20),
 
-        // Grouping subjects by student
-        ...filteredData
-            .fold<Map<String, List<Map<String, String>>>>({}, (acc, student) {
-              final fullName =
-                  '${student['first_name'] ?? ''} ${student['middle_name'] ?? ''} ${student['last_name'] ?? ''}';
-              acc[fullName] = (acc[fullName] ?? [])..add({
-                    'subject_Code': student['subject_Code'] ?? '',
-                    'subject_Name': student['subject_Name'] ?? '',
-                    'Grade': student['Grade'] ?? '',
-                  });
-              return acc;
-            })
-            .entries
-            .map((entry) {
-              final fullName = entry.key;
-              final subjects = entry.value;
+                              // Grouping subjects by student
+                              ...filteredData
+                                  .fold<Map<String, List<Map<String, String>>>>(
+                                      {}, (acc, student) {
+                                    final fullName =
+                                        '${student['first_name'] ?? ''} ${student['middle_name'] ?? ''} ${student['last_name'] ?? ''}';
+                                    acc[fullName] = (acc[fullName] ?? [])
+                                      ..add({
+                                        'subject_Code':
+                                            student['subject_Code'] ?? '',
+                                        'subject_Name':
+                                            student['subject_Name'] ?? '',
+                                        'Grade': student['Grade'] ?? '',
+                                      });
+                                    return acc;
+                                  })
+                                  .entries
+                                  .map((entry) {
+                                    final fullName = entry.key;
+                                    final subjects = entry.value;
 
-              return pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  // Full Name
-                  pw.Text(
-                    fullName,
-                    style: pw.TextStyle(
-                      fontSize: 16,
-                      fontWeight: pw.FontWeight.bold,
+                                    return pw.Column(
+                                      crossAxisAlignment:
+                                          pw.CrossAxisAlignment.start,
+                                      children: [
+                                        // Full Name
+                                        pw.Text(
+                                          fullName,
+                                          style: pw.TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: pw.FontWeight.bold,
+                                          ),
+                                        ),
+                                        pw.SizedBox(height: 10),
+
+                                        // Subjects Table
+                                        pw.Table(
+                                          border: pw.TableBorder.all(),
+                                          columnWidths: {
+                                            0: pw.FlexColumnWidth(2),
+                                            1: pw.FlexColumnWidth(3),
+                                            2: pw.FlexColumnWidth(2),
+                                          },
+                                          children: [
+                                            // Header Row
+                                            pw.TableRow(
+                                              decoration: pw.BoxDecoration(
+                                                  color: PdfColors.grey300),
+                                              children: [
+                                                pw.Padding(
+                                                  padding:
+                                                      const pw.EdgeInsets.all(
+                                                          8.0),
+                                                  child: pw.Text('Subject Code',
+                                                      style: pw.TextStyle(
+                                                          fontWeight: pw
+                                                              .FontWeight
+                                                              .bold)),
+                                                ),
+                                                pw.Padding(
+                                                  padding:
+                                                      const pw.EdgeInsets.all(
+                                                          8.0),
+                                                  child: pw.Text('Subject Name',
+                                                      style: pw.TextStyle(
+                                                          fontWeight: pw
+                                                              .FontWeight
+                                                              .bold)),
+                                                ),
+                                                pw.Padding(
+                                                  padding:
+                                                      const pw.EdgeInsets.all(
+                                                          8.0),
+                                                  child: pw.Text('Grade',
+                                                      style: pw.TextStyle(
+                                                          fontWeight: pw
+                                                              .FontWeight
+                                                              .bold)),
+                                                ),
+                                              ],
+                                            ),
+                                            // Data Rows
+                                            ...subjects.map((subject) {
+                                              return pw.TableRow(
+                                                children: [
+                                                  pw.Padding(
+                                                    padding:
+                                                        const pw.EdgeInsets.all(
+                                                            8.0),
+                                                    child: pw.Text(subject[
+                                                            'subject_Code'] ??
+                                                        ''),
+                                                  ),
+                                                  pw.Padding(
+                                                    padding:
+                                                        const pw.EdgeInsets.all(
+                                                            8.0),
+                                                    child: pw.Text(subject[
+                                                            'subject_Name'] ??
+                                                        ''),
+                                                  ),
+                                                  pw.Padding(
+                                                    padding:
+                                                        const pw.EdgeInsets.all(
+                                                            8.0),
+                                                    child: pw.Text(
+                                                        subject['Grade'] ?? ''),
+                                                  ),
+                                                ],
+                                              );
+                                            }).toList(),
+                                          ],
+                                        ),
+                                        pw.SizedBox(height: 70),
+                                        pw.SizedBox(height: 20),
+                                      ],
+                                    );
+                                  })
+                                  .toList(),
+                            ];
+                          },
+                        ),
+                      );
+
+                      // Save the PDF to bytes
+                      final pdfBytes = await pdf.save();
+
+                      // Check if pdfBytes is empty
+                      if (pdfBytes.isEmpty) {
+                        print('PDF generation failed: no bytes to save.');
+                        return; // Exit if no bytes were generated
+                      }
+
+                      // Share the PDF
+                      await Printing.sharePdf(
+                        bytes: pdfBytes,
+                        filename: 'students_report_grade.pdf',
+                      );
+
+                      print('PDF generated and shared successfully.');
+                    } catch (e) {
+                      print('Error generating or sharing PDF: $e');
+                    }
+                  },
+                  child: Text('Download to PDF',
+                      style: TextStyle(color: Colors.black)),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: BorderSide(color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  pw.SizedBox(height: 10),
-
-                  // Subjects Table
-                  pw.Table(
-                    border: pw.TableBorder.all(),
-                    columnWidths: {
-                      0: pw.FlexColumnWidth(2),
-                      1: pw.FlexColumnWidth(3),
-                      2: pw.FlexColumnWidth(2),
-                    },
-                    children: [
-                      // Header Row
-                      pw.TableRow(
-                        decoration: pw.BoxDecoration(color: PdfColors.grey300),
-                        children: [
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(8.0),
-                            child: pw.Text('Subject Code',
-                                style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold)),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(8.0),
-                            child: pw.Text('Subject Name',
-                                style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold)),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(8.0),
-                            child: pw.Text('Grade',
-                                style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold)),
-                          ),
-                        ],
-                      ),
-                      // Data Rows
-                      ...subjects.map((subject) {
-                        return pw.TableRow(
-                          children: [
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(8.0),
-                              child: pw.Text(subject['subject_Code'] ?? ''),
-                            ),
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(8.0),
-                              child: pw.Text(subject['subject_Name'] ?? ''),
-                            ),
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(8.0),
-                              child: pw.Text(subject['Grade'] ?? ''),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ],
-                  ),
-                  pw.SizedBox(height: 70),
-                  pw.SizedBox(height: 20),
-                ],
-              );
-            }).toList(),
-      ];
-    },
-  ),
-);
-
-
-      // Save the PDF to bytes
-      final pdfBytes = await pdf.save();
-
-      // Check if pdfBytes is empty
-      if (pdfBytes.isEmpty) {
-        print('PDF generation failed: no bytes to save.');
-        return; // Exit if no bytes were generated
-      }
-
-      // Share the PDF
-      await Printing.sharePdf(
-        bytes: pdfBytes,
-        filename: 'students_report_grade.pdf',
-      );
-
-      print('PDF generated and shared successfully.');
-    } catch (e) {
-      print('Error generating or sharing PDF: $e');
-    }
-  },
-  child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
-  style: OutlinedButton.styleFrom(
-    backgroundColor: Colors.white,
-    side: BorderSide(color: Colors.black),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-  ),
-),
+                ),
 
                 SizedBox(
                   width: 20,
@@ -3454,8 +3883,9 @@ pdf.addPage(
               border: Border.all(color: Colors.blue, width: 2.0),
             ),
             child: FutureBuilder<List<Map<String, dynamic>>>(
-  future: _getFilteredStudentGrade(), // Use Future instead of Stream
-  builder: (context, snapshot) {
+              future:
+                  _getFilteredStudentGrade(), // Use Future instead of Stream
+              builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                     child: CircularProgressIndicator(),
@@ -3698,6 +4128,7 @@ pdf.addPage(
           ))
         ]));
   }
+
   // Widget for instructors without adviser status
   Widget _buildInstructorWithoutAdviserDrawer(DocumentSnapshot doc) {
     final subjectName = doc['subject_Name'];
@@ -3851,239 +4282,266 @@ pdf.addPage(
     );
   }
 
-Map<String, bool> _selectedSubjectStudents = {}; // Store selected students' states
+  Map<String, bool> _selectedSubjectStudents =
+      {}; // Store selected students' states
+
   Widget _buildGradePrintnonadviser() {
-  return Container(
-    color: Colors.grey[300],
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Students',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    return Container(
+      color: Colors.grey[300],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Students',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              OutlinedButton(
-  onPressed: () async {
-    final snapshotData = await _getStudentsWithSubjectnonadviser(
-            instructorSubjectName, instructorSubjectCode)
-        .first;
-
-    if (snapshotData != null && snapshotData.isNotEmpty) {
-      // Check if there are selected students
-      final selectedStudents = _selectedSubjectStudents.entries
-          .where((entry) => entry.value) // Only include selected
-          .map((entry) => entry.key)
-          .toSet();
-
-      // If no students are selected, use all students
-      final studentsToInclude = selectedStudents.isEmpty
-          ? snapshotData
-          : snapshotData.where((student) =>
-              selectedStudents.contains(student['student_id'])).toList();
-
-      if (studentsToInclude.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No students found to generate the PDF')),
-        );
-        return;
-      }
-
-      // Create a PDF document
-      final pdf = pw.Document();
-
-      pdf.addPage(
-        pw.Page(
-          pageFormat: PdfPageFormat.a4.landscape,
-          build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                pw.Text(
-                  'Student Grades \n$instructorSubjectName',
-                  style: pw.TextStyle(
-                      fontSize: 24, fontWeight: pw.FontWeight.bold),
-                ),
-                pw.SizedBox(height: 20),
-                pw.Table(
-                  border: pw.TableBorder.all(),
-                  columnWidths: {
-                    0: pw.FlexColumnWidth(2),
-                    1: pw.FlexColumnWidth(2),
-                    2: pw.FlexColumnWidth(2),
-                    3: pw.FlexColumnWidth(2),
-                    4: pw.FlexColumnWidth(2),
-                    5: pw.FlexColumnWidth(3),
-                    6: pw.FlexColumnWidth(2),
-                    7: pw.FlexColumnWidth(1),
-                  },
-                  children: [
-                    pw.TableRow(
-                      decoration:
-                          pw.BoxDecoration(color: PdfColors.grey300),
-                      children: [
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Student ID',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold)),
+                OutlinedButton(
+                  onPressed: () async {
+                    final snapshotData =
+                        await _getStudentsWithSubjectnonadviser(
+                                instructorSubjectName, instructorSubjectCode)
+                            .first;
+
+                    if (snapshotData != null && snapshotData.isNotEmpty) {
+                      // Check if there are selected students
+                      final selectedStudents = _selectedSubjectStudents.entries
+                          .where(
+                              (entry) => entry.value) // Only include selected
+                          .map((entry) => entry.key)
+                          .toSet();
+
+                      // If no students are selected, use all students
+                      final studentsToInclude = selectedStudents.isEmpty
+                          ? snapshotData
+                          : snapshotData
+                              .where((student) => selectedStudents
+                                  .contains(student['student_id']))
+                              .toList();
+
+                      if (studentsToInclude.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'No students found to generate the PDF')),
+                        );
+                        return;
+                      }
+
+                      // Create a PDF document
+                      final pdf = pw.Document();
+
+                      pdf.addPage(
+                        pw.Page(
+                          pageFormat: PdfPageFormat.a4.landscape,
+                          build: (pw.Context context) {
+                            return pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              children: [
+                                pw.Text(
+                                  'Student Grades \n$instructorSubjectName',
+                                  style: pw.TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: pw.FontWeight.bold),
+                                ),
+                                pw.SizedBox(height: 20),
+                                pw.Table(
+                                  border: pw.TableBorder.all(),
+                                  columnWidths: {
+                                    0: pw.FlexColumnWidth(2),
+                                    1: pw.FlexColumnWidth(2),
+                                    2: pw.FlexColumnWidth(2),
+                                    3: pw.FlexColumnWidth(2),
+                                    4: pw.FlexColumnWidth(2),
+                                    5: pw.FlexColumnWidth(3),
+                                    6: pw.FlexColumnWidth(2),
+                                    7: pw.FlexColumnWidth(1),
+                                  },
+                                  children: [
+                                    pw.TableRow(
+                                      decoration: pw.BoxDecoration(
+                                          color: PdfColors.grey300),
+                                      children: [
+                                        pw.Padding(
+                                          padding: const pw.EdgeInsets.all(4),
+                                          child: pw.Text('Student ID',
+                                              style: pw.TextStyle(
+                                                  fontWeight:
+                                                      pw.FontWeight.bold)),
+                                        ),
+                                        pw.Padding(
+                                          padding: const pw.EdgeInsets.all(4),
+                                          child: pw.Text('First Name',
+                                              style: pw.TextStyle(
+                                                  fontWeight:
+                                                      pw.FontWeight.bold)),
+                                        ),
+                                        pw.Padding(
+                                          padding: const pw.EdgeInsets.all(4),
+                                          child: pw.Text('Last Name',
+                                              style: pw.TextStyle(
+                                                  fontWeight:
+                                                      pw.FontWeight.bold)),
+                                        ),
+                                        pw.Padding(
+                                          padding: const pw.EdgeInsets.all(4),
+                                          child: pw.Text('Middle Name',
+                                              style: pw.TextStyle(
+                                                  fontWeight:
+                                                      pw.FontWeight.bold)),
+                                        ),
+                                        pw.Padding(
+                                          padding: const pw.EdgeInsets.all(4),
+                                          child: pw.Text('Section',
+                                              style: pw.TextStyle(
+                                                  fontWeight:
+                                                      pw.FontWeight.bold)),
+                                        ),
+                                        pw.Padding(
+                                          padding: const pw.EdgeInsets.all(4),
+                                          child: pw.Text('Subject Name',
+                                              style: pw.TextStyle(
+                                                  fontWeight:
+                                                      pw.FontWeight.bold)),
+                                        ),
+                                        pw.Padding(
+                                          padding: const pw.EdgeInsets.all(4),
+                                          child: pw.Text('Subject Code',
+                                              style: pw.TextStyle(
+                                                  fontWeight:
+                                                      pw.FontWeight.bold)),
+                                        ),
+                                        pw.Padding(
+                                          padding: const pw.EdgeInsets.all(4),
+                                          child: pw.Text('Grade',
+                                              style: pw.TextStyle(
+                                                  fontWeight:
+                                                      pw.FontWeight.bold)),
+                                        ),
+                                      ],
+                                    ),
+                                    ...studentsToInclude.map((student) {
+                                      return pw.TableRow(
+                                        children: [
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                                student['student_id'] ?? ''),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                                student['first_name'] ?? ''),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                                student['last_name'] ?? ''),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                                student['middle_name'] ?? ''),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                                student['section'] ?? ''),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                                student['subject_Name'] ?? ''),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text(
+                                                student['subject_Code'] ?? ''),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child:
+                                                pw.Text(student['Grade'] ?? ''),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
                         ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('First Name',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold)),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Last Name',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold)),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Middle Name',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold)),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Section',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold)),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Subject Name',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold)),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Subject Code',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold)),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(4),
-                          child: pw.Text('Grade',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                    ...studentsToInclude.map((student) {
-                      return pw.TableRow(
-                        children: [
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(student['student_id'] ?? ''),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(student['first_name'] ?? ''),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(student['last_name'] ?? ''),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(student['middle_name'] ?? ''),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(student['section'] ?? ''),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(student['subject_Name'] ?? ''),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(student['subject_Code'] ?? ''),
-                          ),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.all(4),
-                            child: pw.Text(student['Grade'] ?? ''),
-                          ),
-                        ],
                       );
-                    }).toList(),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      );
 
-      final pdfBytes = await pdf.save();
-      await Printing.sharePdf(
-          bytes: pdfBytes, filename: 'students_report_grade.pdf');
+                      final pdfBytes = await pdf.save();
+                      await Printing.sharePdf(
+                          bytes: pdfBytes,
+                          filename: 'students_report_grade.pdf');
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF downloaded')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No students found to generate the PDF')),
-      );
-    }
-  },
-  child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
-  style: OutlinedButton.styleFrom(
-    backgroundColor: Colors.white,
-    side: BorderSide(color: Colors.black),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-  ),
-),
-
-            
-              Container(
-                width: 300,
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search Student',
-                    prefixIcon: Icon(Iconsax.search_normal_1_copy),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('PDF downloaded')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:
+                                Text('No students found to generate the PDF')),
+                      );
+                    }
+                  },
+                  child: Text('Download to PDF',
+                      style: TextStyle(color: Colors.black)),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: BorderSide(color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    filled: true,
-                    fillColor: Colors.white,
                   ),
                 ),
-              )
-            ],
-          ),
-        ),
-        Expanded(
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.0),
-            padding: EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.blue, width: 2.0),
+                Container(
+                  width: 300,
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search Student',
+                      prefixIcon: Icon(Iconsax.search_normal_1_copy),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                )
+              ],
             ),
-            child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _getStudentsWithSubjectnonadviser(
-                instructorSubjectName, 
-                instructorSubjectCode,
+          ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.blue, width: 2.0),
               ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _getStudentsWithSubjectnonadviser(
+                  instructorSubjectName,
+                  instructorSubjectCode,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(child: Text('No students found'));
@@ -4161,52 +4619,55 @@ Map<String, bool> _selectedSubjectStudents = {}; // Store selected students' sta
     );
   }
 
-Widget _buildStudentRow(Map<String, dynamic> student) {
-  return Row(
-    children: [
-      SizedBox(width: 8),
-      StatefulBuilder(
-        builder: (context, setState) {
-          bool isLoading = false;
+  Widget _buildStudentRow(Map<String, dynamic> student) {
+    return Row(
+      children: [
+        SizedBox(width: 8),
+        StatefulBuilder(
+          builder: (context, setState) {
+            bool isLoading = false;
 
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              Checkbox(
-                value: _selectedSubjectStudents[student['student_id']] ?? false,
-                onChanged: (bool? value) async {
-                  setState(() => isLoading = true);
-                  try {
-                    await Future.delayed(Duration(milliseconds: 500)); // Simulate processing
-                    setState(() {
-                      _selectedSubjectStudents[student['student_id']] = value!;
-                    });
-                  } finally {
-                    setState(() => isLoading = false);
-                  }
-                },
-              ),
-              if (isLoading)
-                Positioned.fill(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                Checkbox(
+                  value:
+                      _selectedSubjectStudents[student['student_id']] ?? false,
+                  onChanged: (bool? value) async {
+                    setState(() => isLoading = true);
+                    try {
+                      await Future.delayed(
+                          Duration(milliseconds: 500)); // Simulate processing
+                      setState(() {
+                        _selectedSubjectStudents[student['student_id']] =
+                            value!;
+                      });
+                    } finally {
+                      setState(() => isLoading = false);
+                    }
+                  },
                 ),
-            ],
-          );
-        },
-      ),
-      Expanded(child: Text(student['student_id'] ?? '')),
-      Expanded(child: Text(student['first_name'] ?? '')),
-      Expanded(child: Text(student['last_name'] ?? '')),
-      Expanded(child: Text(student['middle_name'] ?? '')),
-      Expanded(child: Text(student['section'] ?? '')),
-      Expanded(child: Text(student['subject_Name'] ?? '')),
-      Expanded(child: Text(student['subject_Code'] ?? '')),
-      Expanded(child: Text(student['Grade'] ?? '')),
-    ],
-  );
-}
+                if (isLoading)
+                  Positioned.fill(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        Expanded(child: Text(student['student_id'] ?? '')),
+        Expanded(child: Text(student['first_name'] ?? '')),
+        Expanded(child: Text(student['last_name'] ?? '')),
+        Expanded(child: Text(student['middle_name'] ?? '')),
+        Expanded(child: Text(student['section'] ?? '')),
+        Expanded(child: Text(student['subject_Name'] ?? '')),
+        Expanded(child: Text(student['subject_Code'] ?? '')),
+        Expanded(child: Text(student['Grade'] ?? '')),
+      ],
+    );
+  }
 
   Widget _buildNewcomersContent() {
     return Container(
@@ -4222,32 +4683,32 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
             ),
           ),
           Padding(
-         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-         child: Row(
-           children: [
-             Text('Educational Level: '),
-             SizedBox(width: 10),
-             DropdownButton<String>(
-               value: selectedLevel,
-               items: ['Junior High School', 'Senior High School']
-                   .map((String value) {
-                 return DropdownMenuItem<String>(
-                   value: value,
-                   child: Text(value),
-                 );
-               }).toList(),
-               onChanged: (String? newValue) {
-                 setState(() {
-                   selectedLevel = newValue!;
-                   // Reset filters when changing educational level
-                   _trackIconState = 0;
-                   _selectedStrand = 'ALL';
-                 });
-               },
-             ),
-           ],
-         ),
-       ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Text('Educational Level: '),
+                SizedBox(width: 10),
+                DropdownButton<String>(
+                  value: selectedLevel,
+                  items: ['Junior High School', 'Senior High School']
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedLevel = newValue!;
+                      // Reset filters when changing educational level
+                      _trackIconState = 0;
+                      _selectedStrand = 'ALL';
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -4281,14 +4742,13 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
               ),
               child: StreamBuilder<QuerySnapshot>(
                 stream: getNewcomersStudents(
-               selectedLevel,
-               _trackIconState,
-               _gradeLevelIconState,
-               _transfereeIconState,
-               _selectedStrand,
-                _selectedGrade ?? 'All', // Add this parameter
-
-             ),
+                  selectedLevel,
+                  _trackIconState,
+                  _gradeLevelIconState,
+                  _transfereeIconState,
+                  _selectedStrand,
+                  _selectedGrade ?? 'All', // Add this parameter
+                ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -4339,102 +4799,101 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
                           if (selectedLevel == 'Senior High School') ...[
-                          
-                                                        Expanded(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('Track'),
-                                                              GestureDetector(
-                                                                onTap: _toggleTrackIcon,
-                                                                child: Row(
-                                                                  children: [
-                                                                    if (_trackIconState == 0 ||
-                                                                        _trackIconState == 1)
-                                                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                                                    if (_trackIconState == 0 ||
-                                                                        _trackIconState == 2)
-                                                                      Icon(Iconsax.arrow_down_copy, size: 16),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('Strand'),
-                                                              PopupMenuButton<String>(
-                                                                icon: Icon(Icons.arrow_drop_down),
-                                                                onSelected: (String value) {
-                                                                  setState(() {
-                                                                    _selectedStrand = value;
-                                                                  });
-                                                                },
-                                                                itemBuilder: (BuildContext context) {
-                                                                  return [
-                                                                    'ALL',
-                                                                    'STEM',
-                                                                    'HUMSS',
-                                                                    'ABM',
-                                                                    'ICT',
-                                                                    'HE',
-                                                                    'IA'
-                                                                  ].map((String strand) {
-                                                                    return PopupMenuItem<String>(
-                                                                      value: strand,
-                                                                      child: Text(strand),
-                                                                    );
-                                                                  }).toList();
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap: _toggleTrackIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           Expanded(
                             child: Row(
- children: [
-   Text('Grade Level'),
-   if (selectedLevel == 'Senior High School') 
-     GestureDetector(
-       onTap: _toggleGradeLevelIcon,
-       child: Row(
-         children: [
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
-             Icon(Iconsax.arrow_up_3_copy, size: 16),
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
-             Icon(Iconsax.arrow_down_copy, size: 16),
-         ],
-       ),
-     )
-   else if (selectedLevel == 'Junior High School')
-     PopupMenuButton<String>(
-       icon: Icon(Icons.arrow_drop_down),
-       onSelected: (String value) {
-         setState(() {
-           _selectedGrade = value;
-         });
-       },
-       itemBuilder: (BuildContext context) {
-         return [
-           'All',
-           '7',
-           '8',
-           '9',
-           '10'
-         ].map((String grade) {
-           return PopupMenuItem<String>(
-             value: grade,
-             child: Text('Grade $grade'),
-           );
-         }).toList();
-       },
-     ),
- ],
+                              children: [
+                                Text('Grade Level'),
+                                if (selectedLevel == 'Senior High School')
+                                  GestureDetector(
+                                    onTap: _toggleGradeLevelIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  )
+                                else if (selectedLevel == 'Junior High School')
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedGrade = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return ['All', '7', '8', '9', '10']
+                                          .map((String grade) {
+                                        return PopupMenuItem<String>(
+                                          value: grade,
+                                          child: Text('Grade $grade'),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
-
                           Expanded(child: Text('')),
                         ],
                       ),
@@ -4522,6 +4981,344 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
     );
   }
 
+  Widget _buildJuniorManageSubjects() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return Stack(
+      children: [
+        Container(
+          color: Colors.grey[300],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Manage Junior HS Subjects',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.blue),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    onPressed: toggleAddSubjects,
+                    child: Text(
+                      'Add New Subject',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Filter by Grade Level:',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(width: 16),
+                    DropdownButton<String>(
+                      value: selectedJHSGrade,
+                      items: ["All", "7", "8", "9", "10"]
+                          .map((grade) => DropdownMenuItem<String>(
+                                value: grade,
+                                child: Text(
+                                    grade == "All" ? "All" : "Grade $grade"),
+                              ))
+                          .toList(),
+                      onChanged: (grade) {
+                        setState(() {
+                          selectedJHSGrade = grade!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Card(
+                  margin: EdgeInsets.all(16),
+                  elevation: 10,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Subjects List',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+
+                        // Fixed header row
+                        Table(
+                          border: TableBorder.all(color: Colors.grey),
+                          columnWidths: const <int, TableColumnWidth>{
+                            0: FixedColumnWidth(50.0),
+                            1: FlexColumnWidth(),
+                            2: FlexColumnWidth(),
+                            3: FlexColumnWidth(),
+                            4: FixedColumnWidth(100.0),
+                          },
+                          children: [
+                            TableRow(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                              ),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('#',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Subject Name',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Grade Level',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Quarter',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Actions',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        // Scrollable data rows
+                        Expanded(
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('subjects')
+                                .where('educ_level',
+                                    isEqualTo:
+                                        'Junior High School') // Add this filter
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: DefaultTextStyle(
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    child: AnimatedTextKit(
+                                      animatedTexts: [
+                                        WavyAnimatedText('LOADING...'),
+                                      ],
+                                      isRepeatingAnimation: true,
+                                    ),
+                                  ),
+                                );
+                              }
+                              final subjects = snapshot.data!.docs;
+
+                              // Apply grade level filtering
+                              final filteredSubjects = selectedJHSGrade == "All"
+                                  ? subjects
+                                  : subjects
+                                      .where((subject) =>
+                                          subject['grade_level'] ==
+                                          selectedJHSGrade)
+                                      .toList();
+
+                              return SingleChildScrollView(
+                                child: Table(
+                                  border: TableBorder.all(color: Colors.grey),
+                                  columnWidths: const <int, TableColumnWidth>{
+                                    0: FixedColumnWidth(50.0),
+                                    1: FlexColumnWidth(),
+                                    2: FlexColumnWidth(),
+                                    3: FlexColumnWidth(),
+                                    4: FixedColumnWidth(100.0),
+                                  },
+                                  children: [
+                                    for (var i = 0;
+                                        i < filteredSubjects.length;
+                                        i++)
+                                      TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text((i + 1).toString()),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(filteredSubjects[i]
+                                                ['subject_name']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                                'Grade ${filteredSubjects[i]['grade_level']}'),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                                '${filteredSubjects[i]['quarter']} Quarter'),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(Icons.edit,
+                                                      color: Colors.blue),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      selectedSubjectId =
+                                                          filteredSubjects[i]
+                                                              .id;
+                                                      _showEditSubjects = true;
+                                                    });
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                      Icons.delete_forever,
+                                                      color: Colors.red),
+                                                  onPressed: () {
+                                                    _showDeleteSubjectConfirmation(
+                                                        context,
+                                                        filteredSubjects[i].id);
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 550),
+          child: _showAddSubjects
+              ? Stack(children: [
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: closeAddSubjects,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: AddSubjectsForm(
+                                  screenWidth: screenWidth,
+                                  screenHeight: screenHeight,
+                                  key: ValueKey('AddSubjects'),
+                                  closeAddSubjects: closeAddSubjects,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ])
+              : SizedBox.shrink(),
+        ),
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 550),
+          child: _showEditSubjects
+              ? Stack(
+                  children: [
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: closeEditSubjects,
+                        child: Stack(
+                          children: [
+                            BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                              child: Container(
+                                  color: Colors.black.withOpacity(0.5)),
+                            ),
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 500),
+                                  width: screenWidth / 1.2,
+                                  height: screenHeight / 1.2,
+                                  curve: Curves.easeInOut,
+                                  child: EditSubjectsForm(
+                                    screenHeight: screenHeight,
+                                    screenWidth: screenWidth,
+                                    subjectId: selectedSubjectId,
+                                    closeEditSubjects: closeEditSubjects,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : SizedBox.shrink(),
+        )
+      ],
+    );
+  }
+
   Widget _buildManageSubjects() {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
@@ -4536,7 +5333,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Manage Subjects',
+                  'Manage Senior HS Subjects',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -4686,6 +5483,9 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           child: StreamBuilder<QuerySnapshot>(
                             stream: FirebaseFirestore.instance
                                 .collection('subjects')
+                                .where('educ_level',
+                                    isEqualTo:
+                                        'Senior High School') // Add this filter
                                 .snapshots(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
@@ -4910,7 +5710,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
     );
   }
 
-  Widget _buildManageTeachersContent() {
+  Widget _buildJuniorManageTeachers() {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -4924,7 +5724,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Manage Teachers',
+                  'Manage JHS Teachers',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -5012,7 +5812,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text('Subject Code',
+                                  child: Text('Teacher Educational Level',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                 ),
@@ -5045,6 +5845,8 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                             stream: FirebaseFirestore.instance
                                 .collection('users')
                                 .where('accountType', isEqualTo: 'instructor')
+                                .where('educ_level',
+                                    isEqualTo: 'Junior High School')
                                 .snapshots(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
@@ -5124,8 +5926,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
-                                            child:
-                                                Text(users[i]['subject_Code']),
+                                            child: Text(users[i]['educ_level']),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -5285,13 +6086,402 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
     );
   }
 
-  Widget _buildConfigurationContent() {
+  Widget _buildManageTeachersContent() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return Stack(
+      children: [
+        Container(
+          color: Colors.grey[300],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Manage SHS Teachers',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.blue),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    onPressed: toggleAddInstructors,
+                    child: Text(
+                      'Add New Teacher',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Card(
+                  margin: EdgeInsets.all(16),
+                  elevation: 10,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Teacher Lists',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+
+                        // Fixed header row
+                        Table(
+                          border: TableBorder.all(color: Colors.grey),
+                          columnWidths: const <int, TableColumnWidth>{
+                            0: FixedColumnWidth(40.0),
+                            1: FlexColumnWidth(),
+                            2: FlexColumnWidth(),
+                            3: FlexColumnWidth(),
+                            4: FlexColumnWidth(),
+                            5: FlexColumnWidth(),
+                            6: FlexColumnWidth(),
+                            7: FlexColumnWidth(),
+                            8: FixedColumnWidth(160.0),
+                          },
+                          children: [
+                            TableRow(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                              ),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('#',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Teacher Name',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Email Address',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Subjects',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Subject Code',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Teacher Educational Level',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Adviser',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Handled Section',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Actions',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        // Scrollable data rows
+                        Expanded(
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('users')
+                                .where('accountType', isEqualTo: 'instructor')
+                                .where('educ_level',
+                                    isEqualTo: 'Senior High School')
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: DefaultTextStyle(
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    child: AnimatedTextKit(
+                                      animatedTexts: [
+                                        WavyAnimatedText('LOADING...'),
+                                      ],
+                                      isRepeatingAnimation: true,
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              if (!snapshot.hasData ||
+                                  snapshot.data!.docs.isEmpty) {
+                                return Center(
+                                  child: Text(
+                                    'No Teacher Added',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              final users = snapshot.data!.docs;
+
+                              return SingleChildScrollView(
+                                physics: BouncingScrollPhysics(),
+                                child: Table(
+                                  border: TableBorder.all(color: Colors.grey),
+                                  columnWidths: const <int, TableColumnWidth>{
+                                    0: FixedColumnWidth(40.0),
+                                    1: FlexColumnWidth(),
+                                    2: FlexColumnWidth(),
+                                    3: FlexColumnWidth(),
+                                    4: FlexColumnWidth(),
+                                    5: FlexColumnWidth(),
+                                    6: FlexColumnWidth(),
+                                    7: FlexColumnWidth(),
+                                    8: FixedColumnWidth(160.0),
+                                  },
+                                  children: [
+                                    for (var i = 0; i < users.length; i++)
+                                      TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text((i + 1).toString()),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              '${users[i]['first_name']} '
+                                              '${users[i]['middle_name']?.isNotEmpty == true ? users[i]['middle_name'] + ' ' : ''}'
+                                              '${users[i]['last_name']}',
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child:
+                                                Text(users[i]['email_Address']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child:
+                                                Text(users[i]['subject_Name']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child:
+                                                Text(users[i]['subject_Code']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(users[i]['educ_level']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(users[i]['adviser']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(users[i]
+                                                    ['handled_section'] ??
+                                                'N/A'),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(Icons.edit,
+                                                      color: Colors.blue),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      selectedInstructorId =
+                                                          users[i].id;
+                                                      toggleEditInstructors();
+                                                    });
+                                                  },
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: DropdownButton<String>(
+                                                    value: users[i][
+                                                        'Status'], // Assuming 'status' holds 'active' or 'inactive'
+                                                    icon: Icon(Icons
+                                                        .more_vert), // Dropdown icon
+                                                    items: <String>[
+                                                      'active',
+                                                      'inactive'
+                                                    ].map((String status) {
+                                                      return DropdownMenuItem<
+                                                          String>(
+                                                        value: status,
+                                                        child: Text(status),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newStatus) {
+                                                      if (newStatus != null &&
+                                                          newStatus !=
+                                                              users[i]
+                                                                  ['Status']) {
+                                                        _showStatusChangeDialog(
+                                                            context,
+                                                            users[i].id,
+                                                            newStatus); // Call the dialog method
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 550),
+          child: _showAddInstructors
+              ? Stack(children: [
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: closeAddInstructors,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: AddInstructorDialog(
+                                  screenHeight: screenHeight,
+                                  screenWidth: screenWidth,
+                                  key: ValueKey('AddInstructor'),
+                                  closeAddInstructors: closeAddInstructors,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ])
+              : SizedBox.shrink(),
+        ),
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 550),
+          child: _showEditInstructors
+              ? Stack(
+                  children: [
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: closeEditInstructors,
+                        child: Stack(
+                          children: [
+                            BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                              child: Container(
+                                  color: Colors.black.withOpacity(0.5)),
+                            ),
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 500),
+                                  width: screenWidth / 1.2,
+                                  height: screenHeight / 1.2,
+                                  curve: Curves.easeInOut,
+                                  child: EditInstructor(
+                                    instructorId: selectedInstructorId,
+                                    screenHeight: screenHeight,
+                                    screenWidth: screenWidth,
+                                    closeEditInstructors: closeEditInstructors,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : SizedBox.shrink(),
+        )
+      ],
+    );
+  }
+
+  Widget _buildJuniorConfiguration() {
     return Padding(
       padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Configuration Management',
+          Text('JHS Configuration Management',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           SizedBox(height: 24),
           Expanded(
@@ -5308,7 +6498,440 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                         children: [
                           StreamBuilder<QuerySnapshot>(
                             stream: FirebaseFirestore.instance
-                                .collection('configurations')
+                                .collection('jhs configurations')
+                                .where('isActive', isEqualTo: true)
+                                                                .where('educ_level', isEqualTo: 'Junior High School')
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              String activeSemester = 'None';
+                              String activeSchoolYear = 'None';
+                              if (snapshot.hasData &&
+                                  snapshot.data!.docs.isNotEmpty) {
+                                final activeConfig = snapshot.data!.docs.first
+                                    .data() as Map<String, dynamic>;
+                                activeSemester =
+                                    activeConfig['semester'] ?? 'None';
+                                activeSchoolYear =
+                                    activeConfig['school_year'] ?? 'None';
+                              }
+
+                              return Card(
+                                color: Colors.blue,
+                                elevation: 4,
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Current Active Quarter',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 16),
+                                      Text(activeSchoolYear,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white)),
+                                      SizedBox(height: 8),
+                                      Text(activeSemester,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white)),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Configuration History',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (_selectedConfigId != null) {
+                                    _showJHSActivateConfirmationDialog(
+                                        context, _selectedConfigId!);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Row(
+                                        children: [
+                                          Image.asset('PBMA.png', scale: 40),
+                                          SizedBox(width: 10),
+                                          Text(
+                                              'Please select a jhs configuration to activate'),
+                                        ],
+                                      )),
+                                    );
+                                  }
+                                },
+                                child: Text('Set as Active'),
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.blue,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          Expanded(
+                            child: StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('jhs configurations')
+                                  .orderBy('timestamp', descending: true)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData ||
+                                    snapshot.data!.docs.isEmpty) {
+                                  return Center(
+                                      child: Text('No configuration history'));
+                                }
+
+                                return ListView.builder(
+                                  itemCount: snapshot.data!.docs.length,
+                                  itemBuilder: (context, index) {
+                                    final doc = snapshot.data!.docs[index];
+                                    final config =
+                                        doc.data() as Map<String, dynamic>;
+                                    final timestamp =
+                                        config['timestamp'] != null
+                                            ? (config['timestamp'] as Timestamp)
+                                                .toDate()
+                                            : DateTime
+                                                .now(); // Handle null timestamp
+
+                                    return Card(
+                                      color: Colors.grey.shade200,
+                                      margin: EdgeInsets.only(bottom: 8),
+                                      child: ListTile(
+                                        leading: Radio<String>(
+                                          value: doc.id,
+                                          groupValue: _selectedConfigId,
+                                          onChanged: (String? value) {
+                                            setState(() {
+                                              _selectedConfigId = value;
+                                            });
+                                          },
+                                        ),
+                                        title: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(config['school_year']),
+                                            Text(config['semester'] + ' ' + 'Quarter')
+                                          ],
+                                        ),
+                                        subtitle: Text(
+                                            'Set on: ${DateFormat('MMM dd, yyyy HH:mm').format(timestamp)}'),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (config['isActive'] == true)
+                                              Chip(
+                                                label: Text('Active',
+                                                    style: TextStyle(
+                                                        color: Colors.white)),
+                                                backgroundColor: Colors.green,
+                                              ),
+                                            IconButton(
+                                              icon: Icon(Icons.delete,
+                                                  color: Colors.red),
+                                              onPressed: () =>
+                                                  _showJHSDeleteeConfirmationDialog(
+                                                      context, doc.id),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16), // Space between the cards
+                // Right Card
+                Expanded(
+                  child: Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Stack(children: [
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          child: Text(
+                            'New School Year & Quarter',
+                            style: TextStyle(fontSize: 20, fontFamily: 'SB'),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Center(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 300,
+                                height: 50,
+                                child: CupertinoTextField(
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(RegExp(
+                                        r'[0-9\-]')), // Allow digits and dashes
+                                  ],
+                                  placeholder:
+                                      'Enter School Year (e.g 2025-2026)',
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _curriculum = value;
+                                      // Update error text based on validation
+                                      _errorText = validateInput(value)
+                                          ? null
+                                          : 'Invalid format. Use YYYY-YYYY';
+                                    });
+                                  },
+                                ),
+                              ),
+                              if (_errorText !=
+                                  null) // Show error text inline if there's a validation error
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    _errorText!,
+                                    style: TextStyle(
+                                      color: CupertinoColors.destructiveRed,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              SizedBox(height: 16),
+                              // Semester Selection Radio Buttons
+                              Material(
+                                elevation: 5.0, // Adds elevation (shadow)
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(
+                                      5), // Matches the Container's borderRadius
+                                ),
+                                color: Colors
+                                    .transparent, // Makes the Material widget transparent
+                                child: Container(
+                                  width: 300,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(5), // Rounded corners
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    title: Text('1st Quarter'),
+                                    leading: Radio<String>(
+                                      value: '1st',
+                                      groupValue: _selectedSemester,
+                                      onChanged: (String? value) {
+                                        setState(() {
+                                          _selectedSemester = value!;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Material(
+                                elevation: 5.0, // Adds elevation (shadow)
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(
+                                      5), // Matches the Container's borderRadius
+                                ),
+                                color: Colors
+                                    .transparent, // Makes the Material widget transparent
+                                child: Container(
+                                  width: 300,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(5), // Rounded corners
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    title: Text('2nd Quarter'),
+                                    leading: Radio<String>(
+                                      value: '2nd',
+                                      groupValue: _selectedSemester,
+                                      onChanged: (String? value) {
+                                        setState(() {
+                                          _selectedSemester = value!;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Material(
+                                elevation: 5.0, // Adds elevation (shadow)
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(
+                                      5), // Matches the Container's borderRadius
+                                ),
+                                color: Colors
+                                    .transparent, // Makes the Material widget transparent
+                                child: Container(
+                                  width: 300,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(5), // Rounded corners
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    title: Text('3rd Quarter'),
+                                    leading: Radio<String>(
+                                      value: '3rd',
+                                      groupValue: _selectedSemester,
+                                      onChanged: (String? value) {
+                                        setState(() {
+                                          _selectedSemester = value!;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Material(
+                                elevation: 5.0, // Adds elevation (shadow)
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(
+                                      5), // Matches the Container's borderRadius
+                                ),
+                                color: Colors
+                                    .transparent, // Makes the Material widget transparent
+                                child: Container(
+                                  width: 300,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(5), // Rounded corners
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    title: Text('4th Quarter'),
+                                    leading: Radio<String>(
+                                      value: '4th',
+                                      groupValue: _selectedSemester,
+                                      onChanged: (String? value) {
+                                        setState(() {
+                                          _selectedSemester = value!;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Save Button
+                              SizedBox(height: 16),
+                              Container(
+                                width: 300,
+                                height: 50,
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStatePropertyAll<Color>(
+                                            Colors.blue),
+                                    elevation:
+                                        MaterialStateProperty.all<double>(5),
+                                    shape: MaterialStateProperty.all<
+                                        OutlinedBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _errorText = validateInput(_curriculum)
+                                          ? null
+                                          : 'Invalid format. Use YYYY-YYYY';
+                                    });
+                                    if (_errorText == null) {
+                                      // Only call _saveConfiguration if the input is valid
+                                      _showJHSSaveConfirmationDialog(context);
+                                    }
+                                  },
+                                  child: Text(
+                                    'Save',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfigurationContent() {
+    return Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('SHS Configuration Management',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          SizedBox(height: 24),
+          Expanded(
+            child: Row(
+              children: [
+                // Left Card
+                Expanded(
+                  child: Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('shs configurations')
                                 .where('isActive', isEqualTo: true)
                                 .snapshots(),
                             builder: (context, snapshot) {
@@ -5365,7 +6988,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                               ElevatedButton(
                                 onPressed: () {
                                   if (_selectedConfigId != null) {
-                                    _showActivateConfirmationDialog(
+                                    _showSHSActivateConfirmationDialog(
                                         context, _selectedConfigId!);
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -5375,7 +6998,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                           Image.asset('PBMA.png', scale: 40),
                                           SizedBox(width: 10),
                                           Text(
-                                              'Please select a configuration to activate'),
+                                              'Please select a shs configuration to activate'),
                                         ],
                                       )),
                                     );
@@ -5395,14 +7018,14 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           Expanded(
                             child: StreamBuilder<QuerySnapshot>(
                               stream: FirebaseFirestore.instance
-                                  .collection('configurations')
+                                  .collection('shs configurations')
                                   .orderBy('timestamp', descending: true)
                                   .snapshots(),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData ||
                                     snapshot.data!.docs.isEmpty) {
                                   return Center(
-                                      child: Text('No configuration history'));
+                                      child: Text('No shs configuration history'));
                                 }
 
                                 return ListView.builder(
@@ -5455,7 +7078,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                               icon: Icon(Icons.delete,
                                                   color: Colors.red),
                                               onPressed: () =>
-                                                  _showDeleteeConfirmationDialog(
+                                                  _showSHSDeleteeConfirmationDialog(
                                                       context, doc.id),
                                             ),
                                           ],
@@ -5624,7 +7247,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                     });
                                     if (_errorText == null) {
                                       // Only call _saveConfiguration if the input is valid
-                                      _showSaveConfirmationDialog(context);
+                                      _showSHSSaveConfirmationDialog(context);
                                     }
                                   },
                                   child: Text(
@@ -5663,32 +7286,32 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
             ),
           ),
           Padding(
-         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-         child: Row(
-           children: [
-             Text('Educational Level: '),
-             SizedBox(width: 10),
-             DropdownButton<String>(
-               value: selectedLevel,
-               items: ['Junior High School', 'Senior High School']
-                   .map((String value) {
-                 return DropdownMenuItem<String>(
-                   value: value,
-                   child: Text(value),
-                 );
-               }).toList(),
-               onChanged: (String? newValue) {
-                 setState(() {
-                   selectedLevel = newValue!;
-                   // Reset filters when changing educational level
-                   _trackIconState = 0;
-                   _selectedStrand = 'ALL';
-                 });
-               },
-             ),
-           ],
-         ),
-       ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Text('Educational Level: '),
+                SizedBox(width: 10),
+                DropdownButton<String>(
+                  value: selectedLevel,
+                  items: ['Junior High School', 'Senior High School']
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedLevel = newValue!;
+                      // Reset filters when changing educational level
+                      _trackIconState = 0;
+                      _selectedStrand = 'ALL';
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -5772,99 +7395,99 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
                           if (selectedLevel == 'Senior High School') ...[
-                          
-                                                        Expanded(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('Track'),
-                                                              GestureDetector(
-                                                                onTap: _toggleTrackIcon,
-                                                                child: Row(
-                                                                  children: [
-                                                                    if (_trackIconState == 0 ||
-                                                                        _trackIconState == 1)
-                                                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                                                    if (_trackIconState == 0 ||
-                                                                        _trackIconState == 2)
-                                                                      Icon(Iconsax.arrow_down_copy, size: 16),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('Strand'),
-                                                              PopupMenuButton<String>(
-                                                                icon: Icon(Icons.arrow_drop_down),
-                                                                onSelected: (String value) {
-                                                                  setState(() {
-                                                                    _selectedStrand = value;
-                                                                  });
-                                                                },
-                                                                itemBuilder: (BuildContext context) {
-                                                                  return [
-                                                                    'ALL',
-                                                                    'STEM',
-                                                                    'HUMSS',
-                                                                    'ABM',
-                                                                    'ICT',
-                                                                    'HE',
-                                                                    'IA'
-                                                                  ].map((String strand) {
-                                                                    return PopupMenuItem<String>(
-                                                                      value: strand,
-                                                                      child: Text(strand),
-                                                                    );
-                                                                  }).toList();
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap: _toggleTrackIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           Expanded(
                             child: Row(
- children: [
-   Text('Grade Level'),
-   if (selectedLevel == 'Senior High School') 
-     GestureDetector(
-       onTap: _toggleGradeLevelIcon,
-       child: Row(
-         children: [
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
-             Icon(Iconsax.arrow_up_3_copy, size: 16),
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
-             Icon(Iconsax.arrow_down_copy, size: 16),
-         ],
-       ),
-     )
-   else if (selectedLevel == 'Junior High School')
-     PopupMenuButton<String>(
-       icon: Icon(Icons.arrow_drop_down),
-       onSelected: (String value) {
-         setState(() {
-           _selectedGrade = value;
-         });
-       },
-       itemBuilder: (BuildContext context) {
-         return [
-           'All',
-           '7',
-           '8',
-           '9',
-           '10'
-         ].map((String grade) {
-           return PopupMenuItem<String>(
-             value: grade,
-             child: Text('Grade $grade'),
-           );
-         }).toList();
-       },
-     ),
- ],
+                              children: [
+                                Text('Grade Level'),
+                                if (selectedLevel == 'Senior High School')
+                                  GestureDetector(
+                                    onTap: _toggleGradeLevelIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  )
+                                else if (selectedLevel == 'Junior High School')
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedGrade = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return ['All', '7', '8', '9', '10']
+                                          .map((String grade) {
+                                        return PopupMenuItem<String>(
+                                          value: grade,
+                                          child: Text('Grade $grade'),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
                           Expanded(child: Text('')),
@@ -5945,7 +7568,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
     );
   }
 
-  Widget _buildManageSections() {
+  Widget _buildJuniorManageSections() {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -5959,7 +7582,7 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Manage Sections',
+                  'Manage JHS Sections',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -6012,7 +7635,8 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                             3: FlexColumnWidth(),
                             4: FlexColumnWidth(),
                             5: FlexColumnWidth(),
-                            6: FixedColumnWidth(160.0),
+                            6: FlexColumnWidth(),
+                            7: FixedColumnWidth(160.0),
                           },
                           children: [
                             TableRow(
@@ -6040,7 +7664,13 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text('Semester',
+                                  child: Text('Quarter',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Section Educational Level',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                 ),
@@ -6071,6 +7701,9 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           child: StreamBuilder<QuerySnapshot>(
                             stream: FirebaseFirestore.instance
                                 .collection('sections')
+                                .where('educ_level',
+                                    isEqualTo:
+                                        'Junior High School') // Add this filter
                                 .snapshots(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
@@ -6119,7 +7752,8 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                     3: FlexColumnWidth(),
                                     4: FlexColumnWidth(),
                                     5: FlexColumnWidth(),
-                                    6: FixedColumnWidth(160.0),
+                                    6: FlexColumnWidth(),
+                                    7: FixedColumnWidth(160.0),
                                   },
                                   children: [
                                     for (var i = 0; i < sections.length; i++)
@@ -6141,8 +7775,12 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
+                                            child: Text(sections[i]['quarter']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
                                             child:
-                                                Text(sections[i]['semester']),
+                                                Text(sections[i]['educ_level']),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -6203,7 +7841,411 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                                                       context,
                                                       MaterialPageRoute(
                                                         builder: (context) =>
-                                                            StudentInSection(
+                                                            JHSStudentInSection(
+                                                          sectionName: sections[
+                                                                  i]
+                                                              ['section_name'],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(Icons.edit,
+                                                      color: Colors.blue),
+                                                  onPressed: () {
+                                                    selectedSectionId =
+                                                        sections[i].id;
+                                                    toggleEditSections();
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                      Icons.delete_forever,
+                                                      color: Colors.red),
+                                                  onPressed: () {
+                                                    _showDeleteSectionConfirmation(
+                                                        context,
+                                                        sections[i].id);
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 550),
+          child: _showAddSections
+              ? Stack(children: [
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: closeAddSections,
+                      child: Stack(
+                        children: [
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child:
+                                Container(color: Colors.black.withOpacity(0.5)),
+                          ),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 500),
+                                width: screenWidth / 1.2,
+                                height: screenHeight / 1.2,
+                                curve: Curves.easeInOut,
+                                child: AddingSections(
+                                  screenWidth: screenWidth,
+                                  screenHeight: screenHeight,
+                                  key: ValueKey('AddSections'),
+                                  closeAddSections: closeAddSections,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ])
+              : SizedBox.shrink(),
+        ),
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 550),
+          child: _showEditSections
+              ? Stack(
+                  children: [
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: closeEditSections,
+                        child: Stack(
+                          children: [
+                            BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                              child: Container(
+                                  color: Colors.black.withOpacity(0.5)),
+                            ),
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 500),
+                                  width: screenWidth / 1.2,
+                                  height: screenHeight / 1.2,
+                                  curve: Curves.easeInOut,
+                                  child: EditSectionsForm(
+                                    screenHeight: screenHeight,
+                                    screenWidth: screenWidth,
+                                    sectionId: selectedSectionId,
+                                    key: ValueKey('EditSections'),
+                                    closeEditSections: closeEditSections,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : SizedBox.shrink(),
+        )
+      ],
+    );
+  }
+
+  Widget _buildManageSections() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return Stack(
+      children: [
+        Container(
+          color: Colors.grey[300],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Manage SHS Sections',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.blue),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    onPressed: toggleAddSections,
+                    child: Text(
+                      'Add New Sections',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Card(
+                  margin: EdgeInsets.all(16),
+                  elevation: 10,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Sections List',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+
+                        // Fixed header row
+                        Table(
+                          border: TableBorder.all(color: Colors.grey),
+                          columnWidths: const <int, TableColumnWidth>{
+                            0: FixedColumnWidth(40.0),
+                            1: FlexColumnWidth(),
+                            2: FlexColumnWidth(),
+                            3: FlexColumnWidth(),
+                            4: FlexColumnWidth(),
+                            5: FlexColumnWidth(),
+                            6: FlexColumnWidth(),
+                            7: FixedColumnWidth(160.0),
+                          },
+                          children: [
+                            TableRow(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                              ),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('#',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Section Name',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Section Adviser',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Semester',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Section Educational Level',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Section Capacity',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Capacity Count',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('Actions',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        Expanded(
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('sections')
+                                .where('educ_level',
+                                    isEqualTo:
+                                        'Senior High School') // Add this filter
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: DefaultTextStyle(
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    child: AnimatedTextKit(
+                                      animatedTexts: [
+                                        WavyAnimatedText('LOADING...'),
+                                      ],
+                                      isRepeatingAnimation: true,
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              if (!snapshot.hasData ||
+                                  snapshot.data!.docs.isEmpty) {
+                                return Center(
+                                  child: Text(
+                                    'No Section Added',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              final sections = snapshot.data!.docs;
+
+                              return SingleChildScrollView(
+                                physics: BouncingScrollPhysics(),
+                                child: Table(
+                                  border: TableBorder.all(color: Colors.grey),
+                                  columnWidths: const <int, TableColumnWidth>{
+                                    0: FixedColumnWidth(40.0),
+                                    1: FlexColumnWidth(),
+                                    2: FlexColumnWidth(),
+                                    3: FlexColumnWidth(),
+                                    4: FlexColumnWidth(),
+                                    5: FlexColumnWidth(),
+                                    6: FlexColumnWidth(),
+                                    7: FixedColumnWidth(160.0),
+                                  },
+                                  children: [
+                                    for (var i = 0; i < sections.length; i++)
+                                      TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text((i + 1).toString()),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                                sections[i]['section_name']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                                sections[i]['section_adviser']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child:
+                                                Text(sections[i]['semester']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child:
+                                                Text(sections[i]['educ_level']),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(sections[i]
+                                                    ['section_capacity']
+                                                .toString()),
+                                          ),
+                                          StreamBuilder<QuerySnapshot>(
+                                            stream: FirebaseFirestore.instance
+                                                .collection('users')
+                                                .where('section',
+                                                    isEqualTo: sections[i]
+                                                        ['section_name'])
+                                                .snapshots(),
+                                            builder: (context, userSnapshot) {
+                                              if (userSnapshot
+                                                      .connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Transform.scale(
+                                                    scale: 0.5,
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  ),
+                                                );
+                                              }
+
+                                              if (userSnapshot.hasData) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text(userSnapshot
+                                                      .data!.docs.length
+                                                      .toString()),
+                                                );
+                                              } else {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text('0'),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(2.0),
+                                            child: Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                      Icons
+                                                          .remove_red_eye_sharp,
+                                                      color: Colors.blue),
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            SHSStudentInSection(
                                                           sectionName: sections[
                                                                   i]
                                                               ['section_name'],
@@ -6347,32 +8389,32 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
             ),
           ),
           Padding(
-         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-         child: Row(
-           children: [
-             Text('Educational Level: '),
-             SizedBox(width: 10),
-             DropdownButton<String>(
-               value: selectedLevel,
-               items: ['Junior High School', 'Senior High School']
-                   .map((String value) {
-                 return DropdownMenuItem<String>(
-                   value: value,
-                   child: Text(value),
-                 );
-               }).toList(),
-               onChanged: (String? newValue) {
-                 setState(() {
-                   selectedLevel = newValue!;
-                   // Reset filters when changing educational level
-                   _trackIconState = 0;
-                   _selectedStrand = 'ALL';
-                 });
-               },
-             ),
-           ],
-         ),
-       ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Text('Educational Level: '),
+                SizedBox(width: 10),
+                DropdownButton<String>(
+                  value: selectedLevel,
+                  items: ['Junior High School', 'Senior High School']
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedLevel = newValue!;
+                      // Reset filters when changing educational level
+                      _trackIconState = 0;
+                      _selectedStrand = 'ALL';
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -6457,99 +8499,99 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
                           Expanded(child: Text('Last Name')),
                           Expanded(child: Text('Middle Name')),
                           if (selectedLevel == 'Senior High School') ...[
-                          
-                                                        Expanded(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('Track'),
-                                                              GestureDetector(
-                                                                onTap: _toggleTrackIcon,
-                                                                child: Row(
-                                                                  children: [
-                                                                    if (_trackIconState == 0 ||
-                                                                        _trackIconState == 1)
-                                                                      Icon(Iconsax.arrow_up_3_copy, size: 16),
-                                                                    if (_trackIconState == 0 ||
-                                                                        _trackIconState == 2)
-                                                                      Icon(Iconsax.arrow_down_copy, size: 16),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('Strand'),
-                                                              PopupMenuButton<String>(
-                                                                icon: Icon(Icons.arrow_drop_down),
-                                                                onSelected: (String value) {
-                                                                  setState(() {
-                                                                    _selectedStrand = value;
-                                                                  });
-                                                                },
-                                                                itemBuilder: (BuildContext context) {
-                                                                  return [
-                                                                    'ALL',
-                                                                    'STEM',
-                                                                    'HUMSS',
-                                                                    'ABM',
-                                                                    'ICT',
-                                                                    'HE',
-                                                                    'IA'
-                                                                  ].map((String strand) {
-                                                                    return PopupMenuItem<String>(
-                                                                      value: strand,
-                                                                      child: Text(strand),
-                                                                    );
-                                                                  }).toList();
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap: _toggleTrackIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                           Expanded(
                             child: Row(
- children: [
-   Text('Grade Level'),
-   if (selectedLevel == 'Senior High School') 
-     GestureDetector(
-       onTap: _toggleGradeLevelIcon,
-       child: Row(
-         children: [
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
-             Icon(Iconsax.arrow_up_3_copy, size: 16),
-           if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
-             Icon(Iconsax.arrow_down_copy, size: 16),
-         ],
-       ),
-     )
-   else if (selectedLevel == 'Junior High School')
-     PopupMenuButton<String>(
-       icon: Icon(Icons.arrow_drop_down),
-       onSelected: (String value) {
-         setState(() {
-           _selectedGrade = value;
-         });
-       },
-       itemBuilder: (BuildContext context) {
-         return [
-           'All',
-           '7',
-           '8',
-           '9',
-           '10'
-         ].map((String grade) {
-           return PopupMenuItem<String>(
-             value: grade,
-             child: Text('Grade $grade'),
-           );
-         }).toList();
-       },
-     ),
- ],
+                              children: [
+                                Text('Grade Level'),
+                                if (selectedLevel == 'Senior High School')
+                                  GestureDetector(
+                                    onTap: _toggleGradeLevelIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  )
+                                else if (selectedLevel == 'Junior High School')
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedGrade = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return ['All', '7', '8', '9', '10']
+                                          .map((String grade) {
+                                        return PopupMenuItem<String>(
+                                          value: grade,
+                                          child: Text('Grade $grade'),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
                           Expanded(child: Text('Date')),
@@ -6746,21 +8788,130 @@ Widget _buildStudentRow(Map<String, dynamic> student) {
             if (_accountType == 'ADMIN') ...[
               _buildDrawerItem('Dashboard', Iconsax.dash_dash, 'Dashboard'),
               _buildDrawerItem('Students', Iconsax.user, 'Students'),
-              _buildDrawerItem(
-                  'Manage Student Report Cards', Iconsax.task, 'Manage Student Report Cards'),
+              _buildDrawerItem('Manage Student Report Cards', Iconsax.task,
+                  'Manage Student Report Cards'),
               _buildDrawerItem(
                   'Manage Newcomers', Iconsax.task, 'Manage Newcomers'),
               _buildDrawerItem('Manage Re-Enrolled Students ', Iconsax.task,
                   'Manage Re-Enrolled Students'),
-              _buildDrawerItem(
-                  'Manage Subjects', Iconsax.activity, 'Manage Subjects'),
-              _buildDrawerItem(
-                  'Manage Teachers', Iconsax.user, 'Manage Teachers'),
-              _buildDrawerItem(
-                  'Manage Sections', Iconsax.user, 'Manage Sections'),
+              ExpansionTile(
+                leading: Icon(Iconsax.activity, color: Colors.black),
+                title: Text('Manage Subjects',
+                    style: TextStyle(color: Colors.black)),
+                children: [
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 72.0),
+                    title: Text('Junior High School'),
+                    onTap: () {
+                      setState(() {
+                        _selectedDrawerItem = 'Manage Subjects';
+                        _selectedSubMenu = 'junior';
+                      });
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 72.0),
+                    title: Text('Senior High School'),
+                    onTap: () {
+                      setState(() {
+                        _selectedDrawerItem = 'Manage Subjects';
+                        _selectedSubMenu = 'senior';
+                      });
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                ],
+              ),
+              ExpansionTile(
+                leading: Icon(Iconsax.activity, color: Colors.black),
+                title: Text('Manage Teachers',
+                    style: TextStyle(color: Colors.black)),
+                children: [
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 72.0),
+                    title: Text('JHS Teachers'),
+                    onTap: () {
+                      setState(() {
+                        _selectedDrawerItem = 'Manage Teachers';
+                        _selectedSubMenu = 'junior';
+                      });
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 72.0),
+                    title: Text('SHS Teacher'),
+                    onTap: () {
+                      setState(() {
+                        _selectedDrawerItem = 'Manage Teachers';
+                        _selectedSubMenu = 'senior';
+                      });
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                ],
+              ),
+              ExpansionTile(
+                leading: Icon(Iconsax.activity, color: Colors.black),
+                title: Text('Manage Sections',
+                    style: TextStyle(color: Colors.black)),
+                children: [
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 72.0),
+                    title: Text('JHS Sections'),
+                    onTap: () {
+                      setState(() {
+                        _selectedDrawerItem = 'Manage Sections';
+                        _selectedSubMenu = 'junior';
+                      });
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 72.0),
+                    title: Text('SHS Sections'),
+                    onTap: () {
+                      setState(() {
+                        _selectedDrawerItem = 'Manage Sections';
+                        _selectedSubMenu = 'senior';
+                      });
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                ],
+              ),
               _buildDrawerItem(
                   'Dropped Student', Iconsax.dropbox_copy, 'Dropped Student'),
-              _buildDrawerItem('Configuration', Iconsax.user, 'Configuration'),
+              ExpansionTile(
+                leading: Icon(Iconsax.activity, color: Colors.black),
+                title: Text('Configuration',
+                    style: TextStyle(color: Colors.black)),
+                children: [
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 72.0),
+                    title: Text('JHS Configuration'),
+                    onTap: () {
+                      setState(() {
+                        _selectedDrawerItem = 'Configuration';
+                        _selectedSubMenu = 'junior';
+                      });
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 72.0),
+                    title: Text('SHS Configuration'),
+                    onTap: () {
+                      setState(() {
+                        _selectedDrawerItem = 'Configuration';
+                        _selectedSubMenu = 'senior';
+                      });
+                      Navigator.pop(context); // Close drawer
+                    },
+                  ),
+                ],
+              ),
               _buildDrawerItem('Banner', Iconsax.image_copy, 'Banner'),
               _buildDrawerItem('News and Updates', Iconsax.activity_copy,
                   'News and Updates'),

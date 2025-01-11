@@ -3,21 +3,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class StudentInSection extends StatefulWidget {
+class SHSStudentInSection extends StatefulWidget {
   final String sectionName;
 
-  StudentInSection({required this.sectionName});
+  SHSStudentInSection({required this.sectionName});
 
   @override
-  State<StudentInSection> createState() => _StudentInSectionState();
+  State<SHSStudentInSection> createState() => _SHSStudentInSectionState();
 }
 
-class _StudentInSectionState extends State<StudentInSection> {
+class _SHSStudentInSectionState extends State<SHSStudentInSection> {
   // Method to fetch students from Firestore
   Future<QuerySnapshot> _fetchStudentsInSection() async {
     return await FirebaseFirestore.instance
         .collection('users') // Replace with your actual students collection
         .where('accountType', isEqualTo: 'student')
+                .where('educ_level', isEqualTo: 'Senior High School')
+
         .where('section', isEqualTo: widget.sectionName) // Assuming each student has a section_id field
         .get();
   }
