@@ -149,78 +149,84 @@ class _Case0State extends State<Case0> {
         )
           : SingleChildScrollView(
               child: Column(
-                children: [
-                  // Carousel Slider Section
-                  Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      CarouselSlider.builder(
-                        itemCount: _images.length,
-                        itemBuilder: (context, index, realIndex) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.white,
-                              border: Border.all(
-                                  color: Colors.grey.shade300, width: 1),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                              image: DecorationImage(
-                                image: NetworkImage(_images[index]),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          );
-                        },
-                        carouselController: _carouselController,
-                        options: CarouselOptions(
-                          height: 200.0,
-                          enlargeCenterPage: true,
-                          autoPlay: _isAutoPlay,
-                          autoPlayInterval: const Duration(seconds: 2),
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              _currentIndex = index;
-                              if (index == _images.length - 1) {
-                                _isAutoPlay = false;
-                              }
-                            });
-                          },
+  children: [
+    // Carousel Slider Section
+    Column(
+      children: [
+        const SizedBox(height: 20),
+        _images.isNotEmpty
+            ? CarouselSlider.builder(
+                itemCount: _images.length,
+                itemBuilder: (context, index, realIndex) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                      border: Border.all(
+                          color: Colors.grey.shade300, width: 1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
+                      ],
+                      image: DecorationImage(
+                        image: NetworkImage(_images[index]),
+                        fit: BoxFit.cover,
                       ),
-                      // Dots Indicator
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: _images.asMap().entries.map((entry) {
-                          return GestureDetector(
-                            onTap: () =>
-                                _carouselController.animateToPage(entry.key),
-                            child: Container(
-                              width: 8.0,
-                              height: 8.0,
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 4.0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: (Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? Colors.white
-                                        : Colors.black)
-                                    .withOpacity(
-                                        _currentIndex == entry.key ? 0.9 : 0.4),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
+                    ),
+                  );
+                },
+                carouselController: _carouselController,
+                options: CarouselOptions(
+                  height: 200.0,
+                  enlargeCenterPage: true,
+                  autoPlay: _isAutoPlay,
+                  autoPlayInterval: const Duration(seconds: 2),
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _currentIndex = index;
+                      if (index == _images.length - 1) {
+                        _isAutoPlay = false;
+                      }
+                    });
+                  },
+                ),
+              )
+            : const Text(
+                "No Activity Banners Available!",
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+        // Dots Indicator
+        if (_images.isNotEmpty)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: _images.asMap().entries.map((entry) {
+              return GestureDetector(
+                onTap: () =>
+                    _carouselController.animateToPage(entry.key),
+                child: Container(
+                  width: 8.0,
+                  height: 8.0,
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 4.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: (Theme.of(context).brightness ==
+                                Brightness.dark
+                            ? Colors.white
+                            : Colors.black)
+                        .withOpacity(
+                            _currentIndex == entry.key ? 0.9 : 0.4),
                   ),
+                ),
+              );
+            }).toList(),
+          ),
+      ],
+    ),
                   const SizedBox(height: 20),
                   // News and Updates Section
                   Container(
