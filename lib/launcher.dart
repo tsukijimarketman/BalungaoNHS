@@ -4,7 +4,8 @@ import 'package:balungao_nhs/pages/dashboard.dart';
 import 'package:balungao_nhs/widgets/scroll_offset.dart';
 
 class Launcher extends StatefulWidget {
-  const Launcher({super.key});
+  final bool scrollToFooter;
+  const Launcher({super.key, required this.scrollToFooter});
 
   @override
   State<Launcher> createState() => _LauncherState();
@@ -15,6 +16,6 @@ class _LauncherState extends State<Launcher> {
   Widget build(BuildContext context) {
     return BlocProvider(
         create: (_)=> DisplayOffset(ScrollOffset(scrollOffsetValue: 0)),
-        child: const Dashboard());
+        child:  Dashboard(scrollToFooter: widget.scrollToFooter),);
   }
 }

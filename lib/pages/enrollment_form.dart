@@ -351,7 +351,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Launcher()),
+                            MaterialPageRoute(builder: (context) => Launcher(scrollToFooter: false,)),
                           );
                         },
                         child: Text(
