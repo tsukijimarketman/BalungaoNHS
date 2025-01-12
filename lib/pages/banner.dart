@@ -1,9 +1,10 @@
 import 'dart:typed_data';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore package
+import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase SDK
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore package
 
 class BannerImage extends StatefulWidget {
   const BannerImage({super.key});
@@ -13,20 +14,21 @@ class BannerImage extends StatefulWidget {
 }
 
 class _BannerImage extends State<BannerImage> {
-  Map<String, dynamic>? editingBanner; // Tracks the current banner being edited
+  Map<String, dynamic>? editingBanner;
   Set<String> selectedBanners = {};
   bool isCreatingBanner = false;
   Uint8List? selectedImageBytes;
   String? uploadedImageUrl;
   List<Map<String, dynamic>> banners = [];
 
+  final supabase = Supabase.instance.client;
+
   @override
   void initState() {
     super.initState();
-    _loadBannersFromFirestore(); // Load banners when the widget initializes
+    _loadBannersFromFirestore();
   }
 
-  // Load banners from Firestore
   Future<void> _loadBannersFromFirestore() async {
     try {
       final querySnapshot =
@@ -44,63 +46,40 @@ class _BannerImage extends State<BannerImage> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Failed to load banners: $e'),
-          ],
-        )),
+        SnackBar(content: Text('Failed to load banners: $e')),
       );
     }
   }
 
-  // Save banner to Firestore
   Future<void> _saveBannerToFirestore(String url, bool active) async {
-  try {
-    // Add the banner to Firestore and get the generated document reference
-    final docRef = await FirebaseFirestore.instance.collection('banners').add({
-      'url': url,
-      'active': active,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
-
-    // Retrieve the document ID and add it to the local list
-    setState(() {
-      banners.add({
-        'id': docRef.id, // Add the Firestore document ID
+    try {
+      final docRef = await FirebaseFirestore.instance.collection('banners').add({
         'url': url,
         'active': active,
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
-      isCreatingBanner = false;
-      selectedImageBytes = null;
-    });
+      setState(() {
+        banners.add({
+          'id': docRef.id,
+          'url': url,
+          'active': active,
+        });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Banner created successfully!'),
-        ],
-      )),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Failed to save banner: $e'),
-        ],
-      )),
-    );
+        isCreatingBanner = false;
+        selectedImageBytes = null;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Banner created successfully!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save banner: $e')),
+      );
+    }
   }
-}
 
-
-  // Select an image
   Future<void> selectImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -113,100 +92,93 @@ class _BannerImage extends State<BannerImage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Image selected successfully!'),
-          ],
-        )),
+        const SnackBar(content: Text('Image selected successfully!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('No image selected'),
-          ],
-        )),
+        const SnackBar(content: Text('No image selected')),
       );
     }
   }
 
-  // Upload image to Firebase and save the banner to Firestore
- Future<void> uploadImage() async {
+Future<void> uploadImage() async {
   if (selectedImageBytes == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('No image selected to upload'),
-        ],
-      )),
+      const SnackBar(content: Text('No image selected to upload')),
     );
     return;
   }
 
   try {
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('banner/${DateTime.now().millisecondsSinceEpoch}.jpg');
-    await storageRef.putData(selectedImageBytes!);
-    final downloadUrl = await storageRef.getDownloadURL();
+    // Define the folder name and construct the file path
+    const folderName = 'banner/';
+    final fileName = 'banner_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final filePath = '$folderName$fileName';
 
-    // Save banner to Firestore using the updated method
+    // Upload the image to the specified folder
+    await supabase.storage.from('Balungao NHS').uploadBinary(
+          filePath,
+          selectedImageBytes!,
+        );
+
+    // Retrieve the public URL of the uploaded image
+    final downloadUrl = supabase.storage.from('Balungao NHS').getPublicUrl(filePath);
+
+    // Save the URL and additional information to Firestore
     await _saveBannerToFirestore(downloadUrl, true);
 
     ScaffoldMessenger.of(context).showSnackBar(
-     SnackBar(content: Row(
-       children: [
-        Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-         Text('Image uploaded successfully!'),
-       ],
-     )),
+      const SnackBar(content: Text('Image uploaded successfully!')),
     );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Failed to upload image: $e'),
-        ],
-      )),
+      SnackBar(content: Text('Failed to upload image: $e')),
     );
   }
 }
 
 
-  Future<void> saveChanges() async {
+Future<void> saveChanges() async {
   if (editingBanner == null) return;
 
   try {
     String? newImageUrl = editingBanner!['url'];
+    String? oldImageUrl = editingBanner!['url'];
 
-    // If a new image was selected, upload it
     if (selectedImageBytes != null) {
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('banner/${DateTime.now().millisecondsSinceEpoch}.jpg');
-      await storageRef.putData(selectedImageBytes!);
-      newImageUrl = await storageRef.getDownloadURL();
+      // Remove old image from Supabase Storage
+      if (oldImageUrl != null) {
+        final oldFilePath = oldImageUrl.replaceFirst(
+          supabase.storage.from('Balungao NHS').getPublicUrl(''),
+          '',
+        );
+        await supabase.storage.from('Balungao NHS').remove([oldFilePath]);
+      }
+
+      // Upload new image
+      final fileName = 'banner_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      const folderName = 'banner/';
+      final filePath = '$folderName$fileName';
+
+      await supabase.storage.from('Balungao NHS').uploadBinary(
+            filePath,
+            selectedImageBytes!,
+          );
+
+      // Retrieve the public URL of the uploaded image
+      newImageUrl = supabase.storage.from('Balungao NHS').getPublicUrl(filePath);
     }
 
-    // Update the banner in Firebase
+    // Update Firestore with new image URL
     await FirebaseFirestore.instance
         .collection('banners')
         .doc(editingBanner!['id'])
         .update({
       'url': newImageUrl,
-      'active': editingBanner!['active'], // Preserve active status
+      'active': editingBanner!['active'],
     });
 
-    // Update the local list
+    // Update the local state
     setState(() {
       final index = banners.indexWhere((banner) => banner['id'] == editingBanner!['id']);
       if (index != -1) {
@@ -215,32 +187,42 @@ class _BannerImage extends State<BannerImage> {
       isCreatingBanner = false;
       editingBanner = null;
       selectedImageBytes = null;
-      uploadedImageUrl = null;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Banner updated successfully!'),
-        ],
-      )),
+      const SnackBar(content: Text('Banner updated successfully!')),
     );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-          Text('Failed to update banner: $e'),
-        ],
-      )),
+      SnackBar(content: Text('Failed to update banner: $e')),
     );
   }
 }
 
+  Future<void> deleteBanner(String id, String imageUrl, int index) async {
+    try {
+      final filePath = imageUrl.replaceFirst(
+        supabase.storage.from('Balungao NHS').getPublicUrl(''),
+        '',
+      );
 
+      await supabase.storage.from('Balungao NHS').remove([filePath]);
+      await FirebaseFirestore.instance.collection('banners').doc(id).delete();
+
+      setState(() {
+        banners.removeAt(index);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Banner deleted successfully!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete banner: $e')),
+      );
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -250,9 +232,9 @@ class _BannerImage extends State<BannerImage> {
       ),
     );
   }
-
   // Main UI
-  Widget _buildMainUI() {
+// Main UI
+Widget _buildMainUI() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -310,9 +292,18 @@ class _BannerImage extends State<BannerImage> {
       banners.isEmpty
           ? Expanded(
               child: Center(
-                child: Text(
-                  'No Banners Available',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                child: Container(
+                  height: 200,
+                  alignment: Alignment.center,
+                  color: Colors.grey[200], // Placeholder background
+                  child: const Text(
+                    'No Banners Available',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             )
@@ -353,43 +344,49 @@ class _BannerImage extends State<BannerImage> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             clipBehavior: Clip.hardEdge,
-                            child: Image.network(
-                              banner['url'],
-                              height:160,
-                              width: 80,
-                              fit: BoxFit.cover, // Fills the card while keeping aspect ratio
-                            ),
+                            child: banner['url'].isNotEmpty
+                                ? Image.network(
+                                    banner['url'],
+                                    height: 160,
+                                    width: 80,
+                                    fit: BoxFit.cover, // Fills the card while keeping aspect ratio
+                                  )
+                                : Center(
+                                    child: Text(
+                                      'No Image',
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                  ),
                           ),
                         ),
                         Expanded(
-                        child: IconButton(
-                          onPressed: () async {
-                            // Toggle the 'active' status
-                            bool newStatus = !banner['active'];
-                            setState(() {
-                              banners[index]['active'] = newStatus;
-                            });
+                          child: IconButton(
+                            onPressed: () async {
+                              // Toggle the 'active' status
+                              bool newStatus = !banner['active'];
+                              setState(() {
+                                banners[index]['active'] = newStatus;
+                              });
 
-                            // Update Firestore
-                            if (banner.containsKey('id')) {
-                              await FirebaseFirestore.instance
-                                  .collection('banners')
-                                  .doc(banner['id'])
-                                  .update({'active': newStatus});
-                            }
-                          },
-                          icon: Icon(
-                            banner['active'] ? Iconsax.eye_copy : Iconsax.eye_slash_copy,
-                            color: banner['active'] ? Colors.green : Colors.red,
-                            size: 24,
+                              // Update Firestore
+                              if (banner.containsKey('id')) {
+                                await FirebaseFirestore.instance
+                                    .collection('banners')
+                                    .doc(banner['id'])
+                                    .update({'active': newStatus});
+                              }
+                            },
+                            icon: Icon(
+                              banner['active'] ? Iconsax.eye_copy : Iconsax.eye_slash_copy,
+                              color: banner['active'] ? Colors.green : Colors.red,
+                              size: 24,
+                            ),
+                            tooltip: banner['active'] ? 'Deactivate' : 'Activate',
+                            splashColor: Colors.transparent, // No splash effect
+                            highlightColor: Colors.transparent, // No highlight effect
+                            hoverColor: Colors.transparent, // No hover color effect
                           ),
-                          tooltip: banner['active'] ? 'Deactivate' : 'Activate',
-                          splashColor: Colors.transparent, // No splash effect
-                          highlightColor: Colors.transparent, // No highlight effect
-                          hoverColor: Colors.transparent, // No hover color effect
                         ),
-                      ),
-
                         Expanded(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -409,52 +406,17 @@ class _BannerImage extends State<BannerImage> {
                                 tooltip: 'Edit',
                               ),
                               IconButton(
-                                onPressed: () async {
-                                  final storageRef = FirebaseStorage.instance
-                                      .refFromURL(banner['url']); // Reference to the Firebase Storage file
-
-                                  try {
-                                    // Delete the image from Firebase Storage
-                                    await storageRef.delete();
-
-                                    // Delete the banner document from Firestore
-                                    await FirebaseFirestore.instance
-                                        .collection('banners')
-                                        .doc(banner['id'])
-                                        .delete();
-
-                                    setState(() {
-                                      banners.removeAt(index); // Remove the banner locally
-                                    });
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                       SnackBar(content: Row(
-                                        children: [
-                                          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-                                          Text('Banner deleted successfully!'),
-                                        ],
-                                      )),
-                                    );
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Row(
-                                        children: [
-                                          Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-                                          Text('Failed to delete banner: $e'),
-                                        ],
-                                      )),
-                                    );
-                                  }
-                                },
                                 icon: const Icon(
                                   Iconsax.trash_copy,
-                                  color: Colors.red,
+                                  color: Colors.blue,
+                                ),
+                                onPressed: () => deleteBanner(
+                                  banner['id'],
+                                  banner['url'],
+                                  index,
                                 ),
                                 tooltip: 'Delete',
                               ),
-
                             ],
                           ),
                         ),
@@ -467,6 +429,7 @@ class _BannerImage extends State<BannerImage> {
     ],
   );
 }
+
 
 
   // Create Banner UI
