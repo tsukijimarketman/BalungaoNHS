@@ -30,10 +30,10 @@ class _InfoCardState extends State<InfoCard> {
       ),
       secondChild: Container(
         margin: EdgeInsets.all(MediaQuery.of(context).size.width / 52),
-        width: MediaQuery.of(context).size.width / 7.3,
+        width: MediaQuery.of(context).size.width / 5.3,
         height: MediaQuery.of(context).size.height / 1.8,
         decoration: BoxDecoration(
-            color: Color.fromARGB(255, 1, 93, 168),
+            color: Color(0xFF002f24),
             borderRadius: BorderRadius.circular(15)),
         padding: EdgeInsets.all(20),
         child: SingleChildScrollView(
@@ -64,7 +64,7 @@ class _InfoCardState extends State<InfoCard> {
                       text: firstLetter,
                       style: TextStyle(
                         fontFamily: "SB",
-                        fontSize: MediaQuery.of(context).size.width/85,
+                        fontSize: MediaQuery.of(context).size.width/75,
                         color: Colors.yellow,
                       ),
                     ),
@@ -72,7 +72,7 @@ class _InfoCardState extends State<InfoCard> {
                       text: remainingText,
                       style: TextStyle(
                         fontFamily: "SB",
-                        fontSize: MediaQuery.of(context).size.width/85,
+                        fontSize: MediaQuery.of(context).size.width/75,
                         color: Colors.white,
                       ),
                     ),
@@ -85,7 +85,7 @@ class _InfoCardState extends State<InfoCard> {
               Text(
                 widget.info.description,
                 style: TextStyle(
-                    fontFamily: "M", fontSize: MediaQuery.of(context).size.width/95, color: Colors.white60),
+                    fontFamily: "M", fontSize: MediaQuery.of(context).size.width/75, color: Colors.white60),
               ),
             ],
           ),

@@ -126,7 +126,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                   const EdgeInsets.only(bottom: 20, right: 40),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: const Color.fromARGB(255, 0, 30, 54),
+                                color: const Color(0xFF002f24),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
@@ -155,7 +155,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                         textOpacityAnimation:
                                             _SHSOpacityAnimation,
                                         child: Text(
-                                          "SENIOR HIGH SCHOOL",
+                                          "MANGALDAN NATIONAL HIGH SCHOOL",
                                           style: TextStyle(
                                             fontFamily: "R",
                                             fontSize: screenWidth / 50,
@@ -186,7 +186,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                                           const BoxDecoration(
                                                         image: DecorationImage(
                                                           image: AssetImage(
-                                                            "assets/principal.jpg",
+                                                            "assets/principal1.jpg",
                                                           ),
                                                           fit: BoxFit.cover,
                                                         ),
@@ -232,7 +232,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                                           const BoxDecoration(
                                                         image: DecorationImage(
                                                           image: AssetImage(
-                                                            "assets/schooladmin.jpg",
+                                                            "assets/principal2.jpg",
                                                           ),
                                                           fit: BoxFit.cover,
                                                         ),
@@ -297,7 +297,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                     child: Column(
                                       children: [
                                         Text(
-                                          "Urbano R. Delos Angeles IV,",
+                                          "Lorem Ipsum Dolor,",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -324,7 +324,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                     child: Column(
                                       children: [
                                         Text(
-                                          "Vannity Kaye S. Tan",
+                                          "Lorem Ipsum Dolor",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -355,7 +355,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
             Expanded(
               child: Container(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Column(
                       children: [
@@ -367,21 +367,26 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "PBMA'S VISION",
+                          "MNHS VISION",
                           style: TextStyle(
-                            color: Color.fromARGB(255, 0, 30, 54),
+                            color: Color(0xFF002f24),
                             fontFamily: "B",
                             fontSize: screenWidth / 55,
                           ),
                         ),
                         Text(
-                          "To become a premier learner-centered institution upholding excellence in education, inquiry, and training attuned with the needs of dynamic society towards the betterment of the quality of life.",
+                          "Mangaldan National High School shall produce graduates fully-equipped with knowledge, skills, and values necessary to face the challenges of a changing world.",
                           style: TextStyle(
-                            color: Color.fromARGB(255, 0, 30, 54),
+                            color: Color(0xFF002f24),
                             fontFamily: "M",
                             fontSize: screenWidth / 70,
                           ),
                         ),
+                        
+                      ],
+                    ),
+                    Column(
+                      children: [
                         Center(
                           child: Icon(
                             Icons.school,
@@ -390,23 +395,23 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "PBMA'S MISION",
+                          "MNHS MISION",
                           style: TextStyle(
-                            color: Color.fromARGB(255, 0, 30, 54),
+                            color: Color(0xFF002f24),
                             fontFamily: "B",
                             fontSize: screenWidth / 55,
                           ),
                         ),
                         Text(
-                          "Achieving excellence by committing ourselves to be holistic, who devote in the pursuit of wisdom which flows from research, innovation and transformation while upholding principles of a morally upright individual.",
+                          "Mangaldan National High School as Center of Academic Excellence and Total Development of Individuals.",
                           style: TextStyle(
-                            color: Color.fromARGB(255, 0, 30, 54),
+                            color: Color(0xFF002f24),
                             fontFamily: "M",
                             fontSize: screenWidth / 68,
                           ),
                         ),
                       ],
-                    ),
+                    )
                   ],
                 ),
               ),

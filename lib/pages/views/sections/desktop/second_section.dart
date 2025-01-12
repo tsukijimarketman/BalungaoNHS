@@ -167,7 +167,7 @@ class _SecondSectionState extends State<SecondSection>
           gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color.fromARGB(255, 1, 93, 168), Colors.white],
+        colors: [Color(0xFF03b97c), Colors.white],
         stops: [0.1, 1],
       )),
       child: Column(
@@ -201,11 +201,11 @@ class _SecondSectionState extends State<SecondSection>
                   maxHeight: 70,
                   textController: _WHY,
                   child: Text(
-                    "Why Prime Brilliant Minds Academy?",
+                    "Why Mangaldan National High School?",
                     style: TextStyle(
                         fontSize: screenWidth / 35,
                         fontFamily: "B",
-                        color: Colors.white),
+                        color: Colors.yellowAccent),
                   ),
                 );
               },
@@ -235,10 +235,10 @@ class _SecondSectionState extends State<SecondSection>
                 return TextReveal(
                   textOpacityAnimation: _PBMAoffersOpacityAnimation,
                   textRevealAnimation: _PBMAoffersAnimation,
-                  maxHeight: 70,
+                  maxHeight: 110,
                   textController: _PBMAoffers,
                   child: Text(
-                    "PBMA offers Senior High School program as well as different TESDA Courses and is now an accredited assesment center. A wide array of courses to choose from depending on your preferred skill and craft.",
+                    "At Mangaldan National High School, we are committed to providing quality education, fostering holistic development, and empowering students to achieve academic excellence and personal growth in a nurturing and inclusive environment, with a wide array of strands to choose from that cater to every student's unique interests and career aspirations.",
                     style: TextStyle(
                         fontFamily: "R",
                         fontSize: screenWidth / 70,
@@ -298,7 +298,165 @@ class _SecondSectionState extends State<SecondSection>
                                   decoration: BoxDecoration(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20)),
-                                    color: Color.fromARGB(255, 255, 231, 11)
+                                    color: Color(0xFF002f24)
+                                        .withOpacity(0.4),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: screenWidth * 0.065,
+                                  left: screenWidth * 0.02,
+                                  child: Container(
+                                    child: BlocBuilder<DisplayOffset,
+                                        ScrollOffset>(
+                                      buildWhen: (previous, current) {
+                                        if ((current.scrollOffsetValue >=
+                                                    1160 ||
+                                                current.scrollOffsetValue <
+                                                    2000) ||
+                                            _Header.isAnimating) {
+                                          return true;
+                                        } else {
+                                          return false;
+                                        }
+                                      },
+                                      builder: (context, state) {
+                                        if (state.scrollOffsetValue >= 1160) {
+                                          _Header.forward();
+                                        } else {
+                                          _Header.reverse();
+                                        }
+                                        return TextReveal(
+                                          maxHeight: screenWidth * 0.06,
+                                          textController: _Header,
+                                          textRevealAnimation: _HeaderAnimation,
+                                          textOpacityAnimation:
+                                              _HeaderOpacityAnimation,
+                                          child: Text(
+                                            "Junior High School Program",
+                                            style: TextStyle(
+                                              fontSize: screenWidth / 45,
+                                              fontFamily: "BL",
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: screenWidth * 0.036,
+                                  left: screenWidth * 0.02,
+                                  child: Container(
+                                    child: Icon(
+                                      Icons.school,
+                                      color: Colors.white,
+                                      size: screenWidth / 45,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: screenWidth * 0.04,
+                                  left: screenWidth * 0.06,
+                                  child:
+                                      BlocBuilder<DisplayOffset, ScrollOffset>(
+                                    buildWhen: (previous, current) {
+                                      if ((current.scrollOffsetValue >= 1210 ||
+                                              current.scrollOffsetValue <
+                                                  2000) ||
+                                          _desc.isAnimating) {
+                                        return true;
+                                      } else {
+                                        return false;
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      if (state.scrollOffsetValue >= 1210) {
+                                        _desc.forward();
+                                      } else {
+                                        _desc.reverse();
+                                      }
+                                      return TextReveal(
+                                        maxHeight: screenWidth * 0.06,
+                                        textController: _desc,
+                                        textRevealAnimation: _descAnimation,
+                                        textOpacityAnimation:
+                                            _descOpacityAnimation,
+                                        child: Text(
+                                          "MNHS offers various special programs",
+                                          style: TextStyle(
+                                            fontFamily: "M",
+                                            fontSize: screenWidth / 85,
+                                            color: Colors.white
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Positioned(
+                                  right: screenWidth * 0.02,
+                                  bottom: screenWidth * 0.02,
+                                  child:
+                                      BlocBuilder<DisplayOffset, ScrollOffset>(
+                                    buildWhen: (previous, current) {
+                                      if ((current.scrollOffsetValue >= 1210 ||
+                                              current.scrollOffsetValue <
+                                                  2000) ||
+                                          _seeProgram.isAnimating) {
+                                        return true;
+                                      } else {
+                                        return false;
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      if (state.scrollOffsetValue >= 1210) {
+                                        _seeProgram.forward();
+                                      } else {
+                                        _seeProgram.reverse();
+                                      }
+                                      return TextReveal(
+                                        maxHeight: screenWidth * 0.06,
+                                        textController: _seeProgram,
+                                        textRevealAnimation:
+                                            _seeProgramAnimation,
+                                        textOpacityAnimation:
+                                            _seeProgramOpacityAnimation,
+                                        child: Text(
+                                          "See Program",
+                                          style: TextStyle(
+                                            fontSize: screenWidth / 75,
+                                            fontFamily: "B",
+                                            color: Colors.white,
+                                          ),
+                                        ).moveUpOnHover,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ).showCursorOnHover,
+                            Stack(
+                              children: [
+                                Container(
+                                  height: screenWidth / 4,
+                                  width: screenWidth / 2.4,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                    image: DecorationImage(
+                                      image: AssetImage("assets/primetesda.jpg"),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: screenWidth / 4,
+                                  width: screenWidth / 2.4,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                    color: Color(0xFF002f24)
                                         .withOpacity(0.4),
                                   ),
                                 ),
@@ -350,164 +508,7 @@ class _SecondSectionState extends State<SecondSection>
                                   child: Container(
                                     child: Icon(
                                       Icons.school,
-                                      color: Colors.black,
-                                      size: screenWidth / 45,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: screenWidth * 0.04,
-                                  left: screenWidth * 0.06,
-                                  child:
-                                      BlocBuilder<DisplayOffset, ScrollOffset>(
-                                    buildWhen: (previous, current) {
-                                      if ((current.scrollOffsetValue >= 1210 ||
-                                              current.scrollOffsetValue <
-                                                  2000) ||
-                                          _desc.isAnimating) {
-                                        return true;
-                                      } else {
-                                        return false;
-                                      }
-                                    },
-                                    builder: (context, state) {
-                                      if (state.scrollOffsetValue >= 1210) {
-                                        _desc.forward();
-                                      } else {
-                                        _desc.reverse();
-                                      }
-                                      return TextReveal(
-                                        maxHeight: screenWidth * 0.06,
-                                        textController: _desc,
-                                        textRevealAnimation: _descAnimation,
-                                        textOpacityAnimation:
-                                            _descOpacityAnimation,
-                                        child: Text(
-                                          "PBMA offers various track and strands",
-                                          style: TextStyle(
-                                            fontFamily: "M",
-                                            fontSize: screenWidth / 85,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                Positioned(
-                                  right: screenWidth * 0.02,
-                                  bottom: screenWidth * 0.02,
-                                  child:
-                                      BlocBuilder<DisplayOffset, ScrollOffset>(
-                                    buildWhen: (previous, current) {
-                                      if ((current.scrollOffsetValue >= 1210 ||
-                                              current.scrollOffsetValue <
-                                                  2000) ||
-                                          _seeProgram.isAnimating) {
-                                        return true;
-                                      } else {
-                                        return false;
-                                      }
-                                    },
-                                    builder: (context, state) {
-                                      if (state.scrollOffsetValue >= 1210) {
-                                        _seeProgram.forward();
-                                      } else {
-                                        _seeProgram.reverse();
-                                      }
-                                      return TextReveal(
-                                        maxHeight: screenWidth * 0.06,
-                                        textController: _seeProgram,
-                                        textRevealAnimation:
-                                            _seeProgramAnimation,
-                                        textOpacityAnimation:
-                                            _seeProgramOpacityAnimation,
-                                        child: Text(
-                                          "See Program",
-                                          style: TextStyle(
-                                            fontSize: screenWidth / 75,
-                                            fontFamily: "B",
-                                            color: Colors.black,
-                                          ),
-                                        ).moveUpOnHover,
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ).showCursorOnHover,
-                            Stack(
-                              children: [
-                                Container(
-                                  height: screenWidth / 4,
-                                  width: screenWidth / 2.4,
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                    image: DecorationImage(
-                                      image: AssetImage("assets/primetesda.jpg"),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  height: screenWidth / 4,
-                                  width: screenWidth / 2.4,
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                    color: Color.fromARGB(255, 255, 231, 11)
-                                        .withOpacity(0.4),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: screenWidth * 0.065,
-                                  left: screenWidth * 0.02,
-                                  child: Container(
-                                    child: BlocBuilder<DisplayOffset,
-                                        ScrollOffset>(
-                                      buildWhen: (previous, current) {
-                                        if ((current.scrollOffsetValue >=
-                                                    1160 ||
-                                                current.scrollOffsetValue <
-                                                    2000) ||
-                                            _Header.isAnimating) {
-                                          return true;
-                                        } else {
-                                          return false;
-                                        }
-                                      },
-                                      builder: (context, state) {
-                                        if (state.scrollOffsetValue >= 1160) {
-                                          _Header.forward();
-                                        } else {
-                                          _Header.reverse();
-                                        }
-                                        return TextReveal(
-                                          maxHeight: screenWidth * 0.06,
-                                          textController: _Header,
-                                          textRevealAnimation: _HeaderAnimation,
-                                          textOpacityAnimation:
-                                              _HeaderOpacityAnimation,
-                                          child: Text(
-                                            "TESDA Program",
-                                            style: TextStyle(
-                                              fontSize: screenWidth / 45,
-                                              fontFamily: "BL",
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: screenWidth * 0.036,
-                                  left: screenWidth * 0.02,
-                                  child: Container(
-                                    child: Icon(
-                                      Icons.school,
-                                      color: Colors.black,
+                                      color: Colors.white,
                                       size: screenWidth / 45,
                                     ),
                                   ),
@@ -542,10 +543,11 @@ class _SecondSectionState extends State<SecondSection>
                                         maxHeight: screenWidth * 0.07,
                                         textController: _desc,
                                         child: Text(
-                                          "PBMA offers different courses and NC's",
+                                          "MNHS offers different strand and track",
                                           style: TextStyle(
                                             fontFamily: "M",
                                             fontSize: screenWidth / 85,
+                                            color: Colors.white
                                           ),
                                         ),
                                       );
@@ -587,7 +589,7 @@ class _SecondSectionState extends State<SecondSection>
                                             style: TextStyle(
                                               fontSize: screenWidth / 75,
                                               fontFamily: "B",
-                                              color: Colors.black,
+                                              color: Colors.white,
                                             ),
                                           ).moveUpOnHover,
                                         );
@@ -638,7 +640,7 @@ class _SecondSectionState extends State<SecondSection>
                           style: TextStyle(
                               fontSize: screenWidth / 35,
                               fontFamily: "B",
-                              color: Colors.white),
+                              color: Color(0xFF002f24)),
                         ),
                       );
                     })),
