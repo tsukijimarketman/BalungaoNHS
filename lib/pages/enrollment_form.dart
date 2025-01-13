@@ -23,6 +23,7 @@ import 'package:balungao_nhs/pages/enrollment_form_sector/uploading_files.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EnrollmentForm extends StatefulWidget {
+
   @override
   State<EnrollmentForm> createState() => _EnrollmentFormState();
 }
@@ -527,7 +528,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                                                           context,
                                                           MaterialPageRoute(
                                                               builder: (context) =>
-                                                                  Launcher()));
+                                                                  Launcher(scrollToFooter: false,)));
                                                     },
                                                     child: Text(
                                                       'OK',

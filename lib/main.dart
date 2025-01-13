@@ -121,10 +121,10 @@ class MyApp extends StatelessWidget {
               );
             } else {
               // User is not signed in, navigate to the launcher
-              // return Launcher(
-              //   scrollToFooter: false,
-              // );
-              return AboutUs();
+              return Launcher(
+                scrollToFooter: false,
+              );
+              // return AboutUs();
             }
           }
           return Center(
