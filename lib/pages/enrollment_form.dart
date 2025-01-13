@@ -446,7 +446,6 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
       containerWidth = constraints.maxWidth * 0.9;
     }
 
-<<<<<<< HEAD
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Container(
@@ -579,75 +578,6 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                           );
                         },
                       ),
-=======
-    return Padding(
-      padding: const EdgeInsets.all(8.0), // Padding around the container
-      child: Align(
-        alignment: Alignment.centerLeft, // Align to the left side
-        child: Container(
-          width: containerWidth,
-          child: DropdownButtonFormField<String>(
-            value: selectededucLevel,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: Color(0xFF03b97c),
-                  width: 1.0,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: Color(0xFF03b97c),
-                  width: 1.0,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: Color(0xFF03b97c),
-                  width: 1.0,
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-            ),
-            items: const [
-              DropdownMenuItem(
-                value: '',
-                child: Text('---'),
-              ),
-              DropdownMenuItem(
-                value: 'junior',
-                child: Text('Junior High School Student'),
-              ),
-              DropdownMenuItem(
-                value: 'senior',
-                child: Text('Senior High School Student'),
-              ),
-            ],
-            onChanged: (value) {
-              setState(() {
-                selectededucLevel = value;
-              });
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please select your Educational Level';
-              }
-              return null;
-            },
-            hint: const Text('Select your educational level'),
-          ),
-        ),
-      ),
-    );
-  },
-),
->>>>>>> 35090ea062531a60baf44e20770d129f1e3a790a
 
                       SizedBox(height: 30),
                       if (selectededucLevel == 'Junior High School') ...[
