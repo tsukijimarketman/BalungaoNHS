@@ -129,7 +129,7 @@ class _AboutUsState extends State<AboutUs> with TickerProviderStateMixin {
                               ),
                             ],
                           ),
-                        ),
+                        ).showCursorOnHover,
                         Spacer(),
                         //here
                         MouseRegion(
