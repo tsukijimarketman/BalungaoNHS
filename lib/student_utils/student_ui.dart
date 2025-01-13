@@ -336,10 +336,13 @@ class _ScreensExampleState extends State<_ScreensExample> {
   String? _track;
   String? _gradeLevel;
   String? _semester;
+  String? _quarter;
   String? _selectedSection;
   String? _enrollmentStatus;
   Map<String, dynamic> userData = {};
   bool _isLoading = true;
+  String _educLevel = ''; // Default to an empty string or set it accordingly
+
 
   @override
   void initState() {
@@ -347,6 +350,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
 
     // Call all necessary functions during widget initialization
     _initializeData();
+      print('Calling _fetchEducLevel...');
+
+    _fetchEducLevel();
   }
 
   @override
@@ -390,6 +396,44 @@ class _ScreensExampleState extends State<_ScreensExample> {
       }
     }
   }
+
+ Future<void> _fetchEducLevel() async {
+  try {
+    print('Fetching educ level...');
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      print('User found: ${user.uid}');
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid', isEqualTo: user.uid) // Query by the 'uid' field
+          .limit(1) // Limit to one result
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final DocumentSnapshot doc = querySnapshot.docs.first;
+        final data = doc.data() as Map<String, dynamic>;
+        setState(() {
+          _educLevel = data['educ_level'] ?? '';
+          print('Updated educLevel: $_educLevel');
+        });
+      } else {
+        print('No matching document found for user: ${user.uid}');
+      }
+    } else {
+      print('No user is logged in');
+    }
+  } catch (e) {
+    print('Error fetching educLevel: $e');
+    setState(() {
+      _educLevel = ''; // Default if an error occurs
+    });
+  }
+}
+
+
+
+
 
   // Modify _fetchUserData to return a Future
   Future<void> _fetchUserData() async {
@@ -588,74 +632,116 @@ class _ScreensExampleState extends State<_ScreensExample> {
   }
 
   Future<void> _fetchEnrollmentStatus() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return; // Handle user not logged in
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return; // Handle user not logged in
 
+  try {
+    final docSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: user.uid)
+        .limit(1) // Assuming there's one document per user
+        .get();
+
+    if (docSnapshot.docs.isNotEmpty) {
+      final data = docSnapshot.docs.first.data() as Map<String, dynamic>;
+
+      // Get the educational level
+      String educLevel = data['educ_level'] ?? '';
+
+      setState(() {
+        // Set the enrollment status and other general fields
+        _enrollmentStatus = data['enrollment_status'];
+        _studentId = data['student_id'];
+
+        String firstName = data['first_name'] ?? '';
+        String middleName = data['middle_name'] ?? '';
+        String lastName = data['last_name'] ?? '';
+        String extensionName = data['extension_name'] ?? '';
+
+        // Combine the fields to create the full name
+        _fullName = [
+          firstName,
+          middleName,
+          lastName,
+          extensionName
+        ].where((name) => name.isNotEmpty).join(' ');
+
+        // Set common fields
+        _gradeLevel = data['grade_level'];
+
+        // Conditionally set Senior High School-specific fields
+        if (educLevel == 'Senior High School') {
+          _strand = data['seniorHigh_Strand'];
+          _track = data['seniorHigh_Track'];
+          _semester = data['semester'];
+        } else {
+          // If Junior High School, don't fetch these fields
+          _strand = '';
+          _track = '';
+          _semester = '';
+        }
+      });
+    }
+  } catch (e) {
+    // Handle errors (e.g., network issues)
+    print('Error fetching enrollment status: $e');
+  }
+}
+
+
+ Future<void> _loadStudentData() async {
+  User? user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
+
+  if (user != null) {
     try {
-      final docSnapshot = await FirebaseFirestore.instance
+      // Query the 'users' collection where the 'uid' field matches the current user's UID
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('uid', isEqualTo: user.uid)
-          .limit(1) // Assuming there's one document per user
           .get();
 
-      if (docSnapshot.docs.isNotEmpty) {
+      if (userSnapshot.docs.isNotEmpty) {
+        // Assuming only one document will be returned, get the first document
+        DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+        // Get the educ_level field from the Firestore document
+        String educLevel = userDoc['educ_level'] ?? ''; // Default to an empty string if the field is missing
+
         setState(() {
-          // Assuming enrollment_status is a field in your document
-          _enrollmentStatus = docSnapshot.docs.first['enrollment_status'];
-          // Also fetch other student details if needed
-          _studentId = docSnapshot.docs.first['student_id'];
-          _fullName = docSnapshot.docs.first['full_name'];
-          _strand = docSnapshot.docs.first['strand'];
-          _track = docSnapshot.docs.first['track'];
-          _gradeLevel = docSnapshot.docs.first['grade_level'];
-          _semester = docSnapshot.docs.first['semester'];
+          _studentId = userDoc['student_id'];
+          _fullName =
+              '${userDoc['first_name']} ${userDoc['middle_name'] ?? ''} ${userDoc['last_name']} ${userDoc['extension_name'] ?? ''}'
+                  .trim();
+          _gradeLevel = userDoc['grade_level'];
+
+          // Check if educLevel is "Senior High School" before trying to load strand and track
+          if (educLevel == 'Senior High School') {
+            _strand = userDoc['seniorHigh_Strand'] ?? ''; // If missing, default to empty string
+            _track = userDoc['seniorHigh_Track'] ?? ''; // If missing, default to empty string
+            _semester = userDoc['semester']; // This field should be available for Senior High
+          } else {
+            // If it's Junior High School, do not load strand, track, or semester
+            _strand = '';
+            _track = '';
+            _semester = '';
+            _quarter = userDoc['quarter'];
+          }
         });
+
+        // Load grades based on the selected semester if it exists
+        await _loadGrades();
+      } else {
+        print('No matching student document found.');
       }
     } catch (e) {
-      // Handle errors (e.g., network issues)
-      print('Error fetching enrollment status: $e');
+      print('Failed to load student data: $e');
     }
+  } else {
+    print('User is not logged in.');
   }
+}
 
-  Future<void> _loadStudentData() async {
-    User? user =
-        FirebaseAuth.instance.currentUser; // Get the current logged-in user
 
-    if (user != null) {
-      try {
-        // Query the 'users' collection where the 'uid' field matches the current user's UID
-        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: user.uid)
-            .get();
-
-        if (userSnapshot.docs.isNotEmpty) {
-          // Assuming only one document will be returned, get the first document
-          DocumentSnapshot userDoc = userSnapshot.docs.first;
-
-          setState(() {
-            _studentId = userDoc['student_id'];
-            _fullName =
-                '${userDoc['first_name']} ${userDoc['middle_name'] ?? ''} ${userDoc['last_name']} ${userDoc['extension_name'] ?? ''}'
-                    .trim();
-            _strand = userDoc['seniorHigh_Strand'];
-            _track = userDoc['seniorHigh_Track'];
-            _gradeLevel = userDoc['grade_level'];
-            _semester = userDoc['semester'];
-          });
-
-          // Load grades based on the selected semester
-          await _loadGrades();
-        } else {
-          print('No matching student document found.');
-        }
-      } catch (e) {
-        print('Failed to load student data: $e');
-      }
-    } else {
-      print('User is not logged in.');
-    }
-  }
 
   Map<String, List<Map<String, String>>> semesterGrades = {};
 
@@ -740,11 +826,17 @@ class _ScreensExampleState extends State<_ScreensExample> {
 
   // Case 2
   // Add this new method to fetch saved data
-  Future<void> _checkEnrollmentStatus() async {
+
+ Future<void> _checkEnrollmentStatus() async {
   try {
-    // Get the active configuration
+    // Fetch the active configuration based on educ_level
+    String configCollection = _educLevel == 'Senior High School' 
+        ? 'shs_configuration' 
+        : 'jhs_configuration';
+
+    // Get the active configuration from the correct collection
     QuerySnapshot activeConfig = await FirebaseFirestore.instance
-        .collection('configurations')
+        .collection(configCollection)  // Dynamic collection based on educ_level
         .where('isActive', isEqualTo: true)
         .limit(1)
         .get();
@@ -779,41 +871,42 @@ class _ScreensExampleState extends State<_ScreensExample> {
   }
 }
 
-Future<void> _fetchSavedSectionData() async {
-  try {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
 
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .where('uid', isEqualTo: user.uid)
-        .limit(1)
-        .get();
+  Future<void> _fetchSavedSectionData() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
 
-    if (userDoc.docs.isNotEmpty) {
-      final userDocId = userDoc.docs.first.id;
-      
-      // Get the sections subcollection document
-      final sectionDoc = await FirebaseFirestore.instance
+      final userDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(userDocId)
-          .collection('sections')
-          .doc(userDocId)
+          .where('uid', isEqualTo: user.uid)
+          .limit(1)
           .get();
 
-      if (sectionDoc.exists) {
-        final data = sectionDoc.data();
-        setState(() {
-          _selectedSection = data?['selectedSection'];
-          _subjects = List<Map<String, dynamic>>.from(data?['subjects'] ?? []);
-          _isFinalized = data?['isFinalized'] ?? false;
-        });
+      if (userDoc.docs.isNotEmpty) {
+        final userDocId = userDoc.docs.first.id;
+        
+        // Get the sections subcollection document
+        final sectionDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userDocId)
+            .collection('sections')
+            .doc(userDocId)
+            .get();
+
+        if (sectionDoc.exists) {
+          final data = sectionDoc.data();
+          setState(() {
+            _selectedSection = data?['selectedSection'];
+            _subjects = List<Map<String, dynamic>>.from(data?['subjects'] ?? []);
+            _isFinalized = data?['isFinalized'] ?? false;
+          });
+        }
       }
+    } catch (e) {
+      print('Error fetching saved section data: $e');
     }
-  } catch (e) {
-    print('Error fetching saved section data: $e');
   }
-}
 
   Future<void> _saveandfinalization() async {
     if (_selectedSection != null) {
@@ -954,6 +1047,111 @@ Future<void> _fetchSavedSectionData() async {
       );
     }
   }
+
+  void onLoadSubjects() {
+  // Check if educ_level is Junior High School or Senior High School
+  if (_educLevel == 'Junior High School') {
+    // If educ_level is Junior High School, execute this process
+    _loadJHSSubjects();
+  } else if (_educLevel == 'Senior High School') {
+    // If educ_level is Senior High School, execute the existing _loadSubjects function
+    _loadSubjects();
+  } else {
+    // Optional: handle the case when the educ_level is neither Junior High School nor Senior High School
+    print('Invalid education level');
+  }
+}
+
+Future<void> _loadJHSSubjects() async {
+  if (_selectedSection != null) {
+    try {
+      // Fetch the selected section's document
+      QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+          .collection('sections')
+          .where('section_name', isEqualTo: _selectedSection)
+          .get();
+
+      if (sectionSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
+
+        // Get 'quarter' and 'section_name' from the section document
+        String sectionQuarter = sectionDoc['quarter'];
+        String sectionName = sectionDoc['section_name']; // Get section_name (e.g., "7-Makapagal-A")
+
+        // Query subjects based on quarter for Junior High School
+        QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
+            .collection('subjects')
+            .where('quarter', isEqualTo: sectionQuarter)
+            .get();
+
+        setState(() {
+          _subjects = subjectSnapshot.docs
+              .where((doc) {
+                // Assuming the 'grade_level' field exists in 'subjects'
+                String subjectGradeLevel = doc['grade_level']; // Get the grade_level field
+                
+                // Check if the grade_level in the subject matches the section (7, 8, 9, 10)
+                return subjectGradeLevel == sectionName.substring(0, 1); // Check first character of section_name ("7", "8", "9", etc.)
+              })
+              .map((doc) {
+                // For Junior High School, only fetch and display 'subject_name'
+                return {
+                  'subject_name': doc['subject_name'],
+                };
+              })
+              .toList();
+        });
+
+        // Show a success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+              SizedBox(width: 10),
+              Text('Subjects loaded successfully for Junior High School!'),
+            ],
+          )),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+              SizedBox(width: 10),
+              Text('No matching section found for Junior High School.'),
+            ],
+          )),
+        );
+      }
+    } catch (e) {
+      print('Error loading Junior High School subjects: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Error loading subjects: $e'),
+          ],
+        )),
+      );
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Please select a section before loading subjects for Junior High School.'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
 
   Future<void> _loadSubjects() async {
     if (_selectedSection != null) {
@@ -1176,29 +1374,33 @@ Future<void> _fetchSavedSectionData() async {
   }
 
   Future<void> _fetchSections() async {
-    try {
-      // Define the mapping between seniorHigh_Strand descriptive names and abbreviations
-      Map<String, String> strandMap = {
-        'Science, Technology, Engineering and Mathematics (STEM)': 'STEM',
-        'Humanities and Social Sciences (HUMSS)': 'HUMSS',
-        'Accountancy, Business, and Management (ABM)': 'ABM',
-        'Information and Communication Technology (ICT)': 'ICT',
-        'Home Economics (HE)': 'HE',
-        'Industrial Arts (IA)': 'IA'
-      };
+  try {
+    // Define the mapping between seniorHigh_Strand descriptive names and abbreviations
+    Map<String, String> strandMap = {
+      'Science, Technology, Engineering and Mathematics (STEM)': 'STEM',
+      'Humanities and Social Sciences (HUMSS)': 'HUMSS',
+      'Accountancy, Business, and Management (ABM)': 'ABM',
+      'Information and Communication Technology (ICT)': 'ICT',
+      'Home Economics (HE)': 'HE',
+      'Industrial Arts (IA)': 'IA'
+    };
 
-      // Get the currently logged-in user
-      User? user = FirebaseAuth.instance.currentUser;
+    // Get the currently logged-in user
+    User? user = FirebaseAuth.instance.currentUser;
 
-      if (user != null) {
-        // Fetch the user document to get seniorHigh_Strand and grade_level
-        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: user.uid)
-            .get();
+    if (user != null) {
+      // Fetch the user document to get seniorHigh_Strand, grade_level, educ_level, and quarter/semester
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('uid', isEqualTo: user.uid)
+          .get();
 
-        if (userSnapshot.docs.isNotEmpty) {
-          DocumentSnapshot userDoc = userSnapshot.docs.first;
+      if (userSnapshot.docs.isNotEmpty) {
+        DocumentSnapshot userDoc = userSnapshot.docs.first;
+        String userEducLevel = userDoc['educ_level']; // Get the user's education level
+
+        // Only fetch strand, track, and semester if the user is in Senior High School
+        if (userEducLevel == 'Senior High School') {
           String userStrand = userDoc['seniorHigh_Strand'];
           String userGradeLevel = userDoc['grade_level'];
           String userSemester = userDoc['semester']; // Get user's semester
@@ -1225,13 +1427,14 @@ Future<void> _fetchSavedSectionData() async {
                   .map((doc) => doc['section_name'] as String)
                   .toList();
             });
+
             if (_sections.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Row(
                       children: [
                         Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Text('No sections available for your semester.'),
                       ],
                     )),
@@ -1242,19 +1445,51 @@ Future<void> _fetchSavedSectionData() async {
               SnackBar(content: Row(
                 children: [
                   Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Text('Strand abbreviation not found.'),
                 ],
               )),
             );
           }
+        } else if (userEducLevel == 'Junior High School') {
+          // For Junior High School, fetch sections based on quarter instead of semester
+          String userGradeLevel = userDoc['grade_level'];
+          String userQuarter = userDoc['quarter']; // Get user's quarter
+
+          // Fetch sections for Junior High School based on quarter
+          final snapshot = await FirebaseFirestore.instance
+              .collection('sections')
+              .where('section_name', isGreaterThanOrEqualTo: '$userGradeLevel')
+              .where('section_name', isLessThanOrEqualTo: '$userGradeLevel\uf8ff')
+              .get();
+
+          setState(() {
+            _sections = snapshot.docs
+                .where((doc) => doc['quarter'] == userQuarter) // Add quarter check for Junior High School
+                .map((doc) => doc['section_name'] as String)
+                .toList();
+          });
+
+          if (_sections.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Row(
+                    children: [
+                      Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                      Text('No sections available for your quarter.'),
+                    ],
+                  )),
+            );
+          }
         } else {
+          // Handle case where educ_level is neither Senior High nor Junior High
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Row(
               children: [
                 Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-                Text('User document not found.'),
+                SizedBox(width: 10),
+                Text('Invalid education level.'),
               ],
             )),
           );
@@ -1264,25 +1499,37 @@ Future<void> _fetchSavedSectionData() async {
           SnackBar(content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-              Text('No user is logged in.'),
+              SizedBox(width: 10),
+              Text('User document not found.'),
             ],
           )),
         );
       }
-    } catch (e) {
-      print('Error fetching sections: $e');
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
             Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-            Text('Error fetching sections: $e'),
+            SizedBox(width: 10),
+            Text('No user is logged in.'),
           ],
         )),
       );
     }
+  } catch (e) {
+    print('Error fetching sections: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Row(
+        children: [
+          Image.asset('PBMA.png', scale: 40),
+          SizedBox(width: 10),
+          Text('Error fetching sections: $e'),
+        ],
+      )),
+    );
   }
+}
+
   // Case 2
 
   Future<bool> _canSelectSection() async {
@@ -1452,7 +1699,7 @@ Future<void> _fetchSavedSectionData() async {
       await FirebaseAuth.instance.signOut();
       print("User logged out successfully");
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (builder) => Launcher()));
+          context, MaterialPageRoute(builder: (builder) => Launcher(scrollToFooter: false,)));
     } catch (e) {
       print("Error logging out: $e");
     }
@@ -1682,10 +1929,11 @@ Future<void> _fetchSavedSectionData() async {
   );
 
           case 2:
-             return _isLoading 
-    ? Container(
-      color: Color.fromARGB(255, 1, 93, 168),
-      child: Center(
+  // Show loading widget while fetching data
+  return _isLoading
+      ? Container(
+          color: Color.fromARGB(255, 1, 93, 168),
+          child: Center(
             child: DefaultTextStyle(
               style: TextStyle(
                 fontSize: 18.0,
@@ -1700,29 +1948,33 @@ Future<void> _fetchSavedSectionData() async {
               ),
             ),
           ),
-    )
-    : EnrollmentStatusWidget(
-        enrollmentStatus: _enrollmentStatus,
-        studentId: _studentId,
-        fullName: _fullName,
-        strand: _strand,
-        track: _track,
-        gradeLevel: _gradeLevel,
-        semester: _semester,
-        sections: _sections,
-        subjects: _subjects,
-        isFinalized: _isFinalized,
-        selectedSection: _selectedSection,
-        onSectionChanged: (newValue) {
-          setState(() {
-            _selectedSection = newValue;
-          });
-        },
-        onLoadSubjects: _loadSubjects,
-        onFinalize: _saveandfinalization,
-        FinalizedData: _fetchSavedSectionData,
-        checkEnrollmentStatus: _checkEnrollmentStatus, // Add this line
-      );
+        )
+          : EnrollmentStatusWidget(
+              enrollmentStatus: _enrollmentStatus,
+              studentId: _studentId,
+              fullName: _fullName,
+              strand: _strand,
+              track: _track,
+              gradeLevel: _gradeLevel,
+              semester: _semester,
+              quarter: _quarter,
+              sections: _sections,
+              subjects: _subjects,
+              isFinalized: _isFinalized,
+              selectedSection: _selectedSection,
+              onSectionChanged: (newValue) {
+                setState(() {
+                  _selectedSection = newValue;
+                });
+              },
+              onLoadSubjects: onLoadSubjects,
+              onFinalize: _saveandfinalization,
+              FinalizedData: _fetchSavedSectionData,
+              checkEnrollmentStatus: _checkEnrollmentStatus, // Add this line
+              educLevel: _educLevel, // Add this line
+
+            );
+
           case 3:
             double screenWidth = MediaQuery.of(context).size.width;
             final bool isMobile = screenWidth < 600;

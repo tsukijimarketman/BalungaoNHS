@@ -1,6 +1,8 @@
 import 'dart:js_interop';
 import 'dart:math';
 import 'dart:ui';
+import 'package:balungao_nhs/launcher.dart';
+import 'package:balungao_nhs/pages/views/sections/desktop/about_us.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:balungao_nhs/pages/views/sections/desktop/first_section.dart';
 import 'package:balungao_nhs/pages/views/sections/desktop/second_section.dart';
@@ -20,14 +22,15 @@ import 'package:balungao_nhs/widgets/scroll_offset.dart';
 import 'package:balungao_nhs/widgets/text_reveal.dart';
 
 class DesktopView extends StatefulWidget {
-  const DesktopView({super.key});
+  final bool scrollToFooter;
+
+  const DesktopView({super.key, this.scrollToFooter = false});
 
   @override
   State<DesktopView> createState() => _DesktopViewState();
 }
 
-class _DesktopViewState extends State<DesktopView>
-    with TickerProviderStateMixin {
+class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin {
   final GlobalKey _footerKey = GlobalKey();
   late AnimationController imageController;
   late Animation<double> imageReveal;
@@ -98,6 +101,12 @@ class _DesktopViewState extends State<DesktopView>
     Future.delayed(Duration(milliseconds: 1000), () {
       coreValues.forward();
     });
+
+    if (widget.scrollToFooter) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToSection(_footerKey);
+      });
+    }
   }
 
   void _scrollListener() {
@@ -186,31 +195,41 @@ class _DesktopViewState extends State<DesktopView>
                       title: Container(
                         child: Row(
                           children: [
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {},
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: Image.asset(
-                                      "assets/balungaonhs.png",
-                                      height: screenWidth / 20,
-                                      width: screenWidth / 20,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                  builder: (context) => Launcher(scrollToFooter: false,),
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {},
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(50),
+                                      child: Image.asset(
+                                        "assets/balungaonhs.png",
+                                        height: screenWidth / 20,
+                                        width: screenWidth / 20,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "MNHS",
-                                  style: TextStyle(
-                                    color: Color(0xFF002f24),
-                                    fontFamily: "B",
-                                    fontSize: screenWidth / 50,
-                                    fontWeight: FontWeight.bold,
+                                  SizedBox(width: 10),
+                                  Text(
+                                    "MNHS",
+                                    style: TextStyle(
+                                      color: Color(0xFF002f24),
+                                      fontFamily: "B",
+                                      fontSize: screenWidth / 50,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                            ).showCursorOnHover,
                             Spacer(),
                             MouseRegion(
                               onEnter: (_) {
@@ -248,7 +267,13 @@ class _DesktopViewState extends State<DesktopView>
                                 });
                               },
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AboutUs(),
+                                  ));
+                                },
                                 child: Text(
                                   "About us",
                                   style: TextStyle(

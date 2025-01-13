@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:balungao_nhs/pages/views/sections/desktop/desktop_view.dart';
-import 'package:balungao_nhs/pages/views/sections/mobile/mobile_view.dart'; 
+import 'package:balungao_nhs/pages/views/sections/mobile/mobile_view.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  final bool scrollToFooter;
+
+  const Dashboard({super.key, this.scrollToFooter = false});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -17,7 +19,9 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isDesktop(context) ? DesktopView() : MobileView(), // Conditionally render the view
+      body: isDesktop(context)
+          ? DesktopView(scrollToFooter: widget.scrollToFooter)
+          : MobileView(),
     );
   }
 }
