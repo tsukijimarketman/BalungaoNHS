@@ -1983,7 +1983,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       await FirebaseAuth.instance.signOut();
       print("User logged out successfully");
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (builder) => Launcher()));
+          context, MaterialPageRoute(builder: (builder) => Launcher(scrollToFooter: false,)));
     } catch (e) {
       print("Error logging out: $e");
     }
