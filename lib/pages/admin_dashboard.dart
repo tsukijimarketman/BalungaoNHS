@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, unused_local_variable
 import 'dart:ui';
-
 import 'package:balungao_nhs/Manage/JHSStudentDetails.dart';
 import 'package:balungao_nhs/Manage/JHSStudentInSection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -316,8 +315,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   //BuildStudentsContent
 
   //BuildStrandInstructorContent
-  Stream<QuerySnapshot<Map<String, dynamic>>>
-      _getFilteredInstructorStudents() async* {
+  Stream<QuerySnapshot<Map<String, dynamic>>> _getFilteredInstructorStudents() async* {
     final userDoc = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -1019,6 +1017,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Future<void> _JHSactivateConfiguration(String configId) async {
     try {
+
+       final selectedConfigSnapshot = await FirebaseFirestore.instance
+        .collection('jhs configurations')
+        .doc(configId)
+        .get();
+
+    if (!selectedConfigSnapshot.exists) {
+      throw 'Selected configuration not found.';
+    }
+
+    final configurationSemester = selectedConfigSnapshot.get('semester');
+    
       // First, set all configurations to inactive
       final batch = FirebaseFirestore.instance.batch();
       final configs = await FirebaseFirestore.instance
@@ -1029,7 +1039,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       for (var doc in configs.docs) {
         batch.update(doc.reference, {'isActive': false});
       }
-
+  
       // Set the selected configuration as active
       batch.update(
           FirebaseFirestore.instance.collection('jhs configurations').doc(configId),
@@ -1052,6 +1062,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         // Update main document status
         studentBatch.update(studentDoc.reference, {
           'enrollment_status': 're-enrolled',
+          'quarter' : configurationSemester,
           'section':
               FieldValue.delete(), // Remove the section field if it exists
         });
