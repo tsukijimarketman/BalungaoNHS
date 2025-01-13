@@ -122,16 +122,16 @@ class JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepAl
                     ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                  borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
 
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                  borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                  borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                 ),
               ),
               onChanged: (text) {
@@ -180,16 +180,16 @@ class JuniorHighSchoolState extends State<JuniorHighSchool> with AutomaticKeepAl
                     ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                  borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
 
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                  borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                  borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                 ),
               ),
               onChanged: (text) {

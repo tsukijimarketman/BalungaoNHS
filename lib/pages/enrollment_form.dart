@@ -305,7 +305,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
               // Header Section
               Container(
                 height: 75,
-                color: Color.fromARGB(255, 1, 93, 168),
+                color: Color(0xFF03b97c),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -315,7 +315,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
                           child: Image.asset(
-                            "assets/pbma.jpg",
+                            "assets/balungaonhs.png",
                             height: 60,
                             width: 60,
                           ),
@@ -323,7 +323,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "PBMA",
+                        "BNHS",
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: "B",
@@ -358,7 +358,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                           "Dashboard",
                           style: TextStyle(
                             color: _isHoveringDashboard
-                                ? Colors.blue
+                                ? Color(0xFF03b97c)
                                 : Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
@@ -370,7 +370,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                       "Enrollment",
                       style: TextStyle(
                         color:
-                            _isHoveringDashboard ? Colors.black : Colors.blue,
+                            _isHoveringDashboard ? Colors.black : Color(0xFF03b97c),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -413,73 +413,87 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                       ),
                       SizedBox(height: 30),
                       LayoutBuilder(
-                        builder: (context, constraints) {
-                          double containerWidth = constraints.maxWidth > 600
-                              ? constraints.maxWidth / 4.2
-                              : constraints.maxWidth * 0.9;
+  builder: (context, constraints) {
+    double containerWidth;
+    if (constraints.maxWidth > 1200) {
+      // Web
+      containerWidth = constraints.maxWidth / 4.2;
+    } else if (constraints.maxWidth > 800) {
+      // Tablet
+      containerWidth = constraints.maxWidth / 2.5;
+    } else {
+      // Mobile
+      containerWidth = constraints.maxWidth * 0.9;
+    }
 
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              width: containerWidth,
-                              child: DropdownButtonFormField<String>(
-                                value: selectededucLevel,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: Colors.blue, // Set the border color to blue
-                                      width: 1.0, // Thickness of the border
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: Colors.blue, // Blue color when the field is not focused
-                                      width: 1.0,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: Colors.blue, // A slightly brighter blue when focused
-                                      width: 1.0,
-                                    ),
-                                  ),
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                ),
-                                items: [
-                                  DropdownMenuItem(
-                                    value: '',
-                                    child: Text('---'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'junior',
-                                    child: Text('Junior High School Student'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'senior',
-                                    child: Text('Senior High School Student'),
-                                  ),
-                                ],
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectededucLevel = value;
-                                  });
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please select your Educational Level';
-                                  }
-                                  return null;
-                                },
-                                hint: Text('Select your educational level'),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+    return Padding(
+      padding: const EdgeInsets.all(8.0), // Padding around the container
+      child: Align(
+        alignment: Alignment.centerLeft, // Align to the left side
+        child: Container(
+          width: containerWidth,
+          child: DropdownButtonFormField<String>(
+            value: selectededucLevel,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color(0xFF03b97c),
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color(0xFF03b97c),
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color(0xFF03b97c),
+                  width: 1.0,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: '',
+                child: Text('---'),
+              ),
+              DropdownMenuItem(
+                value: 'junior',
+                child: Text('Junior High School Student'),
+              ),
+              DropdownMenuItem(
+                value: 'senior',
+                child: Text('Senior High School Student'),
+              ),
+            ],
+            onChanged: (value) {
+              setState(() {
+                selectededucLevel = value;
+              });
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select your Educational Level';
+              }
+              return null;
+            },
+            hint: const Text('Select your educational level'),
+          ),
+        ),
+      ),
+    );
+  },
+),
+
                       SizedBox(height: 30),
                        if (selectededucLevel == 'junior') ...[
                        JuniorHighSchoolEnrollment(
@@ -526,7 +540,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                               child: TextButton(
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(
-                                    Color.fromARGB(255, 1, 93, 168),
+                                    Color(0xFF002f24),
                                   ),
                                   shape: MaterialStateProperty.all(
                                     RoundedRectangleBorder(
@@ -540,7 +554,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(
-                                          color: Colors.yellow,
+                                          color: Colors.white,
                                           strokeWidth: 2.0,
                                         ),
                                       )
@@ -551,7 +565,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                                           fontSize: screenWidth < 600
                                               ? 16
                                               : 12, // Adjust font size for small screens
-                                          color: Colors.yellow,
+                                          color: Colors.white,
                                         ),
                                       ),
                               ),
