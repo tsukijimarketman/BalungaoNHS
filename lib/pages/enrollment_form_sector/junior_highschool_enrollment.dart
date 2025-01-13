@@ -93,15 +93,15 @@ class JuniorHighSchoolEnrollmentState extends State<JuniorHighSchoolEnrollment>
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                   ),
                   items: ['7', '8', '9', '10']
@@ -134,15 +134,15 @@ class JuniorHighSchoolEnrollmentState extends State<JuniorHighSchoolEnrollment>
                         TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                   ),
                   items: ['yes', 'no']

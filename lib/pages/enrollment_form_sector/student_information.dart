@@ -305,7 +305,7 @@ class StudentInformationState extends State<StudentInformation>
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blue, width: 1.0),
+                        border: Border.all(color: Color(0xFF03b97c), width: 1.0),
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                       ),
                       child: _imageFile == null && _webImageData == null
@@ -371,15 +371,15 @@ class StudentInformationState extends State<StudentInformation>
                         ),
                         border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       ),
                       validator: (value) {
@@ -432,15 +432,15 @@ class StudentInformationState extends State<StudentInformation>
                         ),
                         border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       ),
                       validator: (value) {
@@ -469,7 +469,7 @@ class StudentInformationState extends State<StudentInformation>
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blue, width: 1.0),
+                        border: Border.all(color: Color(0xFF03b97c), width: 1.0),
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
                       ),
                       child: _imageFile == null && _webImageData == null
@@ -540,15 +540,15 @@ class StudentInformationState extends State<StudentInformation>
                     ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                     ),
                     validator: (value) {
@@ -603,15 +603,15 @@ class StudentInformationState extends State<StudentInformation>
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                   ),
                   validator: (value) {
@@ -668,15 +668,15 @@ class StudentInformationState extends State<StudentInformation>
                     ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                     ),
                     onChanged: (text) {
@@ -733,15 +733,15 @@ class StudentInformationState extends State<StudentInformation>
                     ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                     ),
                     onChanged: (text) {
@@ -775,15 +775,15 @@ class StudentInformationState extends State<StudentInformation>
                     ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                     ),
                     validator: (value) {
@@ -821,15 +821,15 @@ class StudentInformationState extends State<StudentInformation>
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                     ),
                   ),
@@ -870,15 +870,15 @@ class StudentInformationState extends State<StudentInformation>
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(Iconsax.calendar_1_copy),
@@ -949,15 +949,15 @@ class StudentInformationState extends State<StudentInformation>
                     ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                     ),
                     validator: (value) {
@@ -1016,15 +1016,15 @@ class StudentInformationState extends State<StudentInformation>
                       labelStyle: TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                     ),
 
@@ -1065,15 +1065,15 @@ class StudentInformationState extends State<StudentInformation>
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                       ),
                     ),
                     validator: (value) {

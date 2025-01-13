@@ -102,15 +102,15 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                   ),
                   items: ['11', '12']
@@ -138,15 +138,15 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
                         TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                   ),
                   items: ['yes', 'no']
@@ -181,15 +181,15 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
                         TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                   ),
                   items: [
@@ -226,15 +226,15 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
                         TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                   ),
                   items: _getStrandItems(),
@@ -264,15 +264,15 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
                         TextStyle(color: Color.fromARGB(255, 101, 100, 100)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                      borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                      borderSide: BorderSide(color: Color(0xFF03b97c), width: 1.0),
                     ),
                   ),
                   items: ['1st Semester', '2nd Semester']

@@ -225,7 +225,7 @@ void initState() {
                         child: Text(
                           'Student Reports',
                           style: TextStyle(
-                            color: _hovering ? Colors.blue : Colors.black,
+                            color: _hovering ? Color(0xFF03b97c) : Colors.black,
                             fontSize: 16,
                           ),
                         ),
@@ -241,7 +241,7 @@ void initState() {
                     Text(
                       'Student Reports Card',
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: Color(0xFF03b97c),
                         fontSize: 16,
                       ),
                     ),
@@ -450,7 +450,7 @@ void initState() {
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
-                                          Colors.blue),
+                                          Color(0xFF002f24)),
                                   elevation:
                                       MaterialStateProperty.all<double>(5),
                                   shape: MaterialStateProperty.all<
