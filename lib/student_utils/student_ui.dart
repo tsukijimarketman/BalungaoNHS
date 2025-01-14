@@ -343,14 +343,13 @@ class _ScreensExampleState extends State<_ScreensExample> {
   bool _isLoading = true;
   String _educLevel = ''; // Default to an empty string or set it accordingly
 
-
   @override
   void initState() {
     super.initState();
 
     // Call all necessary functions during widget initialization
     _initializeData();
-      print('Calling _fetchEducLevel...');
+    print('Calling _fetchEducLevel...');
 
     _fetchEducLevel();
   }
@@ -384,8 +383,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
         _loadSubjects(),
         _fetchEnrollmentStatus(),
         _checkEnrollmentStatus(),
-        _fetchSavedSectionData()      
-        ]);
+        _fetchSavedSectionData()
+      ]);
     } catch (e) {
       print('Error initializing data: $e');
     } finally {
@@ -397,43 +396,39 @@ class _ScreensExampleState extends State<_ScreensExample> {
     }
   }
 
- Future<void> _fetchEducLevel() async {
-  try {
-    print('Fetching educ level...');
-    User? user = FirebaseAuth.instance.currentUser;
+  Future<void> _fetchEducLevel() async {
+    try {
+      print('Fetching educ level...');
+      User? user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      print('User found: ${user.uid}');
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('uid', isEqualTo: user.uid) // Query by the 'uid' field
-          .limit(1) // Limit to one result
-          .get();
+      if (user != null) {
+        print('User found: ${user.uid}');
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid) // Query by the 'uid' field
+            .limit(1) // Limit to one result
+            .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        final DocumentSnapshot doc = querySnapshot.docs.first;
-        final data = doc.data() as Map<String, dynamic>;
-        setState(() {
-          _educLevel = data['educ_level'] ?? '';
-          print('Updated educLevel: $_educLevel');
-        });
+        if (querySnapshot.docs.isNotEmpty) {
+          final DocumentSnapshot doc = querySnapshot.docs.first;
+          final data = doc.data() as Map<String, dynamic>;
+          setState(() {
+            _educLevel = data['educ_level'] ?? '';
+            print('Updated educLevel: $_educLevel');
+          });
+        } else {
+          print('No matching document found for user: ${user.uid}');
+        }
       } else {
-        print('No matching document found for user: ${user.uid}');
+        print('No user is logged in');
       }
-    } else {
-      print('No user is logged in');
+    } catch (e) {
+      print('Error fetching educLevel: $e');
+      setState(() {
+        _educLevel = ''; // Default if an error occurs
+      });
     }
-  } catch (e) {
-    print('Error fetching educLevel: $e');
-    setState(() {
-      _educLevel = ''; // Default if an error occurs
-    });
   }
-}
-
-
-
-
 
   // Modify _fetchUserData to return a Future
   Future<void> _fetchUserData() async {
@@ -485,7 +480,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                 content: Row(
                   children: [
                     Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Text('Passwords do not match'),
                   ],
                 ),
@@ -596,10 +591,11 @@ class _ScreensExampleState extends State<_ScreensExample> {
       } catch (e) {
         print("Error updating: $e");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
+          SnackBar(
+              content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+              SizedBox(width: 10),
               Text("Error updating: $e"),
             ],
           )),
@@ -632,116 +628,115 @@ class _ScreensExampleState extends State<_ScreensExample> {
   }
 
   Future<void> _fetchEnrollmentStatus() async {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user == null) return; // Handle user not logged in
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return; // Handle user not logged in
 
-  try {
-    final docSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('uid', isEqualTo: user.uid)
-        .limit(1) // Assuming there's one document per user
-        .get();
-
-    if (docSnapshot.docs.isNotEmpty) {
-      final data = docSnapshot.docs.first.data() as Map<String, dynamic>;
-
-      // Get the educational level
-      String educLevel = data['educ_level'] ?? '';
-
-      setState(() {
-        // Set the enrollment status and other general fields
-        _enrollmentStatus = data['enrollment_status'];
-        _studentId = data['student_id'];
-
-        String firstName = data['first_name'] ?? '';
-        String middleName = data['middle_name'] ?? '';
-        String lastName = data['last_name'] ?? '';
-        String extensionName = data['extension_name'] ?? '';
-
-        // Combine the fields to create the full name
-        _fullName = [
-          firstName,
-          middleName,
-          lastName,
-          extensionName
-        ].where((name) => name.isNotEmpty).join(' ');
-
-        // Set common fields
-        _gradeLevel = data['grade_level'];
-
-        // Conditionally set Senior High School-specific fields
-        if (educLevel == 'Senior High School') {
-          _strand = data['seniorHigh_Strand'];
-          _track = data['seniorHigh_Track'];
-          _semester = data['semester'];
-        } else {
-          // If Junior High School, don't fetch these fields
-          _strand = '';
-          _track = '';
-          _semester = '';
-        }
-      });
-    }
-  } catch (e) {
-    // Handle errors (e.g., network issues)
-    print('Error fetching enrollment status: $e');
-  }
-}
-
-
- Future<void> _loadStudentData() async {
-  User? user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
-
-  if (user != null) {
     try {
-      // Query the 'users' collection where the 'uid' field matches the current user's UID
-      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+      final docSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('uid', isEqualTo: user.uid)
+          .limit(1) // Assuming there's one document per user
           .get();
 
-      if (userSnapshot.docs.isNotEmpty) {
-        // Assuming only one document will be returned, get the first document
-        DocumentSnapshot userDoc = userSnapshot.docs.first;
+      if (docSnapshot.docs.isNotEmpty) {
+        final data = docSnapshot.docs.first.data() as Map<String, dynamic>;
 
-        // Get the educ_level field from the Firestore document
-        String educLevel = userDoc['educ_level'] ?? ''; // Default to an empty string if the field is missing
+        // Get the educational level
+        String educLevel = data['educ_level'] ?? '';
 
         setState(() {
-          _studentId = userDoc['student_id'];
-          _fullName =
-              '${userDoc['first_name']} ${userDoc['middle_name'] ?? ''} ${userDoc['last_name']} ${userDoc['extension_name'] ?? ''}'
-                  .trim();
-          _gradeLevel = userDoc['grade_level'];
+          // Set the enrollment status and other general fields
+          _enrollmentStatus = data['enrollment_status'];
+          _studentId = data['student_id'];
 
-          // Check if educLevel is "Senior High School" before trying to load strand and track
+          String firstName = data['first_name'] ?? '';
+          String middleName = data['middle_name'] ?? '';
+          String lastName = data['last_name'] ?? '';
+          String extensionName = data['extension_name'] ?? '';
+
+          // Combine the fields to create the full name
+          _fullName = [firstName, middleName, lastName, extensionName]
+              .where((name) => name.isNotEmpty)
+              .join(' ');
+
+          // Set common fields
+          _gradeLevel = data['grade_level'];
+
+          // Conditionally set Senior High School-specific fields
           if (educLevel == 'Senior High School') {
-            _strand = userDoc['seniorHigh_Strand'] ?? ''; // If missing, default to empty string
-            _track = userDoc['seniorHigh_Track'] ?? ''; // If missing, default to empty string
-            _semester = userDoc['semester']; // This field should be available for Senior High
+            _strand = data['seniorHigh_Strand'];
+            _track = data['seniorHigh_Track'];
+            _semester = data['semester'];
           } else {
-            // If it's Junior High School, do not load strand, track, or semester
+            // If Junior High School, don't fetch these fields
             _strand = '';
             _track = '';
             _semester = '';
-            _quarter = userDoc['quarter'];
           }
         });
-
-        // Load grades based on the selected semester if it exists
-        await _loadGrades();
-      } else {
-        print('No matching student document found.');
       }
     } catch (e) {
-      print('Failed to load student data: $e');
+      // Handle errors (e.g., network issues)
+      print('Error fetching enrollment status: $e');
     }
-  } else {
-    print('User is not logged in.');
   }
-}
 
+  Future<void> _loadStudentData() async {
+    User? user =
+        FirebaseAuth.instance.currentUser; // Get the current logged-in user
 
+    if (user != null) {
+      try {
+        // Query the 'users' collection where the 'uid' field matches the current user's UID
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid)
+            .get();
+
+        if (userSnapshot.docs.isNotEmpty) {
+          // Assuming only one document will be returned, get the first document
+          DocumentSnapshot userDoc = userSnapshot.docs.first;
+
+          // Get the educ_level field from the Firestore document
+          String educLevel = userDoc['educ_level'] ??
+              ''; // Default to an empty string if the field is missing
+
+          setState(() {
+            _studentId = userDoc['student_id'];
+            _fullName =
+                '${userDoc['first_name']} ${userDoc['middle_name'] ?? ''} ${userDoc['last_name']} ${userDoc['extension_name'] ?? ''}'
+                    .trim();
+            _gradeLevel = userDoc['grade_level'];
+
+            // Check if educLevel is "Senior High School" before trying to load strand and track
+            if (educLevel == 'Senior High School') {
+              _strand = userDoc['seniorHigh_Strand'] ??
+                  ''; // If missing, default to empty string
+              _track = userDoc['seniorHigh_Track'] ??
+                  ''; // If missing, default to empty string
+              _semester = userDoc[
+                  'semester']; // This field should be available for Senior High
+            } else {
+              // If it's Junior High School, do not load strand, track, or semester
+              _strand = '';
+              _track = '';
+              _semester = '';
+              _quarter = userDoc['quarter'];
+            }
+          });
+
+          // Load grades based on the selected semester if it exists
+          await _loadGrades();
+        } else {
+          print('No matching student document found.');
+        }
+      } catch (e) {
+        print('Failed to load student data: $e');
+      }
+    } else {
+      print('User is not logged in.');
+    }
+  }
 
   Map<String, List<Map<String, String>>> semesterGrades = {};
 
@@ -827,50 +822,50 @@ class _ScreensExampleState extends State<_ScreensExample> {
   // Case 2
   // Add this new method to fetch saved data
 
- Future<void> _checkEnrollmentStatus() async {
-  try {
-    // Fetch the active configuration based on educ_level
-    String configCollection = _educLevel == 'Senior High School' 
-        ? 'shs_configuration' 
-        : 'jhs_configuration';
+  Future<void> _checkEnrollmentStatus() async {
+    try {
+      // Fetch the active configuration based on educ_level
+      String configCollection = _educLevel == 'Senior High School'
+          ? 'shs_configuration'
+          : 'jhs_configuration';
 
-    // Get the active configuration from the correct collection
-    QuerySnapshot activeConfig = await FirebaseFirestore.instance
-        .collection(configCollection)  // Dynamic collection based on educ_level
-        .where('isActive', isEqualTo: true)
-        .limit(1)
-        .get();
+      // Get the active configuration from the correct collection
+      QuerySnapshot activeConfig = await FirebaseFirestore.instance
+          .collection(
+              configCollection) // Dynamic collection based on educ_level
+          .where('isActive', isEqualTo: true)
+          .limit(1)
+          .get();
 
-    if (activeConfig.docs.isNotEmpty) {
-      String configId = activeConfig.docs.first.id;
-      
-      // Get the user's current enrollment data
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+      if (activeConfig.docs.isNotEmpty) {
+        String configId = activeConfig.docs.first.id;
 
-        // Cast the data to Map<String, dynamic>
-        final userData = userDoc.data() as Map<String, dynamic>;
+        // Get the user's current enrollment data
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          DocumentSnapshot userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
 
-        // Check if the user needs to re-enroll
-        if (userData['enrollment_status'] == 're-enrolled') {
-          // Show re-enrollment UI
-          setState(() {
-            _isFinalized = false;
-            _selectedSection = null;
-            _subjects.clear();
-          });
+          // Cast the data to Map<String, dynamic>
+          final userData = userDoc.data() as Map<String, dynamic>;
+
+          // Check if the user needs to re-enroll
+          if (userData['enrollment_status'] == 're-enrolled') {
+            // Show re-enrollment UI
+            setState(() {
+              _isFinalized = false;
+              _selectedSection = null;
+              _subjects.clear();
+            });
+          }
         }
       }
+    } catch (e) {
+      print('Error checking enrollment status: $e');
     }
-  } catch (e) {
-    print('Error checking enrollment status: $e');
   }
-}
-
 
   Future<void> _fetchSavedSectionData() async {
     try {
@@ -885,7 +880,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
 
       if (userDoc.docs.isNotEmpty) {
         final userDocId = userDoc.docs.first.id;
-        
+
         // Get the sections subcollection document
         final sectionDoc = await FirebaseFirestore.instance
             .collection('users')
@@ -898,7 +893,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
           final data = sectionDoc.data();
           setState(() {
             _selectedSection = data?['selectedSection'];
-            _subjects = List<Map<String, dynamic>>.from(data?['subjects'] ?? []);
+            _subjects =
+                List<Map<String, dynamic>>.from(data?['subjects'] ?? []);
             _isFinalized = data?['isFinalized'] ?? false;
           });
         }
@@ -917,10 +913,11 @@ class _ScreensExampleState extends State<_ScreensExample> {
       } catch (e) {
         print('Error saving and loading subjects: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
+          SnackBar(
+              content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+              SizedBox(width: 10),
               Text('Error saving and loading subjects: $e'),
             ],
           )),
@@ -928,10 +925,11 @@ class _ScreensExampleState extends State<_ScreensExample> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
+        SnackBar(
+            content: Row(
           children: [
             Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+            SizedBox(width: 10),
             Text('Please select a section first.'),
           ],
         )),
@@ -977,20 +975,22 @@ class _ScreensExampleState extends State<_ScreensExample> {
               // No need to increment capacityCount anymore
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Row(
+                SnackBar(
+                    content: Row(
                   children: [
                     Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Text('Section saved successfully!'),
                   ],
                 )),
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Row(
+                SnackBar(
+                    content: Row(
                   children: [
                     Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Text('Section document not found.'),
                   ],
                 )),
@@ -999,10 +999,11 @@ class _ScreensExampleState extends State<_ScreensExample> {
           } else {
             print('No document found for the current user.');
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Row(
+              SnackBar(
+                  content: Row(
                 children: [
                   Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Text('User document not found.'),
                 ],
               )),
@@ -1013,22 +1014,23 @@ class _ScreensExampleState extends State<_ScreensExample> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Row(
-                  children: [
-                    Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-                    Text(
-                        'No user is logged in. Please log in to save the section.'),
-                  ],
-                )),
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                SizedBox(width: 10),
+                Text(
+                    'No user is logged in. Please log in to save the section.'),
+              ],
+            )),
           );
         }
       } catch (e) {
         print('Error saving section: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
+          SnackBar(
+              content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+              SizedBox(width: 10),
               Text('Error saving section: $e'),
             ],
           )),
@@ -1037,10 +1039,11 @@ class _ScreensExampleState extends State<_ScreensExample> {
     } else {
       // Show an error message if no section is selected
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
+        SnackBar(
+            content: Row(
           children: [
             Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+            SizedBox(width: 10),
             Text('Please select a section before saving.'),
           ],
         )),
@@ -1049,109 +1052,111 @@ class _ScreensExampleState extends State<_ScreensExample> {
   }
 
   void onLoadSubjects() {
-  // Check if educ_level is Junior High School or Senior High School
-  if (_educLevel == 'Junior High School') {
-    // If educ_level is Junior High School, execute this process
-    _loadJHSSubjects();
-  } else if (_educLevel == 'Senior High School') {
-    // If educ_level is Senior High School, execute the existing _loadSubjects function
-    _loadSubjects();
-  } else {
-    // Optional: handle the case when the educ_level is neither Junior High School nor Senior High School
-    print('Invalid education level');
+    // Check if educ_level is Junior High School or Senior High School
+    if (_educLevel == 'Junior High School') {
+      // If educ_level is Junior High School, execute this process
+      _loadJHSSubjects();
+    } else if (_educLevel == 'Senior High School') {
+      // If educ_level is Senior High School, execute the existing _loadSubjects function
+      _loadSubjects();
+    } else {
+      // Optional: handle the case when the educ_level is neither Junior High School nor Senior High School
+      print('Invalid education level');
+    }
   }
-}
 
-Future<void> _loadJHSSubjects() async {
-  if (_selectedSection != null) {
-    try {
-      // Fetch the selected section's document
-      QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
-          .collection('sections')
-          .where('section_name', isEqualTo: _selectedSection)
-          .get();
-
-      if (sectionSnapshot.docs.isNotEmpty) {
-        DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
-
-        // Get 'quarter' and 'section_name' from the section document
-        String sectionQuarter = sectionDoc['quarter'];
-        String sectionName = sectionDoc['section_name']; // Get section_name (e.g., "7-Makapagal-A")
-
-        // Query subjects based on quarter for Junior High School
-        QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
-            .collection('subjects')
-            .where('quarter', isEqualTo: sectionQuarter)
+  Future<void> _loadJHSSubjects() async {
+    if (_selectedSection != null) {
+      try {
+        // Fetch the selected section's document
+        QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+            .collection('sections')
+            .where('section_name', isEqualTo: _selectedSection)
             .get();
 
-        setState(() {
-          _subjects = subjectSnapshot.docs
-              .where((doc) {
-                // Assuming the 'grade_level' field exists in 'subjects'
-                String subjectGradeLevel = doc['grade_level']; // Get the grade_level field
-                
-                // Check if the grade_level in the subject matches the section (7, 8, 9, 10)
-                return subjectGradeLevel == sectionName.substring(0, 1); // Check first character of section_name ("7", "8", "9", etc.)
-              })
-              .map((doc) {
-                // For Junior High School, only fetch and display 'subject_name'
-                return {
-                  'subject_name': doc['subject_name'],
-                };
-              })
-              .toList();
-        });
+        if (sectionSnapshot.docs.isNotEmpty) {
+          DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
 
-        // Show a success message
+          // Get 'quarter' and 'section_name' from the section document
+          String sectionQuarter = sectionDoc['quarter'];
+          String sectionName = sectionDoc[
+              'section_name']; // Get section_name (e.g., "7-Makapagal-A")
+
+          // Query subjects based on quarter for Junior High School
+          QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
+              .collection('subjects')
+              .where('quarter', isEqualTo: sectionQuarter)
+              .get();
+
+          setState(() {
+            _subjects = subjectSnapshot.docs.where((doc) {
+              // Assuming the 'grade_level' field exists in 'subjects'
+              String subjectGradeLevel =
+                  doc['grade_level']; // Get the grade_level field
+
+              // Check if the grade_level in the subject matches the section (7, 8, 9, 10)
+              return subjectGradeLevel ==
+                  sectionName.substring(0,
+                      1); // Check first character of section_name ("7", "8", "9", etc.)
+            }).map((doc) {
+              // For Junior High School, only fetch and display 'subject_name'
+              return {
+                'subject_name': doc['subject_name'],
+              };
+            }).toList();
+          });
+
+          // Show a success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                SizedBox(width: 10),
+                Text('Subjects loaded successfully for Junior High School!'),
+              ],
+            )),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                SizedBox(width: 10),
+                Text('No matching section found for Junior High School.'),
+              ],
+            )),
+          );
+        }
+      } catch (e) {
+        print('Error loading Junior High School subjects: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
+          SnackBar(
+              content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
               SizedBox(width: 10),
-              Text('Subjects loaded successfully for Junior High School!'),
-            ],
-          )),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
-            children: [
-              Image.asset('PBMA.png', scale: 40),
-              SizedBox(width: 10),
-              Text('No matching section found for Junior High School.'),
+              Text('Error loading subjects: $e'),
             ],
           )),
         );
       }
-    } catch (e) {
-      print('Error loading Junior High School subjects: $e');
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-            SizedBox(width: 10),
-            Text('Error loading subjects: $e'),
-          ],
-        )),
+        SnackBar(
+          content: Row(
+            children: [
+              Image.asset('PBMA.png', scale: 40),
+              SizedBox(width: 10),
+              Text(
+                  'Please select a section before loading subjects for Junior High School.'),
+            ],
+          ),
+        ),
       );
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Image.asset('PBMA.png', scale: 40),
-            SizedBox(width: 10),
-            Text('Please select a section before loading subjects for Junior High School.'),
-          ],
-        ),
-      ),
-    );
   }
-}
-
-
-
 
   Future<void> _loadSubjects() async {
     if (_selectedSection != null) {
@@ -1194,20 +1199,22 @@ Future<void> _loadJHSSubjects() async {
 
           // Show a success message
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Row(
+            SnackBar(
+                content: Row(
               children: [
                 Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                SizedBox(width: 10),
                 Text('Subjects loaded successfully!'),
               ],
             )),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Row(
+            SnackBar(
+                content: Row(
               children: [
                 Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                SizedBox(width: 10),
                 Text('No matching section found.'),
               ],
             )),
@@ -1216,10 +1223,11 @@ Future<void> _loadJHSSubjects() async {
       } catch (e) {
         print('Error loading subjects: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
+          SnackBar(
+              content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+              SizedBox(width: 10),
               Text('Error loading subjects: $e'),
             ],
           )),
@@ -1229,12 +1237,12 @@ Future<void> _loadJHSSubjects() async {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Row(
-              children: [
-                Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-                Text('Please select a section before loading subjects.'),
-              ],
-            )),
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Please select a section before loading subjects.'),
+          ],
+        )),
       );
     }
   }
@@ -1270,10 +1278,11 @@ Future<void> _loadJHSSubjects() async {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
+          SnackBar(
+              content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+              SizedBox(width: 10),
               Text('Error: User not found.'),
             ],
           )),
@@ -1281,10 +1290,11 @@ Future<void> _loadJHSSubjects() async {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
+        SnackBar(
+            content: Row(
           children: [
             Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+            SizedBox(width: 10),
             Text('Error fetching subjects: $e'),
           ],
         )),
@@ -1305,7 +1315,7 @@ Future<void> _loadJHSSubjects() async {
         if (userDoc.docs.isNotEmpty) {
           final userDocId = userDoc.docs.first.id;
 
-            final Timestamp finalizationTime = Timestamp.now();
+          final Timestamp finalizationTime = Timestamp.now();
 
           // Set the data in the sections subcollection inside this user's document
           await FirebaseFirestore.instance
@@ -1327,22 +1337,23 @@ Future<void> _loadJHSSubjects() async {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Row(
-                  children: [
-                    Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-                    Text('Section and subjects finalized successfully!'),
-                  ],
-                )),
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                SizedBox(width: 10),
+                Text('Section and subjects finalized successfully!'),
+              ],
+            )),
           );
 
           // Fetch subjects again to update the table view with the saved data
           _fetchSubjects();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Row(
+            SnackBar(
+                content: Row(
               children: [
                 Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+                SizedBox(width: 10),
                 Text('Error: User not found.'),
               ],
             )),
@@ -1350,10 +1361,11 @@ Future<void> _loadJHSSubjects() async {
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
+          SnackBar(
+              content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
+              SizedBox(width: 10),
               Text('Error finalizing selection: $e'),
             ],
           )),
@@ -1363,67 +1375,115 @@ Future<void> _loadJHSSubjects() async {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Row(
-              children: [
-                Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-                Text('Please select a section and load subjects first.'),
-              ],
-            )),
+          children: [
+            Image.asset('PBMA.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Please select a section and load subjects first.'),
+          ],
+        )),
       );
     }
   }
 
   Future<void> _fetchSections() async {
-  try {
-    // Define the mapping between seniorHigh_Strand descriptive names and abbreviations
-    Map<String, String> strandMap = {
-      'Science, Technology, Engineering and Mathematics (STEM)': 'STEM',
-      'Humanities and Social Sciences (HUMSS)': 'HUMSS',
-      'Accountancy, Business, and Management (ABM)': 'ABM',
-      'Information and Communication Technology (ICT)': 'ICT',
-      'Home Economics (HE)': 'HE',
-      'Industrial Arts (IA)': 'IA'
-    };
+    try {
+      // Define the mapping between seniorHigh_Strand descriptive names and abbreviations
+      Map<String, String> strandMap = {
+        'Science, Technology, Engineering and Mathematics (STEM)': 'STEM',
+        'Humanities and Social Sciences (HUMSS)': 'HUMSS',
+        'Accountancy, Business, and Management (ABM)': 'ABM',
+        'Information and Communication Technology (ICT)': 'ICT',
+        'Home Economics (HE)': 'HE',
+        'Industrial Arts (IA)': 'IA'
+      };
 
-    // Get the currently logged-in user
-    User? user = FirebaseAuth.instance.currentUser;
+      // Get the currently logged-in user
+      User? user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      // Fetch the user document to get seniorHigh_Strand, grade_level, educ_level, and quarter/semester
-      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('uid', isEqualTo: user.uid)
-          .get();
+      if (user != null) {
+        // Fetch the user document to get seniorHigh_Strand, grade_level, educ_level, and quarter/semester
+        QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('uid', isEqualTo: user.uid)
+            .get();
 
-      if (userSnapshot.docs.isNotEmpty) {
-        DocumentSnapshot userDoc = userSnapshot.docs.first;
-        String userEducLevel = userDoc['educ_level']; // Get the user's education level
+        if (userSnapshot.docs.isNotEmpty) {
+          DocumentSnapshot userDoc = userSnapshot.docs.first;
+          String userEducLevel =
+              userDoc['educ_level']; // Get the user's education level
 
-        // Only fetch strand, track, and semester if the user is in Senior High School
-        if (userEducLevel == 'Senior High School') {
-          String userStrand = userDoc['seniorHigh_Strand'];
-          String userGradeLevel = userDoc['grade_level'];
-          String userSemester = userDoc['semester']; // Get user's semester
+          // Only fetch strand, track, and semester if the user is in Senior High School
+          if (userEducLevel == 'Senior High School') {
+            String userStrand = userDoc['seniorHigh_Strand'];
+            String userGradeLevel = userDoc['grade_level'];
+            String userSemester = userDoc['semester']; // Get user's semester
 
-          // Get the abbreviation for the user's strand
-          String? strandAbbreviation = strandMap[userStrand];
+            // Get the abbreviation for the user's strand
+            String? strandAbbreviation = strandMap[userStrand];
 
-          if (strandAbbreviation != null) {
-            // Fetch sections that match the user's grade level and strand abbreviation
+            if (strandAbbreviation != null) {
+              // Fetch sections that match the user's grade level and strand abbreviation
+              final snapshot = await FirebaseFirestore.instance
+                  .collection('sections')
+                  .where('section_name',
+                      isGreaterThanOrEqualTo:
+                          '$userGradeLevel-$strandAbbreviation')
+                  .where('section_name',
+                      isLessThanOrEqualTo:
+                          '$userGradeLevel-$strandAbbreviation\uf8ff')
+                  .get();
+
+              setState(() {
+                _sections = snapshot.docs
+                    .where((doc) =>
+                        doc['semester'] == userSemester) // Add semester check
+                    .map((doc) => doc['section_name'] as String)
+                    .toList();
+              });
+
+              if (_sections.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Row(
+                    children: [
+                      Image.asset('PBMA.png', scale: 40),
+                      SizedBox(width: 10),
+                      Text('No sections available for your semester.'),
+                    ],
+                  )),
+                );
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Row(
+                  children: [
+                    Image.asset('PBMA.png', scale: 40),
+                    SizedBox(width: 10),
+                    Text('Strand abbreviation not found.'),
+                  ],
+                )),
+              );
+            }
+          } else if (userEducLevel == 'Junior High School') {
+            // For Junior High School, fetch sections based on quarter instead of semester
+            String userGradeLevel = userDoc['grade_level'];
+            String userQuarter = userDoc['quarter']; // Get user's quarter
+
+            // Fetch sections for Junior High School based on quarter
             final snapshot = await FirebaseFirestore.instance
                 .collection('sections')
                 .where('section_name',
-                    isGreaterThanOrEqualTo:
-                        '$userGradeLevel-$strandAbbreviation')
+                    isGreaterThanOrEqualTo: '$userGradeLevel')
                 .where('section_name',
-                    isLessThanOrEqualTo:
-                        '$userGradeLevel-$strandAbbreviation\uf8ff')
+                    isLessThanOrEqualTo: '$userGradeLevel\uf8ff')
                 .get();
 
             setState(() {
               _sections = snapshot.docs
                   .where((doc) =>
-                      doc['semester'] == userSemester) // Add semester check
+                      doc['quarter'] ==
+                      userQuarter) // Add quarter check for Junior High School
                   .map((doc) => doc['section_name'] as String)
                   .toList();
             });
@@ -1432,103 +1492,65 @@ Future<void> _loadJHSSubjects() async {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Row(
-                      children: [
-                        Image.asset('PBMA.png', scale: 40),
-                        SizedBox(width: 10),
-                        Text('No sections available for your semester.'),
-                      ],
-                    )),
+                  children: [
+                    Image.asset('PBMA.png', scale: 40),
+                    SizedBox(width: 10),
+                    Text('No sections available for your quarter.'),
+                  ],
+                )),
               );
             }
           } else {
+            // Handle case where educ_level is neither Senior High nor Junior High
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Row(
+              SnackBar(
+                  content: Row(
                 children: [
                   Image.asset('PBMA.png', scale: 40),
                   SizedBox(width: 10),
-                  Text('Strand abbreviation not found.'),
+                  Text('Invalid education level.'),
                 ],
               )),
             );
           }
-        } else if (userEducLevel == 'Junior High School') {
-          // For Junior High School, fetch sections based on quarter instead of semester
-          String userGradeLevel = userDoc['grade_level'];
-          String userQuarter = userDoc['quarter']; // Get user's quarter
-
-          // Fetch sections for Junior High School based on quarter
-          final snapshot = await FirebaseFirestore.instance
-              .collection('sections')
-              .where('section_name', isGreaterThanOrEqualTo: '$userGradeLevel')
-              .where('section_name', isLessThanOrEqualTo: '$userGradeLevel\uf8ff')
-              .get();
-
-          setState(() {
-            _sections = snapshot.docs
-                .where((doc) => doc['quarter'] == userQuarter) // Add quarter check for Junior High School
-                .map((doc) => doc['section_name'] as String)
-                .toList();
-          });
-
-          if (_sections.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Row(
-                    children: [
-                      Image.asset('PBMA.png', scale: 40),
-                      SizedBox(width: 10),
-                      Text('No sections available for your quarter.'),
-                    ],
-                  )),
-            );
-          }
         } else {
-          // Handle case where educ_level is neither Senior High nor Junior High
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Row(
+            SnackBar(
+                content: Row(
               children: [
                 Image.asset('PBMA.png', scale: 40),
                 SizedBox(width: 10),
-                Text('Invalid education level.'),
+                Text('User document not found.'),
               ],
             )),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Row(
+          SnackBar(
+              content: Row(
             children: [
               Image.asset('PBMA.png', scale: 40),
               SizedBox(width: 10),
-              Text('User document not found.'),
+              Text('No user is logged in.'),
             ],
           )),
         );
       }
-    } else {
+    } catch (e) {
+      print('Error fetching sections: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Row(
+        SnackBar(
+            content: Row(
           children: [
             Image.asset('PBMA.png', scale: 40),
             SizedBox(width: 10),
-            Text('No user is logged in.'),
+            Text('Error fetching sections: $e'),
           ],
         )),
       );
     }
-  } catch (e) {
-    print('Error fetching sections: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Row(
-        children: [
-          Image.asset('PBMA.png', scale: 40),
-          SizedBox(width: 10),
-          Text('Error fetching sections: $e'),
-        ],
-      )),
-    );
   }
-}
 
   // Case 2
 
@@ -1699,7 +1721,11 @@ Future<void> _loadJHSSubjects() async {
       await FirebaseAuth.instance.signOut();
       print("User logged out successfully");
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (builder) => Launcher(scrollToFooter: false,)));
+          context,
+          MaterialPageRoute(
+              builder: (builder) => Launcher(
+                    scrollToFooter: false,
+                  )));
     } catch (e) {
       print("Error logging out: $e");
     }
@@ -1718,262 +1744,264 @@ Future<void> _loadJHSSubjects() async {
           case 0:
             return Case0();
           case 1:
-  if (semesterGrades.isEmpty) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      color: Color.fromARGB(255, 1, 93, 168),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Image.asset(
-            'assets/PBMA.png',
-            width: screenWidth / 2.5,
-            height: screenHeight / 2.5,
-          ),
-        ),
-        SizedBox(height: 10,),
-            Text(
-              'No grades found.',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 30,
-                ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      double screenWidth = MediaQuery.of(context).size.width;
-
-      // Adjust font sizes dynamically
-      double titleFontSize = screenWidth < 600 ? 18 : 24;
-      double semesterFontSize = screenWidth < 600 ? 14 : 20;
-      double tableFontSize = screenWidth < 600 ? 12 : 14;
-      double principalFontSize = screenWidth < 600 ? 10 : 12;
-      double buttonPadding = screenWidth < 600 ? 20 : 30;
-
-      return Container(
-        width: double.infinity,
-        height: double.infinity, // Fill the screen height
-        color: Color.fromARGB(255, 1, 93, 168),
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'REPORT CARD',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.bold,
+            if (semesterGrades.isEmpty) {
+              return Container(
+                padding: EdgeInsets.all(16.0),
+                color: Color.fromARGB(255, 1, 93, 168),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Image.asset(
+                          'assets/PBMA.png',
+                          width: screenWidth / 2.5,
+                          height: screenHeight / 2.5,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'No grades found.',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 30,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 20),
-                ...semesterGrades.entries.map((entry) {
-                  String semester = entry.key;
-                  List<Map<String, String>> grades = entry.value;
+              );
+            }
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                double screenWidth = MediaQuery.of(context).size.width;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        semester,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: semesterFontSize,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(
-                        color: Colors.white,
-                        child: Table(
-                          border: TableBorder.all(color: Colors.black),
-                          columnWidths: {
-                            0: FlexColumnWidth(2),
-                            1: FlexColumnWidth(4),
-                            2: FlexColumnWidth(2),
-                          },
-                          children: [
-                            TableRow(children: [
-                              Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Course Code',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: tableFontSize,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Subject',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: tableFontSize,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Grade',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: tableFontSize,
-                                  ),
-                                ),
-                              ),
-                            ]),
-                            ...grades.map((subject) {
-                              return TableRow(children: [
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    subject['subject_code'] ?? '',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: tableFontSize,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    subject['subject_name'] ?? '',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: tableFontSize,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    subject['grade'] ?? 'N/A',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: tableFontSize,
-                                    ),
-                                  ),
-                                ),
-                              ]);
-                            }).toList(),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                    ],
-                  );
-                }).toList(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    
-                    // Principal's Section on the right
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 100),
-                          child: Text(
-                            'Urbano Delos Angeles IV',
+                // Adjust font sizes dynamically
+                double titleFontSize = screenWidth < 600 ? 18 : 24;
+                double semesterFontSize = screenWidth < 600 ? 14 : 20;
+                double tableFontSize = screenWidth < 600 ? 12 : 14;
+                double principalFontSize = screenWidth < 600 ? 10 : 12;
+                double buttonPadding = screenWidth < 600 ? 20 : 30;
+
+                return Container(
+                  width: double.infinity,
+                  height: double.infinity, // Fill the screen height
+                  color: Color.fromARGB(255, 1, 93, 168),
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'REPORT CARD',
                             style: TextStyle(
-                              fontSize: screenWidth < 600 ? 12 : 18,
-                              fontFamily: "B",
                               color: Colors.white,
+                              fontSize: titleFontSize,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Container(
-                          width: screenWidth < 600 ? 150 : 250,
-                          height: 3,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [Colors.blue, Colors.yellow],
-                            ),
+                          SizedBox(height: 20),
+                          ...semesterGrades.entries.map((entry) {
+                            String semester = entry.key;
+                            List<Map<String, String>> grades = entry.value;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  semester,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: semesterFontSize,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Container(
+                                  color: Colors.white,
+                                  child: Table(
+                                    border:
+                                        TableBorder.all(color: Colors.black),
+                                    columnWidths: {
+                                      0: FlexColumnWidth(2),
+                                      1: FlexColumnWidth(4),
+                                      2: FlexColumnWidth(2),
+                                    },
+                                    children: [
+                                      TableRow(children: [
+                                        Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'Course Code',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: tableFontSize,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'Subject',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: tableFontSize,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'Grade',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: tableFontSize,
+                                            ),
+                                          ),
+                                        ),
+                                      ]),
+                                      ...grades.map((subject) {
+                                        return TableRow(children: [
+                                          Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              subject['subject_code'] ?? '',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: tableFontSize,
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              subject['subject_name'] ?? '',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: tableFontSize,
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              subject['grade'] ?? 'N/A',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: tableFontSize,
+                                              ),
+                                            ),
+                                          ),
+                                        ]);
+                                      }).toList(),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                              ],
+                            );
+                          }).toList(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // Principal's Section on the right
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 100),
+                                    child: Text(
+                                      'Urbano Delos Angeles IV',
+                                      style: TextStyle(
+                                        fontSize: screenWidth < 600 ? 12 : 18,
+                                        fontFamily: "B",
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Container(
+                                    width: screenWidth < 600 ? 150 : 250,
+                                    height: 3,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                        colors: [Colors.blue, Colors.yellow],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'SCHOOL PRINCIPAL',
+                                    style: TextStyle(
+                                      fontSize: principalFontSize,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'SCHOOL PRINCIPAL',
-                          style: TextStyle(
-                            fontSize: principalFontSize,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    },
-  );
+                  ),
+                );
+              },
+            );
 
           case 2:
-  // Show loading widget while fetching data
-  return _isLoading
-      ? Container(
-          color: Color.fromARGB(255, 1, 93, 168),
-          child: Center(
-            child: DefaultTextStyle(
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              child: AnimatedTextKit(
-                animatedTexts: [
-                  WavyAnimatedText('LOADING...'),
-                ],
-                isRepeatingAnimation: true,
-              ),
-            ),
-          ),
-        )
-          : EnrollmentStatusWidget(
-              enrollmentStatus: _enrollmentStatus,
-              studentId: _studentId,
-              fullName: _fullName,
-              strand: _strand,
-              track: _track,
-              gradeLevel: _gradeLevel,
-              semester: _semester,
-              quarter: _quarter,
-              sections: _sections,
-              subjects: _subjects,
-              isFinalized: _isFinalized,
-              selectedSection: _selectedSection,
-              onSectionChanged: (newValue) {
-                setState(() {
-                  _selectedSection = newValue;
-                });
-              },
-              onLoadSubjects: onLoadSubjects,
-              onFinalize: _saveandfinalization,
-              FinalizedData: _fetchSavedSectionData,
-              checkEnrollmentStatus: _checkEnrollmentStatus, // Add this line
-              educLevel: _educLevel, // Add this line
-
-            );
+            // Show loading widget while fetching data
+            return _isLoading
+                ? Container(
+                    color: Color.fromARGB(255, 1, 93, 168),
+                    child: Center(
+                      child: DefaultTextStyle(
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        child: AnimatedTextKit(
+                          animatedTexts: [
+                            WavyAnimatedText('LOADING...'),
+                          ],
+                          isRepeatingAnimation: true,
+                        ),
+                      ),
+                    ),
+                  )
+                : EnrollmentStatusWidget(
+                    enrollmentStatus: _enrollmentStatus,
+                    studentId: _studentId,
+                    fullName: _fullName,
+                    strand: _strand,
+                    track: _track,
+                    gradeLevel: _gradeLevel,
+                    semester: _semester,
+                    quarter: _quarter,
+                    sections: _sections,
+                    subjects: _subjects,
+                    isFinalized: _isFinalized,
+                    selectedSection: _selectedSection,
+                    onSectionChanged: (newValue) {
+                      setState(() {
+                        _selectedSection = newValue;
+                      });
+                    },
+                    onLoadSubjects: onLoadSubjects,
+                    onFinalize: _saveandfinalization,
+                    FinalizedData: _fetchSavedSectionData,
+                    checkEnrollmentStatus:
+                        _checkEnrollmentStatus, // Add this line
+                    educLevel: _educLevel, // Add this line
+                  );
 
           case 3:
             double screenWidth = MediaQuery.of(context).size.width;
@@ -1981,7 +2009,6 @@ Future<void> _loadJHSSubjects() async {
             final bool isTablet = screenWidth >= 600 && screenWidth < 1200;
             final bool isWeb = screenWidth >= 1200;
 
-            
             // Define width for text fields based on screen size
             double fieldWidth;
             if (screenWidth >= 1200) {
@@ -1992,7 +2019,8 @@ Future<void> _loadJHSSubjects() async {
               fieldWidth = 240;
             } else {
               // Small screens (Mobile)
-              fieldWidth = screenWidth * 0.8; // Adjust to take most of the screen width
+              fieldWidth =
+                  screenWidth * 0.8; // Adjust to take most of the screen width
             }
 
             // Define spacing between fields
@@ -2003,35 +2031,33 @@ Future<void> _loadJHSSubjects() async {
             final double textFontSize2 = isMobile ? 8 : (isTablet ? 6 : 7);
             final double textFontSize3 = isMobile ? 12 : (isTablet ? 10 : 11);
             final double textFontSize4 = isMobile ? 10 : (isTablet ? 8 : 9);
-            
+
             if (_isLoading) {
               return Container(
                 color: const Color.fromARGB(255, 1, 93, 168),
                 child: Center(
-                          child: DefaultTextStyle(
-                            style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                            ),
-                            child: AnimatedTextKit(
-                animatedTexts: [
-                  WavyAnimatedText('LOADING...'),
-                ],
-                isRepeatingAnimation: true,
-                            ),
-                          ),
-                        ),
+                  child: DefaultTextStyle(
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    child: AnimatedTextKit(
+                      animatedTexts: [
+                        WavyAnimatedText('LOADING...'),
+                      ],
+                      isRepeatingAnimation: true,
+                    ),
+                  ),
+                ),
               );
             }
-            return LayoutBuilder(
-              builder: (context, constraints) {
+            return LayoutBuilder(builder: (context, constraints) {
               // Get screen width
               double butWidth = constraints.maxWidth;
               final bool isMobiles = butWidth < 600;
               final bool isTablets = butWidth >= 600 && butWidth < 1200;
               final bool isWebs = butWidth >= 1200;
-              
 
               return Form(
                   key: _formKey,
@@ -2045,21 +2071,22 @@ Future<void> _loadJHSSubjects() async {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
                                       GestureDetector(
                                         onTap: () async {
                                           await _pickImage(); // Open image picker to select a new image
-              
+
                                           if (_imageBytes != null ||
                                               _imageFile != null) {
                                             await replaceProfilePicture(); // Upload and replace the profile picture
-              
+
                                             // Reload the new image URL from Firestore after uploading
                                             await _imageGetterFromExampleState();
-              
+
                                             setState(
                                                 () {}); // Refresh the UI after updating the image URL
                                           }
@@ -2122,34 +2149,35 @@ Future<void> _loadJHSSubjects() async {
                                           Wrap(
                                             children: [
                                               Text(
-                                                  "${userData['first_name'] ?? 'N/A'}",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: "B",
-                                                      fontSize: isMobiles ? 14 : 25),
-                                                ),
-                                              
+                                                "${userData['first_name'] ?? 'N/A'}",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: "B",
+                                                    fontSize:
+                                                        isMobiles ? 14 : 25),
+                                              ),
                                               SizedBox(
                                                 width: 7,
                                               ),
                                               Text(
-                                                  "${userData['middle_name'] ?? 'N/A'}",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: "B",
-                                                      fontSize: isMobiles ? 14 : 25),
-                                                ),
-                                              
+                                                "${userData['middle_name'] ?? 'N/A'}",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: "B",
+                                                    fontSize:
+                                                        isMobiles ? 14 : 25),
+                                              ),
                                               SizedBox(
                                                 width: 7,
                                               ),
                                               Text(
-                                                  "${userData['last_name'] ?? 'N/A'}",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: "B",
-                                                      fontSize: isMobiles ? 14 : 25),
-                                                ),
+                                                "${userData['last_name'] ?? 'N/A'}",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: "B",
+                                                    fontSize:
+                                                        isMobiles ? 14 : 25),
+                                              ),
                                             ],
                                           ),
                                           SizedBox(height: 15),
@@ -2158,14 +2186,14 @@ Future<void> _loadJHSSubjects() async {
                                               GestureDetector(
                                                 onTap: () async {
                                                   await _pickImage(); // Open image picker to select a new image
-              
+
                                                   if (_imageBytes != null ||
                                                       _imageFile != null) {
                                                     await replaceProfilePicture(); // Upload and replace the profile picture
-              
+
                                                     // Reload the new image URL from Firestore after uploading
                                                     await _imageGetterFromExampleState();
-              
+
                                                     setState(
                                                         () {}); // Refresh the UI after updating the image URL
                                                   }
@@ -2176,25 +2204,31 @@ Future<void> _loadJHSSubjects() async {
                                                   decoration: BoxDecoration(
                                                     color: Colors.yellow,
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
+                                                        BorderRadius.circular(
+                                                            10),
                                                   ),
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Text(
                                                         "Edit Profile",
                                                         style: TextStyle(
-                                                            color: Colors.black,
-                                                            fontFamily: "B",
-                                                            fontSize: isMobiles ? 12 : 15,),
+                                                          color: Colors.black,
+                                                          fontFamily: "B",
+                                                          fontSize: isMobiles
+                                                              ? 12
+                                                              : 15,
+                                                        ),
                                                       ),
                                                       SizedBox(
                                                         width: 5,
                                                       ),
                                                       Icon(
                                                         Icons.edit,
-                                                        size: isMobiles ? 12 : 15,
+                                                        size:
+                                                            isMobiles ? 12 : 15,
                                                         color: Colors.black,
                                                       )
                                                     ],
@@ -2214,26 +2248,35 @@ Future<void> _loadJHSSubjects() async {
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
+                                                        BorderRadius.circular(
+                                                            10),
                                                   ),
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Text(
                                                         "Logout",
                                                         style: TextStyle(
-                                                            color: Color.fromARGB(
-                                                                255, 1, 93, 168),
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    1,
+                                                                    93,
+                                                                    168),
                                                             fontFamily: "B",
-                                                            fontSize: isMobiles ? 12 : 15),
+                                                            fontSize: isMobiles
+                                                                ? 12
+                                                                : 15),
                                                       ),
                                                       SizedBox(
                                                         width: 3,
                                                       ),
                                                       Icon(
                                                         Icons.logout_rounded,
-                                                        size: isMobiles ? 15 : 20,
+                                                        size:
+                                                            isMobiles ? 15 : 20,
                                                         color: Color.fromARGB(
                                                             255, 1, 93, 168),
                                                       )
@@ -2263,9 +2306,9 @@ Future<void> _loadJHSSubjects() async {
                                 height: 10,
                               ),
                               Wrap(
-                              spacing: spacing,
-                                          runSpacing: spacing,                              
-                                  children: [
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
                                   Column(
                                     children: [
                                       Text(
@@ -2294,8 +2337,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2332,14 +2375,14 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2376,8 +2419,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2414,8 +2457,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2430,9 +2473,9 @@ Future<void> _loadJHSSubjects() async {
                                 height: 20,
                               ),
                               Wrap(
-                              spacing: spacing,
-                              runSpacing: spacing,
-                              children: [
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
                                   Column(
                                     children: [
                                       Text(
@@ -2461,8 +2504,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2499,8 +2542,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2537,8 +2580,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2567,7 +2610,12 @@ Future<void> _loadJHSSubjects() async {
                                           style: TextStyle(
                                             color: Colors.grey[700],
                                             fontFamily: "R",
-                                            fontSize: (userData['email_Address']?.length ?? 0) > 45 ? textFontSize4 : textFontSize3,
+                                            fontSize: (userData['email_Address']
+                                                            ?.length ??
+                                                        0) >
+                                                    45
+                                                ? textFontSize4
+                                                : textFontSize3,
                                           ),
                                           decoration: InputDecoration(
                                             contentPadding:
@@ -2575,8 +2623,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2586,27 +2634,24 @@ Future<void> _loadJHSSubjects() async {
                                     ],
                                   ),
                                   Column(
-                                        children: [
-                                          // if (phoneController.text.isNotEmpty)
-                                          RichText(
-                                            text: TextSpan(
+                                    children: [
+                                      // if (phoneController.text.isNotEmpty)
+                                      RichText(
+                                          text: TextSpan(
                                               text: "Phone Number",
                                               style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                            children: [
-                                              TextSpan(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                              children: [
+                                            TextSpan(
                                               text: '*',
                                               style: TextStyle(
-                                                color: Colors.red,                            ),
+                                                color: Colors.red,
                                               ),
-                                            ]
-                                            )
-                                            
-                                          ),
-                                          
-                                        
+                                            ),
+                                          ])),
+
                                       SizedBox(height: 13),
                                       Container(
                                         width: fieldWidth,
@@ -2625,20 +2670,21 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
                                           ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
+                                            if (value == null ||
+                                                value.isEmpty) {
                                               return 'Please enter your phone number';
                                             }
                                             // Ensure the number starts with '09' and has exactly 11 digits
@@ -2655,7 +2701,8 @@ Future<void> _loadJHSSubjects() async {
                                           inputFormatters: [
                                             FilteringTextInputFormatter
                                                 .digitsOnly,
-                                            LengthLimitingTextInputFormatter(11),
+                                            LengthLimitingTextInputFormatter(
+                                                11),
                                           ],
                                         ),
                                       ),
@@ -2689,8 +2736,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2727,8 +2774,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2765,8 +2812,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -2795,25 +2842,23 @@ Future<void> _loadJHSSubjects() async {
                                 runSpacing: spacing,
                                 children: [
                                   Column(
-                                        children: [
-                                          // if (houseNumberController.text.isNotEmpty)
-                                          RichText(
-                                            text: TextSpan(
+                                    children: [
+                                      // if (houseNumberController.text.isNotEmpty)
+                                      RichText(
+                                          text: TextSpan(
                                               text: "House Number",
                                               style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                            children: [
-                                              TextSpan(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                              children: [
+                                            TextSpan(
                                               text: '*',
                                               style: TextStyle(
-                                                color: Colors.red,                            ),
+                                                color: Colors.red,
                                               ),
-                                            ]
-                                            )
-                                            
-                                          ),
+                                            ),
+                                          ])),
                                       SizedBox(height: 13),
                                       Container(
                                         width: fieldWidth,
@@ -2833,8 +2878,8 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
@@ -2859,7 +2904,8 @@ Future<void> _loadJHSSubjects() async {
                                               }).join(' '); // Join back the words with spaces
                                               return newValue.copyWith(
                                                   text: newText,
-                                                  selection: newValue.selection);
+                                                  selection:
+                                                      newValue.selection);
                                             }),
                                           ],
                                         ),
@@ -2868,24 +2914,22 @@ Future<void> _loadJHSSubjects() async {
                                   ),
                                   Column(
                                     children: [
-                                          // if (streetNameController.text.isNotEmpty)
-                                          RichText(
-                                            text: TextSpan(
+                                      // if (streetNameController.text.isNotEmpty)
+                                      RichText(
+                                          text: TextSpan(
                                               text: "Street Name",
                                               style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                            children: [
-                                              TextSpan(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                              children: [
+                                            TextSpan(
                                               text: '*',
                                               style: TextStyle(
-                                                color: Colors.red,                            ),
+                                                color: Colors.red,
                                               ),
-                                            ]
-                                            )
-                                            
-                                          ),
+                                            ),
+                                          ])),
                                       SizedBox(height: 13),
                                       Container(
                                         width: fieldWidth,
@@ -2903,14 +2947,15 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
                                           ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
+                                            if (value == null ||
+                                                value.isEmpty) {
                                               return 'Please enter your street name';
                                             }
                                             return null;
@@ -2935,7 +2980,8 @@ Future<void> _loadJHSSubjects() async {
                                               }).join(' '); // Join back the words with spaces
                                               return newValue.copyWith(
                                                   text: newText,
-                                                  selection: newValue.selection);
+                                                  selection:
+                                                      newValue.selection);
                                             }),
                                           ],
                                         ),
@@ -2944,24 +2990,22 @@ Future<void> _loadJHSSubjects() async {
                                   ),
                                   Column(
                                     children: [
-                                          // if (subdivisionBarangayController.text.isNotEmpty)
-                                          RichText(
-                                            text: TextSpan(
+                                      // if (subdivisionBarangayController.text.isNotEmpty)
+                                      RichText(
+                                          text: TextSpan(
                                               text: "Subdivision/Barangay",
                                               style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                            children: [
-                                              TextSpan(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                              children: [
+                                            TextSpan(
                                               text: '*',
                                               style: TextStyle(
-                                                color: Colors.red,                            ),
+                                                color: Colors.red,
                                               ),
-                                            ]
-                                            )
-                                            
-                                          ),
+                                            ),
+                                          ])),
                                       SizedBox(height: 13),
                                       Container(
                                         width: fieldWidth,
@@ -2982,14 +3026,15 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
                                           ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
+                                            if (value == null ||
+                                                value.isEmpty) {
                                               return 'Please enter your barangay';
                                             }
                                             return null;
@@ -3014,7 +3059,8 @@ Future<void> _loadJHSSubjects() async {
                                               }).join(' '); // Join back the words with spaces
                                               return newValue.copyWith(
                                                   text: newText,
-                                                  selection: newValue.selection);
+                                                  selection:
+                                                      newValue.selection);
                                             }),
                                           ],
                                         ),
@@ -3023,29 +3069,28 @@ Future<void> _loadJHSSubjects() async {
                                   ),
                                   Column(
                                     children: [
-                                          // if (cityMunicipalityController.text.isNotEmpty)
-                                          RichText(
-                                            text: TextSpan(
+                                      // if (cityMunicipalityController.text.isNotEmpty)
+                                      RichText(
+                                          text: TextSpan(
                                               text: "City/Municipality",
                                               style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                            children: [
-                                              TextSpan(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                              children: [
+                                            TextSpan(
                                               text: '*',
                                               style: TextStyle(
-                                                color: Colors.red,                            ),
+                                                color: Colors.red,
                                               ),
-                                            ]
-                                            )
-                                            
-                                          ),
+                                            ),
+                                          ])),
                                       SizedBox(height: 13),
                                       Container(
                                         width: fieldWidth,
                                         child: TextFormField(
-                                          controller: cityMunicipalityController,
+                                          controller:
+                                              cityMunicipalityController,
                                           textCapitalization:
                                               TextCapitalization.words,
                                           enabled: true,
@@ -3060,14 +3105,15 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
                                           ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
+                                            if (value == null ||
+                                                value.isEmpty) {
                                               return 'Please enter your municipality';
                                             }
                                             return null;
@@ -3103,24 +3149,22 @@ Future<void> _loadJHSSubjects() async {
                                   ),
                                   Column(
                                     children: [
-                                          // if (provinceController.text.isNotEmpty)
-                                          RichText(
-                                            text: TextSpan(
+                                      // if (provinceController.text.isNotEmpty)
+                                      RichText(
+                                          text: TextSpan(
                                               text: "Province",
                                               style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                            children: [
-                                              TextSpan(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                              children: [
+                                            TextSpan(
                                               text: '*',
                                               style: TextStyle(
-                                                color: Colors.red,                            ),
+                                                color: Colors.red,
                                               ),
-                                            ]
-                                            )
-                                            
-                                          ),
+                                            ),
+                                          ])),
                                       SizedBox(height: 13),
                                       Container(
                                         width: fieldWidth,
@@ -3140,14 +3184,15 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
                                           ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
+                                            if (value == null ||
+                                                value.isEmpty) {
                                               return 'Please enter your province';
                                             }
                                             return null;
@@ -3183,24 +3228,22 @@ Future<void> _loadJHSSubjects() async {
                                   ),
                                   Column(
                                     children: [
-                                          // if (countryController.text.isNotEmpty)
-                                          RichText(
-                                            text: TextSpan(
+                                      // if (countryController.text.isNotEmpty)
+                                      RichText(
+                                          text: TextSpan(
                                               text: "Country",
                                               style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                            children: [
-                                              TextSpan(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                              children: [
+                                            TextSpan(
                                               text: '*',
                                               style: TextStyle(
-                                                color: Colors.red,                            ),
+                                                color: Colors.red,
                                               ),
-                                            ]
-                                            )
-                                            
-                                          ),
+                                            ),
+                                          ])),
                                       SizedBox(height: 13),
                                       Container(
                                         width: fieldWidth,
@@ -3220,14 +3263,15 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
                                           ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
+                                            if (value == null ||
+                                                value.isEmpty) {
                                               return 'Please enter your country';
                                             }
                                             return null;
@@ -3305,8 +3349,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3343,14 +3387,14 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3387,8 +3431,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3425,8 +3469,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3437,24 +3481,22 @@ Future<void> _loadJHSSubjects() async {
                                   ),
                                   Column(
                                     children: [
-                                          // if (cellphoneNumController.text.isNotEmpty)
-                                          RichText(
-                                            text: TextSpan(
+                                      // if (cellphoneNumController.text.isNotEmpty)
+                                      RichText(
+                                          text: TextSpan(
                                               text: "Phone Number",
                                               style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                            children: [
-                                              TextSpan(
+                                                color: Colors.white,
+                                                fontSize: 15,
+                                              ),
+                                              children: [
+                                            TextSpan(
                                               text: '*',
                                               style: TextStyle(
-                                                color: Colors.red,                            ),
+                                                color: Colors.red,
                                               ),
-                                            ]
-                                            )
-                                            
-                                          ),
+                                            ),
+                                          ])),
                                       SizedBox(height: 13),
                                       Container(
                                         width: fieldWidth,
@@ -3473,20 +3515,21 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
                                           ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
+                                            if (value == null ||
+                                                value.isEmpty) {
                                               return 'Please enter your phone number';
                                             }
                                             // Ensure the number starts with '09' and has exactly 11 digits
@@ -3503,7 +3546,8 @@ Future<void> _loadJHSSubjects() async {
                                           inputFormatters: [
                                             FilteringTextInputFormatter
                                                 .digitsOnly,
-                                            LengthLimitingTextInputFormatter(11),
+                                            LengthLimitingTextInputFormatter(
+                                                11),
                                           ],
                                         ),
                                       ),
@@ -3556,8 +3600,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3594,8 +3638,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3632,8 +3676,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3662,7 +3706,13 @@ Future<void> _loadJHSSubjects() async {
                                           style: TextStyle(
                                             color: Colors.grey[700],
                                             fontFamily: "R",
-                                            fontSize: (userData['seniorHigh_Strand']?.length ?? 0) > 45 ? textFontSize2 : textFontSize1,
+                                            fontSize:
+                                                (userData['seniorHigh_Strand']
+                                                                ?.length ??
+                                                            0) >
+                                                        45
+                                                    ? textFontSize2
+                                                    : textFontSize1,
                                           ),
                                           decoration: InputDecoration(
                                             contentPadding:
@@ -3670,8 +3720,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3708,8 +3758,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3757,7 +3807,12 @@ Future<void> _loadJHSSubjects() async {
                                           style: TextStyle(
                                             color: Colors.grey[700],
                                             fontFamily: "R",
-                                            fontSize: (userData['juniorHS']?.length ?? 0) > 45 ? textFontSize2 : textFontSize1,
+                                            fontSize:
+                                                (userData['juniorHS']?.length ??
+                                                            0) >
+                                                        45
+                                                    ? textFontSize2
+                                                    : textFontSize1,
                                           ),
                                           decoration: InputDecoration(
                                             contentPadding:
@@ -3765,8 +3820,8 @@ Future<void> _loadJHSSubjects() async {
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3795,7 +3850,12 @@ Future<void> _loadJHSSubjects() async {
                                           style: TextStyle(
                                             color: Colors.grey[700],
                                             fontFamily: "R",
-                                            fontSize: (userData['schoolAdd']?.length ?? 0) > 45 ? textFontSize2 : textFontSize1,
+                                            fontSize: (userData['schoolAdd']
+                                                            ?.length ??
+                                                        0) >
+                                                    45
+                                                ? textFontSize2
+                                                : textFontSize1,
                                           ),
                                           decoration: InputDecoration(
                                             contentPadding:
@@ -3803,14 +3863,14 @@ Future<void> _loadJHSSubjects() async {
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.grey[300],
@@ -3872,22 +3932,26 @@ Future<void> _loadJHSSubjects() async {
                                           ),
                                           decoration: InputDecoration(
                                             hintText: 'Enter new password',
-                                            contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), 
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 15.0,
+                                                    horizontal: 10.0),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
-                                            prefixIcon: Icon(Icons.lock_outline),
+                                            prefixIcon:
+                                                Icon(Icons.lock_outline),
                                             suffixIcon: IconButton(
                                               icon: Icon(
                                                 _obscureTextNew
@@ -3920,13 +3984,15 @@ Future<void> _loadJHSSubjects() async {
                                       Container(
                                         width: fieldWidth,
                                         child: TextFormField(
-                                          controller: _confirmPasswordController,
+                                          controller:
+                                              _confirmPasswordController,
                                           obscureText: _obscureTextConfirm,
                                           validator: (value) {
                                             if (value != null &&
                                                 value.isNotEmpty &&
                                                 value !=
-                                                    _newPasswordController.text) {
+                                                    _newPasswordController
+                                                        .text) {
                                               return 'Passwords do not match';
                                             }
                                             return null;
@@ -3939,22 +4005,26 @@ Future<void> _loadJHSSubjects() async {
                                           ),
                                           decoration: InputDecoration(
                                             hintText: 'Confirm New Password',
-                                            contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), 
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    vertical: 15.0,
+                                                    horizontal: 10.0),
                                             enabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             disabledBorder: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              borderSide:
-                                                  BorderSide(color: Colors.white),
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
                                             ),
                                             filled: true,
                                             fillColor: Colors.white,
-                                            prefixIcon: Icon(Icons.lock_outline),
+                                            prefixIcon:
+                                                Icon(Icons.lock_outline),
                                             suffixIcon: IconButton(
                                               icon: Icon(
                                                 _obscureTextConfirm
@@ -3979,51 +4049,52 @@ Future<void> _loadJHSSubjects() async {
                                 height: 20,
                               ),
                               if (_passwordMismatch)
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8.0),
-                                      child: Text(
-                                        'Passwords do not match',
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 14,
-                                        ),
-                                      ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Text(
+                                    'Passwords do not match',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 14,
                                     ),
-                                  Center(
-                                    child: Container(
-                                        height: isMobiles ? 30 : 40,
-                                        width: isMobiles ? 100 : 150,
-                                        child: ElevatedButton(
-                                            style: ButtonStyle(
-                                              backgroundColor:
-                                                  MaterialStateProperty.all<
-                                                      Color>(Colors.yellow),
-                                              elevation: MaterialStateProperty
-                                                  .all<double>(5),
-                                              shape: MaterialStateProperty.all<
-                                                  OutlinedBorder>(
-                                                RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                              ),
+                                  ),
+                                ),
+                              Center(
+                                child: Container(
+                                    height: isMobiles ? 30 : 40,
+                                    width: isMobiles ? 100 : 150,
+                                    child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Colors.yellow),
+                                          elevation:
+                                              MaterialStateProperty.all<double>(
+                                                  5),
+                                          shape: MaterialStateProperty.all<
+                                              OutlinedBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            onPressed: _updateUserData,
-                                            child: Text(
-                                              'Save',
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: isMobiles ? 14 : 18,),
-                                            ))),
-                                  )
+                                          ),
+                                        ),
+                                        onPressed: _updateUserData,
+                                        child: Text(
+                                          'Save',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: isMobiles ? 14 : 18,
+                                          ),
+                                        ))),
+                              )
                             ]),
                       ),
                     ),
-                  )
-              );
-        });
-        
+                  ));
+            });
+
           default:
             return Text(
               pageTitle,

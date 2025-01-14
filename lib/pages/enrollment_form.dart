@@ -23,7 +23,6 @@ import 'package:balungao_nhs/pages/enrollment_form_sector/uploading_files.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EnrollmentForm extends StatefulWidget {
-
   @override
   State<EnrollmentForm> createState() => _EnrollmentFormState();
 }
@@ -371,7 +370,10 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Launcher(scrollToFooter: false,)),
+                            MaterialPageRoute(
+                                builder: (context) => Launcher(
+                                      scrollToFooter: false,
+                                    )),
                           );
                         },
                         child: Text(
@@ -389,8 +391,9 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                     Text(
                       "Enrollment",
                       style: TextStyle(
-                        color:
-                            _isHoveringDashboard ? Colors.black : Color(0xFF03b97c),
+                        color: _isHoveringDashboard
+                            ? Colors.black
+                            : Color(0xFF03b97c),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -433,18 +436,18 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                       ),
                       SizedBox(height: 30),
                       LayoutBuilder(
-  builder: (context, constraints) {
-    double containerWidth;
-    if (constraints.maxWidth > 1200) {
-      // Web
-      containerWidth = constraints.maxWidth / 4.2;
-    } else if (constraints.maxWidth > 800) {
-      // Tablet
-      containerWidth = constraints.maxWidth / 2.5;
-    } else {
-      // Mobile
-      containerWidth = constraints.maxWidth * 0.9;
-    }
+                        builder: (context, constraints) {
+                          double containerWidth;
+                          if (constraints.maxWidth > 1200) {
+                            // Web
+                            containerWidth = constraints.maxWidth / 4.2;
+                          } else if (constraints.maxWidth > 800) {
+                            // Tablet
+                            containerWidth = constraints.maxWidth / 2.5;
+                          } else {
+                            // Mobile
+                            containerWidth = constraints.maxWidth * 0.9;
+                          }
 
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -535,8 +538,12 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                                                       Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  Launcher(scrollToFooter: false,)));
+                                                              builder:
+                                                                  (context) =>
+                                                                      Launcher(
+                                                                        scrollToFooter:
+                                                                            false,
+                                                                      )));
                                                     },
                                                     child: Text(
                                                       'OK',
