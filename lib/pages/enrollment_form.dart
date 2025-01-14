@@ -456,24 +456,21 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                      color: Colors
-                                          .blue, // Set the border color to blue
+                                      color: Color(0xFF03b97c), // Set the border color to blue
                                       width: 1.0, // Thickness of the border
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                      color: Colors
-                                          .blue, // Blue color when the field is not focused
+                                      color: Color(0xFF03b97c), // Blue color when the field is not focused
                                       width: 1.0,
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                      color: Colors
-                                          .blue, // A slightly brighter blue when focused
+                                      color: Color(0xFF03b97c), // A slightly brighter blue when focused
                                       width: 1.0,
                                     ),
                                   ),

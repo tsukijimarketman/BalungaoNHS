@@ -6544,7 +6544,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 child: Text('Set as Active'),
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Color(0xFF002f24),
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 12),
                                 ),
@@ -6976,7 +6976,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 child: Text('Set as Active'),
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Color(0xFF002f24),
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 12),
                                 ),
@@ -8968,7 +8968,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           ),
                           child: Text(
                             'Cancel',
-                            style: TextStyle(color: Colors.white), // Blue text
+                            style: TextStyle(color: Colors.black), // Blue text
                           ),
                         ),
                       ],
