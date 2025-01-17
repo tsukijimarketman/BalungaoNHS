@@ -28,7 +28,7 @@ class DistributionAgeState extends State<DistributionAge> {
         final total = ageData.values.fold(0, (sum, count) => sum + count);
 
         return Container(
-          height: 400,
+          height: MediaQuery.of(context).size.width/3.33,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
           ),

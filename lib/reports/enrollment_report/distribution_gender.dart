@@ -33,7 +33,7 @@ class _DistributionGenderState extends State<DistributionGender> {
         ];
 
         return Container(
-          width: 350,
+          width: MediaQuery.of(context).size.width/4,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: const Color(0xFF102A43),

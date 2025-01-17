@@ -17,14 +17,14 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          margin: const EdgeInsets.all(40),
+          margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 "Enrollment Report",
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 40,
                   fontFamily: "BL",
                 ),
               ),
@@ -37,22 +37,130 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
               const SizedBox(height: 30),
               const Text(
                 "Total Enrollments",
-                style: TextStyle(fontSize: 20, fontFamily: "B"),
+                style: TextStyle(fontSize: 25, fontFamily: "B"),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 30),
               Row(
                 children: [
                   StreamBuilder<int>(
                     stream: getTotalEnrollments(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return buildStatCard("Total Enrollments", "Loading...");
+                        return buildStatCardH(
+                            "Total Enrollments", "Loading...");
                       }
                       if (snapshot.hasError) {
-                        return buildStatCard("Total Enrollments", "Error");
+                        return buildStatCardH("Total Enrollments", "Error");
+                      }
+                      return buildStatCardH(
+                        "Total Enrollments",
+                        snapshot.data?.toString() ?? "0",
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  StreamBuilder<int>(
+                    stream: getTotalJHS(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return buildStatCardH(
+                            "Total JHS Student", "Loading...");
+                      }
+                      if (snapshot.hasError) {
+                        return buildStatCardH("Total JHS Student", "Error");
+                      }
+                      return buildStatCardH(
+                        "Total JHS Student",
+                        snapshot.data?.toString() ?? "0",
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  StreamBuilder<int>(
+                    stream: getTotalSHS(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return buildStatCardH(
+                            "Total SHS Student", "Loading...");
+                      }
+                      if (snapshot.hasError) {
+                        return buildStatCardH("Total SHS Student", "Error");
+                      }
+                      return buildStatCardH(
+                        "Total SHS Student",
+                        snapshot.data?.toString() ?? "0",
+                      );
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  StreamBuilder<int>(
+                    stream: getGradeLevelCount("7"),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return buildStatCard("Grade 7", "Loading...");
+                      }
+                      if (snapshot.hasError) {
+                        return buildStatCard("Grade 7", "Error");
                       }
                       return buildStatCard(
-                        "Total Enrollments",
+                        "Grade 7",
+                        snapshot.data?.toString() ?? "0",
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 20),
+                  StreamBuilder<int>(
+                    stream: getGradeLevelCount("8"),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return buildStatCard("Grade 8", "Loading...");
+                      }
+                      if (snapshot.hasError) {
+                        return buildStatCard("Grade 8", "Error");
+                      }
+                      return buildStatCard(
+                        "Grade 8",
+                        snapshot.data?.toString() ?? "0",
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 20),
+                  StreamBuilder<int>(
+                    stream: getGradeLevelCount("9"),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return buildStatCard("Grade 9", "Loading...");
+                      }
+                      if (snapshot.hasError) {
+                        return buildStatCard("Grade 9", "Error");
+                      }
+                      return buildStatCard(
+                        "Grade 9",
+                        snapshot.data?.toString() ?? "0",
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 20),
+                  StreamBuilder<int>(
+                    stream: getGradeLevelCount("10"),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return buildStatCard("Grade 10", "Loading...");
+                      }
+                      if (snapshot.hasError) {
+                        return buildStatCard("Grade 10", "Error");
+                      }
+                      return buildStatCard(
+                        "Grade 10",
                         snapshot.data?.toString() ?? "0",
                       );
                     },
@@ -89,38 +197,19 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                       );
                     },
                   ),
-                  const SizedBox(width: 20),
-                  StreamBuilder<double>(
-                    stream: getAverageAge(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return buildStatCard("Average Age", "Loading...");
-                      }
-                      if (snapshot.hasError) {
-                        return buildStatCard("Average Age", "Error");
-                      }
-
-                      // Convert the number to an integer (whole number)
-                      final averageAge = snapshot.data?.toInt() ?? 0;
-
-                      return buildStatCard(
-                        "Average Age",
-                        averageAge.toString(), // Display as a whole number
-                      );
-                    },
-                  ),
                 ],
               ),
               const SizedBox(height: 30),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const DistributionGender(),
-                  SizedBox(width: 50,),
+                  
                   DistributionAge(),
+                  
+                  TEBS(),
                 ],
               ),
-              SizedBox(height: 40,),
-              TEBS(),
             ],
           ),
         ),
@@ -131,22 +220,52 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
   Widget buildStatCard(String title, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-      width: 200,
+      width: MediaQuery.of(context).size.width / 6.92,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withOpacity(0.5)),
+        color: Color(0xFF002f24),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 15, fontFamily: "M"),
+            style: const TextStyle(
+                fontSize: 15, fontFamily: "M", color: Colors.white),
           ),
           const SizedBox(height: 5),
           Text(
             value,
-            style: const TextStyle(fontFamily: "B", fontSize: 30),
+            style: const TextStyle(
+                fontFamily: "B", fontSize: 30, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildStatCardH(String title, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+      width: MediaQuery.of(context).size.width / 3.3,
+      height: MediaQuery.of(context).size.width / 10,
+      decoration: BoxDecoration(
+        color: Color(0xFF03b97c),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+                fontSize: 23, fontFamily: "M", color: Colors.black),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            value,
+            style: const TextStyle(
+                fontFamily: "B", fontSize: 40, color: Colors.black),
           ),
         ],
       ),
@@ -159,6 +278,34 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
         .collection('users')
         .where('accountType', isEqualTo: 'student')
         .where('enrollment_status', whereIn: ['approved', 're-enrolled'])
+        .snapshots()
+        .map((snapshot) {
+          final activeCount =
+              snapshot.docs.where((doc) => doc['Status'] != 'inactive').length;
+          return activeCount;
+        });
+  }
+
+  Stream<int> getTotalSHS() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('accountType', isEqualTo: 'student')
+        .where('enrollment_status', whereIn: ['approved', 're-enrolled'])
+        .where('educ_level', isEqualTo: 'Senior High School')
+        .snapshots()
+        .map((snapshot) {
+          final activeCount =
+              snapshot.docs.where((doc) => doc['Status'] != 'inactive').length;
+          return activeCount;
+        });
+  }
+
+  Stream<int> getTotalJHS() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('accountType', isEqualTo: 'student')
+        .where('enrollment_status', whereIn: ['approved', 're-enrolled'])
+        .where('educ_level', isEqualTo: 'Junior High School')
         .snapshots()
         .map((snapshot) {
           final activeCount =
