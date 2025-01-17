@@ -28,8 +28,10 @@ class DistributionAgeState extends State<DistributionAge> {
         final total = ageData.values.fold(0, (sum, count) => sum + count);
 
         return Container(
-          height: MediaQuery.of(context).size.width/3.33,
+          padding: const EdgeInsets.all(10),
+          height: MediaQuery.of(context).size.width/3.22,
           decoration: BoxDecoration(
+            color: Color(0xFF102A43),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -39,13 +41,14 @@ class DistributionAgeState extends State<DistributionAge> {
                 style: TextStyle(
                   fontFamily: "B",
                   fontSize: 25,
+                  color: Colors.white
                 ),
               ),
               const SizedBox(height: 20),
               Row(
                 children: <Widget>[
                   AgePieChart(ageData: ageData, total: total),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 10),
                   AgeIndicators(ageData: ageData, total: total),
                 ],
               ),
