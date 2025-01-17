@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, unused_import
+// ignore_for_file: unused_field, unused_import, unused_element
 
 import 'dart:io';
 import 'dart:typed_data';
@@ -146,134 +146,153 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
       });
 
       try {
-       String? imageUrl;
-       List<String> fileUrls = [];
+        String? imageUrl;
+        List<String> fileUrls = [];
         // Handle profile image upload
-       if (_webImageData != null) {
-         try {
-           const bucketName = 'Balungao NHS';
-           final fileName = 'student_pictures/${DateTime.now().millisecondsSinceEpoch}.png';
-            await supabase.storage
-             .from(bucketName)
-             .uploadBinary(
-               fileName,
-               _webImageData!,
-               fileOptions: const FileOptions(
-                 contentType: 'image/png',
-                 upsert: true,
-               ),
-             );
-            imageUrl = supabase.storage
-             .from(bucketName)
-             .getPublicUrl(fileName);
+        if (_webImageData != null) {
+          try {
+            const bucketName = 'Balungao NHS';
+            final fileName =
+                'student_pictures/${DateTime.now().millisecondsSinceEpoch}.png';
+            await supabase.storage.from(bucketName).uploadBinary(
+                  fileName,
+                  _webImageData!,
+                  fileOptions: const FileOptions(
+                    contentType: 'image/png',
+                    upsert: true,
+                  ),
+                );
+            imageUrl = supabase.storage.from(bucketName).getPublicUrl(fileName);
             print('Successfully uploaded image: $imageUrl');
           } catch (e, stackTrace) {
-           print('Upload error: $e');
-           print('Stack trace: $stackTrace');
-           ScaffoldMessenger.of(context).showSnackBar(
-             SnackBar(content: Text('Failed to upload profile image: $e')),
-           );
-           return;
-         }
-       }
+            print('Upload error: $e');
+            print('Stack trace: $stackTrace');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to upload profile image: $e')),
+            );
+            return;
+          }
+        }
         // Handle other file uploads
-       for (var file in _selectedFiles) {
-         try {
-           const bucketName = 'Balungao NHS';
-           final fileName = 'uploads/${DateTime.now().millisecondsSinceEpoch}_${file.name}';
-            await supabase.storage
-             .from(bucketName)
-             .uploadBinary(
-               fileName,
-               file.bytes!,
-               fileOptions: const FileOptions(
-                 upsert: true,
-               ),
-             );
-            final fileUrl = supabase.storage
-             .from(bucketName)
-             .getPublicUrl(fileName);
-             
-           fileUrls.add(fileUrl);
-           print('Successfully uploaded file: $fileUrl');
+        for (var file in _selectedFiles) {
+          try {
+            const bucketName = 'Balungao NHS';
+            final fileName =
+                'uploads/${DateTime.now().millisecondsSinceEpoch}_${file.name}';
+            await supabase.storage.from(bucketName).uploadBinary(
+                  fileName,
+                  file.bytes!,
+                  fileOptions: const FileOptions(
+                    upsert: true,
+                  ),
+                );
+            final fileUrl =
+                supabase.storage.from(bucketName).getPublicUrl(fileName);
+
+            fileUrls.add(fileUrl);
+            print('Successfully uploaded file: $fileUrl');
           } catch (e, stackTrace) {
-           print('File upload error: $e');
-           print('Stack trace: $stackTrace');
-           ScaffoldMessenger.of(context).showSnackBar(
-             SnackBar(content: Text('Failed to upload file ${file.name}: $e')),
-           );
-         }
-       }
+            print('File upload error: $e');
+            print('Stack trace: $stackTrace');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to upload file ${file.name}: $e')),
+            );
+          }
+        }
+
+        String? semesterValue;
+        if (selectededucLevel == 'Junior High School') {
+          print('Fetching semester value for Junior High School...');
+          final querySnapshot = await FirebaseFirestore.instance
+              .collection('jhs configurations')
+              .where('educ_level', isEqualTo: 'Junior High School')
+              .where('isActive', isEqualTo: true)
+              .limit(1)
+              .get();
+
+          if (querySnapshot.docs.isNotEmpty) {
+            semesterValue = querySnapshot.docs.first.get('semester');
+            print('Fetched semester value: $semesterValue');
+          } else {
+            print('No active JHS configuration found.');
+          }
+        } else {
+          print('Skipping semester fetch for Senior High School.');
+        }
+
         // Combine all data
-       final combinedData = {
-         ..._studentData,
-         ..._homeAddressData,
-         ..._juniorHSDataInfo,
-         ..._juniorHSData,
-         ..._parentInfoData,
-         ..._seniorHSData,
-         'enrollment_status': 'pending',
-         'image_url': imageUrl,
-         'file_urls': fileUrls,
-         'educ_level': selectededucLevel,
-       };
+        final combinedData = {
+          ..._studentData,
+          ..._homeAddressData,
+          ..._juniorHSDataInfo,
+          ..._juniorHSData,
+          ..._parentInfoData,
+          ..._seniorHSData,
+          'enrollment_status': 'pending',
+          'image_url': imageUrl,
+          'file_urls': fileUrls,
+          'educ_level': selectededucLevel,
+          if (semesterValue != null)
+            'quarter': semesterValue, // Add semester as quarter if found
+        };
+
         // Save to Firestore
-       await FirebaseFirestore.instance.collection('users').add(combinedData);
+        await FirebaseFirestore.instance.collection('users').add(combinedData);
         // Show success dialog
-       showCupertinoDialog(
-         context: context,
-         builder: (BuildContext context) {
-           return CupertinoAlertDialog(
-             title: Text("Important Notice"),
-             content: Text(
-               "To validate your enrollment, please submit the following documents to the school within 15 days:\n\n"
-               "- Birth Certificate\n"
-               "- 2x2 Picture\n"
-               "- Form 137 from previous school\n\n"
-               "Failure to submit these documents within the specified timeframe will result in the rejection of your enrollment request.",
-             ),
-             actions: <Widget>[
-               CupertinoDialogAction(
-                 child: Text("OK"),
-                 onPressed: () {
-                   Navigator.of(context).pop();
-                   ScaffoldMessenger.of(context).showSnackBar(
-                     SnackBar(
-                       content: Row(
-                         children: [
-                           Image.asset('PBMA.png', scale: 40),
-                           SizedBox(width: 10),
-                           Text('Data Saved Successfully'),
-                         ],
-                       ),
-                     ),
-                   );
-                   _resetForm();
-                 },
-               ),
-             ],
-           );
-         },
-       );
-     } catch (error) {
-       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
-           content: Row(
-             children: [
-               Image.asset('PBMA.png', scale: 40),
-               SizedBox(width: 10),
-               Text('Failed to Save Data: $error'),
-             ],
-           ),
-         ),
-       );
-     } finally {
-       setState(() {
-         _isSubmitting = false;
-       });
-     }
-   }
- }
+        showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text("Important Notice"),
+              content: Text(
+                "To validate your enrollment, please submit the following documents to the school within 15 days:\n\n"
+                "- Birth Certificate\n"
+                "- 2x2 Picture\n"
+                "- Form 137 from previous school\n\n"
+                "Failure to submit these documents within the specified timeframe will result in the rejection of your enrollment request.",
+              ),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            Image.asset('PBMA.png', scale: 40),
+                            SizedBox(width: 10),
+                            Text('Data Saved Successfully'),
+                          ],
+                        ),
+                      ),
+                    );
+                    _resetForm();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Image.asset('PBMA.png', scale: 40),
+                SizedBox(width: 10),
+                Text('Failed to Save Data: $error'),
+              ],
+            ),
+          ),
+        );
+      } finally {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
 
   void _resetForm() {
     // Reset all form fields
@@ -305,7 +324,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
               // Header Section
               Container(
                 height: 75,
-                color: Color.fromARGB(255, 1, 93, 168),
+                color: Color(0xFF03b97c),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -315,7 +334,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
                           child: Image.asset(
-                            "assets/pbma.jpg",
+                            "assets/balungaonhs.png",
                             height: 60,
                             width: 60,
                           ),
@@ -323,7 +342,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "PBMA",
+                        "BNHS",
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: "B",
@@ -351,14 +370,17 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Launcher(scrollToFooter: false,)),
+                            MaterialPageRoute(
+                                builder: (context) => Launcher(
+                                      scrollToFooter: false,
+                                    )),
                           );
                         },
                         child: Text(
                           "Dashboard",
                           style: TextStyle(
                             color: _isHoveringDashboard
-                                ? Colors.blue
+                                ? Color(0xFF03b97c)
                                 : Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
@@ -369,8 +391,9 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                     Text(
                       "Enrollment",
                       style: TextStyle(
-                        color:
-                            _isHoveringDashboard ? Colors.black : Colors.blue,
+                        color: _isHoveringDashboard
+                            ? Colors.black
+                            : Color(0xFF03b97c),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -414,92 +437,111 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                       SizedBox(height: 30),
                       LayoutBuilder(
                         builder: (context, constraints) {
-                          double containerWidth = constraints.maxWidth > 600
-                              ? constraints.maxWidth / 4.2
-                              : constraints.maxWidth * 0.9;
+                          double containerWidth;
+                          if (constraints.maxWidth > 1200) {
+                            // Web
+                            containerWidth = constraints.maxWidth / 4.2;
+                          } else if (constraints.maxWidth > 800) {
+                            // Tablet
+                            containerWidth = constraints.maxWidth / 2.5;
+                          } else {
+                            // Mobile
+                            containerWidth = constraints.maxWidth * 0.9;
+                          }
 
                           return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              width: containerWidth,
-                              child: DropdownButtonFormField<String>(
-                                value: selectededucLevel,
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: Colors.blue, // Set the border color to blue
-                                      width: 1.0, // Thickness of the border
+                            padding: const EdgeInsets.all(
+                                8.0), // Padding around the container
+                            child: Align(
+                              alignment: Alignment
+                                  .centerLeft, // Align to the left side
+                              child: Container(
+                                width: containerWidth,
+                                child: DropdownButtonFormField<String>(
+                                  value: selectededucLevel,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF03b97c),
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF03b97c),
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF03b97c),
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
                                     ),
                                   ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: Colors.blue, // Blue color when the field is not focused
-                                      width: 1.0,
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: '',
+                                      child: Text('---'),
                                     ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: Colors.blue, // A slightly brighter blue when focused
-                                      width: 1.0,
+                                    DropdownMenuItem(
+                                      value: 'junior',
+                                      child: Text('Junior High School Student'),
                                     ),
-                                  ),
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    DropdownMenuItem(
+                                      value: 'senior',
+                                      child: Text('Senior High School Student'),
+                                    ),
+                                  ],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectededucLevel = value;
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please select your Educational Level';
+                                    }
+                                    return null;
+                                  },
+                                  hint: const Text(
+                                      'Select your educational level'),
                                 ),
-                                items: [
-                                  DropdownMenuItem(
-                                    value: '',
-                                    child: Text('---'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'junior',
-                                    child: Text('Junior High School Student'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'senior',
-                                    child: Text('Senior High School Student'),
-                                  ),
-                                ],
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectededucLevel = value;
-                                  });
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please select your Educational Level';
-                                  }
-                                  return null;
-                                },
-                                hint: Text('Select your educational level'),
                               ),
                             ),
                           );
                         },
                       ),
+
                       SizedBox(height: 30),
-                       if (selectededucLevel == 'junior') ...[
-                       JuniorHighSchoolEnrollment(
-                          key: _juniorHSinforKey,
-                          spacing: 50.0, 
-                          onDataChanged: _updateStudentData),
-                       SizedBox(height: 30),
-                     ],
-                     if (selectededucLevel == 'senior') ...[  // Add square brackets for consistency
-                       JuniorHighSchool(
-                         key: _juniorHSKey,
-                         onDataChanged: _updateStudentData,
-                       ),
-                       SizedBox(height: 30),
-                       SeniorHighSchool(  // Move inside senior condition
-                         key: _seniorHSKey,
-                         spacing: 50.0,
-                         onDataChanged: _updateStudentData,
-                       ),
-                     ],
+                      if (selectededucLevel == 'Junior High School') ...[
+                        JuniorHighSchoolEnrollment(
+                            key: _juniorHSinforKey,
+                            spacing: 50.0,
+                            onDataChanged: _updateStudentData),
+                        SizedBox(height: 30),
+                      ],
+                      if (selectededucLevel == 'Senior High School') ...[
+                        // Add square brackets for consistency
+                        JuniorHighSchool(
+                          key: _juniorHSKey,
+                          onDataChanged: _updateStudentData,
+                        ),
+                        SizedBox(height: 30),
+                        SeniorHighSchool(
+                          // Move inside senior condition
+                          key: _seniorHSKey,
+                          spacing: 50.0,
+                          onDataChanged: _updateStudentData,
+                        ),
+                      ],
                       // Uploading Files Section
                       UploadingFiles(
                         key: _uploadFilesKey,
@@ -526,7 +568,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                               child: TextButton(
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(
-                                    Color.fromARGB(255, 1, 93, 168),
+                                    Color(0xFF002f24),
                                   ),
                                   shape: MaterialStateProperty.all(
                                     RoundedRectangleBorder(
@@ -540,7 +582,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(
-                                          color: Colors.yellow,
+                                          color: Colors.white,
                                           strokeWidth: 2.0,
                                         ),
                                       )
@@ -551,7 +593,7 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                                           fontSize: screenWidth < 600
                                               ? 16
                                               : 12, // Adjust font size for small screens
-                                          color: Colors.yellow,
+                                          color: Colors.white,
                                         ),
                                       ),
                               ),

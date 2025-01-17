@@ -108,7 +108,7 @@ class _SignInDesktopState extends State<SignInDesktop> {
                           Flexible(
                   flex: 2,
                   child: Image.asset(
-                    'assets/PBMA.png',
+                    'assets/balungaonhs.png',
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -230,7 +230,7 @@ Padding(
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
-                                          Colors.deepPurpleAccent),
+                                          Color(0xFF002f24)),
                                   elevation:
                                       MaterialStateProperty.all<double>(5),
                                   shape:
