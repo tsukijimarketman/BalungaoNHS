@@ -33,18 +33,20 @@ class _DistributionGenderState extends State<DistributionGender> {
         ];
 
         return Container(
-          width: MediaQuery.of(context).size.width/4,
+          width: MediaQuery.of(context).size.width/3.3,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF102A43),
+            color: const Color(0xFF002f24),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Distribution of Gender",
-                style: TextStyle(fontFamily: "SB", color: Colors.white, fontSize: 20),
+              Center(
+                child: const Text(
+                  "Distribution of Gender",
+                  style: TextStyle(fontFamily: "SB", color: Colors.white, fontSize: 20),
+                ),
               ),
               const SizedBox(height: 20),
               Row(
@@ -67,77 +69,79 @@ class _DistributionGenderState extends State<DistributionGender> {
                 ],
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                width: 300,
-                height: 300,
-                child: BarChart(
-                  BarChartData(
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border.symmetric(
-                        horizontal: BorderSide(
-                          color: Colors.grey.withOpacity(0.4),
-                        ),
-                      ),
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          getTitlesWidget: (value, meta) {
-                            return Text(
-                              value.toInt().toString(),
-                              textAlign: TextAlign.left,
-                              style: const TextStyle(color: Colors.grey),
-                            );
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 36,
-                          getTitlesWidget: (value, meta) {
-                            final index = value.toInt();
-                            return SideTitleWidget(
-                              axisSide: meta.axisSide,
-                              child: _IconWidget(
-                                color: dataList[index].color,
-                                isSelected: false,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      rightTitles: const AxisTitles(),
-                      topTitles: const AxisTitles(),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      getDrawingHorizontalLine: (value) => FlLine(
-                        color: Colors.grey.withOpacity(0.4),
-                        strokeWidth: 1,
-                      ),
-                    ),
-                    barGroups: dataList.asMap().entries.map((e) {
-                      final index = e.key;
-                      final data = e.value;
-                      return BarChartGroupData(
-                        x: index,
-                        barRods: [
-                          BarChartRodData(
-                            toY: data.value,
-                            color: data.color,
-                            width: 50,
-                            borderRadius: BorderRadius.circular(0),
+              Center(
+                child: SizedBox(
+                  width: 300,
+                  height: 300,
+                  child: BarChart(
+                    BarChartData(
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border.symmetric(
+                          horizontal: BorderSide(
+                            color: Colors.grey.withOpacity(0.4),
                           ),
-                        ],
-                      );
-                    }).toList(),
-           // Adjust based on expected maximum count
+                        ),
+                      ),
+                      titlesData: FlTitlesData(
+                        show: true,
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            getTitlesWidget: (value, meta) {
+                              return Text(
+                                value.toInt().toString(),
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(color: Colors.grey),
+                              );
+                            },
+                          ),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 36,
+                            getTitlesWidget: (value, meta) {
+                              final index = value.toInt();
+                              return SideTitleWidget(
+                                axisSide: meta.axisSide,
+                                child: _IconWidget(
+                                  color: dataList[index].color,
+                                  isSelected: false,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        rightTitles: const AxisTitles(),
+                        topTitles: const AxisTitles(),
+                      ),
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        getDrawingHorizontalLine: (value) => FlLine(
+                          color: Colors.grey.withOpacity(0.4),
+                          strokeWidth: 1,
+                        ),
+                      ),
+                      barGroups: dataList.asMap().entries.map((e) {
+                        final index = e.key;
+                        final data = e.value;
+                        return BarChartGroupData(
+                          x: index,
+                          barRods: [
+                            BarChartRodData(
+                              toY: data.value,
+                              color: data.color,
+                              width: 50,
+                              borderRadius: BorderRadius.circular(0),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                           // Adjust based on expected maximum count
+                    ),
                   ),
                 ),
               ),

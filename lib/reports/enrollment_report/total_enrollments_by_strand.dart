@@ -62,10 +62,10 @@ class TEBS extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF102A43),
+            color: Color(0xFF002f24),
             borderRadius: BorderRadius.circular(12),
           ),
-          width: MediaQuery.of(context).size.width/3.27, // Adjusted width to fit beside other graphs
+          width: MediaQuery.of(context).size.width/3.3, // Adjusted width to fit beside other graphs
           child: Column(
             children: [
               const Text(

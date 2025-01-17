@@ -203,10 +203,8 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const DistributionGender(),
-                  
                   DistributionAge(),
-                  
+                  DistributionGender(),
                   TEBS(),
                 ],
               ),
@@ -222,7 +220,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
       width: MediaQuery.of(context).size.width / 6.92,
       decoration: BoxDecoration(
-        color: Color(0xFF002f24),
+        color: Color(0xFF00A16c),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -250,7 +248,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
       width: MediaQuery.of(context).size.width / 3.3,
       height: MediaQuery.of(context).size.width / 10,
       decoration: BoxDecoration(
-        color: Color(0xFF03b97c),
+        color: Color(0xFFA1F9D0),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
