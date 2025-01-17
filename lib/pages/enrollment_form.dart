@@ -450,70 +450,133 @@ class _EnrollmentFormState extends State<EnrollmentForm> {
                           }
 
                           return Padding(
-                            padding: const EdgeInsets.all(
-                                8.0), // Padding around the container
-                            child: Align(
-                              alignment: Alignment
-                                  .centerLeft, // Align to the left side
-                              child: Container(
-                                width: containerWidth,
-                                child: DropdownButtonFormField<String>(
-                                  value: selectededucLevel,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                        color: Color(0xFF03b97c),
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                        color: Color(0xFF03b97c),
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: const BorderSide(
-                                        color: Color(0xFF03b97c),
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              width: containerWidth,
+                              child: DropdownButtonFormField<String>(
+                                value: selectededucLevel,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Color(0xFF03b97c), // Set the border color to blue
+                                      width: 1.0, // Thickness of the border
                                     ),
                                   ),
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: '',
-                                      child: Text('---'),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Color(0xFF03b97c), // Blue color when the field is not focused
+                                      width: 1.0,
                                     ),
-                                    DropdownMenuItem(
-                                      value: 'junior',
-                                      child: Text('Junior High School Student'),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Color(0xFF03b97c), // A slightly brighter blue when focused
+                                      width: 1.0,
                                     ),
-                                    DropdownMenuItem(
-                                      value: 'senior',
-                                      child: Text('Senior High School Student'),
-                                    ),
-                                  ],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectededucLevel = value;
-                                    });
-                                  },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please select your Educational Level';
-                                    }
-                                    return null;
-                                  },
-                                  hint: const Text(
-                                      'Select your educational level'),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
                                 ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: '',
+                                    child: Text('---'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Junior High School',
+                                    child: Text('Junior High School Student'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Senior High School',
+                                    child: Text('Senior High School Student'),
+                                  ),
+                                ],
+                                onChanged: (value) async {
+                                  if (value == 'Junior High School') {
+                                    // Fetch semester for Junior High School
+                                    try {
+                                      final querySnapshot =
+                                          await FirebaseFirestore
+                                              .instance
+                                              .collection('jhs configurations')
+                                              .where(
+                                                  'educ_level',
+                                                  isEqualTo:
+                                                      'Junior High School')
+                                              .where('isActive',
+                                                  isEqualTo: true)
+                                              .limit(1)
+                                              .get();
+
+                                      if (querySnapshot.docs.isNotEmpty) {
+                                        final semester = querySnapshot
+                                            .docs.first
+                                            .get('semester');
+                                        if (semester != '1st') {
+                                          // Show dialog for ongoing school year
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                title: Text(
+                                                  'Enrollment Closed',
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                ),
+                                                content: Text(
+                                                  'We are not currently accepting new students because \n the school year is already ongoing.',
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder:
+                                                                  (context) =>
+                                                                      Launcher(
+                                                                        scrollToFooter:
+                                                                            false,
+                                                                      )));
+                                                    },
+                                                    child: Text(
+                                                      'OK',
+                                                      style: TextStyle(
+                                                          color: Colors.blue),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+
+                                          // Reset the dropdown selection
+                                          setState(() {
+                                            selectededucLevel = '';
+                                          });
+                                          return;
+                                        }
+                                      }
+                                    } catch (e) {
+                                      print('Error fetching semester: $e');
+                                    }
+                                  }
+
+                                  // Update the selected educational level
+                                  setState(() {
+                                    selectededucLevel = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select your Educational Level';
+                                  }
+                                  return null;
+                                },
+                                hint: Text('Select your educational level'),
                               ),
                             ),
                           );

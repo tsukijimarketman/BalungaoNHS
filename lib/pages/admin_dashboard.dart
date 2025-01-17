@@ -2,6 +2,7 @@
 import 'dart:ui';
 import 'package:balungao_nhs/Manage/JHSStudentDetails.dart';
 import 'package:balungao_nhs/Manage/JHSStudentInSection.dart';
+import 'package:balungao_nhs/Manage/SubjectsandGradeJHS.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -315,7 +316,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   //BuildStudentsContent
 
   //BuildStrandInstructorContent
-  Stream<QuerySnapshot<Map<String, dynamic>>> _getFilteredInstructorStudents() async* {
+  Stream<QuerySnapshot<Map<String, dynamic>>>
+      _getFilteredInstructorStudents() async* {
     final userDoc = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -873,7 +875,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
   //BuildManageSections
 
-    //JHS Configuration
+  //JHS Configuration
 
   Future<void> _showJHSDeleteeConfirmationDialog(
       BuildContext context, String configId) {
@@ -882,7 +884,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: Text('Delete JHS Configuration'),
-          content: Text('Are you sure you want to delete this JHS configuration?'),
+          content:
+              Text('Are you sure you want to delete this JHS configuration?'),
           actions: [
             CupertinoDialogAction(
               child: Text(
@@ -958,7 +961,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: Text('Save JHS Configuration'),
-          content: Text('Are you sure you want to save this JHS configuration?'),
+          content:
+              Text('Are you sure you want to save this JHS configuration?'),
           actions: [
             CupertinoDialogAction(
               child: Text(
@@ -1017,18 +1021,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Future<void> _JHSactivateConfiguration(String configId) async {
     try {
+      final selectedConfigSnapshot = await FirebaseFirestore.instance
+          .collection('jhs configurations')
+          .doc(configId)
+          .get();
 
-       final selectedConfigSnapshot = await FirebaseFirestore.instance
-        .collection('jhs configurations')
-        .doc(configId)
-        .get();
+      if (!selectedConfigSnapshot.exists) {
+        throw 'Selected configuration not found.';
+      }
 
-    if (!selectedConfigSnapshot.exists) {
-      throw 'Selected configuration not found.';
-    }
+      final configurationSemester = selectedConfigSnapshot.get('semester');
 
-    final configurationSemester = selectedConfigSnapshot.get('semester');
-    
       // First, set all configurations to inactive
       final batch = FirebaseFirestore.instance.batch();
       final configs = await FirebaseFirestore.instance
@@ -1039,10 +1042,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
       for (var doc in configs.docs) {
         batch.update(doc.reference, {'isActive': false});
       }
-  
+
       // Set the selected configuration as active
       batch.update(
-          FirebaseFirestore.instance.collection('jhs configurations').doc(configId),
+          FirebaseFirestore.instance
+              .collection('jhs configurations')
+              .doc(configId),
           {'isActive': true});
 
       await batch.commit();
@@ -1051,7 +1056,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       QuerySnapshot studentDocs = await FirebaseFirestore.instance
           .collection('users')
           .where('accountType', isEqualTo: 'student')
-                    .where('educ_level', isEqualTo: 'Junior High School')
+          .where('educ_level', isEqualTo: 'Junior High School')
           .get();
 
       // Create a new batch for student updates
@@ -1062,7 +1067,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         // Update main document status
         studentBatch.update(studentDoc.reference, {
           'enrollment_status': 're-enrolled',
-          'quarter' : configurationSemester,
+          'quarter': configurationSemester,
           'section':
               FieldValue.delete(), // Remove the section field if it exists
         });
@@ -1175,8 +1180,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       QuerySnapshot studentDocs = await FirebaseFirestore.instance
           .collection('users')
           .where('accountType', isEqualTo: 'student')
-                    .where('educ_level', isEqualTo: 'Junior High School')
-
+          .where('educ_level', isEqualTo: 'Junior High School')
           .get();
 
       // Create a batch for the main documents update
@@ -1249,7 +1253,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: Text('Delete SHS Configuration'),
-          content: Text('Are you sure you want to delete this SHS configuration?'),
+          content:
+              Text('Are you sure you want to delete this SHS configuration?'),
           actions: [
             CupertinoDialogAction(
               child: Text(
@@ -1325,7 +1330,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: Text('Save SHS Configuration'),
-          content: Text('Are you sure you want to save this SHS configuration?'),
+          content:
+              Text('Are you sure you want to save this SHS configuration?'),
           actions: [
             CupertinoDialogAction(
               child: Text(
@@ -1397,7 +1403,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
       // Set the selected configuration as active
       batch.update(
-          FirebaseFirestore.instance.collection('shs configurations').doc(configId),
+          FirebaseFirestore.instance
+              .collection('shs configurations')
+              .doc(configId),
           {'isActive': true});
 
       await batch.commit();
@@ -1529,8 +1537,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       QuerySnapshot studentDocs = await FirebaseFirestore.instance
           .collection('users')
           .where('accountType', isEqualTo: 'student')
-                    .where('educ_level', isEqualTo: 'Senior High School')
-
+          .where('educ_level', isEqualTo: 'Senior High School')
           .get();
 
       // Create a batch for the main documents update
@@ -1983,7 +1990,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
       await FirebaseAuth.instance.signOut();
       print("User logged out successfully");
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (builder) => Launcher(scrollToFooter: false,)));
+          context,
+          MaterialPageRoute(
+              builder: (builder) => Launcher(
+                    scrollToFooter: false,
+                  )));
     } catch (e) {
       print("Error logging out: $e");
     }
@@ -2403,153 +2414,172 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   final students = snapshot.data!.docs;
 
                   return Column(
-  children: [
-    // Fixed header row
-    Row(
-      children: [
-        Expanded(child: Text('Student ID')),
-        Expanded(child: Text('First Name')),
-        Expanded(child: Text('Last Name')),
-        Expanded(child: Text('Middle Name')),
-        Expanded(
-          child: Row(
-            children: [
-              Text('Grade Level'),
-              if (selectedLevel == 'Senior High School')
-                GestureDetector(
-                  onTap: _toggleGradeLevelIcon,
-                  child: Row(
                     children: [
-                      if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
-                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                      if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
-                        Icon(Iconsax.arrow_down_copy, size: 16),
-                    ],
-                  ),
-                )
-              else if (selectedLevel == 'Junior High School')
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.arrow_drop_down),
-                  onSelected: (String value) {
-                    setState(() {
-                      _selectedGrade = value;
-                    });
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return ['All', '7', '8', '9', '10']
-                        .map((String grade) {
-                      return PopupMenuItem<String>(
-                        value: grade,
-                        child: Text('Grade $grade'),
-                      );
-                    }).toList();
-                  },
-                ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Row(
-            children: [
-              Text('Transferee'),
-              GestureDetector(
-                onTap: _toggleTransfereeIcon,
-                child: Row(
-                  children: [
-                    if (_transfereeIconState == 0 ||
-                        _transfereeIconState == 1)
-                      Icon(Iconsax.arrow_up_3_copy, size: 16),
-                    if (_transfereeIconState == 0 ||
-                        _transfereeIconState == 2)
-                      Icon(Iconsax.arrow_down_copy, size: 16),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (selectedLevel == 'Senior High School') ...[
-          Expanded(
-            child: Row(
-              children: [
-                Text('Track'),
-                GestureDetector(
-                  onTap: _toggleTrackIcon,
-                  child: Row(
-                    children: [
-                      if (_trackIconState == 0 || _trackIconState == 1)
-                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                      if (_trackIconState == 0 || _trackIconState == 2)
-                        Icon(Iconsax.arrow_down_copy, size: 16),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                Text('Strand'),
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.arrow_drop_down),
-                  onSelected: (String value) {
-                    setState(() {
-                      _selectedStrand = value;
-                    });
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      'ALL',
-                      'STEM',
-                      'HUMSS',
-                      'ABM',
-                      'ICT',
-                      'HE',
-                      'IA'
-                    ].map((String strand) {
-                      return PopupMenuItem<String>(
-                        value: strand,
-                        child: Text(strand),
-                      );
-                    }).toList();
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ],
-    ),
-    Divider(),
+                      // Fixed header row
+                      Row(
+                        children: [
+                          Expanded(child: Text('Student ID')),
+                          Expanded(child: Text('First Name')),
+                          Expanded(child: Text('Last Name')),
+                          Expanded(child: Text('Middle Name')),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text('Grade Level'),
+                                if (selectedLevel == 'Senior High School')
+                                  GestureDetector(
+                                    onTap: _toggleGradeLevelIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  )
+                                else if (selectedLevel == 'Junior High School')
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedGrade = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return ['All', '7', '8', '9', '10']
+                                          .map((String grade) {
+                                        return PopupMenuItem<String>(
+                                          value: grade,
+                                          child: Text('Grade $grade'),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text('Transferee'),
+                                GestureDetector(
+                                  onTap: _toggleTransfereeIcon,
+                                  child: Row(
+                                    children: [
+                                      if (_transfereeIconState == 0 ||
+                                          _transfereeIconState == 1)
+                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                      if (_transfereeIconState == 0 ||
+                                          _transfereeIconState == 2)
+                                        Icon(Iconsax.arrow_down_copy, size: 16),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (selectedLevel == 'Senior High School') ...[
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap: _toggleTrackIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      Divider(),
 
-    // Scrollable rows for student data
-    Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: students.map((student) {
-            final data = student.data() as Map<String, dynamic>;
-            return Row(
-              children: [
-                Expanded(child: Text(data['student_id'] ?? '')),
-                Expanded(child: Text(data['first_name'] ?? '')),
-                Expanded(child: Text(data['last_name'] ?? '')),
-                Expanded(child: Text(data['middle_name'] ?? '')),
-                Expanded(child: Text(data['grade_level'] ?? '')),
-                Expanded(child: Text(data['transferee'] ?? '')),
-                if (selectedLevel == 'Senior High School') ...[
-                  Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
-                  Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
-                ],
-              ],
-            );
-          }).toList(),
-        ),
-      ),
-    ),
-  ],
-);
-
+                      // Scrollable rows for student data
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: students.map((student) {
+                              final data =
+                                  student.data() as Map<String, dynamic>;
+                              return Row(
+                                children: [
+                                  Expanded(
+                                      child: Text(data['student_id'] ?? '')),
+                                  Expanded(
+                                      child: Text(data['first_name'] ?? '')),
+                                  Expanded(
+                                      child: Text(data['last_name'] ?? '')),
+                                  Expanded(
+                                      child: Text(data['middle_name'] ?? '')),
+                                  Expanded(
+                                      child: Text(data['grade_level'] ?? '')),
+                                  Expanded(
+                                      child: Text(data['transferee'] ?? '')),
+                                  if (selectedLevel ==
+                                      'Senior High School') ...[
+                                    Expanded(
+                                        child: Text(
+                                            data['seniorHigh_Track'] ?? '')),
+                                    Expanded(
+                                        child: Text(
+                                            data['seniorHigh_Strand'] ?? '')),
+                                  ],
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),
@@ -2760,193 +2790,225 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         transferee.contains(query);
                   }).toList();
 
-                 return Column(
-  children: [
-    // Fixed header row
-    Row(
-      children: [
-        SizedBox(width: 32), // Checkbox column alignment
-        Expanded(child: Text('Student ID')),
-        Expanded(child: Text('First Name')),
-        Expanded(child: Text('Last Name')),
-        Expanded(child: Text('Middle Name')),
-        Expanded(
-          child: Row(
-            children: [
-              Text('Grade Level'),
-              if (selectedLevel == 'Senior High School')
-                GestureDetector(
-                  onTap: _toggleGradeLevelIcon,
-                  child: Row(
+                  return Column(
                     children: [
-                      if (_gradeLevelIconState == 0 || _gradeLevelIconState == 1)
-                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                      if (_gradeLevelIconState == 0 || _gradeLevelIconState == 2)
-                        Icon(Iconsax.arrow_down_copy, size: 16),
-                    ],
-                  ),
-                )
-              else if (selectedLevel == 'Junior High School')
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.arrow_drop_down),
-                  onSelected: (String value) {
-                    setState(() {
-                      _selectedGrade = value;
-                    });
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return ['All', '7', '8', '9', '10'].map((String grade) {
-                      return PopupMenuItem<String>(
-                        value: grade,
-                        child: Text('Grade $grade'),
-                      );
-                    }).toList();
-                  },
-                ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Row(
-            children: [
-              Text('Transferee'),
-              GestureDetector(
-                onTap: _toggleTransfereeIcon,
-                child: Row(
-                  children: [
-                    if (_transfereeIconState == 0 || _transfereeIconState == 1)
-                      Icon(Iconsax.arrow_up_3_copy, size: 16),
-                    if (_transfereeIconState == 0 || _transfereeIconState == 2)
-                      Icon(Iconsax.arrow_down_copy, size: 16),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (selectedLevel == 'Senior High School') ...[
-          Expanded(
-            child: Row(
-              children: [
-                Text('Track'),
-                GestureDetector(
-                  onTap: _toggleTrackIcon,
-                  child: Row(
-                    children: [
-                      if (_trackIconState == 0 || _trackIconState == 1)
-                        Icon(Iconsax.arrow_up_3_copy, size: 16),
-                      if (_trackIconState == 0 || _trackIconState == 2)
-                        Icon(Iconsax.arrow_down_copy, size: 16),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                Text('Strand'),
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.arrow_drop_down),
-                  onSelected: (String value) {
-                    setState(() {
-                      _selectedStrand = value;
-                    });
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      'ALL',
-                      'STEM',
-                      'HUMSS',
-                      'ABM',
-                      'ICT',
-                      'HE',
-                      'IA'
-                    ].map((String strand) {
-                      return PopupMenuItem<String>(
-                        value: strand,
-                        child: Text(strand),
-                      );
-                    }).toList();
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ],
-    ),
-    Divider(),
-
-    // Scrollable rows for student data
-    Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: students.map((student) {
-            final data = student.data() as Map<String, dynamic>;
-            String studentId = data['student_id'] ?? '';
-            return GestureDetector(
-              onTap: () {
-                final studentDocId =
-                    student.id; // Get the document ID here
-                if (selectedLevel == 'Senior High School') {
-                  // Navigate to StudentDetails for Senior High School
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StudentDetails(
-                        studentData: data,
-                        studentDocId: studentDocId,
+                      // Fixed header row
+                      Row(
+                        children: [
+                          SizedBox(width: 32), // Checkbox column alignment
+                          Expanded(child: Text('Student ID')),
+                          Expanded(child: Text('First Name')),
+                          Expanded(child: Text('Last Name')),
+                          Expanded(child: Text('Middle Name')),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text('Grade Level'),
+                                if (selectedLevel == 'Senior High School')
+                                  GestureDetector(
+                                    onTap: _toggleGradeLevelIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_gradeLevelIconState == 0 ||
+                                            _gradeLevelIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  )
+                                else if (selectedLevel == 'Junior High School')
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedGrade = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return ['All', '7', '8', '9', '10']
+                                          .map((String grade) {
+                                        return PopupMenuItem<String>(
+                                          value: grade,
+                                          child: Text('Grade $grade'),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text('Transferee'),
+                                GestureDetector(
+                                  onTap: _toggleTransfereeIcon,
+                                  child: Row(
+                                    children: [
+                                      if (_transfereeIconState == 0 ||
+                                          _transfereeIconState == 1)
+                                        Icon(Iconsax.arrow_up_3_copy, size: 16),
+                                      if (_transfereeIconState == 0 ||
+                                          _transfereeIconState == 2)
+                                        Icon(Iconsax.arrow_down_copy, size: 16),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (selectedLevel == 'Senior High School') ...[
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Track'),
+                                  GestureDetector(
+                                    onTap: _toggleTrackIcon,
+                                    child: Row(
+                                      children: [
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 1)
+                                          Icon(Iconsax.arrow_up_3_copy,
+                                              size: 16),
+                                        if (_trackIconState == 0 ||
+                                            _trackIconState == 2)
+                                          Icon(Iconsax.arrow_down_copy,
+                                              size: 16),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text('Strand'),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (String value) {
+                                      setState(() {
+                                        _selectedStrand = value;
+                                      });
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        'ALL',
+                                        'STEM',
+                                        'HUMSS',
+                                        'ABM',
+                                        'ICT',
+                                        'HE',
+                                        'IA'
+                                      ].map((String strand) {
+                                        return PopupMenuItem<String>(
+                                          value: strand,
+                                          child: Text(strand),
+                                        );
+                                      }).toList();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                    ),
-                  );
-                } else if (selectedLevel == 'Junior High School') {
-                  // Navigate to a different page for Junior High School
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => JHSStudentDetails(
-                        studentData: data,
-                        studentDocId: studentDocId,
-                      ),
-                    ),
-                  );
-                }
-              },
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: _selectedStudents[studentId] ?? false,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _selectedStudents[studentId] = value!;
-                        });
-                      },
-                    ),
-                    Expanded(child: Text(data['student_id'] ?? '')),
-                    Expanded(child: Text(data['first_name'] ?? '')),
-                    Expanded(child: Text(data['last_name'] ?? '')),
-                    Expanded(child: Text(data['middle_name'] ?? '')),
-                    Expanded(child: Text(data['grade_level'] ?? '')),
-                    Expanded(child: Text(data['transferee'] ?? '')),
-                    if (selectedLevel == 'Senior High School') ...[
-                      Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
-                      Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
-                    ],
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    ),
-  ],
-);
+                      Divider(),
 
+                      // Scrollable rows for student data
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: students.map((student) {
+                              final data =
+                                  student.data() as Map<String, dynamic>;
+                              String studentId = data['student_id'] ?? '';
+                              return GestureDetector(
+                                onTap: () {
+                                  final studentDocId =
+                                      student.id; // Get the document ID here
+                                  if (selectedLevel == 'Senior High School') {
+                                    // Navigate to StudentDetails for Senior High School
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => StudentDetails(
+                                          studentData: data,
+                                          studentDocId: studentDocId,
+                                        ),
+                                      ),
+                                    );
+                                  } else if (selectedLevel ==
+                                      'Junior High School') {
+                                    // Navigate to a different page for Junior High School
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => JHSStudentDetails(
+                                          studentData: data,
+                                          studentDocId: studentDocId,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: Row(
+                                    children: [
+                                      Checkbox(
+                                        value: _selectedStudents[studentId] ??
+                                            false,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            _selectedStudents[studentId] =
+                                                value!;
+                                          });
+                                        },
+                                      ),
+                                      Expanded(
+                                          child:
+                                              Text(data['student_id'] ?? '')),
+                                      Expanded(
+                                          child:
+                                              Text(data['first_name'] ?? '')),
+                                      Expanded(
+                                          child: Text(data['last_name'] ?? '')),
+                                      Expanded(
+                                          child:
+                                              Text(data['middle_name'] ?? '')),
+                                      Expanded(
+                                          child:
+                                              Text(data['grade_level'] ?? '')),
+                                      Expanded(
+                                          child:
+                                              Text(data['transferee'] ?? '')),
+                                      if (selectedLevel ==
+                                          'Senior High School') ...[
+                                        Expanded(
+                                            child: Text(
+                                                data['seniorHigh_Track'] ??
+                                                    '')),
+                                        Expanded(
+                                            child: Text(
+                                                data['seniorHigh_Strand'] ??
+                                                    '')),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
             ),
@@ -3330,7 +3392,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               ],
                             ),
                           ),
-                          
                         ],
                       ),
                       Divider(),
@@ -3372,7 +3433,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                       Expanded(
                                           child:
                                               Text(data['middle_name'] ?? '')),
-                                      
                                       Expanded(
                                           child:
                                               Text(data['grade_level'] ?? '')),
@@ -3484,6 +3544,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
                     final strand =
                         data['seniorHigh_Strand']?.toLowerCase() ?? '';
+                                          final educLevel = data['educ_level']?.toLowerCase() ?? '';  // Define educ_level here
+
 
                     final fullName = '$firstName $middleName $lastName';
 
@@ -3501,12 +3563,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             // Checkbox(value: false, onChanged: (bool? value) {}),
                             Expanded(child: Text('Student ID')),
                             Expanded(child: Text('Name')),
-                            Expanded(
-                              child: Text('Track'),
-                            ),
-                            Expanded(
-                              child: Text('Strand'),
-                            ),
+                          if (students.isNotEmpty && students.first.data()['educ_level'] == 'Senior High School') ...[
+                            Expanded(child: Text('Track')),
+                            Expanded(child: Text('Strand')),
+                          ],
                             Expanded(
                               child: Text('Grade Level'),
                             ),
@@ -3517,14 +3577,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ...students.map((student) {
                           final data = student.data();
                           return GestureDetector(
-                            onTap: () {
+                          onTap: () {
+                            // Get the educ_level value
+                            final educLevel = data['educ_level'] ?? '';
+
+                            // Check the educ_level and navigate accordingly
+                            if (educLevel == 'Junior High School') {
+                              // Navigate to a different page if educ_level is "Junior High School"
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SubjectsandGrade(
-                                            studentData: data,
-                                          )));
-                            },
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => JHSSubjectandGrade(studentData: data),
+                                ),
+                              );
+                            } else if (educLevel == 'Senior High School') {
+                              // Navigate to SubjectsandGrade page if educ_level is "Senior High School"
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SubjectsandGrade(studentData: data),
+                                ),
+                              );
+                            }
+                          },
                             child: Row(
                               children: [
                                 // Checkbox(
@@ -3533,12 +3608,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 Expanded(
                                     child: Text(
                                         '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}')),
-                                Expanded(
-                                    child:
-                                        Text(data['seniorHigh_Track'] ?? '')),
-                                Expanded(
-                                    child:
-                                        Text(data['seniorHigh_Strand'] ?? '')),
+                                if (data['educ_level'] == 'Senior High School') ...[
+                                Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
+                                Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
+                              ],
                                 Expanded(
                                     child: Text(data['grade_level'] ?? '')),
                               ],
@@ -4974,7 +5047,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Color(0xFF002f24)),
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF002f24)),
                       shape: MaterialStateProperty.all(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -5312,7 +5386,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Color(0xFF002f24)),
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF002f24)),
                       shape: MaterialStateProperty.all(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -5703,7 +5778,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Color(0xFF002f24)),
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF002f24)),
                       shape: MaterialStateProperty.all(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -6079,7 +6155,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Color(0xFF002f24)),
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF002f24)),
                       shape: MaterialStateProperty.all(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -6469,7 +6546,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             stream: FirebaseFirestore.instance
                                 .collection('jhs configurations')
                                 .where('isActive', isEqualTo: true)
-                                                                .where('educ_level', isEqualTo: 'Junior High School')
+                                .where('educ_level',
+                                    isEqualTo: 'Junior High School')
                                 .snapshots(),
                             builder: (context, snapshot) {
                               String activeSemester = 'None';
@@ -6544,7 +6622,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 child: Text('Set as Active'),
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Color(0xFF002f24),
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 12),
                                 ),
@@ -6596,7 +6674,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(config['school_year']),
-                                            Text(config['semester'] + ' ' + 'Quarter')
+                                            Text(config['semester'] +
+                                                ' ' +
+                                                'Quarter')
                                           ],
                                         ),
                                         subtitle: Text(
@@ -6976,7 +7056,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 child: Text('Set as Active'),
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Color(0xFF002f24),
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 12),
                                 ),
@@ -6994,7 +7074,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 if (!snapshot.hasData ||
                                     snapshot.data!.docs.isEmpty) {
                                   return Center(
-                                      child: Text('No shs configuration history'));
+                                      child:
+                                          Text('No shs configuration history'));
                                 }
 
                                 return ListView.builder(
@@ -7561,7 +7642,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Color(0xFF002f24)),
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF002f24)),
                       shape: MaterialStateProperty.all(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -7964,7 +8046,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Color(0xFF002f24)),
+                      backgroundColor:
+                          MaterialStateProperty.all(Color(0xFF002f24)),
                       shape: MaterialStateProperty.all(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -8941,7 +9024,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             logout();
                           },
                           style: TextButton.styleFrom(
-                            backgroundColor: Color(0xFF002f24), // Blue background
+                            backgroundColor:
+                                Color(0xFF002f24), // Blue background
                             padding: EdgeInsets.symmetric(
                                 horizontal: 16.0, vertical: 8.0),
                             shape: RoundedRectangleBorder(
@@ -8959,7 +9043,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             Navigator.of(context).pop(); // Close the dialog
                           },
                           style: TextButton.styleFrom(
-                            side: BorderSide(color: Color(0xFF002f24)), // Blue border
+                            side: BorderSide(
+                                color: Color(0xFF002f24)), // Blue border
                             padding: EdgeInsets.symmetric(
                                 horizontal: 16.0, vertical: 8.0),
                             shape: RoundedRectangleBorder(
@@ -8968,7 +9053,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           ),
                           child: Text(
                             'Cancel',
-                            style: TextStyle(color: Colors.white), // Blue text
+                            style: TextStyle(color: Colors.black), // Blue text
                           ),
                         ),
                       ],
