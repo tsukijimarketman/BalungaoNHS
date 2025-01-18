@@ -189,7 +189,7 @@ class _ExampleSidebarXState extends State<ExampleSidebarX> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color.fromARGB(255, 1, 93, 168),
+      color: Color(0xFF002f24),
       child: SidebarX(
         controller: widget._controller,
         theme: SidebarXTheme(
@@ -1747,7 +1747,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             if (semesterGrades.isEmpty) {
               return Container(
                 padding: EdgeInsets.all(16.0),
-                color: Color.fromARGB(255, 1, 93, 168),
+                color: Color(0xFF002f24),
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1756,7 +1756,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Image.asset(
-                          'assets/PBMA.png',
+                          'assets/balungaonhs.png',
                           width: screenWidth / 2.5,
                           height: screenHeight / 2.5,
                         ),
@@ -1790,7 +1790,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                 return Container(
                   width: double.infinity,
                   height: double.infinity, // Fill the screen height
-                  color: Color.fromARGB(255, 1, 93, 168),
+                  color: Color(0xFF002f24),
                   child: SingleChildScrollView(
                     physics: BouncingScrollPhysics(),
                     child: Padding(
@@ -1960,7 +1960,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             // Show loading widget while fetching data
             return _isLoading
                 ? Container(
-                    color: Color.fromARGB(255, 1, 93, 168),
+                    color: Color(0xFF002f24),
                     child: Center(
                       child: DefaultTextStyle(
                         style: TextStyle(
@@ -2034,7 +2034,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
 
             if (_isLoading) {
               return Container(
-                color: const Color.fromARGB(255, 1, 93, 168),
+                color: const Color(0xFF002f24),
                 child: Center(
                   child: DefaultTextStyle(
                     style: TextStyle(
@@ -2063,7 +2063,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                   key: _formKey,
                   child: SingleChildScrollView(
                     child: Container(
-                      color: Color.fromARGB(255, 1, 93, 168),
+                      color: Color(0xFF002f24),
                       width: screenWidth,
                       child: Container(
                         margin: EdgeInsets.all(isMobiles ? 15 : 30),
@@ -2202,7 +2202,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                                   height: isMobiles ? 30 : 40,
                                                   width: isMobiles ? 100 : 150,
                                                   decoration: BoxDecoration(
-                                                    color: Colors.yellow,
+                                                    color: Color(0xFF03b97c),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             10),
@@ -2260,11 +2260,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                                         "Logout",
                                                         style: TextStyle(
                                                             color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    1,
-                                                                    93,
-                                                                    168),
+                                                                Color(0xFF002f24),
                                                             fontFamily: "B",
                                                             fontSize: isMobiles
                                                                 ? 12
@@ -2277,8 +2273,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                                         Icons.logout_rounded,
                                                         size:
                                                             isMobiles ? 15 : 20,
-                                                        color: Color.fromARGB(
-                                                            255, 1, 93, 168),
+                                                        color: Color(0xFF002f24),
                                                       )
                                                     ],
                                                   ),
@@ -2298,7 +2293,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                               Text(
                                 "Student Information",
                                 style: TextStyle(
-                                    color: Colors.yellow,
+                                    color: Color(0xFF03b97c),
                                     fontSize: 25,
                                     fontFamily: "SB"),
                               ),
@@ -2830,7 +2825,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                               Text(
                                 "Home Address",
                                 style: TextStyle(
-                                    color: Colors.yellow,
+                                    color: Color(0xFF03b97c),
                                     fontSize: 25,
                                     fontFamily: "SB"),
                               ),
@@ -3313,7 +3308,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                               Text(
                                 "Parent Guardian Information",
                                 style: TextStyle(
-                                    color: Colors.yellow,
+                                    color: Color(0xFF03b97c),
                                     fontSize: 25,
                                     fontFamily: "SB"),
                               ),
@@ -3561,7 +3556,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                               Text(
                                 "Senior High School(SHS)",
                                 style: TextStyle(
-                                    color: Colors.yellow,
+                                    color: Color(0xFF03b97c),
                                     fontSize: 25,
                                     fontFamily: "SB"),
                               ),
@@ -3776,7 +3771,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                               Text(
                                 "Junior High School(JHS)",
                                 style: TextStyle(
-                                    color: Colors.yellow,
+                                    color: Color(0xFF03b97c),
                                     fontSize: 25,
                                     fontFamily: "SB"),
                               ),
@@ -3887,7 +3882,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                               Text(
                                 "Change Password",
                                 style: TextStyle(
-                                    color: Colors.yellow,
+                                    color: Color(0xFF03b97c),
                                     fontSize: 25,
                                     fontFamily: "SB"),
                               ),
@@ -4068,7 +4063,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                         style: ButtonStyle(
                                           backgroundColor:
                                               MaterialStateProperty.all<Color>(
-                                                  Colors.yellow),
+                                                  Color(0xFF03b97c)),
                                           elevation:
                                               MaterialStateProperty.all<double>(
                                                   5),
@@ -4086,6 +4081,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontSize: isMobiles ? 14 : 18,
+                                            fontFamily: 'B'
                                           ),
                                         ))),
                               )
@@ -4122,7 +4118,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
 }
 
 // Your colors here, replace with actual color values if needed
-const canvasColor = Color(0xFF1D3557);
+const canvasColor = Color(0xFF03b97c);
 const scaffoldBackgroundColor = Color(0xFF457B9D);
 const accentCanvasColor = Color(0xFFA8DADC);
 const actionColor = Color(0xFFF4A261);
