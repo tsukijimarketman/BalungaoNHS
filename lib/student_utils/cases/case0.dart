@@ -130,7 +130,7 @@ class _Case0State extends State<Case0> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 1, 93, 168),
+      backgroundColor: const Color(0xFF002f24),
       body: _isLoading
           ? Center(
           child: DefaultTextStyle(
@@ -197,7 +197,7 @@ class _Case0State extends State<Case0> {
               )
             : const Text(
                 "No Activity Banners Available!",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
         // Dots Indicator
         if (_images.isNotEmpty)
@@ -284,8 +284,7 @@ class _Case0State extends State<Case0> {
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 8),
                                       decoration: BoxDecoration(
-                                        color: const Color.fromARGB(
-                                            255, 1, 93, 168),
+                                        color: const Color(0xFF03b97c),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
@@ -409,7 +408,7 @@ class _Case0State extends State<Case0> {
               },
             );
           },
-          backgroundColor: Colors.blue,
+          backgroundColor: Color(0xFF03b97c),
           child: const Icon(Iconsax.message_copy, color: Colors.white,),
           tooltip: 'FAQs',
         ),

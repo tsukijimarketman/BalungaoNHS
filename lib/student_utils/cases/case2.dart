@@ -67,7 +67,7 @@ class EnrollmentStatusWidget extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      color: const Color.fromARGB(255, 1, 93, 168),
+      color: const Color(0xFF002f24),
       child: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -332,7 +332,7 @@ Container(
           child: ElevatedButton(
             onPressed: onLoadSubjects,
             style: ElevatedButton.styleFrom(
-              foregroundColor: Color.fromARGB(255, 1, 93, 168),
+              foregroundColor: Color(0xFF002f24),
               backgroundColor: Colors.white,
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               shape: RoundedRectangleBorder(
