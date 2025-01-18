@@ -124,7 +124,7 @@ class MyApp extends StatelessWidget {
               return Launcher(
                 scrollToFooter: false,
               );
-              // return AboutUs();
+              
             }
           }
           return Center(

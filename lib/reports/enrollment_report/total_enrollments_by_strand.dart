@@ -18,32 +18,32 @@ class TEBS extends StatelessWidget {
   };
 
   Stream<Map<int, int>> fetchStrandData() {
-  return FirebaseFirestore.instance
-      .collection('users')
-      .where('accountType', isEqualTo: 'student')
-      .where('enrollment_status', whereIn: ['approved', 're-enrolled'])
-      .where('Status', isEqualTo: "active") // Exclude "inactive" students
-      .snapshots()
-      .map((snapshot) {
-        // Initialize counts for each strand
-        final strandCounts = {
-          for (var i = 0; i < TEBS.strandLabels.length; i++) i: 0
-        };
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('accountType', isEqualTo: 'student')
+        .where('enrollment_status', whereIn: ['approved', 're-enrolled'])
+        .where('Status', isEqualTo: "active") // Exclude "inactive" students
+        .snapshots()
+        .map((snapshot) {
+          // Initialize counts for each strand
+          final strandCounts = {
+            for (var i = 0; i < TEBS.strandLabels.length; i++) i: 0
+          };
 
-        for (final doc in snapshot.docs) {
-          // Ensure the field exists and matches the expected type
-          final strand = doc.data()['seniorHigh_Strand'] as String?;
-          if (strand == null) continue;
+          for (final doc in snapshot.docs) {
+            // Ensure the field exists and matches the expected type
+            final strand = doc.data()['seniorHigh_Strand'] as String?;
+            if (strand == null) continue;
 
-          // Map strand to its corresponding bar index
-          final index = TEBS.strandMapping[strand];
-          if (index != null) {
-            strandCounts[index] = strandCounts[index]! + 1;
+            // Map strand to its corresponding bar index
+            final index = TEBS.strandMapping[strand];
+            if (index != null) {
+              strandCounts[index] = strandCounts[index]! + 1;
+            }
           }
-        }
-        return strandCounts;
-      });
-}
+          return strandCounts;
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,29 +60,29 @@ class TEBS extends StatelessWidget {
         final strandData = snapshot.data!;
 
         return Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF102A43),
+            color: Color(0xFF002f24),
             borderRadius: BorderRadius.circular(12),
           ),
-          width: 700,
+          width: MediaQuery.of(context).size.width/3.3, // Adjusted width to fit beside other graphs
           child: Column(
             children: [
               const Text(
                 "Total enrollments by strand",
                 style: TextStyle(
-                    fontFamily: "B", fontSize: 20, color: Colors.white),
+                    fontFamily: "B", fontSize: 16, color: Colors.white),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 40),
+                margin: EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: const [
                     Indicator(
                       color: Colors.orangeAccent,
                       label: "Academic Strand",
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 10),
                     Indicator(
                       color: Colors.purpleAccent,
                       label: "Technical-Vocational-Livelihood Strand",
@@ -90,7 +90,7 @@ class TEBS extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               EnrollmentBarChart(
                 strandData: strandData,
                 strandLabels: strandLabels,
@@ -121,7 +121,7 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
   int touchedIndex = -1;
 
   Widget bottomTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.white, fontSize: 12);
+    const style = TextStyle(color: Colors.white, fontSize: 10);
     if (value.toInt() < widget.strandLabels.length) {
       return SideTitleWidget(
         axisSide: meta.axisSide,
@@ -135,7 +135,7 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
   }
 
   Widget leftTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.white, fontSize: 10);
+    const style = TextStyle(color: Colors.white, fontSize: 12); // Enlarged font size
     if (value % 5 == 0) {
       return SideTitleWidget(
         axisSide: meta.axisSide,
@@ -149,37 +149,36 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
   }
 
   BarChartGroupData generateGroup(int x, double value, {bool isTouched = false}) {
-  final isAcademic = x < 3;
-  final barColor = isAcademic ? Colors.orangeAccent : Colors.purpleAccent;
+    final isAcademic = x < 3;
+    final barColor = isAcademic ? Colors.orangeAccent : Colors.purpleAccent;
 
-  return BarChartGroupData(
-    x: x,
-    showingTooltipIndicators: isTouched ? [0] : [],
-    barRods: [
-      BarChartRodData(
-        toY: value, // Use the actual data value
-        width: 40,
-        color: barColor, // Always use the original bar color
-        borderSide: BorderSide(
-          color: isTouched ? Colors.white : Colors.transparent,
-          width: isTouched ? 2 : 0,
+    return BarChartGroupData(
+      x: x,
+      showingTooltipIndicators: isTouched ? [0] : [],
+      barRods: [
+        BarChartRodData(
+          toY: value, // Use the actual data value
+          width: 25, // Adjusted width to align better with the grid lines
+          color: barColor, // Always use the original bar color
+          borderSide: BorderSide(
+            color: isTouched ? Colors.white : Colors.transparent,
+            width: isTouched ? 2 : 0,
+          ),
         ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 700,
-      height: 400,
+      width: 400, // Adjusted width to fit within the container
+      height: 315, // Adjusted height to fit within the container
       child: BarChart(
         BarChartData(
           maxY: widget.strandData.values.reduce((a, b) => a > b ? a : b) + 5,
           minY: 0,
-          groupsSpace: 12,
+          groupsSpace: 10, // Increased space between groups for better alignment
           barGroups: List.generate(
             widget.strandLabels.length,
             (i) => generateGroup(
@@ -219,7 +218,7 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 40,
+                reservedSize: 40, // Added reserved size for better spacing
                 getTitlesWidget: leftTitles,
                 interval: 5,
               ),
@@ -233,7 +232,7 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 32,
+                reservedSize: 20,
                 getTitlesWidget: bottomTitles,
               ),
             ),
@@ -243,19 +242,20 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
           ),
           gridData: FlGridData(
             show: true,
-            checkToShowHorizontalLine: (value) => value % 5 == 0,
+            checkToShowHorizontalLine: (value) => value % 1 == 0,
             getDrawingHorizontalLine: (value) {
               return FlLine(
                 color: Colors.grey.withOpacity(0.3),
                 strokeWidth: 0.8,
               );
-            },
+            },  
           ),
         ),
       ),
     );
   }
 }
+
 
 class Indicator extends StatelessWidget {
   const Indicator({super.key, required this.color, required this.label});
@@ -267,12 +267,12 @@ class Indicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(Icons.square_rounded, color: color, size: 20),
-        const SizedBox(width: 10),
+        Icon(Icons.square_rounded, color: color, size: 16),
+        const SizedBox(width: 8),
         Text(
           label,
           style: const TextStyle(
-              fontFamily: "M", fontSize: 17, color: Colors.white),
+              fontFamily: "M", fontSize: 14, color: Colors.white),
         ),
       ],
     );
