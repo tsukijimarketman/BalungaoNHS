@@ -60,29 +60,29 @@ class TEBS extends StatelessWidget {
         final strandData = snapshot.data!;
 
         return Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width/83),
           decoration: BoxDecoration(
             color: Color(0xFF002f24),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width/83),
           ),
           width: MediaQuery.of(context).size.width/3.3, // Adjusted width to fit beside other graphs
           child: Column(
             children: [
-              const Text(
+              Text(
                 "Total enrollments by strand",
                 style: TextStyle(
-                    fontFamily: "B", fontSize: 16, color: Colors.white),
+                    fontFamily: "B", fontSize: MediaQuery.of(context).size.width/70, color: Colors.white),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: MediaQuery.of(context).size.width/200),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
+                margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width/60),
                 child: Column(
-                  children: const [
+                  children: [
                     Indicator(
                       color: Colors.orangeAccent,
                       label: "Academic Strand",
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: MediaQuery.of(context).size.width/200),
                     Indicator(
                       color: Colors.purpleAccent,
                       label: "Technical-Vocational-Livelihood Strand",
@@ -90,7 +90,7 @@ class TEBS extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: MediaQuery.of(context).size.width/200),
               EnrollmentBarChart(
                 strandData: strandData,
                 strandLabels: strandLabels,
@@ -172,8 +172,8 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 400, // Adjusted width to fit within the container
-      height: 315, // Adjusted height to fit within the container
+      width: MediaQuery.of(context).size.width/3.5, // Adjusted width to fit within the container
+      height: MediaQuery.of(context).size.width/4.52, // Adjusted height to fit within the container
       child: BarChart(
         BarChartData(
           maxY: widget.strandData.values.reduce((a, b) => a > b ? a : b) + 5,
@@ -267,12 +267,12 @@ class Indicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(Icons.square_rounded, color: color, size: 16),
-        const SizedBox(width: 8),
+        Icon(Icons.square_rounded, color: color, size: MediaQuery.of(context).size.width/70),
+        SizedBox(width: MediaQuery.of(context).size.width/300),
         Text(
           label,
-          style: const TextStyle(
-              fontFamily: "M", fontSize: 14, color: Colors.white),
+          style: TextStyle(
+              fontFamily: "M", fontSize: MediaQuery.of(context).size.width/95, color: Colors.white),
         ),
       ],
     );

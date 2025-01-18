@@ -28,29 +28,29 @@ class DistributionAgeState extends State<DistributionAge> {
         final total = ageData.values.fold(0, (sum, count) => sum + count);
 
         return Container(
-          padding: const EdgeInsets.all(10),
+          padding:  EdgeInsets.all(MediaQuery.of(context).size.width/80),
           height: MediaQuery.of(context).size.width/3.21,
           width: MediaQuery.of(context).size.width/3.3,
           decoration: BoxDecoration(
             color: Color(0xFF002f24),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width/75),
           ),
           child: Column(
             children: [
-              const Text(
+               Text(
                 "Age Range",
                 style: TextStyle(
                   fontFamily: "B",
-                  fontSize: 25,
+                  fontSize: MediaQuery.of(context).size.width/55,
                   color: Colors.white
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: MediaQuery.of(context).size.width/60),
               Row(
                 children: <Widget>[
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 20),
+                      padding: EdgeInsets.only(right: MediaQuery.of(context).size.width/60),
                       child: AgePieChart(ageData: ageData, total: total),
                     ),
                   ),

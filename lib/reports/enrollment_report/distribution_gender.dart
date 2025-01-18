@@ -34,45 +34,45 @@ class _DistributionGenderState extends State<DistributionGender> {
 
         return Container(
           width: MediaQuery.of(context).size.width/3.3,
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width/75),
           decoration: BoxDecoration(
             color: const Color(0xFF002f24),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width/80),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: const Text(
+                child: Text(
                   "Distribution of Gender",
-                  style: TextStyle(fontFamily: "SB", color: Colors.white, fontSize: 20),
+                  style: TextStyle(fontFamily: "SB", color: Colors.white, fontSize: MediaQuery.of(context).size.width/60),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: MediaQuery.of(context).size.width/60),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Row(
-                    children: const [
+                    children:  [
                       Icon(Icons.face_retouching_natural, color: Colors.blue),
-                      SizedBox(width: 5),
+                      SizedBox(width: MediaQuery.of(context).size.width/300),
                       Text("Male", style: TextStyle(color: Colors.blue, fontFamily: "M")),
                     ],
                   ),
                   Row(
-                    children: const [
+                    children: [
                       Icon(Icons.face_retouching_natural, color: Colors.pink),
-                      SizedBox(width: 5),
+                      SizedBox(width: MediaQuery.of(context).size.width/300),
                       Text("Female", style: TextStyle(color: Colors.pink, fontFamily: "M")),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: MediaQuery.of(context).size.width/60),
               Center(
                 child: SizedBox(
-                  width: 300,
-                  height: 300,
+                  width: MediaQuery.of(context).size.width/4.8,
+                  height: MediaQuery.of(context).size.width/4.8,
                   child: BarChart(
                     BarChartData(
                       borderData: FlBorderData(
@@ -88,7 +88,7 @@ class _DistributionGenderState extends State<DistributionGender> {
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 30,
+                            reservedSize: MediaQuery.of(context).size.width/50,
                             getTitlesWidget: (value, meta) {
                               return Text(
                                 value.toInt().toString(),
@@ -101,7 +101,7 @@ class _DistributionGenderState extends State<DistributionGender> {
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
-                            reservedSize: 36,
+                            reservedSize: MediaQuery.of(context).size.width/45,
                             getTitlesWidget: (value, meta) {
                               final index = value.toInt();
                               return SideTitleWidget(
@@ -134,7 +134,7 @@ class _DistributionGenderState extends State<DistributionGender> {
                             BarChartRodData(
                               toY: data.value,
                               color: data.color,
-                              width: 50,
+                              width: MediaQuery.of(context).size.width/30,
                               borderRadius: BorderRadius.circular(0),
                             ),
                           ],
@@ -199,7 +199,7 @@ class _IconWidgetState extends AnimatedWidgetBaseState<_IconWidget> {
     return Icon(
       Icons.face,
       color: widget.color,
-      size: 28,
+      size: MediaQuery.of(context).size.width/53,
     );
   }
 

@@ -14,6 +14,7 @@ class EnrollmentReport extends StatefulWidget {
 class _EnrollmentReportState extends State<EnrollmentReport> {
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -21,26 +22,27 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
+               Text(
                 "Enrollment Report",
                 style: TextStyle(
-                  fontSize: 40,
+                  fontSize: MediaQuery.of(context).size.width/35,
                   fontFamily: "BL",
                 ),
               ),
-              const SizedBox(height: 5),
-              const Text(
+              SizedBox(height: screenWidth / 300),
+              Text(
                 "View and analyze school enrollment data",
                 style: TextStyle(
-                    fontFamily: "M", fontSize: 15, color: Colors.grey),
+                    fontFamily: "M", fontSize: screenWidth/90, color: Colors.grey),
               ),
-              const SizedBox(height: 30),
-              const Text(
+              SizedBox(height: screenWidth/50),
+              Text(
                 "Total Enrollments",
-                style: TextStyle(fontSize: 25, fontFamily: "B"),
+                style: TextStyle(fontSize: screenWidth/55, fontFamily: "B"),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: screenWidth/50),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   StreamBuilder<int>(
                     stream: getTotalEnrollments(),
@@ -59,7 +61,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                     },
                   ),
                   SizedBox(
-                    width: 20,
+                    width: screenWidth/70,
                   ),
                   StreamBuilder<int>(
                     stream: getTotalJHS(),
@@ -78,7 +80,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                     },
                   ),
                   SizedBox(
-                    width: 20,
+                    width: screenWidth/70,
                   ),
                   StreamBuilder<int>(
                     stream: getTotalSHS(),
@@ -98,7 +100,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: screenWidth/50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -117,7 +119,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                       );
                     },
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: screenWidth/70),
                   StreamBuilder<int>(
                     stream: getGradeLevelCount("8"),
                     builder: (context, snapshot) {
@@ -133,7 +135,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                       );
                     },
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: screenWidth/70),
                   StreamBuilder<int>(
                     stream: getGradeLevelCount("9"),
                     builder: (context, snapshot) {
@@ -149,7 +151,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                       );
                     },
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: screenWidth/70),
                   StreamBuilder<int>(
                     stream: getGradeLevelCount("10"),
                     builder: (context, snapshot) {
@@ -165,7 +167,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                       );
                     },
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: screenWidth/70),
                   StreamBuilder<int>(
                     stream: getGradeLevelCount("11"),
                     builder: (context, snapshot) {
@@ -181,7 +183,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                       );
                     },
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: screenWidth/70),
                   StreamBuilder<int>(
                     stream: getGradeLevelCount("12"),
                     builder: (context, snapshot) {
@@ -199,7 +201,7 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: screenWidth/50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -216,26 +218,27 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
   }
 
   Widget buildStatCard(String title, String value) {
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+      padding: EdgeInsets.symmetric(vertical: screenWidth/60, horizontal: screenWidth/50),
       width: MediaQuery.of(context).size.width / 6.92,
       decoration: BoxDecoration(
         color: Color(0xFF00A16c),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(screenWidth/80),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,
-            style: const TextStyle(
-                fontSize: 15, fontFamily: "M", color: Colors.white),
+            style: TextStyle(
+                fontSize: screenWidth/65, fontFamily: "M", color: Colors.white),
           ),
-          const SizedBox(height: 5),
+          SizedBox(height: screenWidth/300),
           Text(
             value,
-            style: const TextStyle(
-                fontFamily: "B", fontSize: 30, color: Colors.white),
+            style: TextStyle(
+                fontFamily: "B", fontSize: screenWidth/50, color: Colors.white),
           ),
         ],
       ),
@@ -243,27 +246,28 @@ class _EnrollmentReportState extends State<EnrollmentReport> {
   }
 
   Widget buildStatCardH(String title, String value) {
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+      padding: EdgeInsets.symmetric(vertical: screenWidth/70, horizontal: screenWidth/50),
       width: MediaQuery.of(context).size.width / 3.3,
       height: MediaQuery.of(context).size.width / 10,
       decoration: BoxDecoration(
         color: Color(0xFFA1F9D0),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(screenWidth/80),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,
-            style: const TextStyle(
-                fontSize: 23, fontFamily: "M", color: Colors.black),
+            style: TextStyle(
+                fontSize: screenWidth/65, fontFamily: "M", color: Colors.black),
           ),
-          const SizedBox(height: 5),
+          
           Text(
             value,
-            style: const TextStyle(
-                fontFamily: "B", fontSize: 40, color: Colors.black),
+            style: TextStyle(
+                fontFamily: "B", fontSize: screenWidth/30, color: Colors.black),
           ),
         ],
       ),
