@@ -9,6 +9,7 @@ class EnrollmentStatusWidget extends StatelessWidget {
   final String? fullName;
   final String? strand;
   final String? track;
+    final String? sectionAdviser;
   final String? gradeLevel;
   final String? semester;
   final String? quarter;
@@ -32,6 +33,8 @@ class EnrollmentStatusWidget extends StatelessWidget {
     required this.strand,
     required this.track,
     required this.gradeLevel,
+        required this.sectionAdviser,
+
     required this.semester,
         required this.quarter,
 
@@ -236,6 +239,22 @@ class EnrollmentStatusWidget extends StatelessWidget {
           ),
         ),
       ),
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),  // Add padding between section adviser and table
+        child: Row(
+          children: [
+            Text(
+        'Section Adviser: ${sectionAdviser}',
+              style: TextStyle(
+                fontSize: textFontSize, 
+                fontWeight: FontWeight.bold,
+                color: Colors.white
+              ),
+            ),
+            // Here you would fetch and display the section_adviser dynamically
+          ],
+        ),
+      ),
 
       // Conditionally show the subjects table for Senior High School
       if (educLevel == 'Senior High School')
@@ -344,6 +363,22 @@ Container(
           ),
         ),
       const SizedBox(height: 20),
+       Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),  // Add padding between section adviser and table
+        child: Row(
+          children: [
+            Text(
+              'Section Adviser: ${sectionAdviser}',
+              style: TextStyle(
+                fontSize: textFontSize, 
+                fontWeight: FontWeight.bold,
+                color: Colors.white
+              ),
+            ),
+            // Here you would fetch and display the section_adviser dynamically
+          ],
+        ),
+      ),
      if (educLevel == 'Junior High School') 
         _buildJHSSubjectsTable(), // Show Junior High School Table
       if (educLevel == 'Senior High School') 

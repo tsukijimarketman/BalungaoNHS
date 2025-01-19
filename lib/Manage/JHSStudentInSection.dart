@@ -24,61 +24,74 @@ class _JHSStudentInSectionState extends State<JHSStudentInSection> {
         .get();
   }
 
-  Future<List<String>> _fetchSections() async {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('sections').get();
-    // Extract section names
-    List<String> sections = snapshot.docs.map((doc) => doc['section_name'] as String).toList();
-    return sections;
-  }
+  Future<List<Map<String, String>>> _fetchSections() async {
+  QuerySnapshot snapshot = await FirebaseFirestore.instance
+      .collection('sections')
+      .where('educ_level', isEqualTo: 'Junior High School')
+      .get();
+
+  // Extract section names and advisers
+  List<Map<String, String>> sections = snapshot.docs.map((doc) {
+    return {
+      'section_name': doc['section_name'] as String,
+      'section_adviser': doc['section_adviser'] as String, // Assuming section_adviser is stored here
+    };
+  }).toList();
+
+  return sections;
+}
 
   // Show Cupertino Dialog for section selection
   void _showSectionDialog(BuildContext context, String studentId, String currentSection) async {
-    String selectedSection = currentSection; // Store the currently selected section
+  String selectedSection = currentSection; // Store the currently selected section
+  String selectedAdviser = ''; // Variable to store section adviser
 
-    // Fetch sections from Firestore
-    List<String> sections = await _fetchSections();
+  // Fetch sections from Firestore
+  List<Map<String, String>> sections = await _fetchSections();
 
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text('Select Section'),
-          content: Material(  // Wrap the content in a Material widget
-            color: Colors.transparent,  // Make it transparent to blend with Cupertino style
-            child: Column(
-              children: [
-                // Dropdown for section selection
-                StatefulBuilder(
+  showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: Text('Select Section'),
+        content: Material( // Wrap the content in a Material widget
+          color: Colors.transparent, // Make it transparent to blend with Cupertino style
+          child: Column(
+            children: [
+              // Dropdown for section selection
+               StatefulBuilder(
                   builder: (context, setState) {
                     return DropdownButton<String>(
                       value: selectedSection,
-                      items: sections.map<DropdownMenuItem<String>>((String value) {
+                    items: sections.map<DropdownMenuItem<String>>((Map<String, String> section) {
                         return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                          value: section['section_name'],
+                        child: Text(section['section_name']!),
+                      );
+                    }).toList(),
                       onChanged: (String? newValue) {
                         setState(() {
-                          selectedSection = newValue!;
-                        });
+                        selectedSection = newValue!;
+                        // Update adviser based on selected section
+                        selectedAdviser = sections.firstWhere((section) => section['section_name'] == newValue)['section_adviser']!;
+                      });
                       },
                     );
                   },
                 ),
-              ],
-            ),
+            ],
           ),
-          actions: [
-            // Cancel button
-            CupertinoDialogAction(
-              child: Text('Cancel', style: TextStyle(color: Colors.red),),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-            ),
-            // Save button
-            CupertinoDialogAction(
+        ),
+        actions: [
+          // Cancel button
+          CupertinoDialogAction(
+            child: Text('Cancel', style: TextStyle(color: Colors.red),),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+          ),
+          // Save button
+          CupertinoDialogAction(
               child: Text('Save', style: TextStyle(color: Colors.blue),),
               onPressed: () async {
                 // Update the section for the student in Firestore
@@ -86,6 +99,24 @@ class _JHSStudentInSectionState extends State<JHSStudentInSection> {
                     .collection('users')
                     .doc(studentId)
                     .update({'section': selectedSection});
+
+                     // Step 2: Retrieve the student's 'sections' subcollection
+      QuerySnapshot sectionsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(studentId)
+          .collection('sections')
+          .get();
+
+      // Step 3: Loop through the sections to find the relevant document (if needed)
+      if (sectionsSnapshot.docs.isNotEmpty) {
+        for (var doc in sectionsSnapshot.docs) {
+          // Step 4: Update the selected section in the matching section document
+          await doc.reference.update({'selectedSection': selectedSection});
+                  await doc.reference.update({'section_adviser': selectedAdviser});
+                  print('Updated selectedSection and section_adviser in section subcollection: ${doc.id}');
+                }
+              }
+
                 
                 Navigator.of(context).pop(); // Close the dialog
                 setState(() {});
@@ -96,6 +127,7 @@ class _JHSStudentInSectionState extends State<JHSStudentInSection> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

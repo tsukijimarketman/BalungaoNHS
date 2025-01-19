@@ -334,6 +334,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
   String? _fullName;
   late String _strand;
   String? _track;
+  String? _sectionAdviser;
   String? _gradeLevel;
   String? _semester;
   String? _quarter;
@@ -708,6 +709,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                     .trim();
             _gradeLevel = userDoc['grade_level'];
 
+            _educLevel = educLevel;
+
             // Check if educLevel is "Senior High School" before trying to load strand and track
             if (educLevel == 'Senior High School') {
               _strand = userDoc['seniorHigh_Strand'] ??
@@ -725,6 +728,13 @@ class _ScreensExampleState extends State<_ScreensExample> {
             }
           });
 
+          String sectionAdviser = await _loadSectionAdviser(userDoc.id);
+
+          setState(() {
+            _sectionAdviser =
+                sectionAdviser; // Store the section_adviser in the state
+          });
+
           // Load grades based on the selected semester if it exists
           await _loadGrades();
         } else {
@@ -738,17 +748,55 @@ class _ScreensExampleState extends State<_ScreensExample> {
     }
   }
 
+  Future<String> _loadSectionAdviser(String userDocId) async {
+    try {
+      // Fetch the section document from the 'sections' sub-collection inside the user's document
+      DocumentSnapshot sectionDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userDocId)
+          .collection('sections')
+          .doc(userDocId) // The section document should have the same ID
+          .get();
+
+      if (sectionDoc.exists) {
+        // If the document exists, get the 'section_adviser' field
+        return sectionDoc['section_adviser'] ??
+            'No adviser assigned'; // Return 'No adviser assigned' if the field is missing
+      } else {
+        return 'No section found'; // Return a default message if no section document is found
+      }
+    } catch (e) {
+      print('Failed to load section adviser: $e');
+      return 'Error loading adviser'; // Return an error message in case of failure
+    }
+  }
+
   Map<String, List<Map<String, String>>> semesterGrades = {};
 
   // Case 1
   Future<void> _loadGrades() async {
     try {
-      List<String> collectionsToCheck = [
-        'Grade 11 - 1st Semester',
-        'Grade 11 - 2nd Semester',
-        'Grade 12 - 1st Semester',
-        'Grade 12 - 2nd Semester',
-      ];
+      List<String> collectionsToCheck;
+
+      // Determine collections to check based on educ_level
+      if (_educLevel == "Junior High School") {
+        collectionsToCheck = [
+          '1st Quarter',
+          '2nd Quarter',
+          '3rd Quarter',
+          '4th Quarter',
+        ];
+      } else if (_educLevel == "Senior High School") {
+        collectionsToCheck = [
+          'Grade 11 - 1st Semester',
+          'Grade 11 - 2nd Semester',
+          'Grade 12 - 1st Semester',
+          'Grade 12 - 2nd Semester',
+        ];
+      } else {
+        print('Unknown educ level: $_educLevel');
+        return;
+      }
 
       // Clear previous grades
       semesterGrades.clear(); // Make sure to clear previous data
@@ -759,12 +807,15 @@ class _ScreensExampleState extends State<_ScreensExample> {
             await FirebaseFirestore.instance.collection(collectionName).get();
 
         print('Checking collection: $collectionName');
-
+        print('Number of documents: ${gradeSnapshot.docs.length}');
         if (gradeSnapshot.docs.isNotEmpty) {
           List<Map<String, String>> gradesList =
               []; // Temporary list for grades in this semester
 
           for (var gradeDoc in gradeSnapshot.docs) {
+            print('Document data: ${gradeDoc.data()}');
+            print('Document data: ${gradeDoc.data()}');
+
             var studentData = gradeDoc.data() as Map<String, dynamic>;
 
             // Loop through each student in the document
@@ -780,16 +831,30 @@ class _ScreensExampleState extends State<_ScreensExample> {
 
                   // Check if the uid matches the current user's uid
                   if (uid == FirebaseAuth.instance.currentUser?.uid) {
-                    String subjectCode = gradeEntry['subject_code'] ?? '';
+                    String subjectCode =
+                        gradeEntry['subject_code'] ?? ''; // Fetch subject code
                     String subjectName = gradeEntry['subject_name'] ?? '';
                     String grade = gradeEntry['grade']?.toString() ?? '';
+                    String currentUid =
+                        FirebaseAuth.instance.currentUser?.uid ?? '';
+                    print('Current user UID: $currentUid');
+                    print('Grade entry UID: ${gradeEntry['uid']}');
 
                     // Add to temporary grades list
-                    gradesList.add({
-                      'subject_code': subjectCode,
-                      'subject_name': subjectName,
-                      'grade': grade,
-                    });
+                    if (_educLevel == "Senior High School") {
+                      // Include subject code for Senior High School
+                      gradesList.add({
+                        'subject_code': subjectCode,
+                        'subject_name': subjectName,
+                        'grade': grade,
+                      });
+                    } else if (_educLevel == "Junior High School") {
+                      // Exclude subject code for Junior High School
+                      gradesList.add({
+                        'subject_name': subjectName,
+                        'grade': grade,
+                      });
+                    }
 
                     print('Added grade: $grade for subject: $subjectName');
                   }
@@ -799,8 +864,10 @@ class _ScreensExampleState extends State<_ScreensExample> {
           }
 
           if (gradesList.isNotEmpty) {
-            semesterGrades[collectionName] =
-                gradesList; // Save to the semesterGrades map
+            print('Grades list for $collectionName: $gradesList');
+            semesterGrades[collectionName] = gradesList;
+          } else {
+            print('No grades found for collection: $collectionName');
           }
         }
       }
@@ -1081,6 +1148,10 @@ class _ScreensExampleState extends State<_ScreensExample> {
           String sectionQuarter = sectionDoc['quarter'];
           String sectionName = sectionDoc[
               'section_name']; // Get section_name (e.g., "7-Makapagal-A")
+          setState(() {
+            _sectionAdviser = sectionDoc['section_adviser'];
+          });
+          print('Section Adviser: $_sectionAdviser');
 
           // Query subjects based on quarter for Junior High School
           QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
@@ -1171,7 +1242,10 @@ class _ScreensExampleState extends State<_ScreensExample> {
           DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
           String sectionSemester = sectionDoc[
               'semester']; // Assuming 'semester' field exists in 'sections'
-
+          setState(() {
+            _sectionAdviser = sectionDoc['section_adviser'];
+          });
+          print('Section Adviser: $_sectionAdviser');
           // Query subjects that have the same semester as the selected section
           QuerySnapshot subjectSnapshot = await FirebaseFirestore.instance
               .collection('subjects')
@@ -1327,6 +1401,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             'selectedSection': _selectedSection,
             'subjects': _subjects,
             'isFinalized': true,
+            'section_adviser': _sectionAdviser,
             'finalizationTimestamp': finalizationTime, // Add timestamp
           });
 
@@ -1827,77 +1902,139 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                   child: Table(
                                     border:
                                         TableBorder.all(color: Colors.black),
-                                    columnWidths: {
-                                      0: FlexColumnWidth(2),
-                                      1: FlexColumnWidth(4),
-                                      2: FlexColumnWidth(2),
-                                    },
+                                    columnWidths:
+                                        _educLevel == "Senior High School"
+                                            ? {
+                                                0: FlexColumnWidth(2),
+                                                1: FlexColumnWidth(4),
+                                                2: FlexColumnWidth(2),
+                                              }
+                                            : {
+                                                0: FlexColumnWidth(4),
+                                                1: FlexColumnWidth(2),
+                                              },
                                     children: [
-                                      TableRow(children: [
-                                        Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Course Code',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: tableFontSize,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Subject',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: tableFontSize,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Grade',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: tableFontSize,
-                                            ),
-                                          ),
-                                        ),
-                                      ]),
+                                      TableRow(
+                                        children: _educLevel ==
+                                                "Senior High School"
+                                            ? [
+                                                Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    'Course Code',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: tableFontSize,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    'Subject',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: tableFontSize,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    'Grade',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: tableFontSize,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ]
+                                            : [
+                                                Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    'Subject',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: tableFontSize,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    'Grade',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: tableFontSize,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                      ),
                                       ...grades.map((subject) {
-                                        return TableRow(children: [
-                                          Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Text(
-                                              subject['subject_code'] ?? '',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: tableFontSize,
+                                        if (_educLevel ==
+                                            "Senior High School") {
+                                          return TableRow(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  subject['subject_code'] ?? '',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: tableFontSize,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Text(
-                                              subject['subject_name'] ?? '',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: tableFontSize,
+                                              Padding(
+                                                padding: EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  subject['subject_name'] ?? '',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: tableFontSize,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Text(
-                                              subject['grade'] ?? 'N/A',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: tableFontSize,
+                                              Padding(
+                                                padding: EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  subject['grade'] ?? 'N/A',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: tableFontSize,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                        ]);
+                                            ],
+                                          );
+                                        } else {
+                                          return TableRow(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  subject['subject_name'] ?? '',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: tableFontSize,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  subject['grade'] ?? 'N/A',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: tableFontSize,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }
                                       }).toList(),
                                     ],
                                   ),
@@ -1986,6 +2123,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                     gradeLevel: _gradeLevel,
                     semester: _semester,
                     quarter: _quarter,
+                    sectionAdviser:
+                        _sectionAdviser, // Ensure this is passed here
                     sections: _sections,
                     subjects: _subjects,
                     isFinalized: _isFinalized,
@@ -2259,8 +2398,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                                       Text(
                                                         "Logout",
                                                         style: TextStyle(
-                                                            color:
-                                                                Color(0xFF002f24),
+                                                            color: Color(
+                                                                0xFF002f24),
                                                             fontFamily: "B",
                                                             fontSize: isMobiles
                                                                 ? 12
@@ -2273,7 +2412,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                                         Icons.logout_rounded,
                                                         size:
                                                             isMobiles ? 15 : 20,
-                                                        color: Color(0xFF002f24),
+                                                        color:
+                                                            Color(0xFF002f24),
                                                       )
                                                     ],
                                                   ),
@@ -4079,10 +4219,9 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                         child: Text(
                                           'Save',
                                           style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: isMobiles ? 14 : 18,
-                                            fontFamily: 'B'
-                                          ),
+                                              color: Colors.black,
+                                              fontSize: isMobiles ? 14 : 18,
+                                              fontFamily: 'B'),
                                         ))),
                               )
                             ]),
