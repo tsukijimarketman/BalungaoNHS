@@ -24,8 +24,8 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
   late Animation<double> _descriptionController;
   late Animation<double> _buttonController;
 
-  Color _textColor5 = Colors.white;
-  Color _textColor6 = Color.fromARGB(255, 1, 93, 168);
+  Color _textColor5 = Color(0xFF002f24);
+  Color _textColor6 = Colors.white;
 
   @override
   void initState() {
@@ -71,12 +71,9 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
     });
   }
 
-
-
   void toggleTAC() {
     widget.onGetStartedPressed();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +86,7 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
           width: screenWidth,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/primecampus.jpg"),
+              image: AssetImage("assets/manghi.jpg"),
               fit: BoxFit.cover,
             ),
           ),
@@ -103,8 +100,8 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color.fromARGB(87, 1, 93, 168),
-                Color.fromARGB(255, 1, 93, 168),
+                Colors.transparent,
+                Color(0xFF03b97c),
               ],
               stops: [0.5, 1.0],
             ),
@@ -130,68 +127,55 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextReveal(
-                      maxHeight: MediaQuery.of(context).size.width/3,
+                      maxHeight: MediaQuery.of(context).size.width / 3,
                       textController: _textController,
                       textOpacityAnimation: _textOpacityAnimation,
                       textRevealAnimation: _textRevealAnimation,
                       child: Text(
-                        "Prime Brilliant Minds Academy",
+                        "Mangaldan National High School",
                         style: TextStyle(
                             fontFamily: "B",
                             fontSize: screenWidth / 15,
-                            color: Colors.white),
+                            color: Color(0xFF002f24)),
                       )),
                   SizedBox(
-                    height: 10,
-                  ),
-                  FadeTransition(
-                    opacity: _descriptionController,
-                    child: Text(
-                      "TESDA Accredited Training and Assessment Center",
-                      style: TextStyle(
-                          fontFamily: "SB",
-                          fontSize: screenWidth / 25,
-                          color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
+                    height: MediaQuery.of(context).size.width / 200,
                   ),
                   SizeTransition(
                     sizeFactor: _descriptionController,
                     axis: Axis.horizontal,
                     axisAlignment: -1.0,
                     child: Text(
-                      "Be a Dreamer, Achieve Greater, and be a PRIMER",
+                      "If you can do it here, you can do it anywhere.",
                       textAlign: TextAlign.justify,
                       style: TextStyle(
                         fontFamily: "L",
                         fontSize: screenWidth / 25,
-                        color: Colors.white,
+                        color: Color(0xFF002f24),
                       ),
                     ),
                   ),
                   SizedBox(
-                    height: 30,
+                    height: MediaQuery.of(context).size.width / 20,
                   ),
                   MouseRegion(
                     onEnter: (_) {
                       setState(() {
-                        _textColor5 = Colors.yellow;
-                        _textColor6 = Colors.black;
+                        _textColor5 = Color(0xFF03b97c);
+                        _textColor6 = Color(0xFF002f24);
                       });
                     },
                     onExit: (_) {
                       setState(() {
-                        _textColor5 = Colors.white;
-                        _textColor6 = Color.fromARGB(255, 1, 93, 168);
+                        _textColor5 = Color(0xff002f24);
+                        _textColor6 = Colors.white;
                       });
                     },
                     child: FadeTransition(
                       opacity: _buttonController,
                       child: Container(
-                        height: MediaQuery.of(context).size.width/10,
-                        width: MediaQuery.of(context).size.width/2.5,
+                        height: MediaQuery.of(context).size.width / 10,
+                        width: MediaQuery.of(context).size.width / 2.5,
                         child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
@@ -207,7 +191,8 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                             style: TextStyle(
                                 color: _textColor6,
                                 fontFamily: "B",
-                                fontSize: MediaQuery.of(context).size.width/25),
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 25),
                           )),
                         ),
                       ).moveUpOnHover,
@@ -228,8 +213,8 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
               return FadeTransition(
                 opacity: _quoteController,
                 child: Container(
-                  
-                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width/10),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width / 10),
                   width: MediaQuery.of(context).size.width,
                   color: Color.fromARGB(25, 158, 158, 158),
                   child: Column(
@@ -240,7 +225,7 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: "SB",
-                          fontSize: MediaQuery.of(context).size.width/40,
+                          fontSize: MediaQuery.of(context).size.width / 40,
                         ),
                         textAlign: TextAlign.justify,
                       ),
@@ -273,7 +258,8 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                             "URBANO R. DELOS ANGELES IV,",
                             style: TextStyle(
                                 fontFamily: "B",
-                                fontSize: MediaQuery.of(context).size.width/40,
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 40,
                                 color: Colors.white),
                           ),
                           SizedBox(
@@ -284,7 +270,8 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                             "Ph.D (School Principal)",
                             style: TextStyle(
                                 fontFamily: "M",
-                                fontSize: MediaQuery.of(context).size.width/40,
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 40,
                                 color: Colors.white),
                           )
                         ],

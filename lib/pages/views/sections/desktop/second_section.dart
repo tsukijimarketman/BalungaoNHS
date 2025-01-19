@@ -670,7 +670,7 @@ class _SecondSectionState extends State<SecondSection>
                 ),
 
                 SizedBox(
-                  height: 50,
+                  height: MediaQuery.of(context).size.width / 15,
                 ),
                 //THIS IS THE MISION AND VISION
                 Padding(

@@ -19,7 +19,7 @@ class SecondSectionMobile extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color.fromARGB(255, 1, 93, 168), Colors.white],
+          colors: [Color(0xFF03b97c), Colors.white],
           stops: [0.1, 1],
         ),
       ),
@@ -29,11 +29,11 @@ class SecondSectionMobile extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: Text(
-              "Why Prime Brilliant Minds Academy?",
+              "Why Mangaldan National High School?",
               style: TextStyle(
                 fontSize: screenWidth / 15,
                 fontFamily: "B",
-                color: Colors.white,
+                color: Colors.yellowAccent,
               ),
             ),
           ),
@@ -41,7 +41,7 @@ class SecondSectionMobile extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: Text(
-              "PBMA offers Senior High School program as well as different TESDA Courses and is now an accredited assessment center. A wide array of courses to choose from depending on your preferred skill and craft.",
+              "At Mangaldan National High School, we are committed to providing quality education, fostering holistic development, and empowering students to achieve academic excellence and personal growth in a nurturing and inclusive environment, with a wide array of strands to choose from that cater to every student's unique interests and career aspirations.",
               style: TextStyle(
                 fontFamily: "R",
                 fontSize: screenWidth / 30,
@@ -49,7 +49,7 @@ class SecondSectionMobile extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: MediaQuery.of(context).size.width/50),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: Column(
@@ -72,28 +72,27 @@ class SecondSectionMobile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 40),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
+          Center(
             child: Text(
               "Core Values",
               style: TextStyle(
                 fontSize: screenWidth / 15,
                 fontFamily: "B",
-                color: Colors.white,
+                color: Color(0xFF002f24),
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: MediaQuery.of(context).size.width/50),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: infos.map((info) => InfoCardMobile(info: info)).toList(),
           ),
-          const SizedBox(height: 50),
+          SizedBox(height: MediaQuery.of(context).size.width/15),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
-            child: const MissionAndVisionMobile(),
+            child: MissionAndVisionMobile(),
           ),
-          const SizedBox(height: 50),
+          SizedBox(height: MediaQuery.of(context).size.width/15),
         ],
       ),
     );
@@ -108,7 +107,7 @@ class SecondSectionMobile extends StatelessWidget {
       height: MediaQuery.of(context).size.width/2, // Set a fixed height
       margin: EdgeInsets.symmetric(vertical: 15, horizontal: 0),
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        borderRadius:  BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width/50)),
         image: DecorationImage(
           image: AssetImage(imagePath),
           fit: BoxFit.cover,
@@ -118,8 +117,8 @@ class SecondSectionMobile extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
-              color: const Color.fromARGB(255, 255, 231, 11).withOpacity(0.4),
+              borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width/50)),
+              color: const Color(0xFF002f24).withOpacity(0.4),
             ),
           ),
           Positioned(
@@ -142,6 +141,7 @@ class SecondSectionMobile extends StatelessWidget {
               style: TextStyle(
                 fontFamily: "M",
                 fontSize: screenWidth / 30,
+                color: Colors.white,
               ),
             ),
           ),
@@ -153,7 +153,7 @@ class SecondSectionMobile extends StatelessWidget {
               style: TextStyle(
                 fontSize: screenWidth / 35,
                 fontFamily: "B",
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
           ),

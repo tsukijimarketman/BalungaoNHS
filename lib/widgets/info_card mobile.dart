@@ -16,7 +16,7 @@ class InfoCardMobile extends StatelessWidget {
         width: MediaQuery.of(context).size.width/1.15,
         height: MediaQuery.of(context).size.height / 2.4,
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 1, 93, 168),
+          color: Color(0xFF002f24),
           borderRadius: BorderRadius.circular(15),
         ),
         padding: EdgeInsets.all(20),

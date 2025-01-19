@@ -68,14 +68,14 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
             ClipRRect(
               borderRadius: BorderRadius.circular(50),
               child: Image.asset(
-                "assets/pbma.jpg",
+                "assets/balungaonhs.png",
                 height: 40,
                 width: 40,
               ),
             ),
             SizedBox(width: 10),
             Text(
-              "PBMA Portal",
+              "BNHS Portal",
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -85,7 +85,7 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
             ),
           ],
         ),
-        backgroundColor: Color.fromARGB(255, 26, 117, 192),
+        backgroundColor: Color(0xFF002f24),
         iconTheme: IconThemeData(
           color: Colors.white, // Make the drawer icon white
         ),
@@ -101,19 +101,19 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
         ],
       ),
       drawer: Drawer(
-        backgroundColor: Colors.yellowAccent,
+        backgroundColor: Color(0xFF03b97c),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
               decoration:
-                  BoxDecoration(color: Color.fromARGB(255, 26, 117, 192)),
+                  BoxDecoration(color: Color(0xFF002f24)),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ClipOval(
                     child: Image.asset(
-                      "assets/pbma.jpg", // Replace with your PBMA logo asset path
+                      "assets/balungaonhs.png", // Replace with your PBMA logo asset path
                       height: 80,
                       width: 80,
                       fit: BoxFit.cover,
@@ -146,7 +146,9 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
                 "About Us",
                 style: TextStyle(fontFamily: "M"),
               ),
-              onTap: () {},
+              onTap: () {
+                //todo ABOUT US MOBILE HERE
+              },
             ),
             ListTile(
               leading: Icon(Icons.contact_page, color: Colors.black),

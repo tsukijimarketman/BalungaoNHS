@@ -16,7 +16,7 @@ class MissionAndVisionMobile extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: const Color.fromARGB(255, 0, 30, 54),
+                color: Color(0xFF002f24),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -43,7 +43,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   image: DecorationImage(
-                                    image: AssetImage("assets/principal.jpg"),
+                                    image: AssetImage("assets/principal1.jpg"),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -55,7 +55,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Urbano R. Delos Angeles IV,",
+                                      "Lorem Ipsum Dolor Sit Amet,",
                                       style: TextStyle(
                                         color: Color.fromARGB(255, 0, 30, 54),
                                         fontFamily: "B",
@@ -89,7 +89,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   image: DecorationImage(
-                                    image: AssetImage("assets/schooladmin.jpg"),
+                                    image: AssetImage("assets/principal2.jpg"),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -101,7 +101,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Vannity Kaye S. Tan",
+                                      "Lorem Ipsum Dolor Sit Amet",
                                       style: TextStyle(
                                         color: Color.fromARGB(255, 0, 30, 54),
                                         fontFamily: "B",
@@ -148,7 +148,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "PBMA'S VISION",
+                        "MNHS VISION",
                         style: TextStyle(
                           color: Color.fromARGB(255, 0, 30, 54),
                           fontFamily: "B",
@@ -157,7 +157,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                       ),
                       SizedBox(height: screenWidth / 30),
                       Text(
-                        "To become a premier learner-centered institution upholding excellence in education, inquiry, and training attuned with the needs of dynamic society towards the betterment of the quality of life.",
+                        "Mangaldan National High School shall produce graduates fully-equipped with knowledge, skills, and values necessary to face the challenges of a changing world.",
                         style: TextStyle(
                           color: Color.fromARGB(255, 0, 30, 54),
                           fontFamily: "M",
@@ -180,7 +180,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "PBMA'S MISSION",
+                        "MNHS MISSION",
                         style: TextStyle(
                           color: Color.fromARGB(255, 0, 30, 54),
                           fontFamily: "B",
@@ -189,7 +189,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                       ),
                       SizedBox(height: screenWidth / 30),
                       Text(
-                        "Achieving excellence by committing ourselves to be holistic, who devote in the pursuit of wisdom which flows from research, innovation and transformation while upholding principles of a morally upright individual.",
+                        "Mangaldan National High School as Center of Academic Excellence and Total Development of Individuals.",
                         style: TextStyle(
                           color: Color.fromARGB(255, 0, 30, 54),
                           fontFamily: "M",

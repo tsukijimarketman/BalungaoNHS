@@ -82,7 +82,7 @@ class _ContactUsMobileState extends State<ContactUsMobile> {
 
     return SingleChildScrollView(
       child: Container(
-        color: Color.fromARGB(255, 1, 93, 168),
+        color: Color(0xFF03b97c),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Column(
@@ -107,7 +107,7 @@ class _ContactUsMobileState extends State<ContactUsMobile> {
                             shape: BoxShape.circle,
                           ),
                           child: Image.asset(
-                            "assets/PBMA.png",
+                            "assets/balungaonhs.png",
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -120,7 +120,7 @@ class _ContactUsMobileState extends State<ContactUsMobile> {
                               },
                               child: Icon(
                                 Icons.facebook_outlined,
-                                color: Colors.black,
+                                color: Colors.white,
                                 size: screenWidth / 8.5,
                               ),
                             ),
@@ -139,7 +139,7 @@ class _ContactUsMobileState extends State<ContactUsMobile> {
                                 ),
                                 child: Icon(
                                   Icons.alternate_email,
-                                  color: Color.fromARGB(255, 1, 93, 168),
+                                  color: Color(0xFF03b97c),
                                   size: screenWidth / 14,
                                 ),
                               ),
@@ -159,7 +159,7 @@ class _ContactUsMobileState extends State<ContactUsMobile> {
                                 ),
                                 child: Icon(
                                   Icons.call,
-                                  color: Color.fromARGB(255, 1, 93, 168),
+                                  color: Color(0xFF03b97c),
                                   size: screenWidth / 14,
                                 ),
                               ),
@@ -179,7 +179,7 @@ class _ContactUsMobileState extends State<ContactUsMobile> {
                                 ),
                                 child: Icon(
                                   Icons.location_on_outlined,
-                                  color: Color.fromARGB(255, 1, 93, 168),
+                                  color: Color(0xFF03b97c),
                                   size: screenWidth / 14,
                                 ),
                               ),
