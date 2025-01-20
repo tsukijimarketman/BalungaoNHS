@@ -30,7 +30,8 @@ class DesktopView extends StatefulWidget {
   State<DesktopView> createState() => _DesktopViewState();
 }
 
-class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin {
+class _DesktopViewState extends State<DesktopView>
+    with TickerProviderStateMixin {
   final GlobalKey _footerKey = GlobalKey();
   late AnimationController imageController;
   late Animation<double> imageReveal;
@@ -121,9 +122,9 @@ class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin
     }
   }
 
-  Color _textColor1 = Color(0xFF002f24);
-  Color _textColor2 = Color(0xFF002f24);
-  Color _textColor3 = Color(0xFF002f24);
+  Color _textColor1 = Colors.yellowAccent;
+  Color _textColor2 = Colors.yellowAccent;
+  Color _textColor3 = Colors.yellowAccent;
   Color _textColor5 = Color(0xFF002f24);
   Color _textColor6 = Color(0xFF03b97c);
 
@@ -200,7 +201,9 @@ class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                  builder: (context) => Launcher(scrollToFooter: false,),
+                                    builder: (context) => Launcher(
+                                      scrollToFooter: false,
+                                    ),
                                   ),
                                 );
                               },
@@ -219,9 +222,9 @@ class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin
                                   ),
                                   SizedBox(width: 10),
                                   Text(
-                                    "MNHS",
+                                    "BNHS",
                                     style: TextStyle(
-                                      color: Color(0xFF002f24),
+                                      color: Colors.yellowAccent,
                                       fontFamily: "B",
                                       fontSize: screenWidth / 50,
                                       fontWeight: FontWeight.bold,
@@ -234,12 +237,12 @@ class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin
                             MouseRegion(
                               onEnter: (_) {
                                 setState(() {
-                                  _textColor2 = Color(0xFF002f24);
+                                  _textColor1 = Color(0xFF002f24);
                                 });
                               },
                               onExit: (_) {
                                 setState(() {
-                                  _textColor1 = Color(0xFF002f24);
+                                  _textColor1 = Colors.yellowAccent;
                                 });
                               },
                               child: GestureDetector(
@@ -263,16 +266,16 @@ class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin
                               },
                               onExit: (_) {
                                 setState(() {
-                                  _textColor2 = Color(0xFF002f24);
+                                  _textColor2 = Colors.yellowAccent;
                                 });
                               },
                               child: GestureDetector(
                                 onTap: () {
                                   Navigator.push(
-                                    context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AboutUs(),
-                                  ));
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AboutUs(),
+                                      ));
                                 },
                                 child: Text(
                                   "About us",
@@ -288,12 +291,12 @@ class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin
                             MouseRegion(
                               onEnter: (_) {
                                 setState(() {
-                                  _textColor2 = Color(0xFF002f24);
+                                  _textColor3 = Color(0xFF002f24);
                                 });
                               },
                               onExit: (_) {
                                 setState(() {
-                                  _textColor3 = Color(0xFF002f24);
+                                  _textColor3 = Colors.yellowAccent;
                                 });
                               },
                               child: GestureDetector(
@@ -316,8 +319,8 @@ class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin
                               height: screenWidth / 35,
                               child: TextButton(
                                 style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all(Color(0xFF002f24)),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Color(0xFF002f24)),
                                   shape: MaterialStateProperty.all(
                                     RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -341,8 +344,8 @@ class _DesktopViewState extends State<DesktopView> with TickerProviderStateMixin
                               height: screenWidth / 35,
                               child: TextButton(
                                 style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all(Color(0xFF002f24)),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Color(0xFF002f24)),
                                   shape: MaterialStateProperty.all(
                                     RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),

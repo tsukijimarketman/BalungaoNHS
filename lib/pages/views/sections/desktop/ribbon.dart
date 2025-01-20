@@ -67,7 +67,7 @@ class _RibbonState extends State<Ribbon> {
                         borderRadius: BorderRadius.circular(10)))),
                 onPressed: () {
                   _launchEmail(
-                      "mailto:pbmindsacademy@gmail.com?subject=Concerns&body=My concern is about?");
+                      "mailto:300281@deped.gov.ph?subject=Concerns&body=My concern is about?");
                 },
                 child: Center(
                     child: Text(

@@ -29,7 +29,7 @@ class SecondSectionMobile extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: Text(
-              "Why Mangaldan National High School?",
+              "Why Balungao National High School?",
               style: TextStyle(
                 fontSize: screenWidth / 15,
                 fontFamily: "B",
@@ -41,7 +41,7 @@ class SecondSectionMobile extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
             child: Text(
-              "At Mangaldan National High School, we are committed to providing quality education, fostering holistic development, and empowering students to achieve academic excellence and personal growth in a nurturing and inclusive environment, with a wide array of strands to choose from that cater to every student's unique interests and career aspirations.",
+              "At Balungao National High School, we are committed to providing quality education, fostering holistic development, and empowering students to achieve academic excellence and personal growth in a nurturing and inclusive environment, with a wide array of strands to choose from that cater to every student's unique interests and career aspirations.",
               style: TextStyle(
                 fontFamily: "R",
                 fontSize: screenWidth / 30,
@@ -58,15 +58,15 @@ class SecondSectionMobile extends StatelessWidget {
                 _buildProgramCard(
                   context,
                   imagePath: "assets/primeshs.jpg",
-                  title: "Senior High School Program",
-                  description: "PBMA offers various track and strands",
+                  title: "Junior High School Program",
+                  description: "BNHS offers various special programs",
                 ),
                 SizedBox(height: screenWidth/45),
                 _buildProgramCard(
                   context,
                   imagePath: "assets/primetesda.jpg",
-                  title: "TESDA Program",
-                  description: "PBMA offers different courses and NC's",
+                  title: "Senior High School Program",
+                  description: "BNHS offers various track and strands",
                 ),
               ],
             ),

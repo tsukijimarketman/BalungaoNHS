@@ -201,7 +201,7 @@ class _SecondSectionState extends State<SecondSection>
                   maxHeight: 70,
                   textController: _WHY,
                   child: Text(
-                    "Why Mangaldan National High School?",
+                    "Why Balungao National High School?",
                     style: TextStyle(
                         fontSize: screenWidth / 35,
                         fontFamily: "B",
@@ -238,7 +238,7 @@ class _SecondSectionState extends State<SecondSection>
                   maxHeight: 110,
                   textController: _PBMAoffers,
                   child: Text(
-                    "At Mangaldan National High School, we are committed to providing quality education, fostering holistic development, and empowering students to achieve academic excellence and personal growth in a nurturing and inclusive environment, with a wide array of strands to choose from that cater to every student's unique interests and career aspirations.",
+                    "At Balungao National High School, we are committed to providing quality education, fostering holistic development, and empowering students to achieve academic excellence and personal growth in a nurturing and inclusive environment, with a wide array of strands to choose from that cater to every student's unique interests and career aspirations.",
                     style: TextStyle(
                         fontFamily: "R",
                         fontSize: screenWidth / 70,
@@ -383,7 +383,7 @@ class _SecondSectionState extends State<SecondSection>
                                         textOpacityAnimation:
                                             _descOpacityAnimation,
                                         child: Text(
-                                          "MNHS offers various special programs",
+                                          "BNHS offers various special programs",
                                           style: TextStyle(
                                             fontFamily: "M",
                                             fontSize: screenWidth / 85,
@@ -543,7 +543,7 @@ class _SecondSectionState extends State<SecondSection>
                                         maxHeight: screenWidth * 0.07,
                                         textController: _desc,
                                         child: Text(
-                                          "MNHS offers different strand and track",
+                                          "BNHS offers different strand and track",
                                           style: TextStyle(
                                             fontFamily: "M",
                                             fontSize: screenWidth / 85,

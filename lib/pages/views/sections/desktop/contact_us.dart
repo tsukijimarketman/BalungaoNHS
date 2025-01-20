@@ -60,8 +60,8 @@ class _ContactUsState extends State<ContactUs> {
 
   // Map zoom functions
   final MapController _mapController = MapController();
-  double _currentZoom = 16.0;
-  LatLng _currentCenter = LatLng(16.0169146, 120.3144147);
+  double _currentZoom = 17.0;
+  LatLng _currentCenter = LatLng(15.895685, 120.674170);
 
   void _zoomIn() {
     setState(() {
@@ -128,7 +128,7 @@ class _ContactUsState extends State<ContactUs> {
                                 GestureDetector(
                                   onTap: () {
                                     _launchURL(
-                                        "https://www.facebook.com/PrimeAcademyOfficial/");
+                                        "https://www.facebook.com/profile.php?id=100092664623289");
                                   },
                                   child: Stack(children: [
                                     Container(
@@ -150,7 +150,7 @@ class _ContactUsState extends State<ContactUs> {
                                 GestureDetector(
                                   onTap: () {
                                     _launchEmail(
-                                        "mailto:pbmindsacademy@gmail.com?subject=Concerns&body=My concern is about?");
+                                        "mailto:300281@deped.gov.ph?subject=Concerns&body=My concern is about?");
                                   },
                                   child: Container(
                                     width: screenWidth/35,
@@ -170,7 +170,7 @@ class _ContactUsState extends State<ContactUs> {
                                 SizedBox(width: 6),
                                 GestureDetector(
                                   onTap: () {
-                                    _makePhoneCall("+639919382645");
+                                    _makePhoneCall("5832327");
                                   },
                                   child: Container(
                                     width: screenWidth/35,
@@ -191,7 +191,7 @@ class _ContactUsState extends State<ContactUs> {
                                 GestureDetector(
                                   onTap: () {
                                     _LocationURL(
-                                        "https://www.google.com/maps/place/Prime+Brilliant+Minds+Academy/@16.0168431,120.3119883,17z/data=!3m1!4b1!4m6!3m5!1s0x33915d7291b3b4d3:0x6b994ae103d607e5!8m2!3d16.016838!4d120.3145632!16s%2Fg%2F11f6xybt1w?entry=ttu&g_ep=EgoyMDI0MTAwMS4wIKXMDSoASAFQAw%3D%3D");
+                                        "https://www.google.com/maps/place/BNHS+(Balungao+National+High+School)/@15.8958116,120.6716341,17z/data=!3m1!4b1!4m6!3m5!1s0x33913b708f5b72cf:0x7f772b23b637c007!8m2!3d15.8958065!4d120.674209!16s%2Fg%2F1tvdg9_v?entry=ttu&g_ep=EgoyMDI1MDExNS4wIKXMDSoASAFQAw%3D%3D");
                                   },
                                   child: Container(
                                     width: screenWidth/35,
@@ -241,7 +241,7 @@ class _ContactUsState extends State<ContactUs> {
                                 ),
                                 SizedBox(width: screenWidth/80),
                                 Text(
-                                  "09754724092\t\t or \t\t09754724092",
+                                  "5832327",
                                   style: TextStyle(
                                       fontSize: screenWidth/90,
                                       fontFamily: "M",
@@ -258,7 +258,7 @@ class _ContactUsState extends State<ContactUs> {
                                 ),
                                 SizedBox(width: screenWidth/80),
                                 Text(
-                                  "pbmindsacademy@gmail.com",
+                                  "300281@deped.gov.ph",
                                   style: TextStyle(
                                       fontSize: screenWidth/90,
                                       fontFamily: "M",
@@ -283,7 +283,7 @@ class _ContactUsState extends State<ContactUs> {
                       FlutterMap(
                         mapController: _mapController,
                         options: MapOptions(
-                          initialCenter: LatLng(16.0169146, 120.3144147),
+                          initialCenter: LatLng(15.895685, 120.674170),
                           initialZoom: _currentZoom,
                           maxZoom: 18,
                           minZoom: 1,
@@ -298,7 +298,7 @@ class _ContactUsState extends State<ContactUs> {
                           MarkerLayer(
                             markers: [
                               Marker(
-                                point: LatLng(16.0169146, 120.3144147),
+                                point: LatLng(15.895685, 120.674170),
                                 width: screenWidth/25,
                                 height: screenWidth/25,
                                 child: Icon(

@@ -86,7 +86,7 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
           width: screenWidth,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/manghi.jpg"),
+              image: AssetImage("assets/mainDash.png"),
               fit: BoxFit.cover,
             ),
           ),
@@ -126,17 +126,19 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: MediaQuery.of(context).size.width / 10),
+                  
                   TextReveal(
                       maxHeight: MediaQuery.of(context).size.width / 3,
                       textController: _textController,
                       textOpacityAnimation: _textOpacityAnimation,
                       textRevealAnimation: _textRevealAnimation,
                       child: Text(
-                        "Mangaldan National High School",
+                        "Balungao National High School",
                         style: TextStyle(
                             fontFamily: "B",
                             fontSize: screenWidth / 15,
-                            color: Color(0xFF002f24)),
+                            color: Colors.yellowAccent),
                       )),
                   SizedBox(
                     height: MediaQuery.of(context).size.width / 200,
@@ -149,9 +151,9 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                       "If you can do it here, you can do it anywhere.",
                       textAlign: TextAlign.justify,
                       style: TextStyle(
-                        fontFamily: "L",
+                        fontFamily: "M",
                         fontSize: screenWidth / 25,
-                        color: Color(0xFF002f24),
+                        color: Colors.yellowAccent,
                       ),
                     ),
                   ),
@@ -246,7 +248,7 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                               child: ClipRRect(
                                   borderRadius: BorderRadius.circular(20),
                                   child: Image.asset(
-                                    "assets/principal.jpg",
+                                    "assets/pholder.png",
                                     fit: BoxFit.fill,
                                   )),
                             ),
@@ -255,7 +257,7 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                             width: 10,
                           ),
                           Text(
-                            "URBANO R. DELOS ANGELES IV,",
+                            "RACHEL T. PANDE,",
                             style: TextStyle(
                                 fontFamily: "B",
                                 fontSize:
@@ -267,7 +269,7 @@ class _FirstSectionMobileState extends State<FirstSectionMobile>
                           ),
                           SizedBox(height: 30),
                           Text(
-                            "Ph.D (School Principal)",
+                            "PRINCIPAL IV",
                             style: TextStyle(
                                 fontFamily: "M",
                                 fontSize:
