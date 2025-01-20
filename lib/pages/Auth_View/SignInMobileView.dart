@@ -312,7 +312,7 @@ class _SignInMobileState extends State<SignInMobile> {
 
     if (emailRegex.hasMatch(input)) {
       _signInWithEmail(input, password);
-    } else if (input.contains('-PBMA-')) {
+    } else if (input.contains('-BNHS-')) {
       _signInWithStudentId(input, password);
     } else {
       _showDialog('Invalid Input', 'Please enter a valid email or student ID.');

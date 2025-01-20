@@ -4,10 +4,21 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-Future<String> getCurrentCurriculum() async {
+Future<String> getCurrentCurriculum(String educLevel) async {
   try {
+    // Choose the correct collection based on the educ_level
+    String collectionName = '';
+    if (educLevel == 'Junior High School') {
+      collectionName = 'jhs configurations';
+    } else if (educLevel == 'Senior High School') {
+      collectionName = 'shs configurations';
+    } else {
+      return 'Unknown'; // If educ_level is unknown, return 'Unknown'
+    }
+
+    // Fetch the configuration from the correct collection
     final configSnapshot = await FirebaseFirestore.instance
-        .collection('configurations')
+        .collection(collectionName) // Use dynamic collection name
         .where('isActive', isEqualTo: true)
         .limit(1)
         .get();
@@ -15,12 +26,13 @@ Future<String> getCurrentCurriculum() async {
     if (configSnapshot.docs.isNotEmpty) {
       return configSnapshot.docs.first.data()['school_year'] ?? 'Unknown';
     }
-    return 'Unknown';
+    return 'Unknown'; // Return 'Unknown' if no active configuration is found
   } catch (e) {
     print('Error getting current curriculum: $e');
-    return 'Unknown';
+    return 'Unknown'; // Return 'Unknown' if an error occurs
   }
 }
+
 
 Future<String> generateStudentID() async {
   final currentYear = DateTime.now().year.toString();
@@ -29,7 +41,7 @@ Future<String> generateStudentID() async {
       await collection.orderBy('student_id', descending: true).limit(1).get();
 
   if (querySnapshot.docs.isEmpty) {
-    return '${currentYear}-PBMA-0001';
+    return '${currentYear}-BNHS-0001';
   }
 
   final lastDoc = querySnapshot.docs.first;
@@ -37,7 +49,7 @@ Future<String> generateStudentID() async {
   final lastNumber = int.parse(lastID.split('-').last);
   final nextNumber = lastNumber + 1;
 
-  return '${currentYear}-PBMA-${nextNumber.toString().padLeft(4, '0')}';
+  return '${currentYear}-BNHS-${nextNumber.toString().padLeft(4, '0')}';
 }
 
 Future<void> approveStudent(String studentDocId) async {
@@ -48,6 +60,8 @@ Future<void> approveStudent(String studentDocId) async {
         .get();
     final studentData = studentDoc.data() as Map<String, dynamic>;
     final email = studentData['email_Address'] as String? ?? '';
+        final educLevel = studentData['educ_level'] as String? ?? 'Unknown'; // Get educ_level
+
 
     if (email.isEmpty) {
       print('Error: No email address provided for student ID: $studentDocId');
@@ -55,7 +69,7 @@ Future<void> approveStudent(String studentDocId) async {
     }
 
     final studentId = await generateStudentID();
-    final curriculum = await getCurrentCurriculum();
+    final curriculum = await getCurrentCurriculum(educLevel);
 
     // Get the current Firebase options
     final options = Firebase.app().options;
@@ -83,7 +97,7 @@ Future<void> approveStudent(String studentDocId) async {
       // Create student account
       final userCredential = await tempAuth.createUserWithEmailAndPassword(
         email: email.trim(),
-        password: 'ilovePBMA_123',
+        password: 'iloveBNHS_123',
       );
 
       final uid = userCredential.user?.uid;
@@ -150,7 +164,7 @@ Future<void> sendEnrollmentEmail(String email) async {
             'Congratulations! Your enrollment has been processed. Welcome to the Prime Brilliant Minds Academy.\n\n'
                 'Here is your student account for the student portal:\n'
                 'Username: $email\n'
-                'Password: ilovePBMA_123 (Please change this after logging in for the first time)',
+                'Password: iloveBNHS_123 (Please change this after logging in for the first time)',
       },
     }),
   );
