@@ -78,34 +78,35 @@ class _SignInMobileState extends State<SignInMobile> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     // More refined responsive calculations
-  double cardWidth = screenWidth < 600 
-      ? screenWidth * 0.95  // Mobile
-      : screenWidth < 900   
-          ? screenWidth * 0.8  // Tablet
-          : screenWidth * 0.6; // Desktop
-  
-  double cardHeight = screenHeight < 800 
-      ? screenHeight * 0.85  // Shorter screens
-      : screenHeight * 0.75; // Taller screens
-  
-  // Adjusted logo size with maximum constraints
-  double logoSize = screenWidth < 600 
-      ? screenWidth * 0.25  // Mobile
-      : screenWidth < 900   
-          ? screenWidth * 0.15  // Tablet
-          : screenWidth * 0.12;  // Desktop
-  
-  // Add maximum size constraint for logo
-  logoSize = logoSize.clamp(50.0, 120.0); // Prevents logo from getting too large
-  
-  // Adjusted input field dimensions
-  double inputFieldHeight = (screenHeight * 0.06).clamp(45.0, 60.0); // Min 45px, Max 60px
-  double inputFieldWidth = cardWidth * 0.9;  // Slightly wider fields
+    double cardWidth = screenWidth < 600
+        ? screenWidth * 0.95 // Mobile
+        : screenWidth < 900
+            ? screenWidth * 0.8 // Tablet
+            : screenWidth * 0.6; // Desktop
 
-  // Adjusted font sizes
-  double titleFontSize = (screenWidth * 0.035).clamp(16.0, 24.0);
-  double buttonFontSize = (screenWidth * 0.025).clamp(14.0, 18.0);
+    double cardHeight = screenHeight < 800
+        ? screenHeight * 0.85 // Shorter screens
+        : screenHeight * 0.75; // Taller screens
 
+    // Adjusted logo size with maximum constraints
+    double logoSize = screenWidth < 600
+        ? screenWidth * 0.25 // Mobile
+        : screenWidth < 900
+            ? screenWidth * 0.15 // Tablet
+            : screenWidth * 0.12; // Desktop
+
+    // Add maximum size constraint for logo
+    logoSize =
+        logoSize.clamp(50.0, 120.0); // Prevents logo from getting too large
+
+    // Adjusted input field dimensions
+    double inputFieldHeight =
+        (screenHeight * 0.06).clamp(45.0, 60.0); // Min 45px, Max 60px
+    double inputFieldWidth = cardWidth * 0.9; // Slightly wider fields
+
+    // Adjusted font sizes
+    double titleFontSize = (screenWidth * 0.035).clamp(16.0, 24.0);
+    double buttonFontSize = (screenWidth * 0.025).clamp(14.0, 18.0);
 
     return Stack(
       children: [
@@ -114,16 +115,17 @@ class _SignInMobileState extends State<SignInMobile> {
             width: cardWidth,
             height: cardHeight,
             constraints: BoxConstraints(
-            maxWidth: 800, // Maximum card width
-            maxHeight: 900, // Maximum card height
-          ),
+              maxWidth: 800, // Maximum card width
+              maxHeight: 900, // Maximum card height
+            ),
             child: Card(
               child: SingleChildScrollView(
                 physics: BouncingScrollPhysics(),
                 child: Padding(
-                  padding: EdgeInsets.all(screenWidth * 0.03), // Responsive padding
+                  padding:
+                      EdgeInsets.all(screenWidth * 0.03), // Responsive padding
                   child: Column(
-                                        mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Align(
                         alignment: Alignment.topRight,
@@ -134,30 +136,25 @@ class _SignInMobileState extends State<SignInMobile> {
                       ),
                       Container(
                         alignment: Alignment.center,
-                        child: Image.asset(
-                          'assets/balungaonhs.png',
-                           width: logoSize,
-                          height: logoSize,
-                          fit: BoxFit.contain
-                        ),
+                        child: Image.asset('assets/balungaonhs.png',
+                            width: logoSize,
+                            height: logoSize,
+                            fit: BoxFit.contain),
                       ),
-                                            SizedBox(height: screenHeight * 0.02),
-
+                      SizedBox(height: screenHeight * 0.02),
                       Container(
                         width: inputFieldWidth,
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Welcome Back!',
                           style: TextStyle(
-                fontSize: titleFontSize,
+                            fontSize: titleFontSize,
                           ),
                         ),
                       ),
-
-                                            SizedBox(height: screenHeight * 0.02),
-
+                      SizedBox(height: screenHeight * 0.02),
                       Container(
-                          height: inputFieldHeight,
+                        height: inputFieldHeight,
                         width: inputFieldWidth,
                         child: CupertinoTextField(
                           decoration: BoxDecoration(
@@ -171,8 +168,7 @@ class _SignInMobileState extends State<SignInMobile> {
                           placeholder: 'Email',
                         ),
                       ),
-                                            SizedBox(height: screenHeight * 0.02),
-
+                      SizedBox(height: screenHeight * 0.02),
                       Container(
                         height: inputFieldHeight,
                         width: inputFieldWidth,
@@ -192,7 +188,8 @@ class _SignInMobileState extends State<SignInMobile> {
                             child: GestureDetector(
                               onTapDown: (_) => _togglePasswordVisibility(true),
                               onTapUp: (_) => _togglePasswordVisibility(false),
-                              onTapCancel: () => _togglePasswordVisibility(false),
+                              onTapCancel: () =>
+                                  _togglePasswordVisibility(false),
                               child: Icon(
                                 _obscureText
                                     ? Icons.visibility
@@ -203,7 +200,7 @@ class _SignInMobileState extends State<SignInMobile> {
                           ),
                         ),
                       ),
-                     Container(
+                      Container(
                         width: inputFieldWidth,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -228,8 +225,7 @@ class _SignInMobileState extends State<SignInMobile> {
                           ],
                         ),
                       ),
-                                            SizedBox(height: screenHeight * 0.02),
-
+                      SizedBox(height: screenHeight * 0.02),
                       Container(
                         height: inputFieldHeight,
                         width: inputFieldWidth,
@@ -250,13 +246,12 @@ class _SignInMobileState extends State<SignInMobile> {
                             child: Text(
                               'Sign In',
                               style: TextStyle(
-                fontSize: buttonFontSize,
+                                  fontSize: buttonFontSize,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white),
                             )),
                       ),
-                                            SizedBox(height: screenHeight * 0.02),
-
+                      SizedBox(height: screenHeight * 0.02),
                     ],
                   ),
                 ),
@@ -398,12 +393,11 @@ class _SignInMobileState extends State<SignInMobile> {
                   MaterialPageRoute(builder: (context) => StudentUI()),
                 );
               }
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => StudentUI()),
-                );
-              
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => StudentUI()),
+              );
             }
           } else {
             _showDialog('Login Failed', 'Account type is not recognized.');

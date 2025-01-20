@@ -43,7 +43,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   image: DecorationImage(
-                                    image: AssetImage("assets/principal1.jpg"),
+                                    image: AssetImage("assets/pholder.png"),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -55,7 +55,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Lorem Ipsum Dolor Sit Amet,",
+                                      "Rachel T. Pande",
                                       style: TextStyle(
                                         color: Color.fromARGB(255, 0, 30, 54),
                                         fontFamily: "B",
@@ -64,7 +64,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      "School Principal",
+                                      "Principal IV",
                                       style: TextStyle(
                                         color: Color.fromARGB(255, 0, 30, 54),
                                         fontFamily: "R",
@@ -89,7 +89,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   image: DecorationImage(
-                                    image: AssetImage("assets/principal2.jpg"),
+                                    image: AssetImage("assets/pholder.png"),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -101,7 +101,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Lorem Ipsum Dolor Sit Amet",
+                                      "Candido V. Pollante",
                                       style: TextStyle(
                                         color: Color.fromARGB(255, 0, 30, 54),
                                         fontFamily: "B",
@@ -110,7 +110,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      "School Administrator",
+                                      "ASST. School Principal II",
                                       style: TextStyle(
                                         color: Color.fromARGB(255, 0, 30, 54),
                                         fontFamily: "R",
@@ -148,7 +148,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "MNHS VISION",
+                        "BNHS VISION",
                         style: TextStyle(
                           color: Color.fromARGB(255, 0, 30, 54),
                           fontFamily: "B",
@@ -157,7 +157,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                       ),
                       SizedBox(height: screenWidth / 30),
                       Text(
-                        "Mangaldan National High School shall produce graduates fully-equipped with knowledge, skills, and values necessary to face the challenges of a changing world.",
+                        "The BNHS is envisioned to be a child friendly school through the provision of an excellent educational delivery system and the necessary school facilities towards quality education.",
                         style: TextStyle(
                           color: Color.fromARGB(255, 0, 30, 54),
                           fontFamily: "M",
@@ -180,7 +180,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "MNHS MISSION",
+                        "BNHS MISSION",
                         style: TextStyle(
                           color: Color.fromARGB(255, 0, 30, 54),
                           fontFamily: "B",
@@ -189,7 +189,7 @@ class MissionAndVisionMobile extends StatelessWidget {
                       ),
                       SizedBox(height: screenWidth / 30),
                       Text(
-                        "Mangaldan National High School as Center of Academic Excellence and Total Development of Individuals.",
+                        "The school aims to ensure effective instructional delivery system through the expertise of highly -competent teaching staff and to provide essential school facilities towards the attainment of quality education for academic excellence.",
                         style: TextStyle(
                           color: Color.fromARGB(255, 0, 30, 54),
                           fontFamily: "M",

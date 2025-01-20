@@ -112,7 +112,7 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      "MNHS",
+                      "BNHS",
                       style: TextStyle(
                         color: Color(0xFF002f24),
                         fontFamily: "B",

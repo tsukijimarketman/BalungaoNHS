@@ -14,7 +14,8 @@ class AboutUsContentMobile extends StatefulWidget {
   State<AboutUsContentMobile> createState() => _AboutUsContentMobileState();
 }
 
-class _AboutUsContentMobileState extends State<AboutUsContentMobile> with TickerProviderStateMixin {
+class _AboutUsContentMobileState extends State<AboutUsContentMobile>
+    with TickerProviderStateMixin {
   final GlobalKey _footerKey = GlobalKey();
   late ScrollController _scrollController;
   Color _appBarColor = Color(0xFF03b97c);
@@ -162,8 +163,14 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile> with Ticker
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home, color: Colors.white,),
-              title: Text('Home', style: TextStyle(color: Colors.white),),
+              leading: Icon(
+                Icons.home,
+                color: Colors.white,
+              ),
+              title: Text(
+                'Home',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pushReplacement(
                   context,
@@ -174,8 +181,11 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile> with Ticker
               },
             ),
             ListTile(
-              leading: Icon(Icons.info,color: Colors.white),
-              title: Text('About us', style: TextStyle(color: Colors.white),),
+              leading: Icon(Icons.info, color: Colors.white),
+              title: Text(
+                'About us',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
                 Navigator.push(
@@ -188,7 +198,10 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile> with Ticker
             ),
             ListTile(
               leading: Icon(Icons.contact_mail, color: Colors.white),
-              title: Text('Contact us', style: TextStyle(color: Colors.white),),
+              title: Text(
+                'Contact us',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
                 scrollToSection(_footerKey);
@@ -196,7 +209,10 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile> with Ticker
             ),
             ListTile(
               leading: Icon(Icons.login, color: Colors.white),
-              title: Text('Sign In', style: TextStyle(color: Colors.white),),
+              title: Text(
+                'Sign In',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
                 toggleSignInCard();
@@ -204,7 +220,10 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile> with Ticker
             ),
             ListTile(
               leading: Icon(Icons.school, color: Colors.white),
-              title: Text('Enroll Now', style: TextStyle(color: Colors.white),),
+              title: Text(
+                'Enroll Now',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
                 toggleTAC();
@@ -252,7 +271,7 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile> with Ticker
                               topRight: Radius.circular(20),
                             ),
                             image: DecorationImage(
-                              image: AssetImage("assets/mnhs2.jpg"),
+                              image: AssetImage("assets/webnhs.jpg"),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -264,33 +283,9 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile> with Ticker
                                     topLeft: Radius.circular(20),
                                     topRight: Radius.circular(20),
                                   ),
-                                  color: Color(0x6565f058).withOpacity(0.5), // Blend color with opacity
+                                  color: Color(0x6565f058).withOpacity(
+                                      0.5), // Blend color with opacity
                                 ),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Center(
-                                    child: Text(
-                                      "Welcome to the largest school in Region 1,",
-                                      style: TextStyle(
-                                        color: Color(0xFF002f24),
-                                        fontFamily: "B",
-                                        fontSize: screenWidth / 20,
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                      "MANGALDAN NATIONAL HIGH SCHOOL",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: "BL",
-                                        fontSize: screenWidth / 15,
-                                      ),
-                                    ),
-                                  ),
-                                ],
                               ),
                             ],
                           ),
@@ -300,35 +295,59 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile> with Ticker
                           height: 20,
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth / 17),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "The Story of Mangaldan National High School",
-                                style: TextStyle(
-                                  fontFamily: "B",
-                                  fontSize: screenWidth / 20,
-                                  color: Color(0xFF03b97c),
+                              Center(
+                                child: Text(
+                                  "Balungao National",
+                                  style: TextStyle(
+                                      fontFamily: "B",
+                                      fontSize: 35,
+                                      color: Color(0xFF03b97c)),
                                 ),
                               ),
-                              SizedBox(height: 10),
-                              Text(
-                                "Mangaldan National High School is the largest school in Region 1. It has a rich history and a commitment to providing quality education to its students.",
-                                style: TextStyle(
-                                  fontFamily: "R",
-                                  fontSize: screenWidth / 25,
-                                  color: Colors.black,
+                              Center(
+                                child: Text(
+                                  "High School",
+                                  style: TextStyle(
+                                      fontFamily: "B",
+                                      fontSize: 35,
+                                      color: Color(0xFF03b97c)),
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              SizedBox(
+                                height: 10,
+                              ),
                               Text(
-                                "Our mission is to nurture and develop the potential of every student, preparing them for a successful future.",
-                                style: TextStyle(
-                                  fontFamily: "R",
-                                  fontSize: screenWidth / 25,
-                                  color: Colors.black,
-                                ),
+                                "“ The Filipino youth must emerge as valued and respected participant in the global community, equipped with competitive work skills and possessing a deep sense of national identity”…such was the closing statement of then President Fidel V. Ramos during the opening of the 1995 Educators’ Congress at Baguio City on May 15-19, 1995. President Gloria Macapagal Arroyo mentioned that a stone is worthless unless it becomes part of an edifice. President Benigno C. Aquino III reiterates time and again the vital role of the youth towards national development.",
+                                style: TextStyle(fontFamily: "R", fontSize: 18),
+                              ),
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Text(
+                                "Today, the Balungao National High School, twenty-two (22) year after its founding, is slowly gaining recognition as an educational institution in this part of our province. Originally composed, in 1997, of 250 students housed in a 5 room building and manned by an Principal and 8 faculty members, the school, now on its 28th year of operations is comprised of 1428 students, a Principal IV,1 Asst.SHS Principal II, 4 department heads, 58 strong and able faculty members, 4 administrative officers, 1 School Nurse, and 4 security guards.",
+                                style: TextStyle(fontFamily: "R", fontSize: 18),
+                              ),
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Text(
+                                "Ever inspired by the above challenge, not withstanding the disparity in the ratio of teachers from a vis a vis the great number of students, the school continues in its fulfillment of its mission of preparing the youth for their future roles as responsible adults. Despite the numerous problems which the school is undergoing, with the school still wanting in so many facilities, the school personnel, with Mrs. Rachel T. Pande, Principal IV, at the helm, holding the reins of the Administration, take the stand of solidarity and commitment in their effort to propel the BALUNGAO NATIONAL HIGH SCHOOL upward and wiggle it out of its humble beginnings.",
+                                style: TextStyle(fontFamily: "R", fontSize: 18),
+                              ),
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Text(
+                                "With full support from the government and the community, BETTER DAYS ARE YET TO COME, MORE ACCOMPLISHMENTS ARE YET TO BE ADDED TO BNHS GLORIES!!!",
+                                style: TextStyle(fontFamily: "M", fontSize: 18),
+                              ),
+                              SizedBox(
+                                height: 30,
                               ),
                             ],
                           ),
