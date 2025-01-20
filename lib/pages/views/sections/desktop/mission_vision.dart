@@ -155,7 +155,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                         textOpacityAnimation:
                                             _SHSOpacityAnimation,
                                         child: Text(
-                                          "MANGALDAN NATIONAL HIGH SCHOOL",
+                                          "BALUNGAO NATIONAL HIGH SCHOOL",
                                           style: TextStyle(
                                             fontFamily: "R",
                                             fontSize: screenWidth / 50,
@@ -186,7 +186,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                                           const BoxDecoration(
                                                         image: DecorationImage(
                                                           image: AssetImage(
-                                                            "assets/principal1.jpg",
+                                                            "assets/pholder.png",
                                                           ),
                                                           fit: BoxFit.cover,
                                                         ),
@@ -232,7 +232,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                                           const BoxDecoration(
                                                         image: DecorationImage(
                                                           image: AssetImage(
-                                                            "assets/principal2.jpg",
+                                                            "assets/pholder.png",
                                                           ),
                                                           fit: BoxFit.cover,
                                                         ),
@@ -297,7 +297,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                     child: Column(
                                       children: [
                                         Text(
-                                          "Lorem Ipsum Dolor,",
+                                          "Rachel T. Pande,",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -306,7 +306,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                           ),
                                         ),
                                         Text(
-                                          "School Principal",
+                                          "Principal IV",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -324,7 +324,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                     child: Column(
                                       children: [
                                         Text(
-                                          "Lorem Ipsum Dolor",
+                                          "Candido V. Pollante",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -333,7 +333,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                                           ),
                                         ),
                                         Text(
-                                          "School Administrator",
+                                          "Assisstant Principal II",
                                           style: TextStyle(
                                             color:
                                                 Color.fromARGB(255, 0, 30, 54),
@@ -367,7 +367,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "MNHS VISION",
+                          "BNHS VISION",
                           style: TextStyle(
                             color: Color(0xFF002f24),
                             fontFamily: "B",
@@ -375,7 +375,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "Mangaldan National High School shall produce graduates fully-equipped with knowledge, skills, and values necessary to face the challenges of a changing world.",
+                          "The BNHS is envisioned to be a child friendly school through the provision of an excellent educational delivery system and the necessary school facilities towards quality education.",
                           style: TextStyle(
                             color: Color(0xFF002f24),
                             fontFamily: "M",
@@ -395,7 +395,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "MNHS MISION",
+                          "BNHS MISION",
                           style: TextStyle(
                             color: Color(0xFF002f24),
                             fontFamily: "B",
@@ -403,7 +403,7 @@ class _MissionAndVisionState extends State<MissionAndVision>
                           ),
                         ),
                         Text(
-                          "Mangaldan National High School as Center of Academic Excellence and Total Development of Individuals.",
+                          "The school aims to ensure effective instructional delivery system through the expertise of highly -competent teaching staff and to provide essential school facilities towards the attainment of quality education for academic excellence.",
                           style: TextStyle(
                             color: Color(0xFF002f24),
                             fontFamily: "M",

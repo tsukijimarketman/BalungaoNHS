@@ -80,7 +80,7 @@ class _TACWebViewState extends State<TACWebView> {
                         children: [
                           TextSpan(text: 'Welcome to '),
                           TextSpan(
-                            text: 'Prime Brilliant Minds Academy',
+                            text: 'Balungao National High School',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           TextSpan(
@@ -141,7 +141,7 @@ class _TACWebViewState extends State<TACWebView> {
                     child: ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.deepPurpleAccent),
+                            MaterialStateProperty.all<Color>(Color(0xFF002f24)),
                         elevation: MaterialStateProperty.all<double>(5),
                         shape: MaterialStateProperty.all<OutlinedBorder>(
                           RoundedRectangleBorder(

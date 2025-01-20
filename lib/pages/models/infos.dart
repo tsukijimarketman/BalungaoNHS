@@ -12,19 +12,19 @@ class Info {
 
 List<Info> infos = [
   Info(
-      title: "Mastery",
-      description: "We strive for excellence in academics, skills, and character, ensuring every student reaches their full potential through continuous learning and improvement.",
-      iconData: Icons.work_history_sharp),
+      title: "Maka-Diyos",
+      description: "We prioritize producing students who are God-fearing, nurturing a strong sense of faith, spirituality, and moral responsibility in all aspects of life.",
+      iconData: Icons.church),
   Info(
-      title: "Nurturing",
-      description: "We provide a caring and inclusive environment that fosters respect, empathy, and personal growth for all members of our school community.",
-      iconData: Icons.diversity_3_outlined),
+      title: "Maka-tao",
+      description: "We aim to develop students who are environmentally conscious, promoting a deep respect for nature and a commitment to sustainable living.",
+      iconData: Icons.people_alt),
   Info(
-      title: "Honor",
-      description: "We uphold integrity, accountability, and ethical behavior, inspiring students to lead with honesty and dignity in all endeavors",
-      iconData: Icons.verified_user),
+      title: "Maka-kalikasan",
+      description: "We aim to develop students who are environmentally conscious, promoting a deep respect for nature and a commitment to sustainable living.",
+      iconData: Icons.nature_people),
   Info(
-      title: "Service",
-      description: "We instill the value of service to others, encouraging students to contribute positively to society and be proactive in building better communities",
-      iconData: Icons.self_improvement),
+      title: "Maka-bansa",
+      description: "We strive to create students who are passionate about their country, fostering a sense of patriotism and a strong commitment to contributing to the nation's progress.",
+      iconData: Icons.flag),
 ];

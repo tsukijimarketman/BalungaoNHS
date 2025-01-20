@@ -53,7 +53,7 @@ class _AboutUsContentState extends State<AboutUsContent> {
                         topRight: Radius.circular(20),
                       ),
                       image: DecorationImage(
-                        image: AssetImage("assets/mnhs2.jpg"),
+                        image: AssetImage("assets/webnhs.jpg"),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -68,27 +68,6 @@ class _AboutUsContentState extends State<AboutUsContent> {
                           .withOpacity(0.3), // Blend color with opacity
                     ),
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                          child: Text(
-                        "Welcome to the largest school in Region 1,",
-                        style: TextStyle(
-                            color: Color(0xFF002f24),
-                            fontFamily: "B",
-                            fontSize: 25),
-                      )),
-                      Center(
-                          child: Text(
-                        "MANGALDAN NATIONAL HIGH SCHOOL",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "BL",
-                            fontSize: 55),
-                      )),
-                    ],
-                  ),
                 ],
               ),
               width: MediaQuery.of(context).size.width,
@@ -101,104 +80,42 @@ class _AboutUsContentState extends State<AboutUsContent> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "The Story of Mangaldan National High School",
-                    style: TextStyle(
-                        fontFamily: "B",
-                        fontSize: 25,
-                        color: Color(0xFF03b97c)),
+                  Center(
+                    child: Text(
+                      "Balungao National High School",
+                      style: TextStyle(
+                          fontFamily: "B",
+                          fontSize: 30,
+                          color: Color(0xFF03b97c)),
+                    ),
                   ),
                   SizedBox(
                     height: 10,
                   ),
                   Text(
-                    "Nestled in the heart of Mangaldan, Pangasinan, Mangaldan National High School (MNHS) stands as a beacon of learning and progress. With a history deeply rooted in the community, the school has grown from humble beginnings to become one of the most respected institutions in the region.",
+                    "“ The Filipino youth must emerge as valued and respected participant in the global community, equipped with competitive work skills and possessing a deep sense of national identity”…such was the closing statement of then President Fidel V. Ramos during the opening of the 1995 Educators’ Congress at Baguio City on May 15-19, 1995. President Gloria Macapagal Arroyo mentioned that a stone is worthless unless it becomes part of an edifice. President Benigno C. Aquino III reiterates time and again the vital role of the youth towards national development.",
                     style: TextStyle(fontFamily: "R", fontSize: 18),
                   ),
                   SizedBox(
                     height: 30,
                   ),
                   Text(
-                    "The Early Years",
-                    style: TextStyle(
-                        fontFamily: "B",
-                        fontSize: 25,
-                        color: Color(0xFF03b97c)),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Mangaldan National High School was established in the mid-20th century, at a time when access to secondary education in rural areas was limited. The local government and community leaders recognized the pressing need for a high school to serve the youth of Mangaldan and its neighboring barangays. Driven by their shared vision of providing quality education, they worked tirelessly to secure funding, land, and resources for the school's construction. \n\nIn its first year, the school opened its doors to a small group of eager students, housed in modest classrooms made of wood and bamboo. The founding principal, a passionate educator, led a handful of dedicated teachers who were determined to provide a holistic education despite limited resources. Their commitment laid the foundation for the school's enduring legacy.",
+                    "Today, the Balungao National High School, twenty-two (22) year after its founding, is slowly gaining recognition as an educational institution in this part of our province. Originally composed, in 1997, of 250 students housed in a 5 room building and manned by an Principal and 8 faculty members, the school, now on its 28th year of operations is comprised of 1428 students, a Principal IV,1 Asst.SHS Principal II, 4 department heads, 58 strong and able faculty members, 4 administrative officers, 1 School Nurse, and 4 security guards.",
                     style: TextStyle(fontFamily: "R", fontSize: 18),
                   ),
                   SizedBox(
                     height: 30,
                   ),
                   Text(
-                    "Growth and Expansion",
-                    style: TextStyle(
-                        fontFamily: "B",
-                        fontSize: 25,
-                        color: Color(0xFF03b97c)),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "As the years passed, Mangaldan National High School grew in both size and reputation. Enrollment steadily increased, prompting the construction of additional classrooms and facilities. By the 1980s, the school had transitioned to more modern infrastructure, with permanent buildings and expanded amenities, including a library, science laboratories, and a multi-purpose hall. \n\nThe school’s curriculum evolved to meet the changing needs of the times. Specialized programs in science, mathematics, and the arts were introduced, reflecting the school’s commitment to fostering well-rounded students. The dedication of its teachers and the enthusiasm of its students brought recognition not only within Pangasinan but also at the national level.The school’s curriculum evolved to meet the changing needs of the times. Specialized programs in science, mathematics, and the arts were introduced, reflecting the school’s commitment to fostering well-rounded students. The dedication of its teachers and the enthusiasm of its students brought recognition not only within Pangasinan but also at the national level.",
+                    "Ever inspired by the above challenge, not withstanding the disparity in the ratio of teachers from a vis a vis the great number of students, the school continues in its fulfillment of its mission of preparing the youth for their future roles as responsible adults. Despite the numerous problems which the school is undergoing, with the school still wanting in so many facilities, the school personnel, with Mrs. Rachel T. Pande, Principal IV, at the helm, holding the reins of the Administration, take the stand of solidarity and commitment in their effort to propel the BALUNGAO NATIONAL HIGH SCHOOL upward and wiggle it out of its humble beginnings.",
                     style: TextStyle(fontFamily: "R", fontSize: 18),
                   ),
                   SizedBox(
                     height: 30,
                   ),
                   Text(
-                    "Endeavors and Achievements",
-                    style: TextStyle(
-                        fontFamily: "B",
-                        fontSize: 25,
-                        color: Color(0xFF03b97c)),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Mangaldan National High School has always been more than just a place of academic learning. It has been a hub of cultural, athletic, and social endeavors. The school’s dance troupe and choir have won accolades in regional and national competitions, showcasing the rich talent of its students. Meanwhile, the school’s athletes have consistently brought home trophies in events such as track and field, basketball, and volleyball.\n\nIn recent years, the school has embraced technological advancements, integrating information and communication technology (ICT) into its teaching methods. The addition of computer laboratories and internet access has prepared students for the demands of the 21st century. Moreover, the school’s active participation in environmental programs and community outreach initiatives highlights its commitment to social responsibility.",
-                    style: TextStyle(fontFamily: "R", fontSize: 18),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Text(
-                    "Challenges and Resilience",
-                    style: TextStyle(
-                        fontFamily: "B",
-                        fontSize: 25,
-                        color: Color(0xFF03b97c)),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Like any institution, Mangaldan National High School has faced its share of challenges. Natural calamities, such as typhoons and floods, have tested the school’s resilience. However, the spirit of bayanihan—the Filipino tradition of communal unity—has always prevailed. Parents, teachers, students, and local officials have come together time and again to rebuild and improve the school, turning challenges into opportunities for growth.\n\nThe COVID-19 pandemic was another test of the school’s adaptability. With face-to-face classes suspended, MNHS quickly shifted to online and modular learning modalities. Teachers underwent training to deliver lessons virtually, and the community rallied to provide students with the tools they needed to continue their education.",
-                    style: TextStyle(fontFamily: "R", fontSize: 18),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Text(
-                    "Looking to the Future",
-                    style: TextStyle(
-                        fontFamily: "B",
-                        fontSize: 25,
-                        color: Color(0xFF03b97c)),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Today, Mangaldan National High School stands as a pillar of excellence and opportunity. It offers a wide array of strands under the Senior High School curriculum, catering to diverse interests and career paths—from Science, Technology, Engineering, and Mathematics (STEM) to Humanities and Social Sciences (HUMSS), and Technical-Vocational-Livelihood (TVL) tracks. The school’s alumni have gone on to excel in various fields, from medicine and engineering to education and public service, serving as living proof of MNHS’s transformative power.\n\nAs it looks to the future, Mangaldan National High School remains committed to its mission of nurturing young minds, fostering innovation, and building character. Guided by its core values of Mastery, Nurturing, Honor, and Service, MNHS continues to inspire hope and ambition in the hearts of its students and the community it serves.\n\nMangaldan National High School is more than just an institution; it is a legacy of learning, a source of pride, and a symbol of what a united community can achieve. The story of MNHS is not just its past but the bright futures it continues to create.",
-                    style: TextStyle(fontFamily: "R", fontSize: 18),
+                    "With full support from the government and the community, BETTER DAYS ARE YET TO COME, MORE ACCOMPLISHMENTS ARE YET TO BE ADDED TO BNHS GLORIES!!!",
+                    style: TextStyle(fontFamily: "M", fontSize: 18),
                   ),
                 ],
               ),
@@ -370,7 +287,7 @@ class _AboutUsContentState extends State<AboutUsContent> {
                                 size: 50,
                               ),
                               Text(
-                                "As a parent, I couldn’t have asked for a better school for my children. Mangaldan National High School not only excels in academics but also focuses on shaping students into responsible individuals. The teachers go above and beyond, ensuring every child gets the attention they deserve. My son’s confidence and love for learning have grown immensely since joining MNHS, and I’m proud to see him thriving both in and out of the classroom",
+                                "As a parent, I couldn’t have asked for a better school for my children. Balungao National High School not only excels in academics but also focuses on shaping students into responsible individuals. The teachers go above and beyond, ensuring every child gets the attention they deserve. My son’s confidence and love for learning have grown immensely since joining BNHS, and I’m proud to see him thriving both in and out of the classroom",
                                 style: TextStyle(
                                   fontFamily: "R",
                                   fontSize: 13,
@@ -403,7 +320,7 @@ class _AboutUsContentState extends State<AboutUsContent> {
                                 size: 50,
                               ),
                               Text(
-                                "Mangaldan National High School was the foundation of my dreams. The lessons I learned within its halls extended far beyond the classroom, instilling values of perseverance and hard work. The support from my teachers gave me the confidence to pursue a degree in engineering, and today, I am living my dream as a project manager at a top construction firm. I will always carry the legacy of MNHS with me.",
+                                "Balungao National High School was the foundation of my dreams. The lessons I learned within its halls extended far beyond the classroom, instilling values of perseverance and hard work. The support from my teachers gave me the confidence to pursue a degree in engineering, and today, I am living my dream as a project manager at a top construction firm. I will always carry the legacy of BNHS with me.",
                                 style: TextStyle(
                                   fontFamily: "R",
                                   fontSize: 13,
@@ -436,7 +353,7 @@ class _AboutUsContentState extends State<AboutUsContent> {
                                 size: 50,
                               ),
                               Text(
-                                "Mangaldan National High School is more than just an institution—it’s a pillar of our community. Over the years, it has consistently produced outstanding graduates who contribute significantly to our town’s growth. From its innovative programs to its dedication to student success, MNHS is a school we’re all proud to have in Mangaldan. It truly embodies excellence in education.",
+                                "Balungao National High School is more than just an institution—it’s a pillar of our community. Over the years, it has consistently produced outstanding graduates who contribute significantly to our town’s growth. From its innovative programs to its dedication to student success, BNHS is a school we’re all proud to have in Balungao. It truly embodies excellence in education.",
                                 style: TextStyle(
                                   fontFamily: "R",
                                   fontSize: 13,
@@ -445,7 +362,7 @@ class _AboutUsContentState extends State<AboutUsContent> {
                               ),
                               Spacer(),
                               Text(
-                                "— Mayor Alejandro Ramos, Mangaldan",
+                                "— Mayor Alejandro Ramos, Balungao",
                                 style: TextStyle(
                                   fontFamily: "B",
                                   fontSize: 15,

@@ -89,7 +89,7 @@ class _FirstSectionState extends State<FirstSection>
           width: screenWidth,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/manghi.jpg"),
+              image: AssetImage("assets/mainDash.png"),
               fit: BoxFit.cover,
             ),
           ),
@@ -103,7 +103,7 @@ class _FirstSectionState extends State<FirstSection>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.transparent,
+                Color.fromARGB(47, 3, 185, 124),
                 Color(0xFF03b97c),
               ],
               stops: [0.5, 1.0],
@@ -124,38 +124,35 @@ class _FirstSectionState extends State<FirstSection>
               height: screenHeight / 7,
             ),
             Container(
-              width: 1000,
               padding: EdgeInsets.symmetric(horizontal: screenWidth / 17),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height / 30,
+                  ),
                   TextReveal(
-                      maxHeight: 60,
+                      maxHeight: 90,
                       textController: _textController,
                       textOpacityAnimation: _textOpacityAnimation,
                       textRevealAnimation: _textRevealAnimation,
                       child: Text(
-                        "Mangaldan National High School",
+                        "Balungao National High School",
                         style: TextStyle(
                             fontFamily: "B",
-                            fontSize: screenHeight / 15,
-                            color: Color(0xFF002f24)),
+                            fontSize: screenHeight / 12,
+                            color: Colors.yellowAccent),
                       )),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  
                   FadeTransition(
                     opacity: _descriptionController,
                     child: Text(
-                      "If you can make it here, you can make it anywhere",
+                      "If you can do it here, you can do it anywhere",
                       style: TextStyle(
                           fontFamily: "SB",
                           fontSize: screenHeight / 27,
-                          color: Color(0xFF002f24)),
+                          color: Colors.yellowAccent),
                     ),
-                  ),
-                  SizedBox(
-                    height: 10,
                   ),
                   SizedBox(
                     height: 30,
@@ -247,7 +244,7 @@ class _FirstSectionState extends State<FirstSection>
                               child: ClipRRect(
                                   borderRadius: BorderRadius.circular(20),
                                   child: Image.asset(
-                                    "assets/principal.jpg",
+                                    "assets/pholder.png",
                                     fit: BoxFit.fill,
                                   )),
                             ),
@@ -256,7 +253,7 @@ class _FirstSectionState extends State<FirstSection>
                             width: 10,
                           ),
                           Text(
-                            "URBANO R. DELOS ANGELES IV,",
+                            "RACHEL T. PANDE,",
                             style: TextStyle(
                                 fontFamily: "B",
                                 fontSize: (screenWidth / 85) + 2,
@@ -267,7 +264,7 @@ class _FirstSectionState extends State<FirstSection>
                           ),
                           SizedBox(height: 30),
                           Text(
-                            "Ph.D (School Principal)",
+                            "(Principal IV)",
                             style: TextStyle(
                                 fontFamily: "M",
                                 fontSize: (screenWidth / 85) + 2,

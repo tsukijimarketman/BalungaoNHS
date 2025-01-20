@@ -2,7 +2,8 @@
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:balungao_nhs/pages/views/sections/desktop/about_us.dart';
-import 'package:balungao_nhs/pages/views/sections/mobile/about_us_mobile.dart';
+import 'package:balungao_nhs/pages/views/sections/desktop/about_us_content.dart';
+import 'package:balungao_nhs/pages/views/sections/mobile/about_us_content_mobile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_core/firebase_core.dart';
@@ -122,10 +123,10 @@ class MyApp extends StatelessWidget {
               );
             } else {
               // User is not signed in, navigate to the launcher
-              // return Launcher(
-              //   scrollToFooter: false,
-              // );
-              return AboutUsMobile();
+              return Launcher(
+                scrollToFooter: false,
+              );
+              
               
             }
           }
