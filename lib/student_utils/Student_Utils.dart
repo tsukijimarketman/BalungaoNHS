@@ -143,9 +143,9 @@ Future<void> approveStudent(String studentDocId) async {
 }
 
 Future<void> sendEnrollmentEmail(String email) async {
-  const serviceID = 'service_hz9whj7';
-  const templateID = 'template_jfhprbl';
-  const publicKey = 'e7DTgMMVsWBqEPFXO';
+  const serviceID = 'service_co92dqo';
+  const templateID = 'template_219e208';
+  const publicKey = '2wzHcnT-yPVfgQhcv';
 
   final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
 
@@ -161,7 +161,7 @@ Future<void> sendEnrollmentEmail(String email) async {
       'template_params': {
         'email': email,
         'message':
-            'Congratulations! Your enrollment has been processed. Welcome to the Prime Brilliant Minds Academy.\n\n'
+            'Congratulations! Your enrollment has been processed. Welcome to the Balungao National High School.\n\n'
                 'Here is your student account for the student portal:\n'
                 'Username: $email\n'
                 'Password: iloveBNHS_123 (Please change this after logging in for the first time)',
