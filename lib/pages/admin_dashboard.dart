@@ -305,16 +305,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Stream<List<String>> _getSchoolYears() {
-    return FirebaseFirestore.instance
-        .collection('configurations')
-        .snapshots()
-        .map((snapshot) {
-      List<String> years = ['All'];
-      years.addAll(snapshot.docs.map((doc) => doc['school_year'] as String));
-      return years.toSet().toList(); // Remove duplicates
-    });
-  }
+  Stream<List<String>> _getSchoolYears(String selectedLevel) {
+  // Determine the collection based on selectedLevel
+  String collectionName = selectedLevel == 'Junior High School' 
+      ? 'jhs configurations' 
+      : 'shs configurations';
+
+  return FirebaseFirestore.instance
+      .collection(collectionName)
+      .snapshots()
+      .map((snapshot) {
+    // Initialize the list with "All"
+    List<String> years = ['All'];
+
+    // Add school years from the fetched documents
+    years.addAll(snapshot.docs.map((doc) {
+      final data = doc.data();
+      if (data.containsKey('school_year')) {
+        return data['school_year'] as String;
+      } else {
+        print('Document missing school_year field: $data');
+        return null; // Handle missing field gracefully
+      }
+    }).where((value) => value != null).cast<String>());
+
+    return years.toSet().toList(); // Remove duplicates and return
+  });
+}
+
+
   //BuildStudentsContent
 
   //BuildStrandInstructorContent
@@ -1124,6 +1143,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   // Method to save data to Firebase
   void _JHSsaveConfiguration() {
+      print('School Year: $_curriculum');
+
+      if (_curriculum.isEmpty) {
+    // Show an error if the curriculum value is empty
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Please enter a valid school year.'),
+      ),
+    );
+    return;
+  }
     // Create a new document with a timestamp-based ID
     String docId = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -1615,6 +1645,42 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  Future<void> _showReEnrolledAcceptConfirmationDialog(
+      BuildContext context, String studentId) {
+    return showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('Accept Re-Enrolled Student'),
+          content:
+              Text('Are you sure you want to accept this Re-Enroll student?'),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: Text(
+                'Yes',
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                updateEnrollmentStatus(studentId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> updateEnrollmentStatus(String studentId) async {
     try {
       await FirebaseFirestore.instance
@@ -1630,6 +1696,56 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
+  Future<void> _showReEnrolledResetDialog(
+      BuildContext context, String studentId) {
+    return showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('Reset Student Re-Enrolled'),
+          content:
+              Text('Are you sure you want to reset this Re-Enroll student?'),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: Text(
+                'Reset',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                ResetEnrollmentStatus(studentId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> ResetEnrollmentStatus(String studentId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(studentId)
+          .update({
+        'enrollment_status': 're-enrolled',
+      });
+      // Optionally return a success message or handle success feedback here
+    } catch (error) {
+      // Optionally throw the error or return it for further handling
+      throw Exception('Failed to update enrollment status: $error');
+    }
+  }
   // Re-Enrolled Students
 
   //Filtering
@@ -1672,14 +1788,36 @@ class _AdminDashboardState extends State<AdminDashboard> {
         final semester = studentData['semester'] ?? '';
         final studentId = studentData['student_id'] ?? '';
 
+        final educLevel = studentData['educ_level'] ?? '';
+        final quarter = studentData['quarter'] ?? '';
+
         print('Checking student: $studentFullName (ID: $studentId)');
         print('Strand: $strand, Semester: $semester');
         print('Looking for Subject: $subjectName, Code: $subjectCode');
 
+        String collectionName = '';
+        String docName = '';
+
+        if (educLevel == 'Junior High School') {
+          collectionName = '$quarter Quarter';
+          docName = 'Junior High School';
+
+          print('Using Quarter: $quarter for Junior High School');
+        } else if (educLevel == 'Senior High School') {
+          collectionName = semester;
+          docName = strand;
+
+          print(
+              'Using Semester: $semester and Strand: $strand for Senior High School');
+        }
+
+        print(
+            'Checking grades for student: $studentFullName in $collectionName/$docName');
+
         try {
           final gradesDoc = await FirebaseFirestore.instance
-              .collection(semester)
-              .doc(strand)
+              .collection(collectionName)
+              .doc(docName)
               .get();
 
           if (gradesDoc.exists) {
@@ -1704,18 +1842,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       'Subject: ${grade['subject_name']}, Code: ${grade['subject_code']}, Student ID: ${grade['student_id']}');
                 });
 
-                // Find the specific subject that matches both subject name and code
-                // AND has the correct student ID
-                final matchingGrade = gradesList.firstWhere(
-                  (gradeData) =>
-                      gradeData['subject_name'] == subjectName &&
-                      gradeData['subject_code'] == subjectCode &&
-                      gradeData['student_id'] == studentId,
-                  orElse: () => null,
-                );
+                final filteredGrades = gradesList.where((gradeData) {
+                  // Check for matching subject_name
+                  if (gradeData['subject_name'] == subjectName) {
+                    if (educLevel == 'Junior High School') {
+                      // For Junior High School, only check subject_name
+                      return true;
+                    } else if (educLevel == 'Senior High School') {
+                      // For Senior High School, check both subject_name and subject_code
+                      return gradeData['subject_code'] == subjectCode &&
+                          gradeData['student_id'] == studentId;
+                    }
+                  }
+                  return false;
+                }).toList();
 
-                if (matchingGrade != null) {
-                  print('Found matching grade for $studentFullName');
+                for (var matchingGrade in filteredGrades) {
                   matchingStudents.add({
                     ...studentData,
                     'student_id': studentId,
@@ -1727,16 +1869,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     'subject_Code': matchingGrade['subject_code'] ?? '',
                     'Grade': matchingGrade['grade'] ?? '',
                   });
-                } else {
-                  print('No matching grade found for $studentFullName');
                 }
               }
             } else {
               print('Student $studentFullName not found in grades document');
             }
           } else {
-            print(
-                'No grades document found for semester: $semester, strand: $strand');
+            print('No grades document found for $collectionName/$docName');
           }
         } catch (e) {
           print('Error fetching grades for student $studentFullName: $e');
@@ -1763,133 +1902,141 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<List<Map<String, dynamic>>> _getFilteredStudentGrade() async {
-  try {
-    print('Starting _getFilteredStudentGrade');
+    try {
+      print('Starting _getFilteredStudentGrade');
 
-    // Get current instructor info
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
+      // Get current instructor info
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
 
-    final userData = userDoc.data()!;
-    final instructorFullName =
-        '${userData['first_name']} ${userData['last_name']}';
-    final userEducLevel = userData['educ_level']; // Get the educ_level from current user
-    print('Instructor: $instructorFullName, Educ Level: $userEducLevel');
+      final userData = userDoc.data()!;
+      final instructorFullName =
+          '${userData['first_name']} ${userData['last_name']}';
+      final userEducLevel =
+          userData['educ_level']; // Get the educ_level from current user
+      print('Instructor: $instructorFullName, Educ Level: $userEducLevel');
 
-    // Get sections where instructor is adviser
-    final sectionsSnapshot = await FirebaseFirestore.instance
-        .collection('sections')
-        .where('section_adviser', isEqualTo: instructorFullName)
-        .get();
+      // Get sections where instructor is adviser
+      final sectionsSnapshot = await FirebaseFirestore.instance
+          .collection('sections')
+          .where('section_adviser', isEqualTo: instructorFullName)
+          .get();
 
-    final sectionNames =
-        sectionsSnapshot.docs.map((doc) => doc['section_name']).toList();
-    final sectionEducLevels = sectionsSnapshot.docs
-        .map((doc) => doc['educ_level']) // Get the educ_level for each section
-        .toList();
+      final sectionNames =
+          sectionsSnapshot.docs.map((doc) => doc['section_name']).toList();
+      final sectionEducLevels = sectionsSnapshot.docs
+          .map(
+              (doc) => doc['educ_level']) // Get the educ_level for each section
+          .toList();
 
-    print('Found sections: $sectionNames, found educ_level: $sectionEducLevels');
+      print(
+          'Found sections: $sectionNames, found educ_level: $sectionEducLevels');
 
-    if (sectionNames.isEmpty) {
-      print('No sections found');
+      if (sectionNames.isEmpty) {
+        print('No sections found');
+        return [];
+      }
+
+      // Fetch students in those sections
+      final studentsSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('enrollment_status', isEqualTo: 'approved')
+          .where('accountType', isEqualTo: 'student')
+          .where('section', whereIn: sectionNames)
+          .get();
+
+      List<Map<String, dynamic>> studentsWithGrades = [];
+      print('Found ${studentsSnapshot.docs.length} students');
+
+      for (final studentDoc in studentsSnapshot.docs) {
+        final studentData = studentDoc.data();
+        final studentFullName =
+            '${studentData['first_name']} ${studentData['last_name']}';
+        print('Checking grades for student: $studentFullName');
+
+        final strand = studentData['seniorHigh_Strand'] ?? '';
+        final semester =
+            studentData['semester']; // Get semester directly from user document
+
+        // Construct collection name based on grade level and semester
+        String collectionName = '';
+        String docName = ''; // To hold the document name
+
+        if (userEducLevel == 'Junior High School') {
+          // For Junior High School, use the quarter field
+          final sectionQuarter = sectionsSnapshot.docs.firstWhere((doc) =>
+              doc['section_name'] == studentData['section'])['quarter'];
+          collectionName =
+              '$sectionQuarter Quarter'; // Create the collection name like '1 Quarter', '2 Quarter'
+          docName =
+              'Junior High School'; // For Junior High, the doc name is 'Junior High School'
+          print('Using Quarter: $sectionQuarter');
+        } else if (userEducLevel == 'Senior High School') {
+          // For Senior High School, use the semester field
+          collectionName =
+              semester; // Use semester (e.g., '1st Semester', '2nd Semester')
+          docName =
+              strand; // For Senior High, the doc name is based on the strand (e.g., 'STEM', 'ABM')
+
+          print('Using Semester: $semester and Strand: $strand');
+        }
+
+        print(
+            'Checking grades for student: $studentFullName in $collectionName/$docName');
+
+        try {
+          // Get the document that contains all grades
+          final gradesDoc = await FirebaseFirestore.instance
+              .collection(collectionName)
+              .doc(docName)
+              .get();
+
+          if (gradesDoc.exists) {
+            final gradesData = gradesDoc.data();
+            if (gradesData != null && gradesData[studentFullName] != null) {
+              final studentGradeData = gradesData[studentFullName];
+              print('Found grade data for $studentFullName: $studentGradeData');
+
+              final List<dynamic> gradesArray =
+                  studentGradeData['grades'] ?? [];
+
+              for (var gradeEntry in gradesArray) {
+                studentsWithGrades.add({
+                  ...studentData,
+                  'student_id': studentData['student_id'] ?? '',
+                  'first_name': studentData['first_name'] ?? '',
+                  'last_name': studentData['last_name'] ?? '',
+                  'middle_name': studentData['middle_name'] ?? '',
+                  'section': studentData['section'] ?? '',
+                  'subject_Name': gradeEntry['subject_name'] ?? '',
+                  'subject_Code': gradeEntry['subject_code'] ?? '',
+                  'Grade': gradeEntry['grade']?.toString() ?? '',
+                });
+                print(
+                    'Added grade entry: ${gradeEntry['subject_name']} - ${gradeEntry['grade']}');
+              }
+
+              print('Added all grades for student: $studentFullName');
+            } else {
+              print('No grade data found for student $studentFullName');
+            }
+          } else {
+            print('Grades document does not exist');
+          }
+        } catch (e) {
+          print('Error fetching grades for student $studentFullName: $e');
+        }
+      }
+
+      print('Yielding ${studentsWithGrades.length} students with grades');
+      return studentsWithGrades;
+    } catch (e) {
+      print('Error in _getFilteredStudentGrade: $e');
       return [];
     }
-
-    // Fetch students in those sections
-    final studentsSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('enrollment_status', isEqualTo: 'approved')
-        .where('accountType', isEqualTo: 'student')
-        .where('section', whereIn: sectionNames)
-        .get();
-
-    List<Map<String, dynamic>> studentsWithGrades = [];
-    print('Found ${studentsSnapshot.docs.length} students');
-
-    for (final studentDoc in studentsSnapshot.docs) {
-      final studentData = studentDoc.data();
-      final studentFullName =
-          '${studentData['first_name']} ${studentData['last_name']}';
-      print('Checking grades for student: $studentFullName');
-
-      final strand = studentData['seniorHigh_Strand'] ?? '';
-      final semester = studentData['semester']; // Get semester directly from user document
-
-      // Construct collection name based on grade level and semester
-      String collectionName = '';
-      String docName = ''; // To hold the document name
-
-      if (userEducLevel == 'Junior High School') {
-        // For Junior High School, use the quarter field
-        final sectionQuarter = sectionsSnapshot.docs
-            .firstWhere((doc) => doc['section_name'] == studentData['section'])['quarter'];
-        collectionName = '$sectionQuarter Quarter'; // Create the collection name like '1 Quarter', '2 Quarter'
-        docName = 'Junior High School'; // For Junior High, the doc name is 'Junior High School'
-        print('Using Quarter: $sectionQuarter');
-      } else if (userEducLevel == 'Senior High School') {
-        // For Senior High School, use the semester field
-        collectionName = semester; // Use semester (e.g., '1st Semester', '2nd Semester')
-        docName = strand; // For Senior High, the doc name is based on the strand (e.g., 'STEM', 'ABM')
-
-        print('Using Semester: $semester and Strand: $strand');
-      }
-
-      print('Checking grades for student: $studentFullName in $collectionName/$docName');
-
-      try {
-        // Get the document that contains all grades
-        final gradesDoc = await FirebaseFirestore.instance
-            .collection(collectionName)
-            .doc(docName)
-            .get();
-
-        if (gradesDoc.exists) {
-          final gradesData = gradesDoc.data();
-          if (gradesData != null && gradesData[studentFullName] != null) {
-            final studentGradeData = gradesData[studentFullName];
-            print('Found grade data for $studentFullName: $studentGradeData');
-
-            final List<dynamic> gradesArray =
-                studentGradeData['grades'] ?? [];
-
-            for (var gradeEntry in gradesArray) {
-              studentsWithGrades.add({
-                ...studentData,
-                'student_id': studentData['student_id'] ?? '',
-                'first_name': studentData['first_name'] ?? '',
-                'last_name': studentData['last_name'] ?? '',
-                'middle_name': studentData['middle_name'] ?? '',
-                'section': studentData['section'] ?? '',
-                'subject_Name': gradeEntry['subject_name'] ?? '',
-                'subject_Code': gradeEntry['subject_code'] ?? '',
-                'Grade': gradeEntry['grade']?.toString() ?? '',
-              });
-              print(
-                  'Added grade entry: ${gradeEntry['subject_name']} - ${gradeEntry['grade']}');
-            }
-
-            print('Added all grades for student: $studentFullName');
-          } else {
-            print('No grade data found for student $studentFullName');
-          }
-        } else {
-          print('Grades document does not exist');
-        }
-      } catch (e) {
-        print('Error fetching grades for student $studentFullName: $e');
-      }
-    }
-
-    print('Yielding ${studentsWithGrades.length} students with grades');
-    return studentsWithGrades;
-  } catch (e) {
-    print('Error in _getFilteredStudentGrade: $e');
-    return [];
   }
-}
-
 
   Future<List<String>> _getUniqueSubjects() async {
     final students = await _getFilteredStudentGrade();
@@ -1976,43 +2123,44 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<void> _loadSelectedDrawerItem() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  if (_accountType == 'INSTRUCTOR') {
-    setState(() {
-      _selectedDrawerItem = 'Subject Teacher';  // Always set for instructors
-      _selectedSubMenu = 'subjects';  // Default submenu for instructors
-    });
-  } else if (_accountType == 'ADMIN') {
-    String? savedItem = prefs.getString('adminDrawerItem');
-    String? savedSubMenu = prefs.getString('adminSubMenu');  // Load submenu
+    if (_accountType == 'INSTRUCTOR') {
+      setState(() {
+        _selectedDrawerItem = 'Subject Teacher'; // Always set for instructors
+        _selectedSubMenu = 'subjects'; // Default submenu for instructors
+      });
+    } else if (_accountType == 'ADMIN') {
+      String? savedItem = prefs.getString('adminDrawerItem');
+      String? savedSubMenu = prefs.getString('adminSubMenu'); // Load submenu
 
-    setState(() {
-      _selectedDrawerItem = savedItem ?? 'Dashboard';
-      _selectedSubMenu = savedSubMenu ?? 'junior';  // Default submenu if none is saved
-    });
+      setState(() {
+        _selectedDrawerItem = savedItem ?? 'Dashboard';
+        _selectedSubMenu =
+            savedSubMenu ?? 'junior'; // Default submenu if none is saved
+      });
+    }
   }
-}
 
   Future<void> _saveSelectedDrawerItem(String item, String submenu) async {
-  if (_accountType == 'ADMIN') {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('adminDrawerItem', item);
-    await prefs.setString('adminSubMenu', submenu);  // Save submenu
+    if (_accountType == 'ADMIN') {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('adminDrawerItem', item);
+      await prefs.setString('adminSubMenu', submenu); // Save submenu
+    }
   }
-}
 
   void _onDrawerItemTapped(String item) async {
-  // Assuming you have a way to determine the submenu here (like 'junior' or 'senior')
-  String submenu = _selectedSubMenu;  // Set the submenu to the currently selected one
-  
-  await _saveSelectedDrawerItem(item, submenu);  // Pass both item and submenu
-  setState(() {
-    _selectedDrawerItem = item;
-  });
-  Navigator.pop(context); // Close the drawer
-}
+    // Assuming you have a way to determine the submenu here (like 'junior' or 'senior')
+    String submenu =
+        _selectedSubMenu; // Set the submenu to the currently selected one
 
+    await _saveSelectedDrawerItem(item, submenu); // Pass both item and submenu
+    setState(() {
+      _selectedDrawerItem = item;
+    });
+    Navigator.pop(context); // Close the drawer
+  }
 
   Future<void> logout() async {
     try {
@@ -2130,16 +2278,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
         } else if (_selectedSubMenu == 'senior') {
           return _buildManageSubjects();
         } else {
-        return Center(child: Text('Body Content Here'));
-      }
+          return Center(child: Text('Body Content Here'));
+        }
       case 'Manage Teachers':
         if (_selectedSubMenu == 'junior') {
           return _buildJuniorManageTeachers();
         } else if (_selectedSubMenu == 'senior') {
           return _buildManageTeachersContent();
-        }else {
-        return Center(child: Text('Body Content Here'));
-      }
+        } else {
+          return Center(child: Text('Body Content Here'));
+        }
       case 'Manage Student Report Cards':
         return _buildManageStudentReportCardsContent();
       case 'Configuration':
@@ -2147,17 +2295,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
           return _buildJuniorConfiguration();
         } else if (_selectedSubMenu == 'senior') {
           return _buildConfigurationContent();
-        }else {
-        return Center(child: Text('Body Content Here'));
-      }
+        } else {
+          return Center(child: Text('Body Content Here'));
+        }
       case 'Manage Sections':
         if (_selectedSubMenu == 'junior') {
           return _buildJuniorManageSections();
         } else if (_selectedSubMenu == 'senior') {
           return _buildManageSections();
-        }else {
-        return Center(child: Text('Body Content Here'));
-      }
+        } else {
+          return Center(child: Text('Body Content Here'));
+        }
       case 'Dropped Student':
         return _buildDropStudent();
       case 'Banner':
@@ -2669,7 +2817,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         border: Border.all(color: Colors.grey),
                       ),
                       child: StreamBuilder<List<String>>(
-                        stream: _getSchoolYears(),
+                        stream: _getSchoolYears(selectedLevel),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData)
                             return CircularProgressIndicator();
@@ -2711,6 +2859,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             // Reset filters when changing educational level
                             _trackIconState = 0;
                             _selectedStrand = 'ALL';
+                                      _selectedSchoolYear = 'All';
+
                           });
                         },
                       ),
@@ -3206,7 +3356,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         .toList();
   }
 
-  Widget _buildManageStudentReportCardsContent() {  
+  Widget _buildManageStudentReportCardsContent() {
     return Container(
       color: Colors.grey[300],
       child: Column(
@@ -3232,7 +3382,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       border: Border.all(color: Colors.grey),
                     ),
                     child: StreamBuilder<List<String>>(
-                      stream: _getSchoolYears(),
+                      stream: _getSchoolYears(selectedLevel),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData)
                           return CircularProgressIndicator();
@@ -3253,7 +3403,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         );
                       },
                     )),
-                    Padding(
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     children: [
@@ -3274,6 +3424,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             // Reset filters when changing educational level
                             _trackIconState = 0;
                             _selectedStrand = 'ALL';
+                                      _selectedSchoolYear = 'All';
+
                           });
                         },
                       ),
@@ -3502,10 +3654,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => StudentReportCards(
-                                        studentData: data,
-                                        studentDocId: studentDocId,
-                                      ),
+                                        builder: (context) =>
+                                            StudentReportCards(
+                                          studentData: data,
+                                          studentDocId: studentDocId,
+                                        ),
                                       ),
                                     );
                                   } else if (selectedLevel ==
@@ -3514,13 +3667,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => JHSStudentReportCards(
+                                        builder: (context) =>
+                                            JHSStudentReportCards(
                                           studentData: data,
                                           studentDocId: studentDocId,
                                         ),
                                       ),
                                     );
-                                }
+                                  }
                                 },
                                 child: MouseRegion(
                                   cursor: SystemMouseCursors.click,
@@ -3553,7 +3707,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                             child: Text(
                                                 data['seniorHigh_Strand'] ??
                                                     '')),
-                                          ]
+                                      ]
                                     ],
                                   ),
                                 ),
@@ -3653,8 +3807,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
                     final strand =
                         data['seniorHigh_Strand']?.toLowerCase() ?? '';
-                                          final educLevel = data['educ_level']?.toLowerCase() ?? '';  // Define educ_level here
-
+                    final educLevel = data['educ_level']?.toLowerCase() ??
+                        ''; // Define educ_level here
 
                     final fullName = '$firstName $middleName $lastName';
 
@@ -3672,10 +3826,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             // Checkbox(value: false, onChanged: (bool? value) {}),
                             Expanded(child: Text('Student ID')),
                             Expanded(child: Text('Name')),
-                          if (students.isNotEmpty && students.first.data()['educ_level'] == 'Senior High School') ...[
-                            Expanded(child: Text('Track')),
-                            Expanded(child: Text('Strand')),
-                          ],
+                            if (students.isNotEmpty &&
+                                students.first.data()['educ_level'] ==
+                                    'Senior High School') ...[
+                              Expanded(child: Text('Track')),
+                              Expanded(child: Text('Strand')),
+                            ],
                             Expanded(
                               child: Text('Grade Level'),
                             ),
@@ -3686,29 +3842,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ...students.map((student) {
                           final data = student.data();
                           return GestureDetector(
-                          onTap: () {
-                            // Get the educ_level value
-                            final educLevel = data['educ_level'] ?? '';
+                            onTap: () {
+                              // Get the educ_level value
+                              final educLevel = data['educ_level'] ?? '';
 
-                            // Check the educ_level and navigate accordingly
-                            if (educLevel == 'Junior High School') {
-                              // Navigate to a different page if educ_level is "Junior High School"
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => JHSSubjectandGrade(studentData: data),
-                                ),
-                              );
-                            } else if (educLevel == 'Senior High School') {
-                              // Navigate to SubjectsandGrade page if educ_level is "Senior High School"
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SubjectsandGrade(studentData: data),
-                                ),
-                              );
-                            }
-                          },
+                              // Check the educ_level and navigate accordingly
+                              if (educLevel == 'Junior High School') {
+                                // Navigate to a different page if educ_level is "Junior High School"
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        JHSSubjectandGrade(studentData: data),
+                                  ),
+                                );
+                              } else if (educLevel == 'Senior High School') {
+                                // Navigate to SubjectsandGrade page if educ_level is "Senior High School"
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        SubjectsandGrade(studentData: data),
+                                  ),
+                                );
+                              }
+                            },
                             child: Row(
                               children: [
                                 // Checkbox(
@@ -3717,10 +3875,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 Expanded(
                                     child: Text(
                                         '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}')),
-                                if (data['educ_level'] == 'Senior High School') ...[
-                                Expanded(child: Text(data['seniorHigh_Track'] ?? '')),
-                                Expanded(child: Text(data['seniorHigh_Strand'] ?? '')),
-                              ],
+                                if (data['educ_level'] ==
+                                    'Senior High School') ...[
+                                  Expanded(
+                                      child:
+                                          Text(data['seniorHigh_Track'] ?? '')),
+                                  Expanded(
+                                      child: Text(
+                                          data['seniorHigh_Strand'] ?? '')),
+                                ],
                                 Expanded(
                                     child: Text(data['grade_level'] ?? '')),
                               ],
@@ -3790,193 +3953,229 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 // Add Spacer or Expanded to ensure Search stays on the right
                 Spacer(),
                 OutlinedButton(
-  onPressed: () async {
-    try {
-      // Create a PDF document
-      final pdf = pw.Document();
+                  onPressed: () async {
+                    try {
+                      // Create a PDF document
+                      final pdf = pw.Document();
 
-      // stream builder ito ng adviser
-      final snapshotData = await _getFilteredStudentGrade();
+                      // stream builder ito ng adviser
+                      final snapshotData = await _getFilteredStudentGrade();
 
-      // Check if snapshotData is empty
-      if (snapshotData.isEmpty) {
-        print('No student data found for PDF generation.');
-        return; // Exit if there's no data
-      }
+                      // Check if snapshotData is empty
+                      if (snapshotData.isEmpty) {
+                        print('No student data found for PDF generation.');
+                        return; // Exit if there's no data
+                      }
 
-      // Log the selected subject
-      print('Selected Subject: $_selectedSubject');
+                      // Log the selected subject
+                      print('Selected Subject: $_selectedSubject');
 
-      // Filter the snapshotData based on the selected subject
-      final filteredData = _selectedSubject == "All"
-          ? snapshotData
-          : snapshotData.where((student) {
-              // Check if the student has grades for the selected subject
-              final hasSubject =
-                  student['subject_Name'] == _selectedSubject;
-              print(
-                  'Checking student: ${student['first_name']} ${student['last_name']} for subject: $_selectedSubject - Result: $hasSubject');
-              return hasSubject;
-            }).toList();
+                      // Filter the snapshotData based on the selected subject
+                      final filteredData = _selectedSubject == "All"
+                          ? snapshotData
+                          : snapshotData.where((student) {
+                              // Check if the student has grades for the selected subject
+                              final hasSubject =
+                                  student['subject_Name'] == _selectedSubject;
+                              print(
+                                  'Checking student: ${student['first_name']} ${student['last_name']} for subject: $_selectedSubject - Result: $hasSubject');
+                              return hasSubject;
+                            }).toList();
 
-      // Check if filteredData is empty
-      if (filteredData.isEmpty) {
-        print('No data found for the selected subject: $_selectedSubject');
-        return; // Exit if there's no data for the selected subject
-      }
+                      // Check if filteredData is empty
+                      if (filteredData.isEmpty) {
+                        print(
+                            'No data found for the selected subject: $_selectedSubject');
+                        return; // Exit if there's no data for the selected subject
+                      }
 
-      // Log the filtered data
-      print('Filtered Data: $filteredData');
+                      // Log the filtered data
+                      print('Filtered Data: $filteredData');
 
-      // Add content to the PDF
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4.landscape,
-          build: (pw.Context context) {
-            // Section Header
-            final section = filteredData.isNotEmpty
-                ? filteredData[0]['section'] ?? 'No section available'
-                : 'No section available';
+                      // Add content to the PDF
+                      pdf.addPage(
+                        pw.MultiPage(
+                          pageFormat: PdfPageFormat.a4.landscape,
+                          build: (pw.Context context) {
+                            // Section Header
+                            final section = filteredData.isNotEmpty
+                                ? filteredData[0]['section'] ??
+                                    'No section available'
+                                : 'No section available';
 
-            return [
-              pw.Text(
-                'Section: $section',
-                style: pw.TextStyle(
-                    fontSize: 18, fontWeight: pw.FontWeight.normal),
-              ),
-              pw.SizedBox(height: 20),
-
-              // Grouping subjects by student
-              ...filteredData
-                  .fold<Map<String, List<Map<String, String>>>>(
-                      {}, (acc, student) {
-                final fullName =
-                    '${student['first_name'] ?? ''} ${student['middle_name'] ?? ''} ${student['last_name'] ?? ''}';
-                acc[fullName] = (acc[fullName] ?? [])
-                  ..add({
-                    'subject_Code': student['subject_Code'] ?? '',
-                    'subject_Name': student['subject_Name'] ?? '',
-                    'Grade': student['Grade'] ?? '',
-                    'educ_level': student['educ_level'] ?? '',
-                  });
-                return acc;
-              })
-                  .entries
-                  .map((entry) {
-                final fullName = entry.key;
-                final subjects = entry.value;
-
-                return pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    // Full Name
-                    pw.Text(
-                      fullName,
-                      style: pw.TextStyle(
-                        fontSize: 16,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                    ),
-                    pw.SizedBox(height: 10),
-
-                    // Subjects Table
-                    pw.Table(
-                      border: pw.TableBorder.all(),
-                      columnWidths: {
-                        0: pw.FlexColumnWidth(2),
-                        1: pw.FlexColumnWidth(3),
-                        2: pw.FlexColumnWidth(2),
-                      },
-                      children: [
-                        // Header Row
-                        pw.TableRow(
-                          decoration: pw.BoxDecoration(
-                              color: PdfColors.grey300),
-                          children: [
-                            // Conditionally show/hide subject_code based on educ_level
-                            if (entry.value.first['educ_level'] == 'Senior High School')
-                              pw.Padding(
-                                padding: const pw.EdgeInsets.all(8.0),
-                                child: pw.Text('Subject Code',
-                                    style: pw.TextStyle(
-                                        fontWeight: pw.FontWeight.bold)),
+                            return [
+                              pw.Text(
+                                'Section: $section',
+                                style: pw.TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: pw.FontWeight.normal),
                               ),
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(8.0),
-                              child: pw.Text('Subject Name',
-                                  style: pw.TextStyle(
-                                      fontWeight: pw.FontWeight.bold)),
-                            ),
-                            pw.Padding(
-                              padding: const pw.EdgeInsets.all(8.0),
-                              child: pw.Text('Grade',
-                                  style: pw.TextStyle(
-                                      fontWeight: pw.FontWeight.bold)),
-                            ),
-                          ],
+                              pw.SizedBox(height: 20),
+
+                              // Grouping subjects by student
+                              ...filteredData
+                                  .fold<Map<String, List<Map<String, String>>>>(
+                                      {}, (acc, student) {
+                                    final fullName =
+                                        '${student['first_name'] ?? ''} ${student['middle_name'] ?? ''} ${student['last_name'] ?? ''}';
+                                    acc[fullName] = (acc[fullName] ?? [])
+                                      ..add({
+                                        'subject_Code':
+                                            student['subject_Code'] ?? '',
+                                        'subject_Name':
+                                            student['subject_Name'] ?? '',
+                                        'Grade': student['Grade'] ?? '',
+                                        'educ_level':
+                                            student['educ_level'] ?? '',
+                                      });
+                                    return acc;
+                                  })
+                                  .entries
+                                  .map((entry) {
+                                    final fullName = entry.key;
+                                    final subjects = entry.value;
+
+                                    return pw.Column(
+                                      crossAxisAlignment:
+                                          pw.CrossAxisAlignment.start,
+                                      children: [
+                                        // Full Name
+                                        pw.Text(
+                                          fullName,
+                                          style: pw.TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: pw.FontWeight.bold,
+                                          ),
+                                        ),
+                                        pw.SizedBox(height: 10),
+
+                                        // Subjects Table
+                                        pw.Table(
+                                          border: pw.TableBorder.all(),
+                                          columnWidths: {
+                                            0: pw.FlexColumnWidth(2),
+                                            1: pw.FlexColumnWidth(3),
+                                            2: pw.FlexColumnWidth(2),
+                                          },
+                                          children: [
+                                            // Header Row
+                                            pw.TableRow(
+                                              decoration: pw.BoxDecoration(
+                                                  color: PdfColors.grey300),
+                                              children: [
+                                                // Conditionally show/hide subject_code based on educ_level
+                                                if (entry.value
+                                                        .first['educ_level'] ==
+                                                    'Senior High School')
+                                                  pw.Padding(
+                                                    padding:
+                                                        const pw.EdgeInsets.all(
+                                                            8.0),
+                                                    child: pw.Text(
+                                                        'Subject Code',
+                                                        style: pw.TextStyle(
+                                                            fontWeight: pw
+                                                                .FontWeight
+                                                                .bold)),
+                                                  ),
+                                                pw.Padding(
+                                                  padding:
+                                                      const pw.EdgeInsets.all(
+                                                          8.0),
+                                                  child: pw.Text('Subject Name',
+                                                      style: pw.TextStyle(
+                                                          fontWeight: pw
+                                                              .FontWeight
+                                                              .bold)),
+                                                ),
+                                                pw.Padding(
+                                                  padding:
+                                                      const pw.EdgeInsets.all(
+                                                          8.0),
+                                                  child: pw.Text('Grade',
+                                                      style: pw.TextStyle(
+                                                          fontWeight: pw
+                                                              .FontWeight
+                                                              .bold)),
+                                                ),
+                                              ],
+                                            ),
+                                            // Data Rows
+                                            ...subjects.map((subject) {
+                                              return pw.TableRow(
+                                                children: [
+                                                  // Conditionally show subject_code based on educ_level
+                                                  if (entry.value.first[
+                                                          'educ_level'] ==
+                                                      'Senior High School')
+                                                    pw.Padding(
+                                                      padding: const pw
+                                                          .EdgeInsets.all(8.0),
+                                                      child: pw.Text(subject[
+                                                              'subject_Code'] ??
+                                                          ''),
+                                                    ),
+                                                  pw.Padding(
+                                                    padding:
+                                                        const pw.EdgeInsets.all(
+                                                            8.0),
+                                                    child: pw.Text(subject[
+                                                            'subject_Name'] ??
+                                                        ''),
+                                                  ),
+                                                  pw.Padding(
+                                                    padding:
+                                                        const pw.EdgeInsets.all(
+                                                            8.0),
+                                                    child: pw.Text(
+                                                        subject['Grade'] ?? ''),
+                                                  ),
+                                                ],
+                                              );
+                                            }).toList(),
+                                          ],
+                                        ),
+                                        pw.SizedBox(height: 70),
+                                        pw.SizedBox(height: 20),
+                                      ],
+                                    );
+                                  })
+                                  .toList(),
+                            ];
+                          },
                         ),
-                        // Data Rows
-                        ...subjects.map((subject) {
-                          return pw.TableRow(
-                            children: [
-                              // Conditionally show subject_code based on educ_level
-                              if (entry.value.first['educ_level'] == 'Senior High School')
-                                pw.Padding(
-                                  padding: const pw.EdgeInsets.all(8.0),
-                                  child: pw.Text(subject['subject_Code'] ?? ''),
-                                ),
-                              pw.Padding(
-                                padding: const pw.EdgeInsets.all(8.0),
-                                child: pw.Text(subject['subject_Name'] ?? ''),
-                              ),
-                              pw.Padding(
-                                padding: const pw.EdgeInsets.all(8.0),
-                                child: pw.Text(subject['Grade'] ?? ''),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ],
+                      );
+
+                      // Save the PDF to bytes
+                      final pdfBytes = await pdf.save();
+
+                      // Check if pdfBytes is empty
+                      if (pdfBytes.isEmpty) {
+                        print('PDF generation failed: no bytes to save.');
+                        return; // Exit if no bytes were generated
+                      }
+
+                      // Share the PDF
+                      await Printing.sharePdf(
+                        bytes: pdfBytes,
+                        filename: 'students_report_grade.pdf',
+                      );
+
+                      print('PDF generated and shared successfully.');
+                    } catch (e) {
+                      print('Error generating or sharing PDF: $e');
+                    }
+                  },
+                  child: Text('Download to PDF',
+                      style: TextStyle(color: Colors.black)),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: BorderSide(color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    pw.SizedBox(height: 70),
-                    pw.SizedBox(height: 20),
-                  ],
-                );
-              }).toList(),
-            ];
-          },
-        ),
-      );
-
-      // Save the PDF to bytes
-      final pdfBytes = await pdf.save();
-
-      // Check if pdfBytes is empty
-      if (pdfBytes.isEmpty) {
-        print('PDF generation failed: no bytes to save.');
-        return; // Exit if no bytes were generated
-      }
-
-      // Share the PDF
-      await Printing.sharePdf(
-        bytes: pdfBytes,
-        filename: 'students_report_grade.pdf',
-      );
-
-      print('PDF generated and shared successfully.');
-    } catch (e) {
-      print('Error generating or sharing PDF: $e');
-    }
-  },
-  child: Text('Download to PDF', style: TextStyle(color: Colors.black)),
-  style: OutlinedButton.styleFrom(
-    backgroundColor: Colors.white,
-    side: BorderSide(color: Colors.black),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-  ),
-),
+                  ),
+                ),
                 SizedBox(
                   width: 20,
                 ),
@@ -4023,8 +4222,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 }
 
                 final allStudents = snapshot.data!;
-                        final userEducLevel = snapshot.data![0]['educ_level']; // Access educ_level here
-
+                final userEducLevel =
+                    snapshot.data![0]['educ_level']; // Access educ_level here
 
                 final searchQuery = _searchController.text.toLowerCase();
                 var searchFilteredStudents = allStudents.where((student) {
@@ -4084,11 +4283,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         Expanded(child: Text('Middle Name')),
                         Expanded(child: Text('Section')),
                         if (_selectedSubject == "All") ...[
-                        if (userEducLevel == 'Senior High School') ...[
-                  Expanded(child: Text('Subject Code')),
-                ] else ...[
-                  Expanded(child: Text('Subjects')), // Use "Subjects" for Junior High
-                ],
+                          if (userEducLevel == 'Senior High School') ...[
+                            Expanded(child: Text('Subject Code')),
+                          ] else ...[
+                            Expanded(
+                                child: Text(
+                                    'Subjects')), // Use "Subjects" for Junior High
+                          ],
                           Expanded(child: Text('Grade')),
                         ] else ...[
                           Expanded(child: Text('Subject Name')),
@@ -4138,15 +4339,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                       child:
                                           Text(firstRecord['section'] ?? '')),
                                   if (_selectedSubject == "All") ...[
-                                   if (userEducLevel == 'Senior High School') ...[
-                            Expanded(
-                                flex: 2,
-                                child: Text(firstRecord['subject_Code'] ?? '')),
-                          ] else ...[
-                            Expanded(
-                                flex: 2,
-                                child: Text(firstRecord['subject_Name'] ?? '')),
-                          ],
+                                    if (userEducLevel ==
+                                        'Senior High School') ...[
+                                      Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                              firstRecord['subject_Code'] ??
+                                                  '')),
+                                    ] else ...[
+                                      Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                              firstRecord['subject_Name'] ??
+                                                  '')),
+                                    ],
                                     Expanded(
                                         flex: 2,
                                         child:
@@ -4268,12 +4474,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(width: 20),
-                              if (doc['educ_level'] == 'Senior High School') 
-
-                Text(
-                  'Subject Code: ${doc['subject_Code'] ?? 'N/A'}',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                if (doc['educ_level'] == 'Senior High School')
+                  Text(
+                    'Subject Code: ${doc['subject_Code'] ?? 'N/A'}',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
               ],
             ),
           ),
@@ -4336,12 +4541,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 child: Text('Grade Level',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold))),
-                                                                  if (doc['educ_level'] == 'Senior High School') 
-
-                            Expanded(
-                                child: Text('Strand',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold))),
+                            if (doc['educ_level'] == 'Senior High School')
+                              Expanded(
+                                  child: Text('Strand',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold))),
                           ],
                         ),
                       ),
@@ -4378,12 +4582,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     Expanded(
                                         child: Text(
                                             studentData['grade_level'] ?? '')),
-                                                                  if (doc['educ_level'] == 'Senior High School') 
-
-                                    Expanded(
-                                        child: Text(
-                                            studentData['seniorHigh_Strand'] ??
-                                                '')),
+                                    if (doc['educ_level'] ==
+                                        'Senior High School')
+                                      Expanded(
+                                          child: Text(studentData[
+                                                  'seniorHigh_Strand'] ??
+                                              '')),
                                   ],
                                 ),
                               ),
@@ -4455,6 +4659,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         return;
                       }
 
+                      final isSeniorHighSchool = studentsToInclude.any(
+                          (student) =>
+                              student['educ_level'] == 'Senior High School');
+
                       // Create a PDF document
                       final pdf = pw.Document();
 
@@ -4481,7 +4689,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     3: pw.FlexColumnWidth(2),
                                     4: pw.FlexColumnWidth(2),
                                     5: pw.FlexColumnWidth(3),
-                                    6: pw.FlexColumnWidth(2),
+                                    if (isSeniorHighSchool)
+                                      6: pw.FlexColumnWidth(2),
                                     7: pw.FlexColumnWidth(1),
                                   },
                                   children: [
@@ -4531,13 +4740,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                   fontWeight:
                                                       pw.FontWeight.bold)),
                                         ),
-                                        pw.Padding(
-                                          padding: const pw.EdgeInsets.all(4),
-                                          child: pw.Text('Subject Code',
-                                              style: pw.TextStyle(
-                                                  fontWeight:
-                                                      pw.FontWeight.bold)),
-                                        ),
+                                        if (isSeniorHighSchool)
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(4),
+                                            child: pw.Text('Subject Code',
+                                                style: pw.TextStyle(
+                                                    fontWeight:
+                                                        pw.FontWeight.bold)),
+                                          ),
                                         pw.Padding(
                                           padding: const pw.EdgeInsets.all(4),
                                           child: pw.Text('Grade',
@@ -4580,11 +4790,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                             child: pw.Text(
                                                 student['subject_Name'] ?? ''),
                                           ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child: pw.Text(
-                                                student['subject_Code'] ?? ''),
-                                          ),
+                                          if (isSeniorHighSchool)
+                                            pw.Padding(
+                                              padding:
+                                                  const pw.EdgeInsets.all(4),
+                                              child: pw.Text(
+                                                  student['subject_Code'] ??
+                                                      ''),
+                                            ),
                                           pw.Padding(
                                             padding: const pw.EdgeInsets.all(4),
                                             child:
@@ -4695,15 +4908,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         subjectCode.contains(searchQuery);
                   }).toList();
 
+                  final isSeniorHighSchool = searchFilteredStudents.any(
+                      (student) =>
+                          student['educ_level'] == 'Senior High School');
+
                   return Column(
                     children: [
-                      _buildHeaderRow(),
+                      _buildHeaderRow(isSeniorHighSchool),
                       Expanded(
                         child: ListView.builder(
                           itemCount: searchFilteredStudents.length,
                           itemBuilder: (context, index) {
                             final student = searchFilteredStudents[index];
-                            return _buildStudentRow(student);
+                            return _buildStudentRow(
+                                student, isSeniorHighSchool);
                           },
                         ),
                       ),
@@ -4718,7 +4936,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildHeaderRow() {
+  Widget _buildHeaderRow(bool isSeniorHighSchool) {
     return Column(
       children: [
         Row(
@@ -4730,7 +4948,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Expanded(child: Text('Middle Name')),
             Expanded(child: Text('Section')),
             Expanded(child: Text('Subject Name')),
-            Expanded(child: Text('Subject Code')),
+            if (isSeniorHighSchool)
+              Expanded(child: Text('Subject Code')), // Only for SHS
             Expanded(child: Text('Grade')),
           ],
         ),
@@ -4739,7 +4958,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildStudentRow(Map<String, dynamic> student) {
+  Widget _buildStudentRow(
+      Map<String, dynamic> student, bool isSeniorHighSchool) {
     return Row(
       children: [
         SizedBox(width: 8),
@@ -4783,7 +5003,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         Expanded(child: Text(student['middle_name'] ?? '')),
         Expanded(child: Text(student['section'] ?? '')),
         Expanded(child: Text(student['subject_Name'] ?? '')),
-        Expanded(child: Text(student['subject_Code'] ?? '')),
+        if (isSeniorHighSchool)
+          Expanded(child: Text(student['subject_Code'] ?? '')), // Only for SHS
         Expanded(child: Text(student['Grade'] ?? '')),
       ],
     );
@@ -7670,8 +7891,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                   Iconsax.tick_circle_copy,
                                                   color: Colors.green),
                                               onPressed: () {
-                                                updateEnrollmentStatus(
-                                                    student.id);
+                                                _showReEnrolledAcceptConfirmationDialog(
+                                                   context, student.id);
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                  Iconsax.close_circle_copy,
+                                                  color: Colors.red),
+                                              onPressed: () {
+                                                _showReEnrolledResetDialog(
+                                                   context, student.id);
                                               },
                                             ),
                                           ],
@@ -8937,7 +9167,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Manage Subjects';
                         _selectedSubMenu = 'junior';
                       });
-                        _saveSelectedDrawerItem('Manage Subjects', 'junior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Manage Subjects',
+                          'junior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -8950,7 +9181,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Manage Subjects';
                         _selectedSubMenu = 'senior';
                       });
-  _saveSelectedDrawerItem('Manage Subjects', 'senior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Manage Subjects',
+                          'senior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -8970,7 +9202,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Manage Teachers';
                         _selectedSubMenu = 'junior';
                       });
-                                              _saveSelectedDrawerItem('Manage Teachers', 'junior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Manage Teachers',
+                          'junior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -8983,7 +9216,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Manage Teachers';
                         _selectedSubMenu = 'senior';
                       });
-                                              _saveSelectedDrawerItem('Manage Teachers', 'senior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Manage Teachers',
+                          'senior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -9003,7 +9237,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Manage Sections';
                         _selectedSubMenu = 'junior';
                       });
-                                              _saveSelectedDrawerItem('Manage Sections', 'junior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Manage Sections',
+                          'junior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -9016,7 +9251,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Manage Sections';
                         _selectedSubMenu = 'senior';
                       });
-                                              _saveSelectedDrawerItem('Manage Sections', 'senior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Manage Sections',
+                          'senior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -9038,7 +9274,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Configuration';
                         _selectedSubMenu = 'junior';
                       });
-                                              _saveSelectedDrawerItem('Configuration', 'junior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Configuration',
+                          'junior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -9051,7 +9288,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Configuration';
                         _selectedSubMenu = 'senior';
                       });
-                                              _saveSelectedDrawerItem('Configuration', 'senior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Configuration',
+                          'senior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -9079,7 +9317,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Subject Teacher';
                         _selectedSubMenu = 'subjects';
                       });
-                                              _saveSelectedDrawerItem('Subject Teacher', 'junior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Subject Teacher',
+                          'junior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },
@@ -9092,7 +9331,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         _selectedDrawerItem = 'Subject Teacher';
                         _selectedSubMenu = 'grades';
                       });
-                                              _saveSelectedDrawerItem('Subject Teacher', 'senior');  // Save both item and submenu
+                      _saveSelectedDrawerItem('Subject Teacher',
+                          'senior'); // Save both item and submenu
 
                       Navigator.pop(context); // Close drawer
                     },

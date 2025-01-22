@@ -3693,6 +3693,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                               SizedBox(
                                 height: 20,
                               ),
+                              if (_educLevel == 'Senior High School') ...[
                               Text(
                                 "Senior High School(SHS)",
                                 style: TextStyle(
@@ -4016,6 +4017,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                                   ),
                                 ],
                               ),
+                              ],
                               SizedBox(
                                 height: 20,
                               ),
