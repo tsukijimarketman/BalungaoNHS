@@ -110,7 +110,7 @@ class _AboutUsContentMobileState extends State<AboutUsContentMobile>
                     ),
                     SizedBox(width: 10),
                     Text(
-                      "MNHS",
+                      "BNHS",
                       style: TextStyle(
                         color: Color(0xFF002f24),
                         fontFamily: "B",
