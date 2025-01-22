@@ -129,9 +129,6 @@ flutter:
   # example:
 
   fonts:
-    - family: NotoColorEmoji
-      fonts:
-        - asset: fonts/NotoColorEmoji.ttf
     - family: SB
       fonts:
         - asset: fonts/Poppins-SemiBold.ttf

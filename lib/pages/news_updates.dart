@@ -535,7 +535,6 @@ Future<void> _deleteNews(String newsId) async {
             children: [
               TextField(
                 controller: _titleController,
-                style: TextStyle(fontFamily: 'NotoColorEmoji', fontSize: 18),
                 decoration: const InputDecoration(
                   labelText: 'Title',
                   border: OutlineInputBorder(),
