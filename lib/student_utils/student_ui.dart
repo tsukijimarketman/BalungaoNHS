@@ -1468,8 +1468,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         'Humanities and Social Sciences (HUMSS)': 'HUMSS',
         'Accountancy, Business, and Management (ABM)': 'ABM',
         'Information and Communication Technology (ICT)': 'ICT',
-        'Home Economics (HE)': 'HE',
-        'Industrial Arts (IA)': 'IA'
+        'Cookery (CO)': 'CO',
       };
 
       // Get the currently logged-in user
@@ -1657,10 +1656,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
         return 'STEM';
       case 'Humanities and Social Sciences (HUMSS)':
         return 'HUMSS';
-      case 'Home Economics (HE)':
-        return 'HE';
-      case 'Industrial Arts (IA)':
-        return 'IA';
+      case 'Cookery (CO)':
+        return 'CO';
       default:
         return ''; // Return an empty string or some default value if there's no match
     }

@@ -285,10 +285,8 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
         return 'STEM';
       case 'Humanities and Social Sciences (HUMSS)':
         return 'HUMSS';
-      case 'Home Economics (HE)':
-        return 'HE';
-      case 'Industrial Arts (IA)':
-        return 'IA';
+      case 'Cookery (CO)':
+        return 'CO';
       default:
         return ''; // Return an empty string or some default value if there's no match
     }

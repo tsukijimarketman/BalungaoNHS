@@ -184,7 +184,7 @@ class _ForgotPassMobileviewState extends State<ForgotPassMobileview> {
                   child: ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.deepPurpleAccent),
+                            Color(0xFF002f24)),
                         elevation: MaterialStateProperty.all<double>(5),
                         shape: MaterialStateProperty.all<OutlinedBorder>(
                           RoundedRectangleBorder(

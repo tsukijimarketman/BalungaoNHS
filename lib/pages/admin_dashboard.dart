@@ -92,8 +92,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'HUMSS': 'Humanities and Social Sciences (HUMSS)',
     'ABM': 'Accountancy, Business, and Management (ABM)',
     'ICT': 'Information and Communication Technology (ICT)',
-    'HE': 'Home Economics (HE)',
-    'IA': 'Industrial Arts (IA)',
+    'CO': 'Cookery (CO)',
   };
 
   String _selectedSubMenu = 'subjects'; // Default value

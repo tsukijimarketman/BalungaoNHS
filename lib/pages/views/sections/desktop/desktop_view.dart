@@ -237,30 +237,6 @@ class _DesktopViewState extends State<DesktopView>
                             MouseRegion(
                               onEnter: (_) {
                                 setState(() {
-                                  _textColor1 = Color(0xFF002f24);
-                                });
-                              },
-                              onExit: (_) {
-                                setState(() {
-                                  _textColor1 = Colors.yellowAccent;
-                                });
-                              },
-                              child: GestureDetector(
-                                onTap: () {},
-                                child: Text(
-                                  "Services",
-                                  style: TextStyle(
-                                    fontFamily: "SB",
-                                    fontSize: 14,
-                                    color: _textColor1,
-                                  ),
-                                ).showCursorOnHover.moveUpOnHover,
-                              ),
-                            ),
-                            SizedBox(width: 25),
-                            MouseRegion(
-                              onEnter: (_) {
-                                setState(() {
                                   _textColor2 = Color(0xFF002f24);
                                 });
                               },

@@ -77,8 +77,7 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
         }
 
         final document = querySnapshot.docs.first;
-      final documentId = document.id;
-
+        final documentId = document.id;
 
         await FirebaseFirestore.instance
             .collection('users')
@@ -92,16 +91,16 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
         });
 
         Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => StudentUI(),
-        ),
-      );
+          context,
+          MaterialPageRoute(
+            builder: (context) => StudentUI(),
+          ),
+        );
+      }
+    } catch (error) {
+      _showDialog('Error', 'Failed to change password: ${error.toString()}');
     }
-  } catch (error) {
-    _showDialog('Error', 'Failed to change password: ${error.toString()}');
   }
-}
 
   void _showDialog(String title, String message) {
     showCupertinoDialog(
@@ -131,17 +130,17 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    double cardWidth = screenWidth * 0.4;  // 40% of screen width
+    double cardWidth = screenWidth * 0.4; // 40% of screen width
     double cardHeight = screenHeight * 0.85; // 85% of screen height
-    double inputWidth = cardWidth * 0.85;    // 85% of card width
+    double inputWidth = cardWidth * 0.85; // 85% of card width
 
     return Center(
       child: Container(
         width: cardWidth,
         height: cardHeight,
         constraints: BoxConstraints(
-          minWidth: 400,  // Minimum width for very small screens
-          maxWidth: 800,  // Maximum width for very large screens
+          minWidth: 400, // Minimum width for very small screens
+          maxWidth: 800, // Maximum width for very large screens
           minHeight: 600, // Minimum height
           maxHeight: 900, // Maximum height
         ),
@@ -154,54 +153,50 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                                                  SizedBox(height: cardHeight * 0.02),
-
-                   Flexible(
-                flex: 2,
-                child: Image.asset(
-                  'assets/balungaonhs.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-                                SizedBox(height: cardHeight * 0.02),
-
+                  SizedBox(height: cardHeight * 0.02),
+                  Flexible(
+                    flex: 2,
+                    child: Image.asset(
+                      'assets/balungaonhs.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  SizedBox(height: cardHeight * 0.02),
                   Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: cardWidth * 0.075,
-                ),
-                child: Container(
-                  width: inputWidth,
-                  child: Text(
-                    'Change Password',
-                    style: TextStyle(
-                      fontSize: cardWidth * 0.045,
-                      fontWeight: FontWeight.bold,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: cardWidth * 0.075,
                     ),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-              ),
-                   Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: cardWidth * 0.075,
-                ),
-                child: Container(
-                  width: inputWidth,
-                  child: Text(
-                    'Before you proceed please kindly change your password',
-                    style: TextStyle(
-                      fontSize: cardWidth * 0.03,
+                    child: Container(
+                      width: inputWidth,
+                      child: Text(
+                        'Change Password',
+                        style: TextStyle(
+                          fontSize: cardWidth * 0.045,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
                     ),
-                    textAlign: TextAlign.left,
                   ),
-                ),
-              ),
-
-              SizedBox(height: cardHeight * 0.04),
-
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: cardWidth * 0.075,
+                    ),
+                    child: Container(
+                      width: inputWidth,
+                      child: Text(
+                        'Before you proceed please kindly change your password',
+                        style: TextStyle(
+                          fontSize: cardWidth * 0.03,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: cardHeight * 0.04),
                   Container(
-                width: inputWidth,
-                height: cardHeight * 0.08,
+                    width: inputWidth,
+                    height: cardHeight * 0.08,
                     child: CupertinoTextField(
                       controller: _newPasswordController,
                       placeholder: 'Password',
@@ -232,11 +227,10 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                       ),
                     ),
                   ),
-                           SizedBox(height: cardHeight * 0.02),
-
-                        Container(
-                width: inputWidth,
-                height: cardHeight * 0.08,
+                  SizedBox(height: cardHeight * 0.02),
+                  Container(
+                    width: inputWidth,
+                    height: cardHeight * 0.08,
                     child: CupertinoTextField(
                       controller: _confirmPasswordController,
                       placeholder: 'Confirm Password',
@@ -267,43 +261,44 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                       ),
                     ),
                   ),
-                         SizedBox(height: cardHeight * 0.04),
-    Container(
-                width: inputWidth,
-                height: cardHeight * 0.06,
+                  SizedBox(height: cardHeight * 0.04),
+                  Container(
+                    width: inputWidth,
+                    height: cardHeight * 0.06,
                     child: ElevatedButton(
                       style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                            Colors.deepPurpleAccent),
-                                    elevation:
-                                        MaterialStateProperty.all<double>(5),
-                                    shape:
-                                        MaterialStateProperty.all<OutlinedBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Color(0xFF002f24)),
+                        elevation: MaterialStateProperty.all<double>(5),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
                       onPressed: _changePassword,
-                      child: Text('Change Password',
-                                  style: TextStyle(
-                      fontSize: cardWidth * 0.04,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),),
+                      child: Text(
+                        'Change Password',
+                        style: TextStyle(
+                            fontSize: cardWidth * 0.04,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
                     ),
                   ),
                   if (_passwordMismatch)
                     Padding(
-                  padding: EdgeInsets.symmetric(vertical: cardHeight * 0.02),
+                      padding:
+                          EdgeInsets.symmetric(vertical: cardHeight * 0.02),
                       child: Text(
                         'Passwords do not match',
-                        style: TextStyle(color: Colors.red,                       fontSize: cardWidth * 0.03,
-),
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: cardWidth * 0.03,
+                        ),
                       ),
                     ),
-                                                    SizedBox(height: cardHeight * 0.02),
-
+                  SizedBox(height: cardHeight * 0.02),
                 ],
               ),
             ),

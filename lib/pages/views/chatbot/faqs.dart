@@ -146,7 +146,7 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.deepPurpleAccent,
+                color: Color(0xFF002f24),
               ),
             ),
             const SizedBox(height: 10),

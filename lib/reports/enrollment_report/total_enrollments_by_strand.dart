@@ -6,15 +6,14 @@ import 'package:balungao_nhs/reports/enrollment_report/presentation/resources/ap
 class TEBS extends StatelessWidget {
   const TEBS({super.key});
 
-  static const strandLabels = ['ABM', 'HUMMS', 'STEM', 'ICT', 'HE', 'IA'];
+  static const strandLabels = ['ABM', 'HUMMS', 'STEM', 'ICT', 'CO'];
 
   static const strandMapping = {
     "Accountancy, Business, and Management (ABM)": 0,
     "Humanities and Social Sciences (HUMSS)": 1,
     "Science, Technology, Engineering and Mathematics (STEM)": 2,
     "Information and Communication Technology (ICT)": 3,
-    "Home Economics (HE)": 4,
-    "Industrial Arts (IA)": 5,
+    "Cookery (CO)": 4,
   };
 
   Stream<Map<int, int>> fetchStrandData() {
@@ -60,29 +59,34 @@ class TEBS extends StatelessWidget {
         final strandData = snapshot.data!;
 
         return Container(
-          padding: EdgeInsets.all(MediaQuery.of(context).size.width/83),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width / 83),
           decoration: BoxDecoration(
             color: Color(0xFF002f24),
-            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width/83),
+            borderRadius:
+                BorderRadius.circular(MediaQuery.of(context).size.width / 83),
           ),
-          width: MediaQuery.of(context).size.width/3.3, // Adjusted width to fit beside other graphs
+          width: MediaQuery.of(context).size.width /
+              3.3, // Adjusted width to fit beside other graphs
           child: Column(
             children: [
               Text(
                 "Total enrollments by strand",
                 style: TextStyle(
-                    fontFamily: "B", fontSize: MediaQuery.of(context).size.width/70, color: Colors.white),
+                    fontFamily: "B",
+                    fontSize: MediaQuery.of(context).size.width / 70,
+                    color: Colors.white),
               ),
-              SizedBox(height: MediaQuery.of(context).size.width/200),
+              SizedBox(height: MediaQuery.of(context).size.width / 200),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width/60),
+                margin: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width / 60),
                 child: Column(
                   children: [
                     Indicator(
                       color: Colors.orangeAccent,
                       label: "Academic Strand",
                     ),
-                    SizedBox(height: MediaQuery.of(context).size.width/200),
+                    SizedBox(height: MediaQuery.of(context).size.width / 200),
                     Indicator(
                       color: Colors.purpleAccent,
                       label: "Technical-Vocational-Livelihood Strand",
@@ -90,7 +94,7 @@ class TEBS extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.width/200),
+              SizedBox(height: MediaQuery.of(context).size.width / 200),
               EnrollmentBarChart(
                 strandData: strandData,
                 strandLabels: strandLabels,
@@ -135,7 +139,8 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
   }
 
   Widget leftTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.white, fontSize: 12); // Enlarged font size
+    const style =
+        TextStyle(color: Colors.white, fontSize: 12); // Enlarged font size
     if (value % 5 == 0) {
       return SideTitleWidget(
         axisSide: meta.axisSide,
@@ -148,7 +153,8 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
     return const SizedBox();
   }
 
-  BarChartGroupData generateGroup(int x, double value, {bool isTouched = false}) {
+  BarChartGroupData generateGroup(int x, double value,
+      {bool isTouched = false}) {
     final isAcademic = x < 3;
     final barColor = isAcademic ? Colors.orangeAccent : Colors.purpleAccent;
 
@@ -172,13 +178,16 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width/3.5, // Adjusted width to fit within the container
-      height: MediaQuery.of(context).size.width/4.52, // Adjusted height to fit within the container
+      width: MediaQuery.of(context).size.width /
+          3.5, // Adjusted width to fit within the container
+      height: MediaQuery.of(context).size.width /
+          4.52, // Adjusted height to fit within the container
       child: BarChart(
         BarChartData(
           maxY: widget.strandData.values.reduce((a, b) => a > b ? a : b) + 5,
           minY: 0,
-          groupsSpace: 10, // Increased space between groups for better alignment
+          groupsSpace:
+              10, // Increased space between groups for better alignment
           barGroups: List.generate(
             widget.strandLabels.length,
             (i) => generateGroup(
@@ -248,14 +257,13 @@ class _EnrollmentBarChartState extends State<EnrollmentBarChart> {
                 color: Colors.grey.withOpacity(0.3),
                 strokeWidth: 0.8,
               );
-            },  
+            },
           ),
         ),
       ),
     );
   }
 }
-
 
 class Indicator extends StatelessWidget {
   const Indicator({super.key, required this.color, required this.label});
@@ -267,12 +275,15 @@ class Indicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(Icons.square_rounded, color: color, size: MediaQuery.of(context).size.width/70),
-        SizedBox(width: MediaQuery.of(context).size.width/300),
+        Icon(Icons.square_rounded,
+            color: color, size: MediaQuery.of(context).size.width / 70),
+        SizedBox(width: MediaQuery.of(context).size.width / 300),
         Text(
           label,
           style: TextStyle(
-              fontFamily: "M", fontSize: MediaQuery.of(context).size.width/95, color: Colors.white),
+              fontFamily: "M",
+              fontSize: MediaQuery.of(context).size.width / 95,
+              color: Colors.white),
         ),
       ],
     );

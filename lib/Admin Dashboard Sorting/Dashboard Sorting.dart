@@ -46,11 +46,8 @@ Stream<QuerySnapshot> getNewcomersStudents(
        case 'ICT':
          query = query.where('seniorHigh_Strand', isEqualTo: 'Information and Communication Technology (ICT)');
          break;
-       case 'HE':
-         query = query.where('seniorHigh_Strand', isEqualTo: 'Home Economics (HE)');
-         break;
-       case 'IA':
-         query = query.where('seniorHigh_Strand', isEqualTo: 'Industrial Arts (IA)');
+       case 'COOKERY':
+         query = query.where('seniorHigh_Strand', isEqualTo: 'Cookery (CO)');
          break;
      }
    }
@@ -113,11 +110,8 @@ Stream<QuerySnapshot> getReEnrolledStudents(String selectedLevel,
        case 'ICT':
          query = query.where('seniorHigh_Strand', isEqualTo: 'Information and Communication Technology (ICT)');
          break;
-       case 'HE':
-         query = query.where('seniorHigh_Strand', isEqualTo: 'Home Economics (HE)');
-         break;
-       case 'IA':
-         query = query.where('seniorHigh_Strand', isEqualTo: 'Industrial Arts (IA)');
+       case 'COOKERY':
+         query = query.where('seniorHigh_Strand', isEqualTo: 'Cookery (CO)');
          break;
      }
    }
