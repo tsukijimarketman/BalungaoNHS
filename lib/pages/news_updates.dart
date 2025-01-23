@@ -55,7 +55,7 @@ class _NewsUpdatesState extends State<NewsUpdates> {
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Both fields are required'),
           ],
@@ -84,7 +84,7 @@ class _NewsUpdatesState extends State<NewsUpdates> {
       ScaffoldMessenger.of(context).showSnackBar(
        SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('News created successfully'),
           ],
@@ -95,7 +95,7 @@ class _NewsUpdatesState extends State<NewsUpdates> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Failed to create news'),
           ],
@@ -125,7 +125,7 @@ class _NewsUpdatesState extends State<NewsUpdates> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Status updated to $newStatus'),
           ],
@@ -154,7 +154,7 @@ Future<void> _updateNews() async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
           Text('Both fields are required'),
         ],
@@ -181,7 +181,7 @@ Future<void> _updateNews() async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
           Text('News updated successfully'),
         ],
@@ -192,7 +192,7 @@ Future<void> _updateNews() async {
     ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
           Text('Failed to update news'),
         ],
@@ -214,7 +214,7 @@ Future<void> _deleteNews(String newsId) async {
     ScaffoldMessenger.of(context).showSnackBar(
    SnackBar(content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
           Text('News deleted successfully'),
         ],
@@ -225,7 +225,7 @@ Future<void> _deleteNews(String newsId) async {
     ScaffoldMessenger.of(context).showSnackBar(
      SnackBar(content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
           Text('Failed to delete news'),
         ],

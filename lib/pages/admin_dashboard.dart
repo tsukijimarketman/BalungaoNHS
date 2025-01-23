@@ -184,7 +184,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('Student with ID $studentId not found'),
               ],
@@ -200,7 +200,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
           SizedBox(width: 10),
           Text('Selected students moved to drop list'),
         ],
@@ -214,7 +214,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
           SizedBox(width: 10),
           Text('No students selected'),
         ],
@@ -462,7 +462,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Student deleted successfully'),
           ],
@@ -473,7 +473,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to delete student: $e'),
           ],
@@ -518,7 +518,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Subject deleted successfully'),
           ],
@@ -529,7 +529,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error deleting subject: $e'),
           ],
@@ -608,7 +608,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Instructor status updated to inactive'),
           ],
@@ -619,7 +619,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to update status: $e'),
           ],
@@ -641,7 +641,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Instructor status updated to inactive'),
           ],
@@ -652,7 +652,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to update status: $e'),
           ],
@@ -844,7 +844,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Section deleted successfully'),
           ],
@@ -855,7 +855,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error deleting section: $e'),
           ],
@@ -1020,7 +1020,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('JHS Configuration deleted successfully'),
           ],
@@ -1031,7 +1031,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to delete JHS configuration: $e'),
           ],
@@ -1120,7 +1120,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text(
                 'JHS Configuration activated and student enrollments reset successfully'),
@@ -1132,7 +1132,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to activate jhs configuration: $error'),
           ],
@@ -1185,7 +1185,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('JHS Configuration saved successfully!'),
           ],
@@ -1196,7 +1196,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to save jhs configuration: $error'),
           ],
@@ -1254,7 +1254,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Enrollment status and sections reset for all students.'),
           ],
@@ -1265,7 +1265,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to update enrollment status: $error'),
           ],
@@ -1400,7 +1400,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('SHS Configuration deleted successfully'),
           ],
@@ -1411,7 +1411,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to delete configuration: $e'),
           ],
@@ -1488,7 +1488,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text(
                 'SHS Configuration activated and student enrollments reset successfully'),
@@ -1500,7 +1500,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to activate configuration: $error'),
           ],
@@ -1542,7 +1542,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('SHS Configuration saved successfully!'),
           ],
@@ -1553,7 +1553,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to save configuration: $error'),
           ],
@@ -1611,7 +1611,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Enrollment status and sections reset for shs students.'),
           ],
@@ -1622,7 +1622,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to update enrollment status: $error'),
           ],
@@ -6909,7 +6909,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                       SnackBar(
                                           content: Row(
                                         children: [
-                                          Image.asset('PBMA.png', scale: 40),
+                                          Image.asset('balungaonhs.png', scale: 40),
                                           SizedBox(width: 10),
                                           Text(
                                               'Please select a jhs configuration to activate'),
@@ -7343,7 +7343,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                       SnackBar(
                                           content: Row(
                                         children: [
-                                          Image.asset('PBMA.png', scale: 40),
+                                          Image.asset('balungaonhs.png', scale: 40),
                                           SizedBox(width: 10),
                                           Text(
                                               'Please select a shs configuration to activate'),

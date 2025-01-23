@@ -44,7 +44,7 @@ class _Case0State extends State<Case0> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Failed to load banners: $e'),
           ],
@@ -74,7 +74,7 @@ class _Case0State extends State<Case0> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Failed to load news: $e'),
           ],
@@ -115,7 +115,7 @@ class _Case0State extends State<Case0> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
           Text('Failed to fetch FAQs: $e'),
         ],

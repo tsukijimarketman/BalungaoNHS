@@ -94,7 +94,7 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Grades submitted successfully!'),
           ],
@@ -108,7 +108,7 @@ class _SubjectsandGradeState extends State<SubjectsandGrade> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
           SizedBox(width: 10),
           Text('Error submitting grades: $e'),
         ],

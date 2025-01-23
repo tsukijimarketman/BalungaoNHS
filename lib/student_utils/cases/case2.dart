@@ -127,7 +127,7 @@ class EnrollmentStatusWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: Image.asset(
-            'assets/PBMA.png',
+            'assets/balungaonhs.png',
             width: imageSize,
             height: imageSize,
           ),

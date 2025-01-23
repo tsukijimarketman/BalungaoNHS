@@ -88,7 +88,7 @@ class _ForgotPassDesktopviewState extends State<ForgotPassDesktopview> {
                         Flexible(
                 flex: 2,
                 child: Image.asset(
-                  'assets/PBMA.png',
+                  'assets/balungaonhs.png',
                   fit: BoxFit.contain,
                 ),
               ),

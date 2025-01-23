@@ -46,7 +46,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please select an education level'),
           ],
@@ -60,7 +60,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Please fill all fields'),
             ],
@@ -74,7 +74,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Please fill all fields'),
             ],
@@ -111,7 +111,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Subject added successfully!'),
           ],
@@ -135,7 +135,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error adding subject: $e'),
           ],

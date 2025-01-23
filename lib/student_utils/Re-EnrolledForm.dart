@@ -22,7 +22,7 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please fill in all fields'),
           ],
@@ -79,7 +79,7 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Enrollment updated successfully!'),
           ],
@@ -95,7 +95,7 @@ class _ReEnrollFormState extends State<ReEnrollForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Failed to update enrollment: $e'),
           ],

@@ -48,7 +48,7 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Both fields are required'),
           ],
@@ -75,7 +75,7 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text(editingFAQId == null ? 'FAQ created successfully' : 'FAQ updated successfully'),
           ],
@@ -86,7 +86,7 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Failed to save FAQ: $e'),
           ],
@@ -104,7 +104,7 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(content: Row(
            children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
              Text('FAQ deleted successfully'),
            ],
@@ -115,7 +115,7 @@ class _FAQAdminPageState extends State<FAQAdminPage> {
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(content: Row(
            children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
              Text('Failed to delete FAQ'),
            ],

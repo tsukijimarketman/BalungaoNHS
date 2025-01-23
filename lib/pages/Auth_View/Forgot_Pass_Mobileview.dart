@@ -121,7 +121,7 @@ class _ForgotPassMobileviewState extends State<ForgotPassMobileview> {
                 alignment: Alignment.center,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Image.asset(
-                  'assets/PBMA.png',
+                  'assets/balungaonhs.png',
                    width: logoSize,
                           height: logoSize,
                           fit: BoxFit.contain

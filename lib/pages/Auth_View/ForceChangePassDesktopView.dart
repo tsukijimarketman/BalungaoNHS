@@ -159,7 +159,7 @@ class _ChangePasswordDesktopState extends State<ChangePasswordDesktop> {
                    Flexible(
                 flex: 2,
                 child: Image.asset(
-                  'assets/PBMA.png',
+                  'assets/balungaonhs.png',
                   fit: BoxFit.contain,
                 ),
               ),

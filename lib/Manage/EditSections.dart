@@ -74,7 +74,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
       SnackBar(
         content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please select an education level first'),
           ],
@@ -119,7 +119,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
       SnackBar(
         content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error fetching advisers: $e'),
           ],
@@ -137,7 +137,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please fill all fields'),
           ],
@@ -161,7 +161,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text(
                 'Capacity cannot be less than current enrolled count of $currentCapacityCount'),
@@ -194,7 +194,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Section updated successfully!'),
           ],
@@ -207,7 +207,7 @@ class _EditSectionsFormState extends State<EditSectionsForm> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error updating section: $e'),
           ],
