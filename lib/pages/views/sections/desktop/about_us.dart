@@ -31,10 +31,9 @@ class AboutUs extends StatefulWidget {
 
 class _AboutUsState extends State<AboutUs> with TickerProviderStateMixin {
   final GlobalKey _footerKey = GlobalKey();
-  
+
   Color _appBarColor = Color(0xFF03b97c);
   //tsukijimarketman/PBMA_Portal
-
 
   Color _textColor1 = Color(0xFF002f24);
   Color _textColor2 = Color(0xFF002f24);
@@ -44,7 +43,6 @@ class _AboutUsState extends State<AboutUs> with TickerProviderStateMixin {
 
   bool _showSignInCard = false;
   bool _TAC = false;
-
 
   void toggleTAC() {
     setState(() {
@@ -89,176 +87,154 @@ class _AboutUsState extends State<AboutUs> with TickerProviderStateMixin {
             left: 0,
             right: 0,
             child: AppBar(
-                  automaticallyImplyLeading: false,
-                  toolbarHeight: screenWidth / 16,
-                  elevation: 8,
-                  backgroundColor: _appBarColor,
-                  title: Container(
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Launcher(
-                                  scrollToFooter: false,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(50),
-                                child: Image.asset(
-                                  "assets/balungaonhs.png",
-                                  height: screenWidth / 20,
-                                  width: screenWidth / 20,
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Text(
-                                "MNHS",
-                                style: TextStyle(
-                                  color: Color(0xFF002f24),
-                                  fontFamily: "B",
-                                  fontSize: screenWidth / 50,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+              automaticallyImplyLeading: false,
+              toolbarHeight: screenWidth / 16,
+              elevation: 8,
+              backgroundColor: _appBarColor,
+              title: Container(
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Launcher(
+                              scrollToFooter: false,
+                            ),
                           ),
-                        ).showCursorOnHover,
-                        Spacer(),
-                        //here
-                        MouseRegion(
-                          onEnter: (_) {
-                            setState(() {
-                              _textColor2 = Color(0xFF002f24);
-                            });
-                          },
-                          onExit: (_) {
-                            setState(() {
-                              _textColor1 = Color(0xFF002f24);
-                            });
-                          },
-                          child: GestureDetector(
-                            onTap: () {},
-                            child: Text(
-                              "Services",
-                              style: TextStyle(
-                                fontFamily: "SB",
-                                fontSize: 14,
-                                color: _textColor1,
-                              ),
-                            ).showCursorOnHover.moveUpOnHover,
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.asset(
+                              "assets/balungaonhs.png",
+                              height: screenWidth / 20,
+                              width: screenWidth / 20,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 25),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AboutUs(),
-                                ));
-                          },
-                          child: Text(
-                            "About us",
+                          SizedBox(width: 10),
+                          Text(
+                            "BNHS",
                             style: TextStyle(
-                              fontFamily: "SB",
-                              fontSize: 14,
-                              color: Colors.yellowAccent,
+                              color: Color(0xFF002f24),
+                              fontFamily: "B",
+                              fontSize: screenWidth / 50,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ).showCursorOnHover.moveUpOnHover,
+                          ),
+                        ],
+                      ),
+                    ).showCursorOnHover,
+                    Spacer(),
+                    //here
+
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AboutUs(),
+                            ));
+                      },
+                      child: Text(
+                        "About us",
+                        style: TextStyle(
+                          fontFamily: "SB",
+                          fontSize: 14,
+                          color: Colors.yellowAccent,
                         ),
-                        SizedBox(width: 25),
-                        MouseRegion(
-                          onEnter: (_) {
-                            setState(() {
-                              _textColor2 = Color(0xFF002f24);
-                            });
-                          },
-                          onExit: (_) {
-                            setState(() {
-                              _textColor3 = Color(0xFF002f24);
-                            });
-                          },
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      Launcher(scrollToFooter: true),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              "Contact us",
-                              style: TextStyle(
-                                fontFamily: "SB",
-                                fontSize: 14,
-                                color: _textColor3,
-                              ),
-                            ).showCursorOnHover.moveUpOnHover,
-                          ),
-                        ),
-                        SizedBox(width: 25),
-                        SizedBox(
-                          width: screenWidth / 12,
-                          height: screenWidth / 35,
-                          child: TextButton(
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                  Color(0xFF002f24)),
-                              shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                            onPressed: toggleSignInCard,
-                            child: Text(
-                              "Sign In",
-                              style: TextStyle(
-                                fontFamily: "B",
-                                fontSize: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ).moveUpOnHover,
-                        SizedBox(width: 25),
-                        SizedBox(
-                          width: screenWidth / 12,
-                          height: screenWidth / 35,
-                          child: TextButton(
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                  Color(0xFF002f24)),
-                              shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                            onPressed: toggleTAC,
-                            child: Text(
-                              "Enroll Now",
-                              style: TextStyle(
-                                fontFamily: "B",
-                                fontSize: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ).moveUpOnHover,
-                      ],
+                      ).showCursorOnHover.moveUpOnHover,
                     ),
-                  ),
-            ),  ),
+                    SizedBox(width: 25),
+                    MouseRegion(
+                      onEnter: (_) {
+                        setState(() {
+                          _textColor2 = Color(0xFF002f24);
+                        });
+                      },
+                      onExit: (_) {
+                        setState(() {
+                          _textColor3 = Color(0xFF002f24);
+                        });
+                      },
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  Launcher(scrollToFooter: true),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Contact us",
+                          style: TextStyle(
+                            fontFamily: "SB",
+                            fontSize: 14,
+                            color: _textColor3,
+                          ),
+                        ).showCursorOnHover.moveUpOnHover,
+                      ),
+                    ),
+                    SizedBox(width: 25),
+                    SizedBox(
+                      width: screenWidth / 12,
+                      height: screenWidth / 35,
+                      child: TextButton(
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Color(0xFF002f24)),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        onPressed: toggleSignInCard,
+                        child: Text(
+                          "Sign In",
+                          style: TextStyle(
+                            fontFamily: "B",
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ).moveUpOnHover,
+                    SizedBox(width: 25),
+                    SizedBox(
+                      width: screenWidth / 12,
+                      height: screenWidth / 35,
+                      child: TextButton(
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Color(0xFF002f24)),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        onPressed: toggleTAC,
+                        child: Text(
+                          "Enroll Now",
+                          style: TextStyle(
+                            fontFamily: "B",
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ).moveUpOnHover,
+                  ],
+                ),
+              ),
+            ),
+          ),
           AnimatedSwitcher(
             duration: Duration(milliseconds: 550),
             child: _showSignInCard

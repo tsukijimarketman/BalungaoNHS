@@ -186,7 +186,7 @@ shape: RoundedRectangleBorder(  // Added to match SignInMobileView
                   Container(
                     alignment: Alignment.center,
                     child: Image.asset(
-                      'assets/PBMA.png',
+                      'assets/balungaonhs.png',
                       width: logoSize,
                       height: logoSize,
                       fit: BoxFit.contain,
@@ -285,7 +285,7 @@ shape: RoundedRectangleBorder(  // Added to match SignInMobileView
                       style: ButtonStyle(
                                     backgroundColor:
                                         MaterialStateProperty.all<Color>(
-                                            Colors.deepPurpleAccent),
+                                            Color(0xFF002f24)),
                                     elevation:
                                         MaterialStateProperty.all<double>(5),
                                     shape:

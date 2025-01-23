@@ -120,33 +120,33 @@ class _JHSSubjectandGradeState extends State<JHSSubjectandGrade> {
           SetOptions(
               merge: true)); // Merge to update existing grades if the document already exists
 
-      // Optionally, show a success message
+        // Optionally, show a success message
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Row(
+          children: [
+            Image.asset('balungaonhs.png', scale: 40),
+            SizedBox(width: 10),
+            Text('Grades submitted successfully!'),
+          ],
+        )));
+      } else {
+        print(
+            'No section found for section name: $sectionName and adviser: $_firstName $_lastName');
+      }
+    } catch (e) {
+      print('Error submitting grades: $e');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Row(
         children: [
-          Image.asset('PBMA.png', scale: 40),
+          Image.asset('balungaonhs.png', scale: 40),
           SizedBox(width: 10),
-          Text('Grades submitted successfully!'),
+          Text('Error submitting grades: $e'),
         ],
       )));
-    } else {
-      print(
-          'No section found for section name: $sectionName and adviser: $_firstName $_lastName');
+    } finally {
+      setState(() {}); // Update the UI if needed
     }
-  } catch (e) {
-    print('Error submitting grades: $e');
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Row(
-      children: [
-        Image.asset('PBMA.png', scale: 40),
-        SizedBox(width: 10),
-        Text('Error submitting grades: $e'),
-      ],
-    )));
-  } finally {
-    setState(() {}); // Update the UI if needed
   }
-}
 
   @override
   void initState() {

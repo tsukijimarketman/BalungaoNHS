@@ -308,9 +308,9 @@ class SeniorHighSchoolState extends State<SeniorHighSchool>
           )).toList();
     } else if (_selectedTrack == 'Technical-Vocational-Livelihood (TVL)') {
       return [
-        'Home Economics (HE)',
+        'Cookery (CO)',
         'Information and Communication Technology (ICT)',
-        'Industrial Arts (IA)'
+        
       ].map((String value) => DropdownMenuItem<String>(
             value: value,
             child: Text(value),

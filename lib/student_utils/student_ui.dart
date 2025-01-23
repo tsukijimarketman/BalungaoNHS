@@ -480,7 +480,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
               SnackBar(
                 content: Row(
                   children: [
-                    Image.asset('PBMA.png', scale: 40),
+                    Image.asset('balungaonhs.png', scale: 40),
                     SizedBox(width: 10),
                     Text('Passwords do not match'),
                   ],
@@ -570,7 +570,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                 SnackBar(
                   content: Row(
                     children: [
-                      Image.asset('PBMA.png', scale: 40),
+                      Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
                       Text(hasUserDataChanges && hasPasswordChanges
                           ? "Information and password updated successfully"
@@ -595,7 +595,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text("Error updating: $e"),
             ],
@@ -983,7 +983,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Error saving and loading subjects: $e'),
             ],
@@ -995,7 +995,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please select a section first.'),
           ],
@@ -1045,7 +1045,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                 SnackBar(
                     content: Row(
                   children: [
-                    Image.asset('PBMA.png', scale: 40),
+                    Image.asset('balungaonhs.png', scale: 40),
                     SizedBox(width: 10),
                     Text('Section saved successfully!'),
                   ],
@@ -1056,7 +1056,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                 SnackBar(
                     content: Row(
                   children: [
-                    Image.asset('PBMA.png', scale: 40),
+                    Image.asset('balungaonhs.png', scale: 40),
                     SizedBox(width: 10),
                     Text('Section document not found.'),
                   ],
@@ -1069,7 +1069,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
               SnackBar(
                   content: Row(
                 children: [
-                  Image.asset('PBMA.png', scale: 40),
+                  Image.asset('balungaonhs.png', scale: 40),
                   SizedBox(width: 10),
                   Text('User document not found.'),
                 ],
@@ -1082,7 +1082,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text(
                     'No user is logged in. Please log in to save the section.'),
@@ -1096,7 +1096,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Error saving section: $e'),
             ],
@@ -1109,7 +1109,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please select a section before saving.'),
           ],
@@ -1182,7 +1182,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('Subjects loaded successfully for Junior High School!'),
               ],
@@ -1193,7 +1193,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('No matching section found for Junior High School.'),
               ],
@@ -1206,7 +1206,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Error loading subjects: $e'),
             ],
@@ -1218,7 +1218,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         SnackBar(
           content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text(
                   'Please select a section before loading subjects for Junior High School.'),
@@ -1276,7 +1276,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('Subjects loaded successfully!'),
               ],
@@ -1287,7 +1287,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('No matching section found.'),
               ],
@@ -1300,7 +1300,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Error loading subjects: $e'),
             ],
@@ -1312,7 +1312,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please select a section before loading subjects.'),
           ],
@@ -1355,7 +1355,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Error: User not found.'),
             ],
@@ -1367,7 +1367,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error fetching subjects: $e'),
           ],
@@ -1413,7 +1413,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('Section and subjects finalized successfully!'),
               ],
@@ -1427,7 +1427,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('Error: User not found.'),
               ],
@@ -1439,7 +1439,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Error finalizing selection: $e'),
             ],
@@ -1451,7 +1451,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please select a section and load subjects first.'),
           ],
@@ -1468,8 +1468,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         'Humanities and Social Sciences (HUMSS)': 'HUMSS',
         'Accountancy, Business, and Management (ABM)': 'ABM',
         'Information and Communication Technology (ICT)': 'ICT',
-        'Home Economics (HE)': 'HE',
-        'Industrial Arts (IA)': 'IA'
+        'Cookery (CO)': 'CO',
       };
 
       // Get the currently logged-in user
@@ -1521,7 +1520,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                   SnackBar(
                       content: Row(
                     children: [
-                      Image.asset('PBMA.png', scale: 40),
+                      Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
                       Text('No sections available for your semester.'),
                     ],
@@ -1533,7 +1532,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                 SnackBar(
                     content: Row(
                   children: [
-                    Image.asset('PBMA.png', scale: 40),
+                    Image.asset('balungaonhs.png', scale: 40),
                     SizedBox(width: 10),
                     Text('Strand abbreviation not found.'),
                   ],
@@ -1568,7 +1567,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
                 SnackBar(
                     content: Row(
                   children: [
-                    Image.asset('PBMA.png', scale: 40),
+                    Image.asset('balungaonhs.png', scale: 40),
                     SizedBox(width: 10),
                     Text('No sections available for your quarter.'),
                   ],
@@ -1581,7 +1580,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
               SnackBar(
                   content: Row(
                 children: [
-                  Image.asset('PBMA.png', scale: 40),
+                  Image.asset('balungaonhs.png', scale: 40),
                   SizedBox(width: 10),
                   Text('Invalid education level.'),
                 ],
@@ -1593,7 +1592,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('User document not found.'),
               ],
@@ -1605,7 +1604,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('No user is logged in.'),
             ],
@@ -1618,7 +1617,7 @@ class _ScreensExampleState extends State<_ScreensExample> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error fetching sections: $e'),
           ],
@@ -1657,10 +1656,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
         return 'STEM';
       case 'Humanities and Social Sciences (HUMSS)':
         return 'HUMSS';
-      case 'Home Economics (HE)':
-        return 'HE';
-      case 'Industrial Arts (IA)':
-        return 'IA';
+      case 'Cookery (CO)':
+        return 'CO';
       default:
         return ''; // Return an empty string or some default value if there's no match
     }

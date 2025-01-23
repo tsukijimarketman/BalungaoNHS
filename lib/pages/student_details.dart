@@ -85,9 +85,8 @@ class _StudentDetailsState extends State<StudentDetails> {
     setState(() {
       if (track == 'Technical-Vocational-Livelihood (TVL)') {
         strandOptions = [
-          'Home Economics (HE)',
+          'Cookery (CO)',
           'Information and Communication Technology (ICT)',
-          'Industrial Arts (IA)',
         ];
       } else if (track == 'Academic Track') {
         strandOptions = [

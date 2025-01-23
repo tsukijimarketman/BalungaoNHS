@@ -77,7 +77,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error fetching sections: $e'),
           ],
@@ -128,7 +128,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error fetching subjects: $e'),
           ],
@@ -213,7 +213,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text(
                     'Invalid subject name and code combination. Please select a valid pair.'),
@@ -229,7 +229,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Please select a valid adviser status (Yes or No).'),
             ],
@@ -318,7 +318,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
             SnackBar(
                 content: Row(
               children: [
-                Image.asset('PBMA.png', scale: 40),
+                Image.asset('balungaonhs.png', scale: 40),
                 SizedBox(width: 10),
                 Text('Instructor account added successfully!'),
               ],
@@ -341,7 +341,7 @@ class _AddInstructorDialogState extends State<AddInstructorDialog> {
           SnackBar(
               content: Row(
             children: [
-              Image.asset('PBMA.png', scale: 40),
+              Image.asset('balungaonhs.png', scale: 40),
               SizedBox(width: 10),
               Text('Failed to create instructor account: ${e.toString()}'),
             ],

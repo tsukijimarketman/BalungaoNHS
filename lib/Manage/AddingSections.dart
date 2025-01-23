@@ -61,7 +61,7 @@ class _AddingSectionsState extends State<AddingSections> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error fetching instructors: $e'),
           ],
@@ -88,7 +88,7 @@ class _AddingSectionsState extends State<AddingSections> {
       SnackBar(
         content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please fill all fields'),
           ],
@@ -104,7 +104,7 @@ class _AddingSectionsState extends State<AddingSections> {
       SnackBar(
         content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please select a quarter for Junior High School'),
           ],
@@ -119,7 +119,7 @@ class _AddingSectionsState extends State<AddingSections> {
       SnackBar(
         content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please select a semester for Senior High School'),
           ],
@@ -137,7 +137,7 @@ class _AddingSectionsState extends State<AddingSections> {
       SnackBar(
         content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Please enter a valid number for capacity'),
           ],
@@ -172,7 +172,7 @@ class _AddingSectionsState extends State<AddingSections> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Section added successfully!'),
           ],
@@ -195,7 +195,7 @@ class _AddingSectionsState extends State<AddingSections> {
         SnackBar(
             content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
             SizedBox(width: 10),
             Text('Error adding section: $e'),
           ],

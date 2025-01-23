@@ -226,7 +226,7 @@ class StudentInformationState extends State<StudentInformation>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Image Uploaded Successfully'),
           ],
@@ -236,7 +236,7 @@ class StudentInformationState extends State<StudentInformation>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Row(
           children: [
-            Image.asset('PBMA.png', scale: 40),
+            Image.asset('balungaonhs.png', scale: 40),
                       SizedBox(width: 10),
             Text('Failed to Upload Image: $e'),
           ],
