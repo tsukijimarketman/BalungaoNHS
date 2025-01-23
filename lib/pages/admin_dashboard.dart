@@ -2708,8 +2708,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                         'HUMSS',
                                         'ABM',
                                         'ICT',
-                                        'HE',
-                                        'IA'
+                                        'CO'
                                       ].map((String strand) {
                                         return PopupMenuItem<String>(
                                           value: strand,
@@ -3088,8 +3087,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                         'HUMSS',
                                         'ABM',
                                         'ICT',
-                                        'HE',
-                                        'IA'
+                                        'CO'
                                       ].map((String strand) {
                                         return PopupMenuItem<String>(
                                           value: strand,
@@ -3618,8 +3616,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                         'HUMSS',
                                         'ABM',
                                         'ICT',
-                                        'HE',
-                                        'IA'
+                                        'CO'
                                       ].map((String strand) {
                                         return PopupMenuItem<String>(
                                           value: strand,
@@ -5179,8 +5176,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                         'HUMSS',
                                         'ABM',
                                         'ICT',
-                                        'HE',
-                                        'IA'
+                                        'CO'
                                       ].map((String strand) {
                                         return PopupMenuItem<String>(
                                           value: strand,
@@ -5737,8 +5733,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         "ABM",
                         "HUMSS",
                         "ICT",
-                        "HE",
-                        "IA"
+                        "CO"
                       ] // Add all your course options here
                           .map((course) => DropdownMenuItem<String>(
                                 value: course,
@@ -7800,8 +7795,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                         'HUMSS',
                                         'ABM',
                                         'ICT',
-                                        'HE',
-                                        'IA'
+                                        'CO'
                                       ].map((String strand) {
                                         return PopupMenuItem<String>(
                                           value: strand,
@@ -8915,8 +8909,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                         'HUMSS',
                                         'ABM',
                                         'ICT',
-                                        'HE',
-                                        'IA'
+                                        'CO'
                                       ].map((String strand) {
                                         return PopupMenuItem<String>(
                                           value: strand,
