@@ -23,11 +23,17 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
   final TextEditingController _subjectCode = TextEditingController();
   final TextEditingController _gradeLevel = TextEditingController();
   final TextEditingController _quarter = TextEditingController();
+
+  final TextEditingController _musicController = TextEditingController();
+  final TextEditingController _artsController = TextEditingController();
+  final TextEditingController _peController = TextEditingController();
+  final TextEditingController _healthController = TextEditingController();
   
   String? _selectedCategory = '--';
   String? _selectedSemester = '--';
   String? _selectedCourse = '--';
   String? _selectedEducationLevel = '--';
+  bool _isMapeh = false; // Flag to check if "MAPEH" is typed
 
   final CollectionReference subjectsCollection =
       FirebaseFirestore.instance.collection('subjects');
@@ -38,6 +44,10 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
     _subjectCode.dispose();
     _gradeLevel.dispose();
     _quarter.dispose();
+    _musicController.dispose();
+    _artsController.dispose();
+    _peController.dispose();
+    _healthController.dispose();
     super.dispose();
   }
 
@@ -69,8 +79,11 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
         return;
       }
     } else {
-      if (_subjectName.text.isEmpty || _subjectCode.text.isEmpty || _selectedCategory == '--' || 
-          _selectedSemester == '--' || _selectedCourse == '--') {
+      if (_subjectName.text.isEmpty ||
+          _subjectCode.text.isEmpty ||
+          _selectedCategory == '--' || 
+          _selectedSemester == '--' || 
+          _selectedCourse == '--') {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Row(
             children: [
@@ -91,12 +104,27 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
       };
 
       if (_selectedEducationLevel == 'Junior High School') {
-        subjectData.addAll({
-          'subject_name': _subjectName.text,
-          'grade_level': _gradeLevel.text,
-          'quarter': _quarter.text,
-        });
-      } else {
+        if (_isMapeh) {
+          // Add MAPEH and subfields
+          subjectData.addAll({
+            'subject_name': 'MAPEH',
+            'grade_level': _gradeLevel.text,
+            'quarter': _quarter.text,
+            'sub_subjects': {
+              'Music': _musicController.text,
+              'Arts': _artsController.text,
+              'Physical Education': _peController.text,
+              'Health': _healthController.text,
+            },
+          });
+        } else {
+          subjectData.addAll({
+            'subject_name': _subjectName.text,
+            'grade_level': _gradeLevel.text,
+            'quarter': _quarter.text,
+          });
+        }
+          } else {
         subjectData.addAll({
           'strandcourse': _selectedCourse,
           'subject_name': _subjectName.text,
@@ -124,11 +152,16 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
       _subjectCode.clear();
       _gradeLevel.clear();
       _quarter.clear();
+      _musicController.clear();
+      _artsController.clear();
+      _peController.clear();
+      _healthController.clear();
       setState(() {
         _selectedEducationLevel = '--';
         _selectedCourse = '--';
         _selectedCategory = '--';
         _selectedSemester = '--';
+        _isMapeh = false;
       });
 
     } catch (e) {
@@ -203,6 +236,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
                         onChanged: (val) {
                           setState(() {
                             _selectedEducationLevel = val;
+                            _isMapeh = false; // Reset MAPEH flag
                             // Clear other fields when education level changes
                             _subjectName.clear();
                             _subjectCode.clear();
@@ -225,7 +259,52 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
                             border: OutlineInputBorder(),
                             hintText: 'Enter subject name',
                           ),
+                          onChanged: (value) {
+                            setState(() {
+                              _isMapeh = value.trim().toUpperCase() == 'MAPEH';
+                            });
+                          },
                         ),
+                        SizedBox(height: 16),
+                        if (_isMapeh) ...[
+                          Text('MAPEH Subfields', style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextFormField(
+                            controller: _musicController,
+                            decoration: InputDecoration(
+                              labelText: 'Music',
+                              border: OutlineInputBorder(),
+                              hintText: 'Enter Music details',
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          TextFormField(
+                            controller: _artsController,
+                            decoration: InputDecoration(
+                              labelText: 'Arts',
+                              border: OutlineInputBorder(),
+                              hintText: 'Enter Arts details',
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          TextFormField(
+                            controller: _peController,
+                            decoration: InputDecoration(
+                              labelText: 'Physical Education',
+                              border: OutlineInputBorder(),
+                              hintText: 'Enter Physical Education details',
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          TextFormField(
+                            controller: _healthController,
+                            decoration: InputDecoration(
+                              labelText: 'Health',
+                              border: OutlineInputBorder(),
+                              hintText: 'Enter Health details',
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                        ],
                         SizedBox(height: 16),
                         TextFormField(
                           controller: _gradeLevel,

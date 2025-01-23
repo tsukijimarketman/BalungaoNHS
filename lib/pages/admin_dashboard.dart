@@ -5519,11 +5519,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text((i + 1).toString()),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(filteredSubjects[i]
-                                                ['subject_name']),
-                                          ),
+                                           Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(filteredSubjects[i]['subject_name']),
+                  if (filteredSubjects[i]['subject_name'] == 'MAPEH' &&
+                      filteredSubjects[i]['sub_subjects'] != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 4),
+                        Text('  ' + 'Subfields:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('     ' + '${filteredSubjects[i]['sub_subjects']['Music'] ?? 'N/A'}'),
+                        Text('     ' + '${filteredSubjects[i]['sub_subjects']['Arts'] ?? 'N/A'}'),
+                        Text('     ' + '${filteredSubjects[i]['sub_subjects']['Physical Education'] ?? 'N/A'}'),
+                        Text('     ' + '${filteredSubjects[i]['sub_subjects']['Health'] ?? 'N/A'}'),
+                      ],
+                    ),
+                ],
+              ),
+            ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(
