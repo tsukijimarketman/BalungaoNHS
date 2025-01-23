@@ -77,25 +77,37 @@ class _EditInstructorState extends State<EditInstructor> {
   }
 
   Future<void> _fetchSections() async {
-    try {
+  try {
+    // Only fetch sections if adviser status is 'yes'
+    if (_adviserStatus == 'yes') {
       final snapshot = await FirebaseFirestore.instance
           .collection('sections')
           .where('educ_level', isEqualTo: _selectedEducationLevel)
           .get();
+
       final sections =
           snapshot.docs.map((doc) => doc['section_name'] as String).toList();
+
       setState(() {
         _sections = sections;
+        // Retain the previous section if it exists in the new list of sections
         if (_selectedSection != null && !_sections.contains(_selectedSection)) {
-          _selectedSection = null; // Reset if it doesn't exist
+          _selectedSection = null; // Reset if the previous section doesn't exist
         }
       });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching sections: $e')),
-      );
+    } else {
+      // If adviser status is 'no', clear sections and selected section
+      setState(() {
+        _sections = [];
+        _selectedSection = null;
+      });
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching sections: $e')),
+    );
   }
+}
 
   Future<void> _fetchSubjects() async {
     setState(() {
@@ -185,7 +197,7 @@ class _EditInstructorState extends State<EditInstructor> {
           .update({
         'subject_Name': _subjectName.text,
         'subject_Code': _subjectCode.text,
-        'adviserStatus': _adviserStatus,
+        'adviser': _adviserStatus,
         'handled_section': _selectedSection,
         'education_level': _selectedEducationLevel,
       });
@@ -301,9 +313,15 @@ class _EditInstructorState extends State<EditInstructor> {
                             setState(() {
                               _adviserStatus = value ?? '--';
                             });
-                            _fetchSections();
-                          },
-                        ),
+                           if (_adviserStatus == 'no') {
+      setState(() {
+        _selectedSection = null; // Reset section when adviser status is no
+      });
+    }
+
+    _fetchSections(); // Fetch sections when the adviser status changes
+  },
+),
                         if (_adviserStatus == 'yes') ...[
                           DropdownButtonFormField<String>(
                             value: _selectedSection,

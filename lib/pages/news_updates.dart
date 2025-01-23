@@ -539,6 +539,7 @@ Future<void> _deleteNews(String newsId) async {
                   labelText: 'Title',
                   border: OutlineInputBorder(),
                 ),
+                keyboardType: TextInputType.multiline, 
               ),
               const SizedBox(height: 10),
               TextField(
