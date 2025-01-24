@@ -5321,6 +5321,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
+      print('Building _buildJuniorManageTeachers');
+  print('Screen width: $screenWidth, Screen height: $screenHeight');
+
     return Stack(
       children: [
         Container(
