@@ -1168,7 +1168,8 @@ class _ScreensExampleState extends State<_ScreensExample> {
               // Check if the grade_level in the subject matches the section (7, 8, 9, 10)
               return subjectGradeLevel ==
                   sectionName.substring(0,
-                      1); // Check first character of section_name ("7", "8", "9", etc.)
+                      1)|| 
+           (sectionName.startsWith('10') && subjectGradeLevel == '10'); // Check first character of section_name ("7", "8", "9", etc.)
             }).map((doc) {
               // For Junior High School, only fetch and display 'subject_name'
               return {
