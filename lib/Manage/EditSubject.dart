@@ -28,6 +28,15 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
   String? _selectedSemester = '--';
   String? _selectedCourse = '--';
   String? _selectedEducationLevel = '--';
+    bool _isMapeh = true; // Flag to check if "MAPEH" is typed
+
+
+  Map<String, TextEditingController> _subSubjectsControllers = {
+  'Music': TextEditingController(),
+  'Arts': TextEditingController(),
+  'Physical Education': TextEditingController(),
+  'Health': TextEditingController(),
+};
 
   final CollectionReference subjectsCollection =
       FirebaseFirestore.instance.collection('subjects');
@@ -52,9 +61,20 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
         _gradeLevel.text = data?['grade_level'] ?? '--';
         _quarter.text = data?['quarter'] ?? '--';
         _selectedEducationLevel = data?['educ_level'] ?? '--';
-      });
-    }
+     
+     if (_subjectName.text == 'MAPEH') {
+        final subSubjects = data?['sub_subjects'] as Map<String, dynamic>?;
+
+        if (subSubjects != null) {
+          _subSubjectsControllers['Music']?.text = subSubjects['Music'] ?? '';
+          _subSubjectsControllers['Arts']?.text = subSubjects['Arts'] ?? '';
+          _subSubjectsControllers['Physical Education']?.text = subSubjects['Physical Education'] ?? '';
+          _subSubjectsControllers['Health']?.text = subSubjects['Health'] ?? '';
+        }
+      }
+    });
   }
+}
 
   Future<void> _updateSubject() async {
     if (_selectedEducationLevel == 'Junior High School') {
@@ -90,6 +110,15 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
   final Map<String, dynamic> subjectData = {
     'updated_at': Timestamp.now(),
   };
+
+  if (_subjectName.text == 'MAPEH') {
+      subjectData['sub_subjects'] = {
+        'Music': _subSubjectsControllers['Music']?.text,
+        'Arts': _subSubjectsControllers['Arts']?.text,
+        'Physical Education': _subSubjectsControllers['Physical Education']?.text,
+        'Health': _subSubjectsControllers['Health']?.text,
+      };
+    }
 
   // Conditional data based on education level
   if (_selectedEducationLevel == 'Junior High School') {
@@ -212,7 +241,51 @@ class _EditSubjectsFormState extends State<EditSubjectsForm> {
                             border: OutlineInputBorder(),
                             hintText: 'Enter subject name',
                           ),
-                        ),
+                        onChanged: (value) {
+        setState(() {
+          _isMapeh = value == 'MAPEH';
+        });
+      },
+    ),
+                                                  SizedBox(height: 16),
+
+                      if (_isMapeh) ...[
+      TextFormField(
+        controller: _subSubjectsControllers['Music'],
+        decoration: InputDecoration(
+          labelText: 'Music',
+          border: OutlineInputBorder(),
+          hintText: 'Enter details for Music',
+        ),
+      ),
+      SizedBox(height: 16),
+      TextFormField(
+        controller: _subSubjectsControllers['Arts'],
+        decoration: InputDecoration(
+          labelText: 'Arts',
+          border: OutlineInputBorder(),
+          hintText: 'Enter details for Arts',
+        ),
+      ),
+      SizedBox(height: 16),
+      TextFormField(
+        controller: _subSubjectsControllers['Physical Education'],
+        decoration: InputDecoration(
+          labelText: 'Physical Education',
+          border: OutlineInputBorder(),
+          hintText: 'Enter details for Physical Education',
+        ),
+      ),
+      SizedBox(height: 16),
+      TextFormField(
+        controller: _subSubjectsControllers['Health'],
+        decoration: InputDecoration(
+          labelText: 'Health',
+          border: OutlineInputBorder(),
+          hintText: 'Enter details for Health',
+        ),
+      ),
+    ],
                         SizedBox(height: 16),
                         TextFormField(
                           controller: _gradeLevel,

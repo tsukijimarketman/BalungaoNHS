@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 class JHSSubjectandGrade extends StatefulWidget {
-    final Map<String, dynamic> studentData;
+  final Map<String, dynamic> studentData;
 
   const JHSSubjectandGrade({super.key, required this.studentData});
 
@@ -14,7 +14,7 @@ class JHSSubjectandGrade extends StatefulWidget {
 }
 
 class _JHSSubjectandGradeState extends State<JHSSubjectandGrade> {
- String _email = '';
+  String _email = '';
   String _accountType = '';
   String _firstName = '';
   String _lastName = '';
@@ -31,63 +31,94 @@ class _JHSSubjectandGradeState extends State<JHSSubjectandGrade> {
   }
 
   // Save the grades and exit edit mode
-  void submitGrades() async {
-    try {
-      // Ensure all edits are toggled off
-      for (int i = 0; i < isEditing.length; i++) {
-        isEditing[i] = false;
-      }
+ void submitGrades() async {
+  try {
+    // Ensure all edits are toggled off
+    for (int i = 0; i < isEditing.length; i++) {
+      isEditing[i] = false;
+    }
 
-      // Fetch the semester from the sections collection
-      String sectionName = widget.studentData['section'];
+    // Fetch the semester from the sections collection
+    String sectionName = widget.studentData['section'];
 
-      // Get the corresponding section document
-      QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
-          .collection('sections')
-          .where('section_name', isEqualTo: sectionName)
-          .where('section_adviser', isEqualTo: '$_firstName $_lastName')
-          .get();
+    // Get the corresponding section document
+    QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+        .collection('sections')
+        .where('section_name', isEqualTo: sectionName)
+        .where('section_adviser', isEqualTo: '$_firstName $_lastName')
+        .get();
 
-      if (sectionSnapshot.docs.isNotEmpty) {
-        String quarter = sectionSnapshot.docs.first['quarter'];
-        String educLevel = widget.studentData['educ_level'];
+    if (sectionSnapshot.docs.isNotEmpty) {
+      String quarter = sectionSnapshot.docs.first['quarter'];
+      String educLevel = widget.studentData['educ_level'];
 
-        // Get student's full name and UID
-        String studentFullName =
-            '${widget.studentData['first_name']} ${widget.studentData['last_name']}';
-        String studentUID =
-            widget.studentData['uid']; // Assuming uid is part of studentData
+      // Get student's full name and UID
+      String studentFullName =
+          '${widget.studentData['first_name']} ${widget.studentData['last_name']}';
+      String studentUID =
+          widget.studentData['uid']; // Assuming uid is part of studentData
 
-        // Create a new collection for the strand
-        CollectionReference quarterCollection =
-            FirebaseFirestore.instance.collection(quarter + ' ' + 'Quarter');
+      // Create a new collection for the strand
+      CollectionReference quarterCollection =
+          FirebaseFirestore.instance.collection(quarter + ' ' + 'Quarter');
 
-        // Create or reference the document for the seniorHigh_Strand
-        DocumentReference quarterDocument =
-            quarterCollection.doc(educLevel);
+      // Create or reference the document for the seniorHigh_Strand
+      DocumentReference quarterDocument = quarterCollection.doc(educLevel);
 
-        // Prepare the data to save
-        List<Map<String, dynamic>> gradesToSave = subjects.map((subject) {
+      // Prepare the data to save
+      List<Map<String, dynamic>> gradesToSave = subjects.map((subject) {
+        // Calculate the average for MAPEH if the subject is MAPEH
+        if (subject['subject_name'] == 'MAPEH') {
+          // Fetch grades for Music, Arts, Physical Education, and Health
+          var musicGrade = double.tryParse(subject['sub_subjects']['Music'] ?? '0');
+          var artsGrade = double.tryParse(subject['sub_subjects']['Arts'] ?? '0');
+          var peGrade = double.tryParse(subject['sub_subjects']['Physical Education'] ?? '0');
+          var healthGrade = double.tryParse(subject['sub_subjects']['Health'] ?? '0');
+          
+          // Calculate average if all grades are available
+          double average = 0.0;
+          if (musicGrade != null && artsGrade != null && peGrade != null && healthGrade != null) {
+            average = (musicGrade + artsGrade + peGrade + healthGrade) / 4;
+          }
+
+          // Save the MAPEH grades including the average
           return {
             'student_id': widget.studentData['student_id'],
             'full_name': studentFullName,
             'uid': studentUID, // Include UID here
-            'subject_name': subject['subject_name'],
-            'grade': subject['grade'],
-            'quarter': quarter,
-          };
-        }).toList();
-
-        // Save the grades to the nested document named after the student's full name
-        await quarterDocument.set(
-            {
-              studentFullName: {
-                'grades': gradesToSave,
-              },
+            'subject_name': 'MAPEH',  // Subject name will be MAPEH
+            'grade': average.toStringAsFixed(2),  // Store the average as the grade
+            'sub_subjects': {
+              'Music': subject['sub_subjects']['Music'],
+              'Arts': subject['sub_subjects']['Arts'],
+              'Physical Education': subject['sub_subjects']['Physical Education'],
+              'Health': subject['sub_subjects']['Health'],
             },
-            SetOptions(
-                merge:
-                    true)); // Merge to update existing grades if the document already exists
+            'quarter': quarter,
+            'average': average.toStringAsFixed(2), // Include the calculated average
+          };
+        }
+
+        // For non-MAPEH subjects, just store the grade
+        return {
+          'student_id': widget.studentData['student_id'],
+          'full_name': studentFullName,
+          'uid': studentUID, // Include UID here
+          'subject_name': subject['subject_name'],
+          'grade': subject['grade'],
+          'quarter': quarter,
+        };
+      }).toList();
+
+      // Save the grades to the nested document named after the student's full name
+      await quarterDocument.set(
+          {
+            studentFullName: {
+              'grades': gradesToSave,
+            },
+          },
+          SetOptions(
+              merge: true)); // Merge to update existing grades if the document already exists
 
         // Optionally, show a success message
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -170,8 +201,9 @@ class _JHSSubjectandGradeState extends State<JHSSubjectandGrade> {
       print('First Name: $_firstName, Last Name: $_lastName');
       String sectionName = userData['section'] ?? '';
       String quarter = userData['quarter'] ?? '';
-            String educ_level = userData['educ_level'] ?? '';
+      String gradeLevel = userData['grade_level'] ?? '';
 
+      String educ_level = userData['educ_level'] ?? '';
 
       // Combine first and last names to create full name
       String studentFullName =
@@ -199,17 +231,35 @@ class _JHSSubjectandGradeState extends State<JHSSubjectandGrade> {
             .collection('subjects')
             .where('quarter', isEqualTo: quarter)
             .where('educ_level', isEqualTo: educ_level)
+            .where('grade_level', isEqualTo: gradeLevel)
             .get();
+            
+        subjectsSnapshot.docs.forEach((doc) {
+          print(doc.data()); // This will show you the entire document data
+           if (doc['subject_name'] == 'MAPEH') {
+    print('MAPEH sub_subjects: ${doc['sub_subjects']}');
+}
+
+        });
 
         print('Number of subjects found: ${subjectsSnapshot.docs.length}');
 
         // Store subjects in the list
-        subjects = subjectsSnapshot.docs.map((doc) {
-          return {
-            'subject_name': doc['subject_name'],
-            'grade': '', // Initialize with an empty string
-          };
-        }).toList();
+       subjects = subjectsSnapshot.docs.map((doc) {
+  // Check if the subject is MAPEH
+  if (doc['subject_name'] == 'MAPEH') {
+    return {
+      'subject_name': doc['subject_name'],
+      'sub_subjects': doc['sub_subjects'], // Only include sub_subjects for MAPEH
+      'grade': '', // Initialize with an empty string
+    };
+  } else {
+    return {
+      'subject_name': doc['subject_name'],
+      'grade': '', // Initialize with an empty string
+    };
+  }
+}).toList();
 
         // Now, fetch the existing grades for the student
         String studentUID = userData['uid']; // Get the UID from userData
@@ -241,12 +291,18 @@ class _JHSSubjectandGradeState extends State<JHSSubjectandGrade> {
               );
 
               if (existingGrade != null) {
-                subject['grade'] =
-                    existingGrade['grade']; // Assign existing grade
-              }
-            }
-          }
+        // If subject is MAPEH, include sub_subjects
+        if (subject['subject_name'] == 'MAPEH') {
+          subject['sub_subjects'] = existingGrade['sub_subjects'] ?? {};
+                    subject['average'] = existingGrade['average'] ?? 'Not Available';
+
+        } else {
+          subject['grade'] = existingGrade['grade']; // Assign existing grade for non-MAPEH subjects
         }
+      }
+    }
+  }
+}
 
         // Initialize editing states
         isEditing = List<bool>.filled(subjects.length, false);
@@ -272,6 +328,41 @@ class _JHSSubjectandGradeState extends State<JHSSubjectandGrade> {
       });
     }
   }
+  
+
+  void calculateAverage(int index) {
+  // Ensure that all four sub-subjects have valid grades
+  var grades = [
+    subjects[index]['sub_subjects']['Music'],
+    subjects[index]['sub_subjects']['Arts'],
+    subjects[index]['sub_subjects']['Physical Education'],
+    subjects[index]['sub_subjects']['Health']
+  ];
+
+  // Convert grades to numbers and filter out any null or non-numeric values
+  var validGrades = grades
+      .map((e) => double.tryParse(e ?? '')) // Use null-coalescing operator to handle null
+      .where((e) => e != null)  // Filter out null values
+      .toList();
+
+  // If there are valid grades, calculate the average
+  if (validGrades.length == 4) {
+    // Sum all valid grades and calculate the average
+    double sum = validGrades.fold(0.0, (acc, grade) => acc + (grade ?? 0));
+    double average = sum / 4;
+
+    // Store the result (average) in the subjects list
+    setState(() {
+      subjects[index]['average'] = average.toStringAsFixed(2); // Store average in the 'average' field
+    });
+  } else {
+    // If not all grades are filled, show 'Not Available'
+    setState(() {
+      subjects[index]['average'] = 'Not Available';
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -543,52 +634,133 @@ class _JHSSubjectandGradeState extends State<JHSSubjectandGrade> {
 
                                     // Data Rows
                                     ...List.generate(subjects.length, (index) {
-                                      return TableRow(
-                                        children: [
-                                          TableCell(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(subjects[index]
-                                                      ['subject_name'] ??
-                                                  'No Subject'), // Display subject name
-                                            ),
-                                          ),
-                                          TableCell(
-                                            child: isEditing[index]
-                                                ? CupertinoTextField(
-                                                    keyboardType:
-                                                        TextInputType.number,
-                                                    placeholder: subjects[index]
-                                                            ['grade'] ??
-                                                        'Enter Grade',
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        subjects[index]
-                                                                ['grade'] =
-                                                            value; // Update grade in subjects list
-                                                      });
-                                                    },
-                                                  )
-                                                : GestureDetector(
-                                                    onTap: () =>
-                                                        toggleEdit(index),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Text(
-                                                        subjects[index]
-                                                                ['grade'] ??
-                                                            'No Grade',
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors.black87,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                          ),
+                    return TableRow(
+                      children: [
+                        TableCell(
+  child: Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Display the subject name
+        Text(subjects[index]['subject_name'] ?? 'No Subject'),
+
+        // Check if the subject is "MAPEH"
+        if (subjects[index]['subject_name'] == 'MAPEH') ...[
+          // Display MAPEH header
+          SizedBox(height: 4),
+
+          // Display the sub-subjects (Music, Arts, Physical Education, Health)
+          Text('Music'),
+          if (isEditing[index])
+            CupertinoTextField(
+              keyboardType: TextInputType.number,
+              placeholder: 'Enter Grade',
+              onChanged: (value) {
+                setState(() {
+                  subjects[index]['sub_subjects']['Music'] = value;
+                  calculateAverage(index); // Recalculate average after grade input
+                });
+              },
+            )
+          else
+            Text(subjects[index]['sub_subjects']['Music'] ?? 'Enter Grade'),
+
+          Text('Arts'),
+          if (isEditing[index])
+            CupertinoTextField(
+              keyboardType: TextInputType.number,
+              placeholder: 'Enter Grade',
+              onChanged: (value) {
+                setState(() {
+                  subjects[index]['sub_subjects']['Arts'] = value;
+                  calculateAverage(index); // Recalculate average after grade input
+                });
+              },
+            )
+          else
+            Text(subjects[index]['sub_subjects']['Arts'] ?? 'Enter Grade'),
+
+          Text('Physical Education'),
+          if (isEditing[index])
+            CupertinoTextField(
+              keyboardType: TextInputType.number,
+              placeholder: 'Enter Grade',
+              onChanged: (value) {
+                setState(() {
+                  subjects[index]['sub_subjects']['Physical Education'] = value;
+                  calculateAverage(index); // Recalculate average after grade input
+                });
+              },
+            )
+          else
+            Text(subjects[index]['sub_subjects']['Physical Education'] ?? 'Enter Grade'),
+
+          Text('Health'),
+          if (isEditing[index])
+            CupertinoTextField(
+              keyboardType: TextInputType.number,
+              placeholder: 'Enter Grade',
+              onChanged: (value) {
+                setState(() {
+                  subjects[index]['sub_subjects']['Health'] = value;
+                  calculateAverage(index); // Recalculate average after grade input
+                });
+              },
+            )
+          else
+            Text(subjects[index]['sub_subjects']['Health'] ?? 'Enter Grade'),
+
+          // Display the average grade (for MAPEH)
+          SizedBox(height: 8),
+        ]
+      ],
+    ),
+  ),
+),
+
+
+                        TableCell(
+  child: subjects[index]['subject_name'] == 'MAPEH'
+      // If subject is MAPEH, do not show grade input
+      ? Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+  'Average: ${subjects[index]['average'] ?? 'Not Available'}',
+  style: TextStyle(
+    fontSize: 16,
+    color: Colors.black87,
+  ),
+),
+
+
+        )
+      // Otherwise, allow grade input or display the grade
+      : isEditing[index]
+          ? CupertinoTextField(
+              keyboardType: TextInputType.number,
+              placeholder: subjects[index]['grade'] ?? 'Enter Grade',
+              onChanged: (value) {
+                setState(() {
+                  subjects[index]['grade'] = value;
+                });
+              },
+            )
+          : GestureDetector(
+              onTap: () => toggleEdit(index), // Toggle edit mode on tap
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  subjects[index]['grade'] ?? 'No Grade', // Display current grade
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+)
+
                                         ],
                                       );
                                     }),
