@@ -5664,8 +5664,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    return Stack(
-      children: [
+    return 
         Container(
           color: Colors.grey[300],
           child: Column(
@@ -5965,9 +5964,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
         AnimatedSwitcher(
           duration: Duration(milliseconds: 550),
           child: _showAddSubjects
@@ -6047,8 +6043,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 )
               : SizedBox.shrink(),
         )
-      ],
-    );
+      
+            ]),
+        );
   }
 
   Widget _buildJuniorManageTeachers() {
