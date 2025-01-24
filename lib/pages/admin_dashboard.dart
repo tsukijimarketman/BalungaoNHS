@@ -4663,152 +4663,139 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       final pdf = pw.Document();
 
                       pdf.addPage(
-                        pw.Page(
-                          pageFormat: PdfPageFormat.a4.landscape,
-                          build: (pw.Context context) {
-                            return pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                pw.Text(
-                                  'Student Grades \n$instructorSubjectName',
-                                  style: pw.TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: pw.FontWeight.bold),
-                                ),
-                                pw.SizedBox(height: 20),
-                                pw.Table(
-                                  border: pw.TableBorder.all(),
-                                  columnWidths: {
-                                    0: pw.FlexColumnWidth(2),
-                                    1: pw.FlexColumnWidth(2),
-                                    2: pw.FlexColumnWidth(2),
-                                    3: pw.FlexColumnWidth(2),
-                                    4: pw.FlexColumnWidth(2),
-                                    5: pw.FlexColumnWidth(3),
-                                    if (isSeniorHighSchool)
-                                      6: pw.FlexColumnWidth(2),
-                                    7: pw.FlexColumnWidth(1),
-                                  },
-                                  children: [
-                                    pw.TableRow(
-                                      decoration: pw.BoxDecoration(
-                                          color: PdfColors.grey300),
-                                      children: [
-                                        pw.Padding(
-                                          padding: const pw.EdgeInsets.all(4),
-                                          child: pw.Text('Student ID',
-                                              style: pw.TextStyle(
-                                                  fontWeight:
-                                                      pw.FontWeight.bold)),
-                                        ),
-                                        pw.Padding(
-                                          padding: const pw.EdgeInsets.all(4),
-                                          child: pw.Text('First Name',
-                                              style: pw.TextStyle(
-                                                  fontWeight:
-                                                      pw.FontWeight.bold)),
-                                        ),
-                                        pw.Padding(
-                                          padding: const pw.EdgeInsets.all(4),
-                                          child: pw.Text('Last Name',
-                                              style: pw.TextStyle(
-                                                  fontWeight:
-                                                      pw.FontWeight.bold)),
-                                        ),
-                                        pw.Padding(
-                                          padding: const pw.EdgeInsets.all(4),
-                                          child: pw.Text('Middle Name',
-                                              style: pw.TextStyle(
-                                                  fontWeight:
-                                                      pw.FontWeight.bold)),
-                                        ),
-                                        pw.Padding(
-                                          padding: const pw.EdgeInsets.all(4),
-                                          child: pw.Text('Section',
-                                              style: pw.TextStyle(
-                                                  fontWeight:
-                                                      pw.FontWeight.bold)),
-                                        ),
-                                        pw.Padding(
-                                          padding: const pw.EdgeInsets.all(4),
-                                          child: pw.Text('Subject Name',
-                                              style: pw.TextStyle(
-                                                  fontWeight:
-                                                      pw.FontWeight.bold)),
-                                        ),
-                                        if (isSeniorHighSchool)
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child: pw.Text('Subject Code',
-                                                style: pw.TextStyle(
-                                                    fontWeight:
-                                                        pw.FontWeight.bold)),
-                                          ),
-                                        pw.Padding(
-                                          padding: const pw.EdgeInsets.all(4),
-                                          child: pw.Text('Grade',
-                                              style: pw.TextStyle(
-                                                  fontWeight:
-                                                      pw.FontWeight.bold)),
-                                        ),
-                                      ],
-                                    ),
-                                    ...studentsToInclude.map((student) {
-                                      return pw.TableRow(
-                                        children: [
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child: pw.Text(
-                                                student['student_id'] ?? ''),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child: pw.Text(
-                                                student['first_name'] ?? ''),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child: pw.Text(
-                                                student['last_name'] ?? ''),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child: pw.Text(
-                                                student['middle_name'] ?? ''),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child: pw.Text(
-                                                student['section'] ?? ''),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child: pw.Text(
-                                                student['subject_Name'] ?? ''),
-                                          ),
-                                          if (isSeniorHighSchool)
-                                            pw.Padding(
-                                              padding:
-                                                  const pw.EdgeInsets.all(4),
-                                              child: pw.Text(
-                                                  student['subject_Code'] ??
-                                                      ''),
-                                            ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(4),
-                                            child:
-                                                pw.Text(student['Grade'] ?? ''),
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
-                                  ],
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      );
+  pw.MultiPage(
+    pageFormat: PdfPageFormat.a4.landscape,
+    build: (pw.Context context) {
+      return [
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'Student Grades \n$instructorSubjectName',
+              style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Table(
+              border: pw.TableBorder.all(),
+              columnWidths: {
+                0: pw.FlexColumnWidth(2),
+                1: pw.FlexColumnWidth(2),
+                2: pw.FlexColumnWidth(2),
+                3: pw.FlexColumnWidth(2),
+                4: pw.FlexColumnWidth(2),
+                5: pw.FlexColumnWidth(3),
+                if (isSeniorHighSchool) 6: pw.FlexColumnWidth(2),
+                7: pw.FlexColumnWidth(1),
+              },
+              children: [
+                pw.TableRow(
+                  decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Student ID',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('First Name',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Last Name',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Middle Name',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Section',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Subject Name',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    if (isSeniorHighSchool)
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text('Subject Code',
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Grade',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+        pw.SizedBox(height: 10),
+        pw.Table(
+          border: pw.TableBorder.all(),
+          columnWidths: {
+            0: pw.FlexColumnWidth(2),
+            1: pw.FlexColumnWidth(2),
+            2: pw.FlexColumnWidth(2),
+            3: pw.FlexColumnWidth(2),
+            4: pw.FlexColumnWidth(2),
+            5: pw.FlexColumnWidth(3),
+            if (isSeniorHighSchool) 6: pw.FlexColumnWidth(2),
+            7: pw.FlexColumnWidth(1),
+          },
+          children: studentsToInclude.map((student) {
+            return pw.TableRow(
+              children: [
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Text(student['student_id'] ?? ''),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Text(student['first_name'] ?? ''),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Text(student['last_name'] ?? ''),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Text(student['middle_name'] ?? ''),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Text(student['section'] ?? ''),
+                ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Text(student['subject_Name'] ?? ''),
+                ),
+                if (isSeniorHighSchool)
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(4),
+                    child: pw.Text(student['subject_Code'] ?? ''),
+                  ),
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(4),
+                  child: pw.Text(student['Grade'] ?? ''),
+                ),
+              ],
+            );
+          }).toList(),
+        ),
+      ];
+    },
+  ),
+);
+
 
                       final pdfBytes = await pdf.save();
                       await Printing.sharePdf(
