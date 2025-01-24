@@ -6104,7 +6104,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 ),
               ),
-              Card(
+              Expanded(
+                child: Card(
                   margin: EdgeInsets.all(16),
                   elevation: 10,
                   child: Padding(
@@ -6354,7 +6355,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     ),
                   ),
                 ),
-             
+              ),
             ],
           ),
         ),
