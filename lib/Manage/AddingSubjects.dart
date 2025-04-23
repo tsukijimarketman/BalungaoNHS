@@ -330,7 +330,7 @@ class _AddSubjectsFormState extends State<AddSubjectsForm> {
                             labelText: 'Course',
                             border: OutlineInputBorder(),
                           ),
-                          items: ['--', 'ABM', 'STEM', 'HUMSS', 'ICT', 'HE', 'IA']
+                          items: ['--', 'ABM', 'STEM', 'HUMSS', 'ICT', 'CO']
                               .map((strandcourse) => DropdownMenuItem<String>(
                                     value: strandcourse,
                                     child: Text(strandcourse),

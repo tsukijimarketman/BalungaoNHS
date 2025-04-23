@@ -481,10 +481,11 @@ Widget _buildDetailRow(IconData icon, String title, String value) {
   final pdf = pw.Document();
   
   pdf.addPage(
-    pw.Page(
-      pageFormat: PdfPageFormat.a4.landscape,
-      build: (context) {
-        return pw.Column(
+  pw.MultiPage(
+    pageFormat: PdfPageFormat.a4.landscape,
+    build: (context) {
+      return [
+        pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
             pw.Text(
@@ -497,43 +498,43 @@ Widget _buildDetailRow(IconData icon, String title, String value) {
               style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.normal),
             ),
             pw.SizedBox(height: 20),
-            pw.Table.fromTextArray(
-              headers: ['Subject Name', 'Grade'],
-              data: subjects.map((grade) {
-                return [
-                  grade['subject_name'] ?? '',
-                  grade['grade'] ?? '',
-                ];
-              }).toList(),
-            ),
-            pw.SizedBox(height: 40), // Add space before the principal section
-              pw.Align(
-                alignment: pw.Alignment.centerRight,
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.center,
-                  children: [
-                    pw.Text(
-                      'Urbano Delos Angeles IV',
-                      style: pw.TextStyle(
-                          fontSize: 14, fontWeight: pw.FontWeight.bold),
-                    ),
-                    pw.Container(
-                      width: 150,
-                      child: pw.Divider(thickness: 1),
-                    ),
-                    pw.Text(
-                      'SCHOOL PRINCIPAL',
-                      style: pw.TextStyle(
-                          fontSize: 12, fontStyle: pw.FontStyle.italic),
-                    ),
-                  ],
-                ),
-              ),
           ],
-        );
-      },
-    ),
-  );
+        ),
+        pw.Table.fromTextArray(
+          headers: ['Subject Name', 'Grade'],
+          data: subjects.map((grade) {
+            return [
+              grade['subject_name'] ?? '',
+              grade['grade'] ?? '',
+            ];
+          }).toList(),
+        ),
+        pw.SizedBox(height: 40), // Add space before the principal section
+        pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              pw.Text(
+                'Urbano Delos Angeles IV',
+                style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Container(
+                width: 150,
+                child: pw.Divider(thickness: 1),
+              ),
+              pw.Text(
+                'SCHOOL PRINCIPAL',
+                style: pw.TextStyle(fontSize: 12, fontStyle: pw.FontStyle.italic),
+              ),
+            ],
+          ),
+        ),
+      ];
+    },
+  ),
+);
+
 
   final pdfBytes = await pdf.save();
       await Printing.sharePdf(
