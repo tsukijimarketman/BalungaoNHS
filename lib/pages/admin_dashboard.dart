@@ -3796,14 +3796,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     final data = student.data() as Map<String, dynamic>;
                     final query = _searchQuery.toLowerCase();
 
-                    final studentId = data['student_id']?.toLowerCase() ?? '';
-                    final firstName = data['first_name']?.toLowerCase() ?? '';
-                    final lastName = data['last_name']?.toLowerCase() ?? '';
-                    final middleName = data['middle_name']?.toLowerCase() ?? '';
-                    final track = data['seniorHigh_Track']?.toLowerCase() ?? '';
-                    final strand =
-                        data['seniorHigh_Strand']?.toLowerCase() ?? '';
-                    final educLevel = data['educ_level']?.toLowerCase() ??
+                  final studentId = (data['student_id'] ?? '').toString().toLowerCase();
+                  final firstName = (data['first_name'] ?? '').toString().toLowerCase();
+                  final lastName = (data['last_name'] ?? '').toString().toLowerCase();
+                  final middleName = (data['middle_name'] ?? '').toString().toLowerCase();
+                  final track = (data['seniorHigh_Track'] ?? '').toString().toLowerCase();
+                  final strand = (data['seniorHigh_Strand'] ?? '').toString().toLowerCase();
+                    final educLevel = (data['educ_level'] ?? '').toString().toLowerCase();
                         ''; // Define educ_level here
 
                     final fullName = '$firstName $middleName $lastName';
@@ -3823,8 +3822,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             Expanded(child: Text('Student ID')),
                             Expanded(child: Text('Name')),
                             if (students.isNotEmpty &&
-                                students.first.data()['educ_level'] ==
-                                    'Senior High School') ...[
+                                (students.first.data()['educ_level'] ?? '') == 'Senior High School') ...[
                               Expanded(child: Text('Track')),
                               Expanded(child: Text('Strand')),
                             ],
@@ -3840,7 +3838,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           return GestureDetector(
                             onTap: () {
                               // Get the educ_level value
-                              final educLevel = data['educ_level'] ?? '';
+                              final educLevel = (data['educ_level'] ?? '').toString();
 
                               // Check the educ_level and navigate accordingly
                               if (educLevel == 'Junior High School') {
@@ -3871,7 +3869,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 Expanded(
                                     child: Text(
                                         '${data['first_name'] ?? ''} ${data['middle_name'] ?? ''} ${data['last_name'] ?? ''}')),
-                                if (data['educ_level'] ==
+                                if ((data['educ_level'] ?? '' ) ==
                                     'Senior High School') ...[
                                   Expanded(
                                       child:
